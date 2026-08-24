@@ -14,8 +14,8 @@ Status key: ✅ done · 🔄 in progress · ⬜ not started
 
 ## Phase 2 — Domain core (pure Actions, fully unit-tested, no Telegram coupling)
 - ✅ **Domain Task 1 — challenge core: backed enums, schema, models, factories**
-- ⬜ Economy + infra schema (`CoinTransaction`, `Entitlement`, `Invite`, `StarPayment`, `TelegramUpdate`,
-  `BotConversation`, `ReminderDispatch`)
+- ✅ **Domain Task 2 — economy + infra schema** (`CoinTransaction`, `Entitlement`, `Invite`, `StarPayment`,
+  `TelegramUpdate`, `BotConversation`, `ReminderDispatch`)
 - ⬜ `CoinLedger` service (locked, transactional, idempotency-keyed)
 - ⬜ Entitlement grant/consume
 - ⬜ Period materialisation (all six `period_type`)
@@ -349,3 +349,84 @@ code was written.
 `idempotency_key`, `Entitlement`, `Invite`, `StarPayment` unique on `telegram_payment_charge_id`,
 `TelegramUpdate` unique on `update_id`, `BotConversation`, `ReminderDispatch` unique on
 `(participant, period, kind)`).
+
+---
+
+### Domain Task 2 — economy + infra schema: enums, migrations, models, factories ✅
+
+Seven tables, seven backed enums, seven models, seven factories. Every one of the four idempotency keys named
+in `CLAUDE.md` now exists as a real database constraint rather than an intention.
+
+**Enums.** `CoinTransactionReason` (9), `EntitlementType`, `EntitlementSource`, `InviteStatus`,
+`StarPaymentStatus`, `ReminderKind`, `ConversationState` (12).
+
+**Decisions and assumptions**
+
+- **The sign of a transaction is a property of its reason, not a caller argument.**
+  `CoinTransactionReason::sign()` returns `±1` and `CoinLedger` (Task 3) will multiply an *absolute* magnitude
+  by it. That is why admin adjustments are **two cases** — `AdminCredit` / `AdminDebit` — rather than one
+  signed "adjustment": with a single case, a mistyped minus in a controller could mint coins.
+  `CoinTransaction::hasConsistentSign()` is the read-side assertion that catches any row written around the
+  ledger, and it deliberately treats `amount === 0` as inconsistent — a no-op entry is a bug, not a balance.
+- **The ledger is append-only by convention, not by trigger.** Nothing in the app updates or deletes a row; a
+  mistake is corrected with a compensating entry. Enforcing it in MySQL would also block `migrate:fresh`, and
+  the value is in the convention being followed, which tests can assert.
+- **Invite codes are single-use, and a user is attributable to at most one inviter for life.** `code` is
+  unique (as `CLAUDE.md` specifies) *and* `invited_user_id` is unique. The second index is the structural half
+  of "an invite credits coins only if the invited user is brand-new": even if the runtime check in Task 7 were
+  bypassed, the database refuses to attribute the same person twice. Nullable, so unclaimed codes coexist
+  (repeated `NULL`s under a MySQL unique index).
+- **`InviteStatus` separates `Claimed` from `Credited`.** An invite used by someone who *already had* an
+  account is attributed but unpaid. Collapsing the two would make "used but unpaid" indistinguishable from
+  "never used", and the inviter would rightly ask why they weren't paid.
+- **`star_payments` gained `paid_at` and `refunded_at`, beyond `CLAUDE.md`'s field list.** `status` alone
+  cannot answer "when did this reverse?", which the refund path needs to be idempotent and support needs to
+  answer. `telegram_payment_charge_id` is **nullable** unique: an invoice exists before Telegram issues a
+  charge id, so the row is written at `createInvoiceLink` time and the id arrives with `successful_payment`.
+  Hence `isRefundable()` requires *both* a paid status and a charge id — `refundStarPayment` needs the id, so
+  a paid row without one cannot be refunded through the API and must not be advertised as refundable.
+- **`invoice_payload` is unique too.** It is the only handle we control end-to-end, and it is what a
+  `pre_checkout_query` carries back — the lookup key before a charge id exists.
+- **Credit and refund idempotency keys are deliberately distinct** (`star_payment:credit:<id>` vs
+  `star_payment:refund:<id>`). A refund has to be able to write even though the credit already did; one shared
+  key would make the reversal a silent no-op.
+- **`coin_amount` is frozen on the row at invoice time.** Deriving it from the `stars_packages` setting at
+  credit time would let an admin re-pricing retroactively change what someone already paid for.
+- **`TelegramUpdate::kind()` is derived, not stored.** Telegram owns that vocabulary and keeps adding to it; a
+  column would need a migration to keep up. `fromTelegramId()` is documented as **lookup only** — trusting it
+  for authorization would be trusting the request body, and every surface re-resolves the actor server-side.
+- **`bot_conversations.user_id` is unique — one live flow per user.** Starting a new wizard replaces the old
+  one, which matches how a chat actually behaves: there is one thread, so there is one place in it.
+  `advanceTo()` **merges** rather than replaces the payload, so a step can be revisited without losing the
+  answers gathered around it.
+- **No `Idle` conversation state.** Absence of a row means idle. A row that says "nothing is happening" is a
+  row that gets left behind, and then the next message gets fed into a dead wizard.
+- **`ConversationState` is the one domain enum that is *not* translated.** These states are internal
+  machinery, never shown; the prompts a user sees are separate lang lines chosen by the wizard. A test asserts
+  `label()` does **not** exist on it, so adding one is a deliberate act rather than a copy-paste.
+- **`ReminderKind::skipWhenSettled()` is true only for `PeriodEnding`.** There is no point telling someone
+  their period is closing when they have already checked in — but "the challenge is starting" and "a new
+  period opened" are still worth sending.
+- **`entitlements.challenge_id` is `nullOnDelete`, and `consumed_at` survives it.** The slot was spent either
+  way; clearing the spend along with the challenge would hand the slot back for free.
+- `coin_transactions` carries `(user_id, id)` for the statement query and `(user_id, reason)` for
+  admin filtering; `reminder_dispatches` carries `(scheduled_for, sent_at)` for the dispatch sweep.
+
+**Tests — 110 new (`tests/Feature/Domain/EconomySchemaTest.php`), 301 assertions.** Every unique index is
+asserted to actually bite: `coin_transactions.idempotency_key`, `invites.code`, `invites.invited_user_id`,
+`star_payments.telegram_payment_charge_id`, `star_payments.invoice_payload`, `telegram_updates.update_id`,
+`bot_conversations.user_id`, and the composite `(participant, period, kind)` — plus the counterpart proof that
+repeated `NULL`s coexist under the nullable ones, since three of these designs depend on it. Datasets cover
+the sign of all nine ledger reasons, the input each of the twelve conversation states expects, payment
+terminality and reminder suppression. The `hasConsistentSign()` and zero-amount cases fabricate corrupt rows
+on purpose, to prove the predicate names corruption rather than assuming it away.
+
+**Result — `sail composer ci:check` GREEN:** eslint ✓, prettier ✓, `tsc --noEmit` ✓, pint ✓,
+phpstan lvl 7 (0 errors) ✓, tests **328 (324 pass, 4 skipped = Fortify 2FA disabled)**, +110 from this task.
+All seven migrations verified to reverse cleanly (`migrate:rollback --step=7` then `migrate`) before any model
+code was written.
+
+**Next:** Domain Task 3 — the `CoinLedger` service: one entry point for every coin mutation, inside a
+transaction, with `lockForUpdate()` on the user row and a required `idempotency_key`. Balance derived from the
+ledger and reconciled against it, never a bare mutable integer. Needs the §6 **coin-concurrency test** — real
+parallel writers against MySQL, asserting no lost update and no double credit on a replayed key.

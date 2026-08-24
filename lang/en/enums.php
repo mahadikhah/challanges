@@ -56,4 +56,46 @@ return [
         'frozen' => 'Frozen',
     ],
 
+    'coin_transaction_reason' => [
+        'stars_purchase' => 'Coins purchased with Stars',
+        'invite_credit' => 'Invite reward',
+        'challenge_completion' => 'Challenge completed',
+        'admin_credit' => 'Added by an admin',
+        'create_slot_purchase' => 'Extra challenge to create',
+        'join_slot_purchase' => 'Extra challenge to join',
+        'freeze_purchase' => 'Extra freeze',
+        'stars_refund' => 'Purchase refunded',
+        'admin_debit' => 'Removed by an admin',
+    ],
+
+    'entitlement_type' => [
+        'create_slot' => 'Challenge to create',
+        'join_slot' => 'Challenge to join',
+    ],
+
+    'entitlement_source' => [
+        'free_baseline' => 'Included',
+        'coin_purchase' => 'Bought with coins',
+        'admin_grant' => 'Granted by an admin',
+    ],
+
+    'invite_status' => [
+        'pending' => 'Not used yet',
+        'claimed' => 'Used by an existing member',
+        'credited' => 'Used — you earned coins',
+    ],
+
+    'star_payment_status' => [
+        'pending' => 'Awaiting payment',
+        'paid' => 'Paid',
+        'refunded' => 'Refunded',
+        'failed' => 'Failed',
+    ],
+
+    'reminder_kind' => [
+        'challenge_starting' => 'Challenge starting',
+        'period_opened' => 'Check-in due',
+        'period_ending' => 'Last chance to check in',
+    ],
+
 ];

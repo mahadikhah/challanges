@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -47,6 +48,12 @@ use Illuminate\Notifications\Notifiable;
  * @property-read Collection<int, User> $referrals
  * @property-read Collection<int, Challenge> $createdChallenges
  * @property-read Collection<int, ChallengeParticipant> $participations
+ * @property-read Collection<int, CoinTransaction> $coinTransactions
+ * @property-read Collection<int, Entitlement> $entitlements
+ * @property-read Collection<int, Invite> $sentInvites
+ * @property-read Invite|null $claimedInvite
+ * @property-read Collection<int, StarPayment> $starPayments
+ * @property-read BotConversation|null $conversation
  */
 /*
 | `is_admin` and `channel_verified_at` are deliberately *not* fillable. Both are
@@ -104,6 +111,68 @@ class User extends Authenticatable implements HasLocalePreference
     public function participations(): HasMany
     {
         return $this->hasMany(ChallengeParticipant::class);
+    }
+
+    /**
+     * The coin ledger for this user, newest entry first.
+     *
+     * @return HasMany<CoinTransaction, $this>
+     */
+    public function coinTransactions(): HasMany
+    {
+        return $this->hasMany(CoinTransaction::class)->orderByDesc('id');
+    }
+
+    /**
+     * @return HasMany<Entitlement, $this>
+     */
+    public function entitlements(): HasMany
+    {
+        return $this->hasMany(Entitlement::class);
+    }
+
+    /**
+     * Invite codes this user has minted.
+     *
+     * @return HasMany<Invite, $this>
+     */
+    public function sentInvites(): HasMany
+    {
+        return $this->hasMany(Invite::class, 'inviter_id');
+    }
+
+    /**
+     * The invite this user arrived through, if any.
+     *
+     * `hasOne` because `invites.invited_user_id` is unique: a user can be
+     * attributed to at most one inviter, for their whole life.
+     *
+     * @return HasOne<Invite, $this>
+     */
+    public function claimedInvite(): HasOne
+    {
+        return $this->hasOne(Invite::class, 'invited_user_id');
+    }
+
+    /**
+     * @return HasMany<StarPayment, $this>
+     */
+    public function starPayments(): HasMany
+    {
+        return $this->hasMany(StarPayment::class);
+    }
+
+    /**
+     * The bot flow this user is currently in, if any.
+     *
+     * `hasOne` because `bot_conversations.user_id` is unique — a user is in at
+     * most one wizard at a time.
+     *
+     * @return HasOne<BotConversation, $this>
+     */
+    public function conversation(): HasOne
+    {
+        return $this->hasOne(BotConversation::class);
     }
 
     /**

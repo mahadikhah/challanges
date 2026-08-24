@@ -56,4 +56,46 @@ return [
         'frozen' => 'فریز شد',
     ],
 
+    'coin_transaction_reason' => [
+        'stars_purchase' => 'خرید سکه با استارز',
+        'invite_credit' => 'پاداش دعوت',
+        'challenge_completion' => 'تکمیل چالش',
+        'admin_credit' => 'افزوده‌شده توسط مدیر',
+        'create_slot_purchase' => 'ظرفیت ساخت چالش',
+        'join_slot_purchase' => 'ظرفیت عضویت در چالش',
+        'freeze_purchase' => 'فریز اضافه',
+        'stars_refund' => 'بازگشت وجه خرید',
+        'admin_debit' => 'کم‌شده توسط مدیر',
+    ],
+
+    'entitlement_type' => [
+        'create_slot' => 'ظرفیت ساخت چالش',
+        'join_slot' => 'ظرفیت عضویت در چالش',
+    ],
+
+    'entitlement_source' => [
+        'free_baseline' => 'رایگان',
+        'coin_purchase' => 'خریداری‌شده با سکه',
+        'admin_grant' => 'اهدای مدیر',
+    ],
+
+    'invite_status' => [
+        'pending' => 'استفاده نشده',
+        'claimed' => 'کاربر قبلاً عضو بوده',
+        'credited' => 'استفاده شد — سکه گرفتید',
+    ],
+
+    'star_payment_status' => [
+        'pending' => 'در انتظار پرداخت',
+        'paid' => 'پرداخت شد',
+        'refunded' => 'بازگشت داده شد',
+        'failed' => 'ناموفق',
+    ],
+
+    'reminder_kind' => [
+        'challenge_starting' => 'شروع چالش',
+        'period_opened' => 'زمان ثبت فعالیت',
+        'period_ending' => 'آخرین فرصت ثبت فعالیت',
+    ],
+
 ];

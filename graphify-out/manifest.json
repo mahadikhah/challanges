@@ -75,8 +75,8 @@
     "semantic_hash": "28f0ef771e78133e6ac4ca7c1a3887c2"
   },
   "app/Models/User.php": {
-    "mtime": 1787604670.493023,
-    "ast_hash": "7beb8e35763707f15160ee609b5e3054",
+    "mtime": 1787606056.8289871,
+    "ast_hash": "0b02fac396a53321e27c48c305e123d2",
     "semantic_hash": ""
   },
   "app/Providers/AppServiceProvider.php": {
@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "prompts/progress.md": {
-    "mtime": 1787603139.1105318,
-    "ast_hash": "3325da3360163bb12a04810004693638",
+    "mtime": 1787605173.262335,
+    "ast_hash": "54e97ebe412af5b777ae8a3e196fad54",
     "semantic_hash": ""
   },
   "prompts/task-01-setup.md": {
@@ -1255,18 +1255,18 @@
     "semantic_hash": ""
   },
   "app/Models/Challenge.php": {
-    "mtime": 1787604599.5887015,
+    "mtime": 1787606087.1614048,
     "ast_hash": "f293e4bb53d63482880bd55299200cef",
     "semantic_hash": ""
   },
   "app/Models/ChallengeParticipant.php": {
-    "mtime": 1787604619.3730755,
-    "ast_hash": "6a65794f96ed889e7b009dbf167bc044",
+    "mtime": 1787606087.163405,
+    "ast_hash": "ef45a65da5367caf50f182e750989ba4",
     "semantic_hash": ""
   },
   "app/Models/ChallengePeriod.php": {
-    "mtime": 1787604628.1392398,
-    "ast_hash": "e3e1a1bc6ee1a8484459a237635775dd",
+    "mtime": 1787606087.1654048,
+    "ast_hash": "6f699b3a22f4ea0b1b3648f788984a11",
     "semantic_hash": ""
   },
   "app/Models/CheckIn.php": {
@@ -1320,13 +1320,13 @@
     "semantic_hash": ""
   },
   "lang/en/enums.php": {
-    "mtime": 1787603526.1046183,
-    "ast_hash": "7f4964e78a407c2368d50b389da27247",
+    "mtime": 1787606538.0635643,
+    "ast_hash": "15bf82a7d6fa332ad6f221af2fd8b513",
     "semantic_hash": ""
   },
   "lang/fa/enums.php": {
-    "mtime": 1787603544.020818,
-    "ast_hash": "1a3d33faff674487b41f89217a8a5ddf",
+    "mtime": 1787606713.0099378,
+    "ast_hash": "be06c2657c8f83ca1fd5682214794bbf",
     "semantic_hash": ""
   },
   "tests/Feature/Domain/ChallengeSchemaTest.php": {
@@ -1335,8 +1335,153 @@
     "semantic_hash": ""
   },
   "prompts/new-ideas-TODO.md": {
-    "mtime": 1787604657.352782,
-    "ast_hash": "a32fe1757d06be3b13ac790e45df925a",
+    "mtime": 1787606024.0245347,
+    "ast_hash": "d66ff865febc5e68cc5093bffdf151b1",
+    "semantic_hash": ""
+  },
+  "app/Enums/CoinTransactionReason.php": {
+    "mtime": 1787605389.6015656,
+    "ast_hash": "ea688728b1442964f805d8bc24aecd77",
+    "semantic_hash": ""
+  },
+  "app/Enums/ConversationState.php": {
+    "mtime": 1787605461.6436148,
+    "ast_hash": "47867103241c851a85282dcd2ba56197",
+    "semantic_hash": ""
+  },
+  "app/Enums/EntitlementSource.php": {
+    "mtime": 1787605412.6759028,
+    "ast_hash": "29c43e046dbdcdbee0d026b28468080d",
+    "semantic_hash": ""
+  },
+  "app/Enums/EntitlementType.php": {
+    "mtime": 1787605401.8967454,
+    "ast_hash": "424d2783b9ef52cebd8c3fc075aa90b3",
+    "semantic_hash": ""
+  },
+  "app/Enums/InviteStatus.php": {
+    "mtime": 1787605427.3981173,
+    "ast_hash": "eb24380c882b26788ea7ae0d6d3831db",
+    "semantic_hash": ""
+  },
+  "app/Enums/ReminderKind.php": {
+    "mtime": 1787605472.4487712,
+    "ast_hash": "ff2fe9c8c42968d6ff9899c79cd9d383",
+    "semantic_hash": ""
+  },
+  "app/Enums/StarPaymentStatus.php": {
+    "mtime": 1787605439.3862917,
+    "ast_hash": "6b38d42bf2a47fac86c0cf4f450da76c",
+    "semantic_hash": ""
+  },
+  "app/Models/BotConversation.php": {
+    "mtime": 1787605983.1829705,
+    "ast_hash": "9e4700edf7fd201811e0d04fd9f0eb86",
+    "semantic_hash": ""
+  },
+  "app/Models/CoinTransaction.php": {
+    "mtime": 1787605765.7709439,
+    "ast_hash": "b081077cbb7081dcd15d342c3ac4ada5",
+    "semantic_hash": ""
+  },
+  "app/Models/Entitlement.php": {
+    "mtime": 1787605789.6462784,
+    "ast_hash": "25a5dbd9c2c1f15fb0b1d90358839be2",
+    "semantic_hash": ""
+  },
+  "app/Models/Invite.php": {
+    "mtime": 1787605808.4515414,
+    "ast_hash": "aa48bac45a0f147ca01169e2f5bf216b",
+    "semantic_hash": ""
+  },
+  "app/Models/ReminderDispatch.php": {
+    "mtime": 1787605999.355194,
+    "ast_hash": "6ca2c53fe9ba9ee8e45a14f17456d0f0",
+    "semantic_hash": ""
+  },
+  "app/Models/StarPayment.php": {
+    "mtime": 1787605937.8173423,
+    "ast_hash": "cda2c57d32af06990f02cdf179022b4a",
+    "semantic_hash": ""
+  },
+  "app/Models/TelegramUpdate.php": {
+    "mtime": 1787605956.7326045,
+    "ast_hash": "127c958de4f60ec6cd959df9a4dde653",
+    "semantic_hash": ""
+  },
+  "database/factories/BotConversationFactory.php": {
+    "mtime": 1787606276.7040038,
+    "ast_hash": "af9538705bf7d453c25e2fd84af878d0",
+    "semantic_hash": ""
+  },
+  "database/factories/CoinTransactionFactory.php": {
+    "mtime": 1787606105.860662,
+    "ast_hash": "3a7f5847bc49fb8fba128732662fadc2",
+    "semantic_hash": ""
+  },
+  "database/factories/EntitlementFactory.php": {
+    "mtime": 1787606118.7608395,
+    "ast_hash": "b9a06bdb0e2dd96d837f75b5aa6f90e7",
+    "semantic_hash": ""
+  },
+  "database/factories/InviteFactory.php": {
+    "mtime": 1787606134.514056,
+    "ast_hash": "6572c2421c9ee62761ff0aa304ffc2d5",
+    "semantic_hash": ""
+  },
+  "database/factories/ReminderDispatchFactory.php": {
+    "mtime": 1787606292.1802154,
+    "ast_hash": "220f8813507c04c48115fda8567b412f",
+    "semantic_hash": ""
+  },
+  "database/factories/StarPaymentFactory.php": {
+    "mtime": 1787606242.2405326,
+    "ast_hash": "271d3bdba64f3e92c971435b05dcc43c",
+    "semantic_hash": ""
+  },
+  "database/factories/TelegramUpdateFactory.php": {
+    "mtime": 1787606261.7798,
+    "ast_hash": "dbf877e91794b0ce096279f1008763c6",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_24_210231_create_coin_transactions_table.php": {
+    "mtime": 1787605505.8142529,
+    "ast_hash": "f7f94734aab4c474fbde74f907c1c5fe",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_24_210233_create_entitlements_table.php": {
+    "mtime": 1787605518.6444373,
+    "ast_hash": "ac3ad0f607a28dbc511a357523350ea5",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_24_210235_create_invites_table.php": {
+    "mtime": 1787605532.1656318,
+    "ast_hash": "c81d04a1d434178a092876d5995d842c",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_24_210237_create_star_payments_table.php": {
+    "mtime": 1787605551.8289137,
+    "ast_hash": "c8411896a8099f6635c7b0431db7c8e5",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_24_210240_create_telegram_updates_table.php": {
+    "mtime": 1787605565.277106,
+    "ast_hash": "4ed996ece2bf3ab23c5c78e2d1ab32e7",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_24_210242_create_bot_conversations_table.php": {
+    "mtime": 1787605693.2659237,
+    "ast_hash": "e77001bd2b6bf30ee9f0132f6d30c3b4",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_24_210244_create_reminder_dispatches_table.php": {
+    "mtime": 1787605709.9281588,
+    "ast_hash": "2a223196e9ed3dbcc279e041f33be6bc",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Domain/EconomySchemaTest.php": {
+    "mtime": 1787607143.7827616,
+    "ast_hash": "78b75653c1e01035e6b007bad24fa226",
     "semantic_hash": ""
   }
 }

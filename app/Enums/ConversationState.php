@@ -1,0 +1,87 @@
+<?php
+
+namespace App\Enums;
+
+/**
+ * Where a user is inside a multi-step bot flow.
+ *
+ * The Telegram SDK has no FSM, so a wizard's position lives in a
+ * `BotConversation` row rather than in memory. Absence of a row means the user
+ * is idle — there is deliberately no `Idle` case, because a row that says
+ * "nothing is happening" is a row that can be left behind.
+ *
+ * Unlike the other domain enums this one is **not** translated: these states are
+ * internal machinery and never shown to a user. The prompts a user sees are
+ * separate lang lines, chosen by the wizard.
+ */
+enum ConversationState: string
+{
+    case AwaitingChallengeTitle = 'awaiting_challenge_title';
+    case AwaitingChallengeDescription = 'awaiting_challenge_description';
+    case AwaitingPeriodType = 'awaiting_period_type';
+    case AwaitingCustomPeriodDays = 'awaiting_custom_period_days';
+    case AwaitingStartDate = 'awaiting_start_date';
+    case AwaitingTotalPeriods = 'awaiting_total_periods';
+    case AwaitingTimezone = 'awaiting_timezone';
+    case AwaitingProofType = 'awaiting_proof_type';
+    case AwaitingVisibility = 'awaiting_visibility';
+    case AwaitingCreateConfirmation = 'awaiting_create_confirmation';
+
+    case AwaitingCheckInText = 'awaiting_check_in_text';
+    case AwaitingCheckInPhoto = 'awaiting_check_in_photo';
+
+    /**
+     * Whether this state belongs to the create-challenge wizard.
+     *
+     * The sequence itself is not encoded here: it branches (custom day count is
+     * only asked for `PeriodType::Custom`), so the wizard action owns the order.
+     */
+    public function isCreateChallengeStep(): bool
+    {
+        return ! $this->isCheckInStep();
+    }
+
+    /**
+     * Whether this state is waiting on check-in proof.
+     */
+    public function isCheckInStep(): bool
+    {
+        return match ($this) {
+            self::AwaitingCheckInText, self::AwaitingCheckInPhoto => true,
+            default => false,
+        };
+    }
+
+    /**
+     * Whether a plain text message is the expected next input.
+     */
+    public function expectsText(): bool
+    {
+        return match ($this) {
+            self::AwaitingChallengeTitle,
+            self::AwaitingChallengeDescription,
+            self::AwaitingCustomPeriodDays,
+            self::AwaitingStartDate,
+            self::AwaitingTotalPeriods,
+            self::AwaitingCheckInText => true,
+            default => false,
+        };
+    }
+
+    /**
+     * Whether a photo is the expected next input.
+     */
+    public function expectsPhoto(): bool
+    {
+        return $this === self::AwaitingCheckInPhoto;
+    }
+
+    /**
+     * Whether the answer arrives as an inline-keyboard callback rather than a
+     * typed message.
+     */
+    public function expectsCallback(): bool
+    {
+        return ! $this->expectsText() && ! $this->expectsPhoto();
+    }
+}

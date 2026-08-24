@@ -33,6 +33,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read Challenge $challenge
  * @property-read User $user
  * @property-read Collection<int, CheckIn> $checkIns
+ * @property-read Collection<int, ReminderDispatch> $reminderDispatches
  */
 #[Fillable([
     'challenge_id',
@@ -73,6 +74,14 @@ class ChallengeParticipant extends Model
     public function checkIns(): HasMany
     {
         return $this->hasMany(CheckIn::class);
+    }
+
+    /**
+     * @return HasMany<ReminderDispatch, $this>
+     */
+    public function reminderDispatches(): HasMany
+    {
+        return $this->hasMany(ReminderDispatch::class);
     }
 
     /**

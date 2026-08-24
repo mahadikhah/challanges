@@ -31,6 +31,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property CarbonImmutable|null $updated_at
  * @property-read Challenge $challenge
  * @property-read Collection<int, CheckIn> $checkIns
+ * @property-read Collection<int, ReminderDispatch> $reminderDispatches
  */
 #[Fillable(['challenge_id', 'index', 'starts_at', 'ends_at', 'rolled_over_at'])]
 class ChallengePeriod extends Model
@@ -52,6 +53,14 @@ class ChallengePeriod extends Model
     public function checkIns(): HasMany
     {
         return $this->hasMany(CheckIn::class);
+    }
+
+    /**
+     * @return HasMany<ReminderDispatch, $this>
+     */
+    public function reminderDispatches(): HasMany
+    {
+        return $this->hasMany(ReminderDispatch::class);
     }
 
     /**
