@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "prompts/progress.md": {
-    "mtime": 1787611067.829221,
-    "ast_hash": "2216034cf7f19038f4fb510e1e613d22",
+    "mtime": 1787612388.1950166,
+    "ast_hash": "6653a1ad8622fa9394ad56204d052a9d",
     "semantic_hash": ""
   },
   "prompts/task-01-setup.md": {
@@ -1120,8 +1120,8 @@
     "semantic_hash": ""
   },
   "app/Http/Middleware/SetLocale.php": {
-    "mtime": 1787601157.0902581,
-    "ast_hash": "48b8fc9bf2e1c0bbba5917ce953ff0ef",
+    "mtime": 1787614248.5744803,
+    "ast_hash": "a607573830c3bf9b244e30babbdc364d",
     "semantic_hash": ""
   },
   "app/Http/Requests/LocaleUpdateRequest.php": {
@@ -1130,8 +1130,8 @@
     "semantic_hash": ""
   },
   "app/Services/Localization.php": {
-    "mtime": 1787601156.9202557,
-    "ast_hash": "00f11d3c006bb52d084fa1244252745b",
+    "mtime": 1787615057.9768207,
+    "ast_hash": "91761d2764aa38472aebcbeb37ae6b18",
     "semantic_hash": ""
   },
   "config/localization.php": {
@@ -1175,8 +1175,8 @@
     "semantic_hash": ""
   },
   "tests/Feature/LocalizationServiceTest.php": {
-    "mtime": 1787601833.7091959,
-    "ast_hash": "200498eb04e26df47f2f36ce426be507",
+    "mtime": 1787615035.382253,
+    "ast_hash": "67547bb3e45785429032ca4facc3b093",
     "semantic_hash": ""
   },
   "tests/Feature/LocalizationTest.php": {
@@ -1545,8 +1545,8 @@
     "semantic_hash": ""
   },
   "app/Actions/Challenges/RollOverPeriod.php": {
-    "mtime": 1787610650.1887434,
-    "ast_hash": "546c256e9e32ff20052d9d11ef0fce69",
+    "mtime": 1787614682.823837,
+    "ast_hash": "f04266cd7bb5b1bd716eb34f94fe2df2",
     "semantic_hash": ""
   },
   "app/Actions/CheckIns/SettleCheckIn.php": {
@@ -1587,6 +1587,76 @@
   "tests/Feature/Domain/InvitesTest.php": {
     "mtime": 1787612076.990098,
     "ast_hash": "954dc95f70f293109e4fff1823f55be6",
+    "semantic_hash": ""
+  },
+  "app/Actions/CheckIns/IssueCheckInPhrase.php": {
+    "mtime": 1787614613.6983175,
+    "ast_hash": "7a0ab94b328bd27b8c57ee9fc90c6392",
+    "semantic_hash": ""
+  },
+  "app/Actions/CheckIns/OpenCheckIn.php": {
+    "mtime": 1787614266.0387478,
+    "ast_hash": "eeaa04679a3379d84167a8f4d1b5c67b",
+    "semantic_hash": ""
+  },
+  "app/Exceptions/PhraseUnavailableException.php": {
+    "mtime": 1787614564.5162714,
+    "ast_hash": "c384d629c47a925b4801dc841c096a58",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_25_090000_add_phrase_uniqueness_to_check_ins_table.php": {
+    "mtime": 1787614633.666751,
+    "ast_hash": "5762e55e707b4562432a7750e4395e55",
+    "semantic_hash": ""
+  },
+  "lang/en/phrases.php": {
+    "mtime": 1787613998.9736242,
+    "ast_hash": "dee7559623ebd627d572cc51511b0624",
+    "semantic_hash": ""
+  },
+  "lang/fa/phrases.php": {
+    "mtime": 1787614172.5884075,
+    "ast_hash": "23f8786229766eb8720fdbd7bcfd6302",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Domain/CheckInPhrasesTest.php": {
+    "mtime": 1787614978.7928433,
+    "ast_hash": "7782216818b15fb347142097e0ae1a6c",
+    "semantic_hash": ""
+  },
+  ".ai/rules/exceptions.md": {
+    "mtime": 1787612305.5763907,
+    "ast_hash": "ea7a3f39166c935126e881b637edfe28",
+    "semantic_hash": ""
+  },
+  ".ai/rules/index.md": {
+    "mtime": 1787612305.5783906,
+    "ast_hash": "4d192de4f2f0e4b3ef9026019d1284a8",
+    "semantic_hash": ""
+  },
+  "prompts/goal-phases-8to10.md": {
+    "mtime": 1787614060.8511398,
+    "ast_hash": "9063517dca7d1d05c9496f339505da83",
+    "semantic_hash": ""
+  },
+  "prompts/main-2.md": {
+    "mtime": 1787613905.3711452,
+    "ast_hash": "6ab05f7db858c93f8c1d9fe0c0d2c00b",
+    "semantic_hash": ""
+  },
+  "prompts/phase-10.md": {
+    "mtime": 1787614017.1977608,
+    "ast_hash": "cc8eb1154d0db2a7a1007153d150176e",
+    "semantic_hash": ""
+  },
+  "prompts/phase-8.md": {
+    "mtime": 1787613964.9604056,
+    "ast_hash": "95e2a77a5e6968c78e4eaa38ef7daacc",
+    "semantic_hash": ""
+  },
+  "prompts/phase-9.md": {
+    "mtime": 1787613992.069576,
+    "ast_hash": "07e59af22a0e988159b69f8e52759501",
     "semantic_hash": ""
   }
 }

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Str;
 
 /**
  * Everything the platform knows about the locales it serves: which ones are
@@ -39,6 +40,32 @@ class Localization
     public function isSupported(string $locale): bool
     {
         return in_array($locale, $this->codes(), true);
+    }
+
+    /**
+     * The first of `$candidates` this platform can actually serve, else the
+     * configured fallback. Nulls and blanks are skipped, so a caller can pass a
+     * column that may be unset without checking first.
+     *
+     * This is the one place a raw locale tag becomes a locale code, and it is
+     * shared on purpose. The `SetLocale` middleware resolves a *request* — user
+     * preference, then cookie, then `Accept-Language`. Anything addressing a
+     * specific user *outside* a request — a queued reminder, a phrase issued
+     * for a check-in — has to resolve per user rather than read
+     * `app()->getLocale()`, since one worker process serves everybody. Both
+     * arrive here.
+     */
+    public function best(?string ...$candidates): string
+    {
+        foreach ($candidates as $candidate) {
+            $code = $this->toSupportedCode($candidate);
+
+            if ($code !== null) {
+                return $code;
+            }
+        }
+
+        return $this->fallback();
     }
 
     /**
@@ -126,6 +153,31 @@ class Localization
             $this->loadGroups($this->fallback()),
             $this->loadGroups($locale),
         );
+    }
+
+    /**
+     * Reduce a raw locale tag to a code this platform serves, or null.
+     *
+     * Tags arrive in every shape: `fa` from a cookie, `fa-IR` from Telegram's
+     * `language_code`, `fa_IR` from Symfony's `Accept-Language` parsing. The
+     * full tag is tried before its primary subtag, so a future `zh-hans` entry
+     * in the allowlist would still match exactly rather than collapsing to `zh`.
+     */
+    private function toSupportedCode(?string $tag): ?string
+    {
+        if ($tag === null || trim($tag) === '') {
+            return null;
+        }
+
+        $normalised = Str::of($tag)->trim()->replace('_', '-')->lower();
+
+        if ($this->isSupported($normalised->value())) {
+            return $normalised->value();
+        }
+
+        $primary = $normalised->before('-')->value();
+
+        return $this->isSupported($primary) ? $primary : null;
     }
 
     /**

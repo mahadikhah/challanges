@@ -2,8 +2,8 @@
 
 namespace App\Actions\Challenges;
 
+use App\Actions\CheckIns\OpenCheckIn;
 use App\Actions\CheckIns\SettleCheckIn;
-use App\Enums\CheckInStatus;
 use App\Exceptions\PeriodNotEndedException;
 use App\Models\Challenge;
 use App\Models\ChallengeParticipant;
@@ -45,7 +45,10 @@ class RollOverPeriod
      */
     private const PARTICIPANT_CHUNK = 200;
 
-    public function __construct(private readonly SettleCheckIn $settle) {}
+    public function __construct(
+        private readonly OpenCheckIn $open,
+        private readonly SettleCheckIn $settle,
+    ) {}
 
     /**
      * Settle every outstanding obligation for this period, and mark it swept.
@@ -74,7 +77,10 @@ class RollOverPeriod
             self::PARTICIPANT_CHUNK,
             function (EloquentCollection $participants) use ($period, $settled): void {
                 foreach ($participants as $participant) {
-                    $settled->push($this->settle->close($this->obligationFor($participant, $period)));
+                    // Someone who never touched the bot has no row at all, and
+                    // they still missed the period — so `OpenCheckIn` creates it
+                    // rather than the sweep assuming it exists.
+                    $settled->push($this->settle->close($this->open->handle($participant, $period)));
                 }
             },
         );
@@ -102,25 +108,5 @@ class RollOverPeriod
         return $period->challenge->participants()
             ->active()
             ->where('joined_period_index', '<=', $period->index);
-    }
-
-    /**
-     * The check-in row for this obligation, creating it if the participant never
-     * opened it.
-     *
-     * Someone who never touched the bot has no row at all, and they still missed
-     * the period — so the row is created here rather than assumed. The unique index
-     * on `(participant, period)` makes this race-safe: `firstOrCreate` turns a
-     * concurrent insert into a read of the winner's row.
-     */
-    private function obligationFor(ChallengeParticipant $participant, ChallengePeriod $period): CheckIn
-    {
-        return CheckIn::query()->firstOrCreate(
-            [
-                'challenge_participant_id' => $participant->getKey(),
-                'challenge_period_id' => $period->getKey(),
-            ],
-            ['status' => CheckInStatus::Pending],
-        );
     }
 }

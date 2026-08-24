@@ -34,6 +34,45 @@ it('falls back to the first supported locale when app.fallback_locale is misconf
     expect(app(Localization::class)->fallback())->toBe('en');
 });
 
+describe('choosing the best locale for a candidate list', function () {
+    it('takes the first candidate it can actually serve', function () {
+        expect(app(Localization::class)->best('de', 'fa', 'en'))->toBe('fa');
+    });
+
+    it('skips nulls and blanks so a caller can pass an unset column', function () {
+        expect(app(Localization::class)->best(null, '', '   ', 'fa'))->toBe('fa');
+    });
+
+    it('folds the shapes a locale tag actually arrives in', function (string $tag) {
+        expect(app(Localization::class)->best($tag))->toBe('fa');
+    })->with([
+        'plain' => 'fa',
+        'regional' => 'fa-IR',
+        'underscored' => 'fa_IR',
+        'shouted' => 'FA-ir',
+        'padded' => ' fa ',
+    ]);
+
+    it('prefers an exact allowlist match over the primary subtag', function () {
+        // A hypothetical script-specific entry must not collapse to its primary
+        // subtag, which is what makes `zh-hans` distinguishable from `zh-hant`.
+        Config::set('localization.supported.fa-ir', ['native' => 'فارسی', 'direction' => 'rtl']);
+
+        expect(app(Localization::class)->best('fa-IR'))->toBe('fa-ir');
+    });
+
+    it('returns the fallback when nothing resolves', function () {
+        expect(app(Localization::class)->best())->toBe('en')
+            ->and(app(Localization::class)->best('de', 'ja', null))->toBe('en');
+    });
+
+    it('refuses a traversal attempt dressed up as a locale tag', function () {
+        // The result is interpolated into a path that gets `require`d.
+        expect(app(Localization::class)->best('../../etc/passwd'))->toBe('en')
+            ->and(app(Localization::class)->best('en/../fa'))->toBe('en');
+    });
+});
+
 it('shapes the locales for a language picker', function () {
     expect(app(Localization::class)->options())->toBe([
         ['code' => 'en', 'native' => 'English', 'direction' => 'ltr'],

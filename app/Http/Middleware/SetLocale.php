@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\View;
-use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 class SetLocale
@@ -37,9 +36,10 @@ class SetLocale
      * Precedence: the signed-in user's stored preference, then their locale
      * cookie, then Accept-Language, then the configured fallback.
      *
-     * Every candidate is checked against the supported allowlist. A locale
-     * becomes a path segment inside the translation loader, so an unvalidated
-     * value is a traversal risk, not just a cosmetic bug.
+     * Every candidate is checked against the supported allowlist by
+     * `Localization::best()`. A locale becomes a path segment inside the
+     * translation loader, so an unvalidated value is a traversal risk, not just
+     * a cosmetic bug.
      *
      * The user branch keys off `HasLocalePreference` rather than a column, so
      * it starts working the moment the User model gains its `locale` field in
@@ -48,33 +48,12 @@ class SetLocale
     private function resolve(Request $request): string
     {
         $user = $request->user();
-
-        if ($user instanceof HasLocalePreference) {
-            $preferred = (string) $user->preferredLocale();
-
-            if ($this->localization->isSupported($preferred)) {
-                return $preferred;
-            }
-        }
-
         $cookie = $request->cookie(Config::string('localization.cookie'));
 
-        if (is_string($cookie) && $this->localization->isSupported($cookie)) {
-            return $cookie;
-        }
-
-        foreach ($request->getLanguages() as $language) {
-            $candidate = Str::of($language)
-                ->replace('_', '-')
-                ->before('-')
-                ->lower()
-                ->value();
-
-            if ($this->localization->isSupported($candidate)) {
-                return $candidate;
-            }
-        }
-
-        return $this->localization->fallback();
+        return $this->localization->best(
+            $user instanceof HasLocalePreference ? $user->preferredLocale() : null,
+            is_string($cookie) ? $cookie : null,
+            ...$request->getLanguages(),
+        );
     }
 }
