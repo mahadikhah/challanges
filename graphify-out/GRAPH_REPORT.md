@@ -1,16 +1,16 @@
 # Graph Report - challenges  (2026-08-24)
 
 ## Corpus Check
-- 217 files · ~65,100 words
+- 231 files · ~68,078 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1427 nodes · 1995 edges · 172 communities (125 shown, 47 thin omitted)
+- 1474 nodes · 2101 edges · 173 communities (127 shown, 46 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 53 edges (avg confidence: 0.78)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `4a64950d`
+- Built from commit: `64bb5c10`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -19,33 +19,33 @@
 - composer.json
 - PasswordValidationRules.php
 - scripts
-- use-appearance.tsx
 - index.ts
+- useIsMobile
 - devDependencies
 - cn
 - optionalDependencies
 - sidebar.tsx
-- layout.tsx
+- sheet.tsx
 - TestCase
 - app-header.tsx
 - dropdown-menu.tsx
 - compilerOptions
 - User
 - components.json
-- app.tsx
-- Illuminate\Http\Request
+- toggle-group.tsx
+- Localization
 - AGENTS.md
 - SubmitCheckIn Action
 - Inertia React Development
 - dependencies
 - Inertia React Development
-- global.d.ts
+- miniapp/localization.ts
 - AuthenticationTest
 - UserFactory
 - Laravel Fortify Development
 - alert.tsx
 - Laravel Fortify Development
-- SecurityTest
+- ProfileUpdateTest
 - User.php
 - Tailwind CSS Development
 - Tailwind CSS Development
@@ -87,6 +87,7 @@
 - @vitejs/plugin-react
 - Apple Touch Icon (Laravel logo)
 - Dependabot (github-actions)
+- keywords
 - Process
 - Detection Checklist
 - Process
@@ -115,7 +116,7 @@
 - Migration Best Practices
 - scripts
 - Project Goal — Autonomous Build Driver
-- breadcrumbs.tsx
+- class-variance-authority
 - .agents/skills/laravel-best-practices/SKILL.md
 - Blade & Views Best Practices
 - Error Handling Best Practices
@@ -146,28 +147,25 @@
 - psr-4
 - laravel
 - package.json
-- autoload-dev
 - laravel-boost
-- concurrently
 - eslint-import-resolver-typescript
 - eslint-plugin-import
 - eslint-plugin-react
 - eslint-plugin-react-hooks
 - prettier
 - prettier-plugin-tailwindcss
-- main.tsx
 
 ## God Nodes (most connected - your core abstractions)
-1. `cn()` - 123 edges
+1. `cn()` - 125 edges
 2. `User` - 40 edges
 3. `TestCase` - 26 edges
-4. `Button()` - 15 edges
-5. `compilerOptions` - 15 edges
-6. `require-dev` - 13 edges
-7. `scripts` - 13 edges
-8. `Detection Checklist` - 11 edges
-9. `Architecture Best Practices` - 11 edges
-10. `Security Best Practices` - 11 edges
+4. `Localization` - 18 edges
+5. `Button()` - 15 edges
+6. `compilerOptions` - 15 edges
+7. `require-dev` - 13 edges
+8. `scripts` - 13 edges
+9. `Detection Checklist` - 11 edges
+10. `Architecture Best Practices` - 11 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Admin Panel` --references--> `FortifyServiceProvider`  [INFERRED]
@@ -189,83 +187,83 @@
 - **Idempotency keys across the system** — claude_md_telegram_update_model, claude_md_star_payment_model, claude_md_checkin_model, claude_md_reminder_dispatch_model [EXTRACTED 1.00]
 - **Three proof types** — prompts_main_proof_button, prompts_main_proof_text_autogen, prompts_main_proof_image_approval [EXTRACTED 1.00]
 
-## Communities (172 total, 47 thin omitted)
+## Communities (173 total, 46 thin omitted)
 
 ### Community 0 - "utils.ts"
-Cohesion: 0.09
-Nodes (28): DeleteUser(), Heading(), InputError(), PasswordInput(), Props, TextLink(), Badge(), badgeVariants (+20 more)
+Cohesion: 0.10
+Nodes (27): DeleteUser(), Heading(), InputError(), PasswordInput(), Props, TextLink(), Button(), buttonVariants (+19 more)
 
 ### Community 1 - "composer.json"
 Cohesion: 0.18
-Nodes (10): description, keywords, license, minimum-stability, name, prefer-stable, $schema, type (+2 more)
+Nodes (10): autoload-dev, psr-4, description, license, minimum-stability, name, prefer-stable, Tests\\ (+2 more)
 
 ### Community 2 - "PasswordValidationRules.php"
-Cohesion: 0.06
-Nodes (21): CreateNewUser, ResetUserPassword, emailRules(), nameRules(), profileRules(), Controller, ProfileController, SecurityController (+13 more)
+Cohesion: 0.05
+Nodes (23): CreateNewUser, ResetUserPassword, emailRules(), nameRules(), profileRules(), Controller, LocaleController, ProfileController (+15 more)
 
 ### Community 3 - "scripts"
 Cohesion: 0.05
 Nodes (40): scripts, ci:check, dev, lint, lint:check, post-autoload-dump, post-create-project-cmd, post-root-package-install (+32 more)
 
-### Community 4 - "use-appearance.tsx"
-Cohesion: 0.16
-Nodes (20): i18n + RTL Requirement, AppearanceToggleTab(), Toaster(), Appearance, applyTheme(), getStoredAppearance(), handleSystemThemeChange(), initializeTheme() (+12 more)
+### Community 4 - "index.ts"
+Cohesion: 0.05
+Nodes (49): i18n + RTL Requirement, AppContent(), Props, AppLogo(), AppLogoIcon(), AppShell(), Props, AppSidebarHeader() (+41 more)
 
-### Community 5 - "index.ts"
-Cohesion: 0.16
-Nodes (14): AppContent(), Props, AppShell(), Props, AppSidebarHeader(), Breadcrumbs(), SidebarInset(), SidebarProvider() (+6 more)
+### Community 5 - "useIsMobile"
+Cohesion: 0.53
+Nodes (5): SidebarProvider(), getServerSnapshot(), isSmallerThanBreakpoint(), mediaQueryListener(), useIsMobile()
 
 ### Community 6 - "devDependencies"
 Cohesion: 0.12
 Nodes (17): babel-plugin-react-compiler, eslint-config-prettier, @eslint/js, @laravel/vite-plugin-wayfinder, devDependencies, babel-plugin-react-compiler, eslint, eslint-config-prettier (+9 more)
 
 ### Community 7 - "cn"
-Cohesion: 0.10
-Nodes (28): Card(), CardContent(), CardDescription(), CardFooter(), CardHeader(), CardTitle(), NavigationMenu(), NavigationMenuContent() (+20 more)
+Cohesion: 0.12
+Nodes (20): Badge(), badgeVariants, NavigationMenu(), NavigationMenuContent(), NavigationMenuIndicator(), NavigationMenuItem(), NavigationMenuLink(), NavigationMenuList() (+12 more)
 
 ### Community 8 - "optionalDependencies"
 Cohesion: 0.13
 Nodes (15): @laravel/multiplex, lightningcss-linux-x64-gnu, lightningcss-win32-x64-msvc, optionalDependencies, @laravel/multiplex, lightningcss-linux-x64-gnu, lightningcss-win32-x64-msvc, @rollup/rollup-linux-x64-gnu (+7 more)
 
 ### Community 9 - "sidebar.tsx"
-Cohesion: 0.10
-Nodes (31): footerNavItems, mainNavItems, NavFooter(), NavMain(), NavUser(), SheetDescription(), Sidebar(), SidebarContent() (+23 more)
+Cohesion: 0.11
+Nodes (31): footerNavItems, mainNavItems, NavFooter(), NavMain(), NavUser(), Sidebar(), SidebarContent(), SidebarContext (+23 more)
 
-### Community 10 - "layout.tsx"
-Cohesion: 0.24
-Nodes (10): AppHeader(), Separator(), IsCurrentOrParentUrlFn, IsCurrentUrlFn, useCurrentUrl(), UseCurrentUrlReturn, WhenCurrentUrlFn, SettingsLayout() (+2 more)
+### Community 10 - "sheet.tsx"
+Cohesion: 0.18
+Nodes (8): Sheet(), SheetContent(), SheetDescription(), SheetFooter(), SheetHeader(), SheetOverlay(), SheetTitle(), SheetTrigger()
 
 ### Community 11 - "TestCase"
 Cohesion: 0.12
 Nodes (8): Illuminate\Foundation\Testing\RefreshDatabase, Illuminate\Foundation\Testing\TestCase, PasswordConfirmationTest, RegistrationTest, DashboardTest, ExampleTest, TestCase, ExampleTest
 
 ### Community 12 - "app-header.tsx"
-Cohesion: 0.14
-Nodes (17): mainNavItems, Props, rightNavItems, Avatar(), AvatarFallback(), AvatarImage(), Sheet(), SheetContent() (+9 more)
+Cohesion: 0.12
+Nodes (23): AppHeader(), mainNavItems, Props, rightNavItems, Avatar(), AvatarFallback(), AvatarImage(), navigationMenuTriggerStyle (+15 more)
 
 ### Community 13 - "dropdown-menu.tsx"
-Cohesion: 0.11
-Nodes (20): DropdownMenu(), DropdownMenuCheckboxItem(), DropdownMenuContent(), DropdownMenuGroup(), DropdownMenuItem(), DropdownMenuLabel(), DropdownMenuRadioItem(), DropdownMenuSeparator() (+12 more)
+Cohesion: 0.12
+Nodes (17): DropdownMenu(), DropdownMenuCheckboxItem(), DropdownMenuContent(), DropdownMenuGroup(), DropdownMenuItem(), DropdownMenuLabel(), DropdownMenuRadioItem(), DropdownMenuSeparator() (+9 more)
 
 ### Community 14 - "compilerOptions"
 Cohesion: 0.10
 Nodes (19): resources/js/**/*.d.ts, resources/js/**/*.ts, resources/js/**/*.tsx, compilerOptions, allowJs, baseUrl, esModuleInterop, forceConsistentCasingInFileNames (+11 more)
 
 ### Community 15 - "User"
-Cohesion: 0.18
-Nodes (4): User, Illuminate\Foundation\Auth\User, EmailVerificationTest, ProfileUpdateTest
+Cohesion: 0.17
+Nodes (4): User, Illuminate\Foundation\Auth\User, EmailVerificationTest, SecurityTest
 
 ### Community 16 - "components.json"
 Cohesion: 0.11
 Nodes (17): aliases, components, hooks, lib, ui, utils, iconLibrary, rsc (+9 more)
 
-### Community 17 - "app.tsx"
-Cohesion: 0.16
-Nodes (9): AppLogo(), AppLogoIcon(), Tooltip(), TooltipContent(), TooltipProvider(), TooltipTrigger(), AuthSimpleLayout(), AuthLayout() (+1 more)
+### Community 17 - "toggle-group.tsx"
+Cohesion: 0.43
+Nodes (5): ToggleGroup(), ToggleGroupContext, ToggleGroupItem(), Toggle(), toggleVariants
 
-### Community 18 - "Illuminate\Http\Request"
-Cohesion: 0.24
-Nodes (7): HandleAppearance, HandleInertiaRequests, Closure, Illuminate\Foundation\Configuration\Middleware, Illuminate\Http\Request, Inertia\Middleware, Symfony\Component\HttpFoundation\Response
+### Community 18 - "Localization"
+Cohesion: 0.14
+Nodes (9): HandleAppearance, HandleInertiaRequests, SetLocale, Localization, Closure, Illuminate\Foundation\Configuration\Middleware, Illuminate\Http\Request, Inertia\Middleware (+1 more)
 
 ### Community 19 - "AGENTS.md"
 Cohesion: 0.06
@@ -281,15 +279,15 @@ Nodes (27): Basic Link Component, Basic Usage, Client-Side Navigation, Common Pi
 
 ### Community 22 - "dependencies"
 Cohesion: 0.22
-Nodes (9): class-variance-authority, dependencies, class-variance-authority, @radix-ui/react-label, @radix-ui/react-toggle, @radix-ui/react-toggle-group, @radix-ui/react-label, @radix-ui/react-toggle (+1 more)
+Nodes (9): concurrently, dependencies, concurrently, @radix-ui/react-label, @radix-ui/react-toggle, @radix-ui/react-toggle-group, @radix-ui/react-label, @radix-ui/react-toggle (+1 more)
 
 ### Community 23 - "Inertia React Development"
 Cohesion: 0.07
 Nodes (27): Basic Link Component, Basic Usage, Client-Side Navigation, Common Pitfalls, Deferred Props, Documentation, Form Component (Recommended), Form Component Reset Props (+19 more)
 
-### Community 24 - "global.d.ts"
-Cohesion: 0.32
-Nodes (6): Auth, User, InertiaConfig, @inertiajs/core, InputHTMLAttributes, react
+### Community 24 - "miniapp/localization.ts"
+Cohesion: 0.13
+Nodes (18): LanguageSwitcher(), useTranslation(), translate(), TranslationReplacements, fallback, localization, t(), rootElement (+10 more)
 
 ### Community 26 - "UserFactory"
 Cohesion: 0.43
@@ -330,6 +328,10 @@ Nodes (13): require-dev, fakerphp/faker, larastan/larastan, laravel/boost, larav
 ### Community 46 - "Detection Checklist"
 Cohesion: 0.17
 Nodes (11): A. Validation & HTTP input, B. Controllers & routing, C. Authorization, D. Eloquent & models, Detection Checklist, E. Architecture & organization, F. Frontend & views, G. Database & migrations (+3 more)
+
+### Community 90 - "keywords"
+Cohesion: 0.67
+Nodes (3): keywords, framework, laravel
 
 ### Community 92 - "Process"
 Cohesion: 0.17
@@ -442,10 +444,6 @@ Nodes (9): scripts, build, build:ssr, dev, format, format:check, lint, lint:chec
 ### Community 119 - "Project Goal — Autonomous Build Driver"
 Cohesion: 0.22
 Nodes (8): Baked-in decisions — do NOT stop to ask about these, Build order (strict), Guardrails, North Star (definition of done), Operating loop — repeat until done, Project Goal — Autonomous Build Driver, Running me across resets, When you MAY stop and ask (only these)
-
-### Community 120 - "breadcrumbs.tsx"
-Cohesion: 0.39
-Nodes (7): Breadcrumb(), BreadcrumbEllipsis(), BreadcrumbItem(), BreadcrumbLink(), BreadcrumbList(), BreadcrumbPage(), BreadcrumbSeparator()
 
 ### Community 121 - ".agents/skills/laravel-best-practices/SKILL.md"
 Cohesion: 0.25
@@ -563,29 +561,25 @@ Nodes (5): extra, laravel, post-create-project, dont-discover, installer
 Cohesion: 0.50
 Nodes (3): private, $schema, type
 
-### Community 151 - "autoload-dev"
-Cohesion: 0.67
-Nodes (3): autoload-dev, psr-4, Tests\\
-
 ## Knowledge Gaps
-- **683 isolated node(s):** `vendor/bin/sail`, `$schema`, `style`, `rsc`, `tsx` (+678 more)
+- **685 isolated node(s):** `vendor/bin/sail`, `$schema`, `style`, `rsc`, `tsx` (+680 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **47 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **46 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Admin Panel` connect `SubmitCheckIn Action` to `PasswordValidationRules.php`?**
-  _High betweenness centrality (0.066) - this node is a cross-community bridge._
+  _High betweenness centrality (0.076) - this node is a cross-community bridge._
 - **Why does `AppSidebar()` connect `SubmitCheckIn Action` to `sidebar.tsx`, `index.ts`?**
-  _High betweenness centrality (0.063) - this node is a cross-community bridge._
+  _High betweenness centrality (0.071) - this node is a cross-community bridge._
 - **Why does `FortifyServiceProvider` connect `PasswordValidationRules.php` to `SubmitCheckIn Action`?**
-  _High betweenness centrality (0.054) - this node is a cross-community bridge._
+  _High betweenness centrality (0.060) - this node is a cross-community bridge._
 - **Are the 30 inferred relationships involving `User` (e.g. with `.run()` and `.test_users_are_rate_limited()`) actually correct?**
   _`User` has 30 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `vendor/bin/sail`, `$schema`, `style` to the rest of the system?**
-  _683 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _685 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `utils.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.09152542372881356 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.10087719298245613 - nodes in this community are weakly interconnected._
 - **Should `PasswordValidationRules.php` be split into smaller, more focused modules?**
-  _Cohesion score 0.05961426066627703 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05201266395296246 - nodes in this community are weakly interconnected._

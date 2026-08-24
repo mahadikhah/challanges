@@ -268,6 +268,42 @@
       "norm_label": "controller"
     },
     {
+      "label": "LocaleController.php",
+      "file_type": "code",
+      "source_file": "app/Http/Controllers/LocaleController.php",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "app_http_controllers_localecontroller",
+      "community": 2,
+      "community_name": "PasswordValidationRules.php",
+      "norm_label": "localecontroller.php"
+    },
+    {
+      "label": "LocaleController",
+      "file_type": "code",
+      "source_file": "app/Http/Controllers/LocaleController.php",
+      "source_location": "L10",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "app_http_controllers_localecontroller_localecontroller",
+      "community": 2,
+      "community_name": "PasswordValidationRules.php",
+      "norm_label": "localecontroller"
+    },
+    {
+      "label": ".update()",
+      "file_type": "code",
+      "source_file": "app/Http/Controllers/LocaleController.php",
+      "source_location": "L20",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_http_controllers_localecontroller_localecontroller_update",
+      "community": 2,
+      "community_name": "PasswordValidationRules.php",
+      "norm_label": ".update()"
+    },
+    {
       "label": "ProfileController.php",
       "file_type": "code",
       "source_file": "app/Http/Controllers/Settings/ProfileController.php",
@@ -383,7 +419,7 @@
       "_origin": "ast",
       "id": "app_http_middleware_handleappearance",
       "community": 18,
-      "community_name": "Illuminate\\Http\\Request",
+      "community_name": "Localization",
       "norm_label": "handleappearance.php"
     },
     {
@@ -396,7 +432,7 @@
       "_origin": "ast",
       "id": "app_http_middleware_handleappearance_handleappearance",
       "community": 18,
-      "community_name": "Illuminate\\Http\\Request",
+      "community_name": "Localization",
       "norm_label": "handleappearance"
     },
     {
@@ -408,19 +444,8 @@
       "_origin": "ast",
       "id": "app_http_middleware_handleappearance_handleappearance_handle",
       "community": 18,
-      "community_name": "Illuminate\\Http\\Request",
+      "community_name": "Localization",
       "norm_label": ".handle()"
-    },
-    {
-      "label": "Closure",
-      "file_type": "code",
-      "source_file": "",
-      "source_location": "",
-      "_origin": "ast",
-      "id": "closure",
-      "community": 18,
-      "community_name": "Illuminate\\Http\\Request",
-      "norm_label": "closure"
     },
     {
       "label": "HandleInertiaRequests.php",
@@ -430,45 +455,165 @@
       "_origin": "ast",
       "id": "app_http_middleware_handleinertiarequests",
       "community": 18,
-      "community_name": "Illuminate\\Http\\Request",
+      "community_name": "Localization",
       "norm_label": "handleinertiarequests.php"
     },
     {
       "label": "HandleInertiaRequests",
       "file_type": "code",
       "source_file": "app/Http/Middleware/HandleInertiaRequests.php",
-      "source_location": "L8",
+      "source_location": "L9",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_http_middleware_handleinertiarequests_handleinertiarequests",
       "community": 18,
-      "community_name": "Illuminate\\Http\\Request",
+      "community_name": "Localization",
       "norm_label": "handleinertiarequests"
+    },
+    {
+      "label": ".__construct()",
+      "file_type": "code",
+      "source_file": "app/Http/Middleware/HandleInertiaRequests.php",
+      "source_location": "L11",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_http_middleware_handleinertiarequests_handleinertiarequests_construct",
+      "community": 18,
+      "community_name": "Localization",
+      "norm_label": ".__construct()"
     },
     {
       "label": ".version()",
       "file_type": "code",
       "source_file": "app/Http/Middleware/HandleInertiaRequests.php",
-      "source_location": "L24",
+      "source_location": "L27",
       "_callable": true,
       "_origin": "ast",
       "id": "app_http_middleware_handleinertiarequests_handleinertiarequests_version",
       "community": 18,
-      "community_name": "Illuminate\\Http\\Request",
+      "community_name": "Localization",
       "norm_label": ".version()"
     },
     {
       "label": ".share()",
       "file_type": "code",
       "source_file": "app/Http/Middleware/HandleInertiaRequests.php",
-      "source_location": "L36",
+      "source_location": "L39",
       "_callable": true,
       "_origin": "ast",
       "id": "app_http_middleware_handleinertiarequests_handleinertiarequests_share",
       "community": 18,
-      "community_name": "Illuminate\\Http\\Request",
+      "community_name": "Localization",
       "norm_label": ".share()"
+    },
+    {
+      "label": "SetLocale.php",
+      "file_type": "code",
+      "source_file": "app/Http/Middleware/SetLocale.php",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "app_http_middleware_setlocale",
+      "community": 18,
+      "community_name": "Localization",
+      "norm_label": "setlocale.php"
+    },
+    {
+      "label": "SetLocale",
+      "file_type": "code",
+      "source_file": "app/Http/Middleware/SetLocale.php",
+      "source_location": "L15",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "app_http_middleware_setlocale_setlocale",
+      "community": 18,
+      "community_name": "Localization",
+      "norm_label": "setlocale"
+    },
+    {
+      "label": ".__construct()",
+      "file_type": "code",
+      "source_file": "app/Http/Middleware/SetLocale.php",
+      "source_location": "L17",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_http_middleware_setlocale_setlocale_construct",
+      "community": 18,
+      "community_name": "Localization",
+      "norm_label": ".__construct()"
+    },
+    {
+      "label": ".handle()",
+      "file_type": "code",
+      "source_file": "app/Http/Middleware/SetLocale.php",
+      "source_location": "L24",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_http_middleware_setlocale_setlocale_handle",
+      "community": 18,
+      "community_name": "Localization",
+      "norm_label": ".handle()"
+    },
+    {
+      "label": ".resolve()",
+      "file_type": "code",
+      "source_file": "app/Http/Middleware/SetLocale.php",
+      "source_location": "L48",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_http_middleware_setlocale_setlocale_resolve",
+      "community": 18,
+      "community_name": "Localization",
+      "norm_label": ".resolve()"
+    },
+    {
+      "label": "LocaleUpdateRequest.php",
+      "file_type": "code",
+      "source_file": "app/Http/Requests/LocaleUpdateRequest.php",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "app_http_requests_localeupdaterequest",
+      "community": 2,
+      "community_name": "PasswordValidationRules.php",
+      "norm_label": "localeupdaterequest.php"
+    },
+    {
+      "label": "LocaleUpdateRequest",
+      "file_type": "code",
+      "source_file": "app/Http/Requests/LocaleUpdateRequest.php",
+      "source_location": "L10",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "app_http_requests_localeupdaterequest_localeupdaterequest",
+      "community": 2,
+      "community_name": "PasswordValidationRules.php",
+      "norm_label": "localeupdaterequest"
+    },
+    {
+      "label": ".rules()",
+      "file_type": "code",
+      "source_file": "app/Http/Requests/LocaleUpdateRequest.php",
+      "source_location": "L20",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_http_requests_localeupdaterequest_localeupdaterequest_rules",
+      "community": 2,
+      "community_name": "PasswordValidationRules.php",
+      "norm_label": ".rules()"
+    },
+    {
+      "label": ".locale()",
+      "file_type": "code",
+      "source_file": "app/Http/Requests/LocaleUpdateRequest.php",
+      "source_location": "L30",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_http_requests_localeupdaterequest_localeupdaterequest_locale",
+      "community": 2,
+      "community_name": "PasswordValidationRules.php",
+      "norm_label": ".locale()"
     },
     {
       "label": "PasswordUpdateRequest.php",
@@ -795,6 +940,138 @@
       "norm_label": ".configureratelimiting()"
     },
     {
+      "label": "Localization.php",
+      "file_type": "code",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "app_services_localization",
+      "community": 18,
+      "community_name": "Localization",
+      "norm_label": "localization.php"
+    },
+    {
+      "label": "Localization",
+      "file_type": "code",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L17",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "app_services_localization_localization",
+      "community": 18,
+      "community_name": "Localization",
+      "norm_label": "localization"
+    },
+    {
+      "label": ".codes()",
+      "file_type": "code",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L31",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_services_localization_localization_codes",
+      "community": 18,
+      "community_name": "Localization",
+      "norm_label": ".codes()"
+    },
+    {
+      "label": ".isSupported()",
+      "file_type": "code",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L39",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_services_localization_localization_issupported",
+      "community": 18,
+      "community_name": "Localization",
+      "norm_label": ".issupported()"
+    },
+    {
+      "label": ".fallback()",
+      "file_type": "code",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L48",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_services_localization_localization_fallback",
+      "community": 18,
+      "community_name": "Localization",
+      "norm_label": ".fallback()"
+    },
+    {
+      "label": ".direction()",
+      "file_type": "code",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L62",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_services_localization_localization_direction",
+      "community": 18,
+      "community_name": "Localization",
+      "norm_label": ".direction()"
+    },
+    {
+      "label": ".nativeName()",
+      "file_type": "code",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L70",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_services_localization_localization_nativename",
+      "community": 18,
+      "community_name": "Localization",
+      "norm_label": ".nativename()"
+    },
+    {
+      "label": ".options()",
+      "file_type": "code",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L80",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_services_localization_localization_options",
+      "community": 18,
+      "community_name": "Localization",
+      "norm_label": ".options()"
+    },
+    {
+      "label": ".payload()",
+      "file_type": "code",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L96",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_services_localization_localization_payload",
+      "community": 18,
+      "community_name": "Localization",
+      "norm_label": ".payload()"
+    },
+    {
+      "label": ".clientCatalog()",
+      "file_type": "code",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L119",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_services_localization_localization_clientcatalog",
+      "community": 18,
+      "community_name": "Localization",
+      "norm_label": ".clientcatalog()"
+    },
+    {
+      "label": ".loadGroups()",
+      "file_type": "code",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L139",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_services_localization_localization_loadgroups",
+      "community": 18,
+      "community_name": "Localization",
+      "norm_label": ".loadgroups()"
+    },
+    {
       "label": "artisan",
       "file_type": "code",
       "source_file": "artisan",
@@ -813,7 +1090,7 @@
       "_origin": "ast",
       "id": "bootstrap_app",
       "community": 18,
-      "community_name": "Illuminate\\Http\\Request",
+      "community_name": "Localization",
       "norm_label": "bootstrap/app.php"
     },
     {
@@ -1087,8 +1364,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "composer_keywords",
-      "community": 1,
-      "community_name": "composer.json",
+      "community": 90,
+      "community_name": "keywords",
       "norm_label": "keywords"
     },
     {
@@ -1098,8 +1375,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "ref_laravel",
-      "community": 1,
-      "community_name": "composer.json",
+      "community": 90,
+      "community_name": "keywords",
       "norm_label": "laravel"
     },
     {
@@ -1109,8 +1386,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "ref_framework",
-      "community": 1,
-      "community_name": "composer.json",
+      "community": 90,
+      "community_name": "keywords",
       "norm_label": "framework"
     },
     {
@@ -1439,8 +1716,8 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "composer_autoload_dev",
-      "community": 151,
-      "community_name": "autoload-dev",
+      "community": 1,
+      "community_name": "composer.json",
       "norm_label": "autoload-dev"
     },
     {
@@ -1450,8 +1727,8 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "composer_autoload_dev_psr_4",
-      "community": 151,
-      "community_name": "autoload-dev",
+      "community": 1,
+      "community_name": "composer.json",
       "norm_label": "psr-4"
     },
     {
@@ -1461,8 +1738,8 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "composer_psr_4_tests",
-      "community": 151,
-      "community_name": "autoload-dev",
+      "community": 1,
+      "community_name": "composer.json",
       "norm_label": "tests\\\\"
     },
     {
@@ -2126,6 +2403,17 @@
       "norm_label": "inertia.php"
     },
     {
+      "label": "localization.php",
+      "file_type": "code",
+      "source_file": "config/localization.php",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "config_localization",
+      "community": 151,
+      "community_name": "localization.php",
+      "norm_label": "localization.php"
+    },
+    {
       "label": "logging.php",
       "file_type": "code",
       "source_file": "config/logging.php",
@@ -2492,6 +2780,28 @@
       "community": 86,
       "community_name": "eslint",
       "norm_label": "eslint"
+    },
+    {
+      "label": "en/common.php",
+      "file_type": "code",
+      "source_file": "lang/en/common.php",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "lang_en_common",
+      "community": 154,
+      "community_name": "en/common.php",
+      "norm_label": "en/common.php"
+    },
+    {
+      "label": "fa/common.php",
+      "file_type": "code",
+      "source_file": "lang/fa/common.php",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "lang_fa_common",
+      "community": 161,
+      "community_name": "fa/common.php",
+      "norm_label": "fa/common.php"
     },
     {
       "label": "opencode.json",
@@ -3501,8 +3811,8 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "package_dependencies_class_variance_authority",
-      "community": 22,
-      "community_name": "dependencies",
+      "community": 120,
+      "community_name": "class-variance-authority",
       "norm_label": "class-variance-authority"
     },
     {
@@ -3512,8 +3822,8 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "class_variance_authority",
-      "community": 22,
-      "community_name": "dependencies",
+      "community": 120,
+      "community_name": "class-variance-authority",
       "norm_label": "class-variance-authority"
     },
     {
@@ -3545,8 +3855,8 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "package_dependencies_concurrently",
-      "community": 154,
-      "community_name": "concurrently",
+      "community": 22,
+      "community_name": "dependencies",
       "norm_label": "concurrently"
     },
     {
@@ -3556,8 +3866,8 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "concurrently",
-      "community": 154,
-      "community_name": "concurrently",
+      "community": 22,
+      "community_name": "dependencies",
       "norm_label": "concurrently"
     },
     {
@@ -3985,8 +4295,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_app",
-      "community": 17,
-      "community_name": "app.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "app.tsx"
     },
     {
@@ -3997,8 +4307,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_app_withapp",
-      "community": 17,
-      "community_name": "app.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "withapp()"
     },
     {
@@ -4031,7 +4341,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_app_content",
-      "community": 5,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "app-content.tsx"
     },
@@ -4044,7 +4354,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_components_app_content_props",
-      "community": 5,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "props"
     },
@@ -4056,7 +4366,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_app_content_appcontent",
-      "community": 5,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "appcontent()"
     },
@@ -4114,8 +4424,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_app_header_appheader",
-      "community": 10,
-      "community_name": "layout.tsx",
+      "community": 12,
+      "community_name": "app-header.tsx",
       "norm_label": "appheader()"
     },
     {
@@ -4125,8 +4435,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_app_logo_icon",
-      "community": 17,
-      "community_name": "app.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "app-logo-icon.tsx"
     },
     {
@@ -4137,8 +4447,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_app_logo_icon_applogoicon",
-      "community": 17,
-      "community_name": "app.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "applogoicon()"
     },
     {
@@ -4148,8 +4458,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_app_logo",
-      "community": 17,
-      "community_name": "app.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "app-logo.tsx"
     },
     {
@@ -4160,8 +4470,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_app_logo_applogo",
-      "community": 17,
-      "community_name": "app.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "applogo()"
     },
     {
@@ -4171,7 +4481,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_app_shell",
-      "community": 5,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "app-shell.tsx"
     },
@@ -4184,7 +4494,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_components_app_shell_props",
-      "community": 5,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "props"
     },
@@ -4196,7 +4506,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_app_shell_appshell",
-      "community": 5,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "appshell()"
     },
@@ -4207,7 +4517,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_app_sidebar_header",
-      "community": 5,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "app-sidebar-header.tsx"
     },
@@ -4219,7 +4529,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_app_sidebar_header_appsidebarheader",
-      "community": 5,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "appsidebarheader()"
     },
@@ -4276,7 +4586,7 @@
       "_origin": "ast",
       "id": "resources_js_components_appearance_tabs",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "index.ts",
       "norm_label": "appearance-tabs.tsx"
     },
     {
@@ -4288,7 +4598,7 @@
       "_origin": "ast",
       "id": "resources_js_components_appearance_tabs_appearancetoggletab",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "index.ts",
       "norm_label": "appearancetoggletab()"
     },
     {
@@ -4298,8 +4608,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_breadcrumbs",
-      "community": 120,
-      "community_name": "breadcrumbs.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "breadcrumbs.tsx"
     },
     {
@@ -4310,7 +4620,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_breadcrumbs_breadcrumbs",
-      "community": 5,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "breadcrumbs()"
     },
@@ -4382,6 +4692,29 @@
       "community": 0,
       "community_name": "utils.ts",
       "norm_label": "inputerror()"
+    },
+    {
+      "label": "language-switcher.tsx",
+      "file_type": "code",
+      "source_file": "resources/js/components/language-switcher.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "resources_js_components_language_switcher",
+      "community": 24,
+      "community_name": "miniapp/localization.ts",
+      "norm_label": "language-switcher.tsx"
+    },
+    {
+      "label": "LanguageSwitcher()",
+      "file_type": "code",
+      "source_file": "resources/js/components/language-switcher.tsx",
+      "source_location": "L12",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "resources_js_components_language_switcher_languageswitcher",
+      "community": 24,
+      "community_name": "miniapp/localization.ts",
+      "norm_label": "languageswitcher()"
     },
     {
       "label": "nav-footer.tsx",
@@ -4623,8 +4956,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_ui_badge",
-      "community": 0,
-      "community_name": "utils.ts",
+      "community": 7,
+      "community_name": "cn",
       "norm_label": "badge.tsx"
     },
     {
@@ -4634,8 +4967,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "resources_js_components_ui_badge_badgevariants",
-      "community": 0,
-      "community_name": "utils.ts",
+      "community": 7,
+      "community_name": "cn",
       "norm_label": "badgevariants"
     },
     {
@@ -4646,8 +4979,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_badge_badge",
-      "community": 0,
-      "community_name": "utils.ts",
+      "community": 7,
+      "community_name": "cn",
       "norm_label": "badge()"
     },
     {
@@ -4657,8 +4990,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_ui_breadcrumb",
-      "community": 120,
-      "community_name": "breadcrumbs.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "breadcrumb.tsx"
     },
     {
@@ -4669,8 +5002,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_breadcrumb_breadcrumb",
-      "community": 120,
-      "community_name": "breadcrumbs.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "breadcrumb()"
     },
     {
@@ -4681,8 +5014,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_breadcrumb_breadcrumblist",
-      "community": 120,
-      "community_name": "breadcrumbs.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "breadcrumblist()"
     },
     {
@@ -4693,8 +5026,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_breadcrumb_breadcrumbitem",
-      "community": 120,
-      "community_name": "breadcrumbs.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "breadcrumbitem()"
     },
     {
@@ -4705,8 +5038,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_breadcrumb_breadcrumblink",
-      "community": 120,
-      "community_name": "breadcrumbs.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "breadcrumblink()"
     },
     {
@@ -4717,8 +5050,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_breadcrumb_breadcrumbpage",
-      "community": 120,
-      "community_name": "breadcrumbs.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "breadcrumbpage()"
     },
     {
@@ -4729,8 +5062,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_breadcrumb_breadcrumbseparator",
-      "community": 120,
-      "community_name": "breadcrumbs.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "breadcrumbseparator()"
     },
     {
@@ -4741,8 +5074,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_breadcrumb_breadcrumbellipsis",
-      "community": 120,
-      "community_name": "breadcrumbs.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "breadcrumbellipsis()"
     },
     {
@@ -4786,8 +5119,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_ui_card",
-      "community": 7,
-      "community_name": "cn",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "card.tsx"
     },
     {
@@ -4798,8 +5131,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_card_card",
-      "community": 7,
-      "community_name": "cn",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "card()"
     },
     {
@@ -4810,8 +5143,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_card_cardheader",
-      "community": 7,
-      "community_name": "cn",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "cardheader()"
     },
     {
@@ -4822,8 +5155,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_card_cardtitle",
-      "community": 7,
-      "community_name": "cn",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "cardtitle()"
     },
     {
@@ -4834,8 +5167,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_card_carddescription",
-      "community": 7,
-      "community_name": "cn",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "carddescription()"
     },
     {
@@ -4846,8 +5179,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_card_cardcontent",
-      "community": 7,
-      "community_name": "cn",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "cardcontent()"
     },
     {
@@ -4858,8 +5191,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_card_cardfooter",
-      "community": 7,
-      "community_name": "cn",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "cardfooter()"
     },
     {
@@ -5390,8 +5723,8 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "resources_js_components_ui_navigation_menu_navigationmenutriggerstyle",
-      "community": 7,
-      "community_name": "cn",
+      "community": 12,
+      "community_name": "app-header.tsx",
       "norm_label": "navigationmenutriggerstyle"
     },
     {
@@ -5628,8 +5961,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_ui_separator",
-      "community": 10,
-      "community_name": "layout.tsx",
+      "community": 7,
+      "community_name": "cn",
       "norm_label": "separator.tsx"
     },
     {
@@ -5640,8 +5973,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_separator_separator",
-      "community": 10,
-      "community_name": "layout.tsx",
+      "community": 7,
+      "community_name": "cn",
       "norm_label": "separator()"
     },
     {
@@ -5651,8 +5984,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_ui_sheet",
-      "community": 12,
-      "community_name": "app-header.tsx",
+      "community": 10,
+      "community_name": "sheet.tsx",
       "norm_label": "sheet.tsx"
     },
     {
@@ -5663,8 +5996,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_sheet_sheet",
-      "community": 12,
-      "community_name": "app-header.tsx",
+      "community": 10,
+      "community_name": "sheet.tsx",
       "norm_label": "sheet()"
     },
     {
@@ -5675,8 +6008,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_sheet_sheettrigger",
-      "community": 12,
-      "community_name": "app-header.tsx",
+      "community": 10,
+      "community_name": "sheet.tsx",
       "norm_label": "sheettrigger()"
     },
     {
@@ -5687,8 +6020,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_sheet_sheetclose",
-      "community": 12,
-      "community_name": "app-header.tsx",
+      "community": 10,
+      "community_name": "sheet.tsx",
       "norm_label": "sheetclose()"
     },
     {
@@ -5699,8 +6032,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_sheet_sheetportal",
-      "community": 12,
-      "community_name": "app-header.tsx",
+      "community": 10,
+      "community_name": "sheet.tsx",
       "norm_label": "sheetportal()"
     },
     {
@@ -5711,8 +6044,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_sheet_sheetoverlay",
-      "community": 12,
-      "community_name": "app-header.tsx",
+      "community": 10,
+      "community_name": "sheet.tsx",
       "norm_label": "sheetoverlay()"
     },
     {
@@ -5723,8 +6056,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_sheet_sheetcontent",
-      "community": 12,
-      "community_name": "app-header.tsx",
+      "community": 10,
+      "community_name": "sheet.tsx",
       "norm_label": "sheetcontent()"
     },
     {
@@ -5735,8 +6068,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_sheet_sheetheader",
-      "community": 12,
-      "community_name": "app-header.tsx",
+      "community": 10,
+      "community_name": "sheet.tsx",
       "norm_label": "sheetheader()"
     },
     {
@@ -5747,8 +6080,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_sheet_sheetfooter",
-      "community": 12,
-      "community_name": "app-header.tsx",
+      "community": 10,
+      "community_name": "sheet.tsx",
       "norm_label": "sheetfooter()"
     },
     {
@@ -5759,8 +6092,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_sheet_sheettitle",
-      "community": 12,
-      "community_name": "app-header.tsx",
+      "community": 10,
+      "community_name": "sheet.tsx",
       "norm_label": "sheettitle()"
     },
     {
@@ -5771,8 +6104,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_sheet_sheetdescription",
-      "community": 9,
-      "community_name": "sidebar.tsx",
+      "community": 10,
+      "community_name": "sheet.tsx",
       "norm_label": "sheetdescription()"
     },
     {
@@ -5820,7 +6153,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_sidebar_sidebarprovider",
       "community": 5,
-      "community_name": "index.ts",
+      "community_name": "useIsMobile",
       "norm_label": "sidebarprovider()"
     },
     {
@@ -5843,8 +6176,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_sidebar_sidebartrigger",
-      "community": 5,
-      "community_name": "index.ts",
+      "community": 9,
+      "community_name": "sidebar.tsx",
       "norm_label": "sidebartrigger()"
     },
     {
@@ -5867,8 +6200,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_sidebar_sidebarinset",
-      "community": 5,
-      "community_name": "index.ts",
+      "community": 9,
+      "community_name": "sidebar.tsx",
       "norm_label": "sidebarinset()"
     },
     {
@@ -6105,8 +6438,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_ui_skeleton",
-      "community": 9,
-      "community_name": "sidebar.tsx",
+      "community": 7,
+      "community_name": "cn",
       "norm_label": "skeleton.tsx"
     },
     {
@@ -6117,8 +6450,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_skeleton_skeleton",
-      "community": 9,
-      "community_name": "sidebar.tsx",
+      "community": 7,
+      "community_name": "cn",
       "norm_label": "skeleton()"
     },
     {
@@ -6129,7 +6462,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_sonner",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "index.ts",
       "norm_label": "sonner.tsx"
     },
     {
@@ -6141,7 +6474,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_sonner_toaster",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "index.ts",
       "norm_label": "toaster()"
     },
     {
@@ -6174,8 +6507,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_ui_toggle_group",
-      "community": 7,
-      "community_name": "cn",
+      "community": 17,
+      "community_name": "toggle-group.tsx",
       "norm_label": "toggle-group.tsx"
     },
     {
@@ -6185,8 +6518,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "resources_js_components_ui_toggle_group_togglegroupcontext",
-      "community": 7,
-      "community_name": "cn",
+      "community": 17,
+      "community_name": "toggle-group.tsx",
       "norm_label": "togglegroupcontext"
     },
     {
@@ -6197,8 +6530,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_toggle_group_togglegroup",
-      "community": 7,
-      "community_name": "cn",
+      "community": 17,
+      "community_name": "toggle-group.tsx",
       "norm_label": "togglegroup()"
     },
     {
@@ -6209,8 +6542,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_toggle_group_togglegroupitem",
-      "community": 7,
-      "community_name": "cn",
+      "community": 17,
+      "community_name": "toggle-group.tsx",
       "norm_label": "togglegroupitem()"
     },
     {
@@ -6220,8 +6553,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_ui_toggle",
-      "community": 7,
-      "community_name": "cn",
+      "community": 17,
+      "community_name": "toggle-group.tsx",
       "norm_label": "toggle.tsx"
     },
     {
@@ -6231,8 +6564,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "resources_js_components_ui_toggle_togglevariants",
-      "community": 7,
-      "community_name": "cn",
+      "community": 17,
+      "community_name": "toggle-group.tsx",
       "norm_label": "togglevariants"
     },
     {
@@ -6243,8 +6576,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_toggle_toggle",
-      "community": 7,
-      "community_name": "cn",
+      "community": 17,
+      "community_name": "toggle-group.tsx",
       "norm_label": "toggle()"
     },
     {
@@ -6254,8 +6587,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_ui_tooltip",
-      "community": 17,
-      "community_name": "app.tsx",
+      "community": 12,
+      "community_name": "app-header.tsx",
       "norm_label": "tooltip.tsx"
     },
     {
@@ -6266,8 +6599,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_tooltip_tooltipprovider",
-      "community": 17,
-      "community_name": "app.tsx",
+      "community": 12,
+      "community_name": "app-header.tsx",
       "norm_label": "tooltipprovider()"
     },
     {
@@ -6278,8 +6611,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_tooltip_tooltip",
-      "community": 17,
-      "community_name": "app.tsx",
+      "community": 12,
+      "community_name": "app-header.tsx",
       "norm_label": "tooltip()"
     },
     {
@@ -6290,8 +6623,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_tooltip_tooltiptrigger",
-      "community": 17,
-      "community_name": "app.tsx",
+      "community": 12,
+      "community_name": "app-header.tsx",
       "norm_label": "tooltiptrigger()"
     },
     {
@@ -6302,8 +6635,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_tooltip_tooltipcontent",
-      "community": 17,
-      "community_name": "app.tsx",
+      "community": 12,
+      "community_name": "app-header.tsx",
       "norm_label": "tooltipcontent()"
     },
     {
@@ -6373,7 +6706,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "index.ts",
       "norm_label": "use-appearance.tsx"
     },
     {
@@ -6386,7 +6719,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_resolvedappearance",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "index.ts",
       "norm_label": "resolvedappearance"
     },
     {
@@ -6399,7 +6732,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_appearance",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "index.ts",
       "norm_label": "appearance"
     },
     {
@@ -6412,7 +6745,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_useappearancereturn",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "index.ts",
       "norm_label": "useappearancereturn"
     },
     {
@@ -6423,7 +6756,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_listeners",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "index.ts",
       "norm_label": "listeners"
     },
     {
@@ -6435,7 +6768,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_prefersdark",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "index.ts",
       "norm_label": "prefersdark()"
     },
     {
@@ -6447,7 +6780,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_setcookie",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "index.ts",
       "norm_label": "setcookie()"
     },
     {
@@ -6459,7 +6792,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_getstoredappearance",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "index.ts",
       "norm_label": "getstoredappearance()"
     },
     {
@@ -6471,7 +6804,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_isdarkmode",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "index.ts",
       "norm_label": "isdarkmode()"
     },
     {
@@ -6483,7 +6816,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_applytheme",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "index.ts",
       "norm_label": "applytheme()"
     },
     {
@@ -6495,7 +6828,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_subscribe",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "index.ts",
       "norm_label": "subscribe()"
     },
     {
@@ -6507,7 +6840,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_notify",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "index.ts",
       "norm_label": "notify()"
     },
     {
@@ -6519,7 +6852,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_mediaquery",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "index.ts",
       "norm_label": "mediaquery()"
     },
     {
@@ -6531,7 +6864,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_handlesystemthemechange",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "index.ts",
       "norm_label": "handlesystemthemechange()"
     },
     {
@@ -6543,7 +6876,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_initializetheme",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "index.ts",
       "norm_label": "initializetheme()"
     },
     {
@@ -6555,7 +6888,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_useappearance",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "index.ts",
       "norm_label": "useappearance()"
     },
     {
@@ -6627,8 +6960,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_hooks_use_current_url",
-      "community": 10,
-      "community_name": "layout.tsx",
+      "community": 12,
+      "community_name": "app-header.tsx",
       "norm_label": "use-current-url.ts"
     },
     {
@@ -6640,8 +6973,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_current_url_iscurrenturlfn",
-      "community": 10,
-      "community_name": "layout.tsx",
+      "community": 12,
+      "community_name": "app-header.tsx",
       "norm_label": "iscurrenturlfn"
     },
     {
@@ -6653,8 +6986,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_current_url_iscurrentorparenturlfn",
-      "community": 10,
-      "community_name": "layout.tsx",
+      "community": 12,
+      "community_name": "app-header.tsx",
       "norm_label": "iscurrentorparenturlfn"
     },
     {
@@ -6666,8 +6999,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_current_url_whencurrenturlfn",
-      "community": 10,
-      "community_name": "layout.tsx",
+      "community": 12,
+      "community_name": "app-header.tsx",
       "norm_label": "whencurrenturlfn"
     },
     {
@@ -6679,8 +7012,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_current_url_usecurrenturlreturn",
-      "community": 10,
-      "community_name": "layout.tsx",
+      "community": 12,
+      "community_name": "app-header.tsx",
       "norm_label": "usecurrenturlreturn"
     },
     {
@@ -6691,8 +7024,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_current_url_usecurrenturl",
-      "community": 10,
-      "community_name": "layout.tsx",
+      "community": 12,
+      "community_name": "app-header.tsx",
       "norm_label": "usecurrenturl()"
     },
     {
@@ -6703,7 +7036,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_flash_toast",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "index.ts",
       "norm_label": "use-flash-toast.ts"
     },
     {
@@ -6715,7 +7048,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_flash_toast_useflashtoast",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "index.ts",
       "norm_label": "useflashtoast()"
     },
     {
@@ -6809,8 +7142,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_hooks_use_mobile",
-      "community": 13,
-      "community_name": "dropdown-menu.tsx",
+      "community": 5,
+      "community_name": "useIsMobile",
       "norm_label": "use-mobile.tsx"
     },
     {
@@ -6821,8 +7154,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_mobile_mediaquerylistener",
-      "community": 13,
-      "community_name": "dropdown-menu.tsx",
+      "community": 5,
+      "community_name": "useIsMobile",
       "norm_label": "mediaquerylistener()"
     },
     {
@@ -6833,8 +7166,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_mobile_issmallerthanbreakpoint",
-      "community": 13,
-      "community_name": "dropdown-menu.tsx",
+      "community": 5,
+      "community_name": "useIsMobile",
       "norm_label": "issmallerthanbreakpoint()"
     },
     {
@@ -6845,8 +7178,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_mobile_getserversnapshot",
-      "community": 13,
-      "community_name": "dropdown-menu.tsx",
+      "community": 5,
+      "community_name": "useIsMobile",
       "norm_label": "getserversnapshot()"
     },
     {
@@ -6857,9 +7190,32 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_mobile_useismobile",
-      "community": 13,
-      "community_name": "dropdown-menu.tsx",
+      "community": 5,
+      "community_name": "useIsMobile",
       "norm_label": "useismobile()"
+    },
+    {
+      "label": "use-translation.ts",
+      "file_type": "code",
+      "source_file": "resources/js/hooks/use-translation.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "resources_js_hooks_use_translation",
+      "community": 24,
+      "community_name": "miniapp/localization.ts",
+      "norm_label": "use-translation.ts"
+    },
+    {
+      "label": "useTranslation()",
+      "file_type": "code",
+      "source_file": "resources/js/hooks/use-translation.ts",
+      "source_location": "L13",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "resources_js_hooks_use_translation_usetranslation",
+      "community": 24,
+      "community_name": "miniapp/localization.ts",
+      "norm_label": "usetranslation()"
     },
     {
       "label": "app-layout.tsx",
@@ -6868,7 +7224,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_layouts_app_layout",
-      "community": 5,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "app-layout.tsx"
     },
@@ -6880,7 +7236,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_layouts_app_layout_applayout",
-      "community": 5,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "applayout()"
     },
@@ -6891,7 +7247,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_layouts_app_app_header_layout",
-      "community": 5,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "app-header-layout.tsx"
     },
@@ -6903,7 +7259,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_layouts_app_app_header_layout_appheaderlayout",
-      "community": 5,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "appheaderlayout()"
     },
@@ -6914,7 +7270,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_layouts_app_app_sidebar_layout",
-      "community": 5,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "app-sidebar-layout.tsx"
     },
@@ -6926,7 +7282,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_layouts_app_app_sidebar_layout_appsidebarlayout",
-      "community": 5,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "appsidebarlayout()"
     },
@@ -6937,8 +7293,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_layouts_auth_layout",
-      "community": 17,
-      "community_name": "app.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "auth-layout.tsx"
     },
     {
@@ -6949,8 +7305,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_layouts_auth_layout_authlayout",
-      "community": 17,
-      "community_name": "app.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "authlayout()"
     },
     {
@@ -6960,8 +7316,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_layouts_auth_auth_card_layout",
-      "community": 7,
-      "community_name": "cn",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "auth-card-layout.tsx"
     },
     {
@@ -6972,8 +7328,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_layouts_auth_auth_card_layout_authcardlayout",
-      "community": 7,
-      "community_name": "cn",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "authcardlayout()"
     },
     {
@@ -6983,8 +7339,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_layouts_auth_auth_simple_layout",
-      "community": 17,
-      "community_name": "app.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "auth-simple-layout.tsx"
     },
     {
@@ -6995,8 +7351,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_layouts_auth_auth_simple_layout_authsimplelayout",
-      "community": 17,
-      "community_name": "app.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "authsimplelayout()"
     },
     {
@@ -7006,8 +7362,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_layouts_auth_auth_split_layout",
-      "community": 17,
-      "community_name": "app.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "auth-split-layout.tsx"
     },
     {
@@ -7018,8 +7374,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_layouts_auth_auth_split_layout_authsplitlayout",
-      "community": 17,
-      "community_name": "app.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "authsplitlayout()"
     },
     {
@@ -7029,8 +7385,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_layouts_settings_layout",
-      "community": 10,
-      "community_name": "layout.tsx",
+      "community": 0,
+      "community_name": "utils.ts",
       "norm_label": "layout.tsx"
     },
     {
@@ -7040,8 +7396,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "resources_js_layouts_settings_layout_sidebarnavitems",
-      "community": 10,
-      "community_name": "layout.tsx",
+      "community": 0,
+      "community_name": "utils.ts",
       "norm_label": "sidebarnavitems"
     },
     {
@@ -7052,9 +7408,45 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_layouts_settings_layout_settingslayout",
-      "community": 10,
-      "community_name": "layout.tsx",
+      "community": 12,
+      "community_name": "app-header.tsx",
       "norm_label": "settingslayout()"
+    },
+    {
+      "label": "i18n.ts",
+      "file_type": "code",
+      "source_file": "resources/js/lib/i18n.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "resources_js_lib_i18n",
+      "community": 24,
+      "community_name": "miniapp/localization.ts",
+      "norm_label": "i18n.ts"
+    },
+    {
+      "label": "TranslationReplacements",
+      "file_type": "code",
+      "source_file": "resources/js/lib/i18n.ts",
+      "source_location": "L3",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "resources_js_lib_i18n_translationreplacements",
+      "community": 24,
+      "community_name": "miniapp/localization.ts",
+      "norm_label": "translationreplacements"
+    },
+    {
+      "label": "translate()",
+      "file_type": "code",
+      "source_file": "resources/js/lib/i18n.ts",
+      "source_location": "L14",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "resources_js_lib_i18n_translate",
+      "community": 24,
+      "community_name": "miniapp/localization.ts",
+      "norm_label": "translate()"
     },
     {
       "label": "utils.ts",
@@ -7087,9 +7479,66 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_lib_utils_tourl",
-      "community": 10,
-      "community_name": "layout.tsx",
+      "community": 12,
+      "community_name": "app-header.tsx",
       "norm_label": "tourl()"
+    },
+    {
+      "label": "miniapp/localization.ts",
+      "file_type": "code",
+      "source_file": "resources/js/miniapp/localization.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "resources_js_miniapp_localization",
+      "community": 24,
+      "community_name": "miniapp/localization.ts",
+      "norm_label": "miniapp/localization.ts"
+    },
+    {
+      "label": "fallback",
+      "file_type": "code",
+      "source_file": "resources/js/miniapp/localization.ts",
+      "source_location": "L10",
+      "_origin": "ast",
+      "id": "resources_js_miniapp_localization_fallback",
+      "community": 24,
+      "community_name": "miniapp/localization.ts",
+      "norm_label": "fallback"
+    },
+    {
+      "label": "readPayload()",
+      "file_type": "code",
+      "source_file": "resources/js/miniapp/localization.ts",
+      "source_location": "L17",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "resources_js_miniapp_localization_readpayload",
+      "community": 24,
+      "community_name": "miniapp/localization.ts",
+      "norm_label": "readpayload()"
+    },
+    {
+      "label": "localization",
+      "file_type": "code",
+      "source_file": "resources/js/miniapp/localization.ts",
+      "source_location": "L36",
+      "_origin": "ast",
+      "id": "resources_js_miniapp_localization_localization",
+      "community": 24,
+      "community_name": "miniapp/localization.ts",
+      "norm_label": "localization"
+    },
+    {
+      "label": "t()",
+      "file_type": "code",
+      "source_file": "resources/js/miniapp/localization.ts",
+      "source_location": "L38",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "resources_js_miniapp_localization_t",
+      "community": 24,
+      "community_name": "miniapp/localization.ts",
+      "norm_label": "t()"
     },
     {
       "label": "main.tsx",
@@ -7098,19 +7547,19 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_miniapp_main",
-      "community": 161,
-      "community_name": "main.tsx",
+      "community": 24,
+      "community_name": "miniapp/localization.ts",
       "norm_label": "main.tsx"
     },
     {
       "label": "rootElement",
       "file_type": "code",
       "source_file": "resources/js/miniapp/main.tsx",
-      "source_location": "L14",
+      "source_location": "L18",
       "_origin": "ast",
       "id": "resources_js_miniapp_main_rootelement",
-      "community": 161,
-      "community_name": "main.tsx",
+      "community": 24,
+      "community_name": "miniapp/localization.ts",
       "norm_label": "rootelement"
     },
     {
@@ -7320,20 +7769,20 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_pages_settings_appearance",
-      "community": 0,
-      "community_name": "utils.ts",
+      "community": 24,
+      "community_name": "miniapp/localization.ts",
       "norm_label": "appearance.tsx"
     },
     {
       "label": "Appearance()",
       "file_type": "code",
       "source_file": "resources/js/pages/settings/appearance.tsx",
-      "source_location": "L6",
+      "source_location": "L8",
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_pages_settings_appearance_appearance",
-      "community": 0,
-      "community_name": "utils.ts",
+      "community": 24,
+      "community_name": "miniapp/localization.ts",
       "norm_label": "appearance()"
     },
     {
@@ -7439,7 +7888,7 @@
       "_origin": "ast",
       "id": "resources_js_types_auth",
       "community": 24,
-      "community_name": "global.d.ts",
+      "community_name": "miniapp/localization.ts",
       "norm_label": "auth.ts"
     },
     {
@@ -7451,8 +7900,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_types_auth_user",
-      "community": 24,
-      "community_name": "global.d.ts",
+      "community": 13,
+      "community_name": "dropdown-menu.tsx",
       "norm_label": "user"
     },
     {
@@ -7465,7 +7914,7 @@
       "_origin": "ast",
       "id": "resources_js_types_auth_auth",
       "community": 24,
-      "community_name": "global.d.ts",
+      "community_name": "miniapp/localization.ts",
       "norm_label": "auth"
     },
     {
@@ -7476,55 +7925,55 @@
       "_origin": "ast",
       "id": "resources_js_types_global_d",
       "community": 24,
-      "community_name": "global.d.ts",
+      "community_name": "miniapp/localization.ts",
       "norm_label": "global.d.ts"
     },
     {
       "label": "react",
       "file_type": "code",
       "source_file": "resources/js/types/global.d.ts",
-      "source_location": "L3",
+      "source_location": "L8",
       "_origin": "ast",
       "id": "resources_js_types_global_d_react",
       "community": 24,
-      "community_name": "global.d.ts",
+      "community_name": "miniapp/localization.ts",
       "norm_label": "react"
     },
     {
       "label": "InputHTMLAttributes",
       "file_type": "code",
       "source_file": "resources/js/types/global.d.ts",
-      "source_location": "L5",
+      "source_location": "L10",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_types_global_d_inputhtmlattributes",
       "community": 24,
-      "community_name": "global.d.ts",
+      "community_name": "miniapp/localization.ts",
       "norm_label": "inputhtmlattributes"
     },
     {
       "label": "@inertiajs/core",
       "file_type": "code",
       "source_file": "resources/js/types/global.d.ts",
-      "source_location": "L10",
+      "source_location": "L15",
       "_origin": "ast",
       "id": "resources_js_types_global_d_inertiajs_core",
       "community": 24,
-      "community_name": "global.d.ts",
+      "community_name": "miniapp/localization.ts",
       "norm_label": "@inertiajs/core"
     },
     {
       "label": "InertiaConfig",
       "file_type": "code",
       "source_file": "resources/js/types/global.d.ts",
-      "source_location": "L11",
+      "source_location": "L16",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_types_global_d_inertiaconfig",
       "community": 24,
-      "community_name": "global.d.ts",
+      "community_name": "miniapp/localization.ts",
       "norm_label": "inertiaconfig"
     },
     {
@@ -7534,9 +7983,72 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_types_index",
-      "community": 5,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "index.ts"
+    },
+    {
+      "label": "types/localization.ts",
+      "file_type": "code",
+      "source_file": "resources/js/types/localization.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "resources_js_types_localization",
+      "community": 24,
+      "community_name": "miniapp/localization.ts",
+      "norm_label": "types/localization.ts"
+    },
+    {
+      "label": "Direction",
+      "file_type": "code",
+      "source_file": "resources/js/types/localization.ts",
+      "source_location": "L1",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "resources_js_types_localization_direction",
+      "community": 24,
+      "community_name": "miniapp/localization.ts",
+      "norm_label": "direction"
+    },
+    {
+      "label": "LocaleOption",
+      "file_type": "code",
+      "source_file": "resources/js/types/localization.ts",
+      "source_location": "L3",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "resources_js_types_localization_localeoption",
+      "community": 24,
+      "community_name": "miniapp/localization.ts",
+      "norm_label": "localeoption"
+    },
+    {
+      "label": "Translations",
+      "file_type": "code",
+      "source_file": "resources/js/types/localization.ts",
+      "source_location": "L10",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "resources_js_types_localization_translations",
+      "community": 24,
+      "community_name": "miniapp/localization.ts",
+      "norm_label": "translations"
+    },
+    {
+      "label": "LocalizationPayload",
+      "file_type": "code",
+      "source_file": "resources/js/types/localization.ts",
+      "source_location": "L17",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "resources_js_types_localization_localizationpayload",
+      "community": 24,
+      "community_name": "miniapp/localization.ts",
+      "norm_label": "localizationpayload"
     },
     {
       "label": "navigation.ts",
@@ -7545,7 +8057,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_types_navigation",
-      "community": 5,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "navigation.ts"
     },
@@ -7558,7 +8070,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_types_navigation_breadcrumbitem",
-      "community": 5,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "breadcrumbitem"
     },
@@ -7582,7 +8094,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_types_ui",
-      "community": 5,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "ui.ts"
     },
@@ -7595,7 +8107,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_types_ui_applayoutprops",
-      "community": 5,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "applayoutprops"
     },
@@ -7608,7 +8120,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_types_ui_appvariant",
-      "community": 5,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "appvariant"
     },
@@ -7622,7 +8134,7 @@
       "_origin": "ast",
       "id": "resources_js_types_ui_flashtoast",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "index.ts",
       "norm_label": "flashtoast"
     },
     {
@@ -7634,8 +8146,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_types_ui_authlayoutprops",
-      "community": 17,
-      "community_name": "app.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "authlayoutprops"
     },
     {
@@ -7733,8 +8245,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "routes_web",
-      "community": 90,
-      "community_name": "web.php",
+      "community": 2,
+      "community_name": "PasswordValidationRules.php",
       "norm_label": "web.php"
     },
     {
@@ -7851,8 +8363,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_auth_emailverificationtest",
-      "community": 31,
-      "community_name": "User.php",
+      "community": 15,
+      "community_name": "User",
       "norm_label": "emailverificationtest.php"
     },
     {
@@ -8312,14 +8824,48 @@
       "norm_label": "healthchecktest.php"
     },
     {
+      "label": "LocalizationServiceTest.php",
+      "file_type": "code",
+      "source_file": "tests/Feature/LocalizationServiceTest.php",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "tests_feature_localizationservicetest",
+      "community": 172,
+      "community_name": "LocalizationServiceTest.php",
+      "norm_label": "localizationservicetest.php"
+    },
+    {
+      "label": "LocalizationTest.php",
+      "file_type": "code",
+      "source_file": "tests/Feature/LocalizationTest.php",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "tests_feature_localizationtest",
+      "community": 31,
+      "community_name": "User.php",
+      "norm_label": "localizationtest.php"
+    },
+    {
+      "label": "preferredLocale()",
+      "file_type": "code",
+      "source_file": "tests/Feature/LocalizationTest.php",
+      "source_location": "L56",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "tests_feature_localizationtest_preferredlocale",
+      "community": 31,
+      "community_name": "User.php",
+      "norm_label": "preferredlocale()"
+    },
+    {
       "label": "ProfileUpdateTest.php",
       "file_type": "code",
       "source_file": "tests/Feature/Settings/ProfileUpdateTest.php",
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_settings_profileupdatetest",
-      "community": 31,
-      "community_name": "User.php",
+      "community": 30,
+      "community_name": "ProfileUpdateTest",
       "norm_label": "profileupdatetest.php"
     },
     {
@@ -8331,8 +8877,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "tests_feature_settings_profileupdatetest_profileupdatetest",
-      "community": 15,
-      "community_name": "User",
+      "community": 30,
+      "community_name": "ProfileUpdateTest",
       "norm_label": "profileupdatetest"
     },
     {
@@ -8343,8 +8889,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_settings_profileupdatetest_profileupdatetest_test_profile_page_is_displayed",
-      "community": 15,
-      "community_name": "User",
+      "community": 30,
+      "community_name": "ProfileUpdateTest",
       "norm_label": ".test_profile_page_is_displayed()"
     },
     {
@@ -8355,8 +8901,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_settings_profileupdatetest_profileupdatetest_test_profile_information_can_be_updated",
-      "community": 15,
-      "community_name": "User",
+      "community": 30,
+      "community_name": "ProfileUpdateTest",
       "norm_label": ".test_profile_information_can_be_updated()"
     },
     {
@@ -8367,8 +8913,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_settings_profileupdatetest_profileupdatetest_test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged",
-      "community": 15,
-      "community_name": "User",
+      "community": 30,
+      "community_name": "ProfileUpdateTest",
       "norm_label": ".test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged()"
     },
     {
@@ -8379,8 +8925,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_settings_profileupdatetest_profileupdatetest_test_user_can_delete_their_account",
-      "community": 15,
-      "community_name": "User",
+      "community": 30,
+      "community_name": "ProfileUpdateTest",
       "norm_label": ".test_user_can_delete_their_account()"
     },
     {
@@ -8391,8 +8937,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_settings_profileupdatetest_profileupdatetest_test_correct_password_must_be_provided_to_delete_account",
-      "community": 15,
-      "community_name": "User",
+      "community": 30,
+      "community_name": "ProfileUpdateTest",
       "norm_label": ".test_correct_password_must_be_provided_to_delete_account()"
     },
     {
@@ -8402,8 +8948,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_settings_securitytest",
-      "community": 30,
-      "community_name": "SecurityTest",
+      "community": 31,
+      "community_name": "User.php",
       "norm_label": "securitytest.php"
     },
     {
@@ -8415,8 +8961,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "tests_feature_settings_securitytest_securitytest",
-      "community": 30,
-      "community_name": "SecurityTest",
+      "community": 15,
+      "community_name": "User",
       "norm_label": "securitytest"
     },
     {
@@ -8427,8 +8973,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_settings_securitytest_securitytest_test_security_page_is_displayed",
-      "community": 30,
-      "community_name": "SecurityTest",
+      "community": 15,
+      "community_name": "User",
       "norm_label": ".test_security_page_is_displayed()"
     },
     {
@@ -8439,8 +8985,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_settings_securitytest_securitytest_test_security_page_requires_password_confirmation_when_enabled",
-      "community": 30,
-      "community_name": "SecurityTest",
+      "community": 15,
+      "community_name": "User",
       "norm_label": ".test_security_page_requires_password_confirmation_when_enabled()"
     },
     {
@@ -8451,8 +8997,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_settings_securitytest_securitytest_test_security_page_renders_without_two_factor_when_feature_is_disabled",
-      "community": 30,
-      "community_name": "SecurityTest",
+      "community": 15,
+      "community_name": "User",
       "norm_label": ".test_security_page_renders_without_two_factor_when_feature_is_disabled()"
     },
     {
@@ -8463,8 +9009,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_settings_securitytest_securitytest_test_password_can_be_updated",
-      "community": 30,
-      "community_name": "SecurityTest",
+      "community": 15,
+      "community_name": "User",
       "norm_label": ".test_password_can_be_updated()"
     },
     {
@@ -8475,8 +9021,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_settings_securitytest_securitytest_test_correct_password_must_be_provided_to_update_password",
-      "community": 30,
-      "community_name": "SecurityTest",
+      "community": 15,
+      "community_name": "User",
       "norm_label": ".test_correct_password_must_be_provided_to_update_password()"
     },
     {
@@ -15373,15 +15919,15 @@
       "norm_label": "log"
     },
     {
-      "label": "Setup Task 1 \u2014 Project Bootstrap (in progress)",
+      "label": "Setup Task 1 \u2014 Project Bootstrap \u2705",
       "file_type": "document",
       "source_file": "prompts/progress.md",
       "source_location": "L48",
       "_origin": "ast",
-      "id": "prompts_progress_setup_task_1_project_bootstrap_in_progress",
+      "id": "prompts_progress_setup_task_1_project_bootstrap",
       "community": 101,
       "community_name": "Build Progress \u2014 Telegram Challenges Platform",
-      "norm_label": "setup task 1 \u2014 project bootstrap (in progress)"
+      "norm_label": "setup task 1 \u2014 project bootstrap \u2705"
     },
     {
       "label": "task-01-setup.md",
@@ -15512,7 +16058,7 @@
       "_origin": "ast",
       "id": "illuminate_http_request",
       "community": 18,
-      "community_name": "Illuminate\\Http\\Request",
+      "community_name": "Localization",
       "norm_label": "illuminate\\http\\request"
     },
     {
@@ -15527,6 +16073,17 @@
       "norm_label": "inertia\\response"
     },
     {
+      "label": "Closure",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "closure",
+      "community": 18,
+      "community_name": "Localization",
+      "norm_label": "closure"
+    },
+    {
       "label": "Symfony\\Component\\HttpFoundation\\Response",
       "file_type": "code",
       "source_file": "",
@@ -15534,7 +16091,7 @@
       "_origin": "ast",
       "id": "symfony_component_httpfoundation_response",
       "community": 18,
-      "community_name": "Illuminate\\Http\\Request",
+      "community_name": "Localization",
       "norm_label": "symfony\\component\\httpfoundation\\response"
     },
     {
@@ -15545,7 +16102,7 @@
       "_origin": "ast",
       "id": "inertia_middleware",
       "community": 18,
-      "community_name": "Illuminate\\Http\\Request",
+      "community_name": "Localization",
       "norm_label": "inertia\\middleware"
     },
     {
@@ -15622,7 +16179,7 @@
       "_origin": "ast",
       "id": "illuminate_foundation_configuration_middleware",
       "community": 18,
-      "community_name": "Illuminate\\Http\\Request",
+      "community_name": "Localization",
       "norm_label": "illuminate\\foundation\\configuration\\middleware"
     },
     {
@@ -16043,7 +16600,7 @@
       "contributor": null,
       "rationale": "Multi-language from day one (Farsi + English minimum), locale per user, RTL required. Scaffold has no i18n layer and no RTL handling at all, so both are genuine net-new build work.",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "index.ts",
       "norm_label": "i18n + rtl requirement",
       "_origin": "semantic",
       "id": "prompts_main_i18n_rtl"
@@ -16780,6 +17337,17 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Controllers/LocaleController.php",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_http_controllers_localecontroller_localecontroller",
+      "target": "app_http_controllers_controller_controller",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -16823,6 +17391,88 @@
       "_origin": "ast",
       "source": "app_http_controllers_settings_securitycontroller_securitycontroller",
       "target": "app_http_controllers_controller_controller",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Controllers/LocaleController.php",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_http_controllers_localecontroller",
+      "target": "app_http_controllers_localecontroller_localecontroller",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Controllers/LocaleController.php",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_http_controllers_localecontroller",
+      "target": "app_http_requests_localeupdaterequest_localeupdaterequest",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Controllers/LocaleController.php",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_http_controllers_localecontroller",
+      "target": "illuminate_http_redirectresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "routes/web.php",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "routes_web",
+      "target": "app_http_controllers_localecontroller",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Controllers/LocaleController.php",
+      "source_location": "L20",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_http_controllers_localecontroller_localecontroller",
+      "target": "app_http_controllers_localecontroller_localecontroller_update",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Controllers/LocaleController.php",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_http_controllers_localecontroller_localecontroller_update",
+      "target": "app_http_requests_localeupdaterequest_localeupdaterequest",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Controllers/LocaleController.php",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast",
+      "source": "app_http_controllers_localecontroller_localecontroller_update",
+      "target": "illuminate_http_redirectresponse",
       "confidence_score": 1.0
     },
     {
@@ -17288,7 +17938,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/Http/Middleware/HandleInertiaRequests.php",
-      "source_location": "L8",
+      "source_location": "L9",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_http_middleware_handleinertiarequests",
@@ -17304,7 +17954,7 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_http_middleware_handleinertiarequests",
-      "target": "illuminate_http_request",
+      "target": "app_services_localization_localization",
       "confidence_score": 1.0
     },
     {
@@ -17313,6 +17963,18 @@
       "confidence": "EXTRACTED",
       "source_file": "app/Http/Middleware/HandleInertiaRequests.php",
       "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_http_middleware_handleinertiarequests",
+      "target": "illuminate_http_request",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Middleware/HandleInertiaRequests.php",
+      "source_location": "L7",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_http_middleware_handleinertiarequests",
@@ -17335,7 +17997,18 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/Http/Middleware/HandleInertiaRequests.php",
-      "source_location": "L36",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_http_middleware_handleinertiarequests_handleinertiarequests",
+      "target": "app_http_middleware_handleinertiarequests_handleinertiarequests_construct",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Middleware/HandleInertiaRequests.php",
+      "source_location": "L39",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_http_middleware_handleinertiarequests_handleinertiarequests",
@@ -17346,7 +18019,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/Http/Middleware/HandleInertiaRequests.php",
-      "source_location": "L24",
+      "source_location": "L27",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_http_middleware_handleinertiarequests_handleinertiarequests",
@@ -17354,10 +18027,22 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Middleware/HandleInertiaRequests.php",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "field",
+      "_origin": "ast",
+      "source": "app_http_middleware_handleinertiarequests_handleinertiarequests",
+      "target": "app_services_localization_localization",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "inherits",
       "confidence": "EXTRACTED",
       "source_file": "app/Http/Middleware/HandleInertiaRequests.php",
-      "source_location": "L8",
+      "source_location": "L9",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_http_middleware_handleinertiarequests_handleinertiarequests",
@@ -17368,7 +18053,19 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/Http/Middleware/HandleInertiaRequests.php",
-      "source_location": "L24",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_http_middleware_handleinertiarequests_handleinertiarequests_construct",
+      "target": "app_services_localization_localization",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Middleware/HandleInertiaRequests.php",
+      "source_location": "L27",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -17380,12 +18077,280 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/Http/Middleware/HandleInertiaRequests.php",
-      "source_location": "L36",
+      "source_location": "L39",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
       "source": "app_http_middleware_handleinertiarequests_handleinertiarequests_share",
       "target": "illuminate_http_request",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Middleware/SetLocale.php",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_http_middleware_setlocale",
+      "target": "app_http_middleware_setlocale_setlocale",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Middleware/SetLocale.php",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_http_middleware_setlocale",
+      "target": "app_services_localization_localization",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Middleware/SetLocale.php",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_http_middleware_setlocale",
+      "target": "closure",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Middleware/SetLocale.php",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_http_middleware_setlocale",
+      "target": "illuminate_http_request",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Middleware/SetLocale.php",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_http_middleware_setlocale",
+      "target": "symfony_component_httpfoundation_response",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "bootstrap/app.php",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "bootstrap_app",
+      "target": "app_http_middleware_setlocale",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Middleware/SetLocale.php",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_http_middleware_setlocale_setlocale",
+      "target": "app_http_middleware_setlocale_setlocale_construct",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Middleware/SetLocale.php",
+      "source_location": "L24",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_http_middleware_setlocale_setlocale",
+      "target": "app_http_middleware_setlocale_setlocale_handle",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Middleware/SetLocale.php",
+      "source_location": "L48",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_http_middleware_setlocale_setlocale",
+      "target": "app_http_middleware_setlocale_setlocale_resolve",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Middleware/SetLocale.php",
+      "source_location": "L17",
+      "weight": 1.0,
+      "context": "field",
+      "_origin": "ast",
+      "source": "app_http_middleware_setlocale_setlocale",
+      "target": "app_services_localization_localization",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Middleware/SetLocale.php",
+      "source_location": "L17",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_http_middleware_setlocale_setlocale_construct",
+      "target": "app_services_localization_localization",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Middleware/SetLocale.php",
+      "source_location": "L26",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_http_middleware_setlocale_setlocale_handle",
+      "target": "app_http_middleware_setlocale_setlocale_resolve",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Middleware/SetLocale.php",
+      "source_location": "L24",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_http_middleware_setlocale_setlocale_handle",
+      "target": "closure",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Middleware/SetLocale.php",
+      "source_location": "L24",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_http_middleware_setlocale_setlocale_handle",
+      "target": "illuminate_http_request",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Middleware/SetLocale.php",
+      "source_location": "L24",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast",
+      "source": "app_http_middleware_setlocale_setlocale_handle",
+      "target": "symfony_component_httpfoundation_response",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Middleware/SetLocale.php",
+      "source_location": "L48",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_http_middleware_setlocale_setlocale_resolve",
+      "target": "illuminate_http_request",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Requests/LocaleUpdateRequest.php",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_http_requests_localeupdaterequest",
+      "target": "app_http_requests_localeupdaterequest_localeupdaterequest",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Requests/LocaleUpdateRequest.php",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_http_requests_localeupdaterequest",
+      "target": "app_services_localization_localization",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Requests/LocaleUpdateRequest.php",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_http_requests_localeupdaterequest",
+      "target": "illuminate_foundation_http_formrequest",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Requests/LocaleUpdateRequest.php",
+      "source_location": "L30",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_http_requests_localeupdaterequest_localeupdaterequest",
+      "target": "app_http_requests_localeupdaterequest_localeupdaterequest_locale",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Requests/LocaleUpdateRequest.php",
+      "source_location": "L20",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_http_requests_localeupdaterequest_localeupdaterequest",
+      "target": "app_http_requests_localeupdaterequest_localeupdaterequest_rules",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Requests/LocaleUpdateRequest.php",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_http_requests_localeupdaterequest_localeupdaterequest",
+      "target": "illuminate_foundation_http_formrequest",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Http/Requests/LocaleUpdateRequest.php",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_http_requests_localeupdaterequest_localeupdaterequest_rules",
+      "target": "app_services_localization_localization",
       "confidence_score": 1.0
     },
     {
@@ -17731,6 +18696,18 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "tests_feature_dashboardtest",
+      "target": "app_models_user",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/LocalizationTest.php",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_localizationtest",
       "target": "app_models_user",
       "confidence_score": 1.0
     },
@@ -18437,6 +19414,284 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_localization",
+      "target": "app_services_localization_localization",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L119",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_localization_localization",
+      "target": "app_services_localization_localization_clientcatalog",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L31",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_localization_localization",
+      "target": "app_services_localization_localization_codes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L62",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_localization_localization",
+      "target": "app_services_localization_localization_direction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L48",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_localization_localization",
+      "target": "app_services_localization_localization_fallback",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L39",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_localization_localization",
+      "target": "app_services_localization_localization_issupported",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L139",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_localization_localization",
+      "target": "app_services_localization_localization_loadgroups",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L70",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_localization_localization",
+      "target": "app_services_localization_localization_nativename",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L80",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_localization_localization",
+      "target": "app_services_localization_localization_options",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L96",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_localization_localization",
+      "target": "app_services_localization_localization_payload",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L56",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_localization_localization_fallback",
+      "target": "app_services_localization_localization_codes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L41",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_localization_localization_issupported",
+      "target": "app_services_localization_localization_codes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L86",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_localization_localization_options",
+      "target": "app_services_localization_localization_codes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L121",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_localization_localization_clientcatalog",
+      "target": "app_services_localization_localization_issupported",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L52",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_localization_localization_fallback",
+      "target": "app_services_localization_localization_issupported",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L100",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_localization_localization_payload",
+      "target": "app_services_localization_localization_issupported",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L122",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_localization_localization_clientcatalog",
+      "target": "app_services_localization_localization_fallback",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L101",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_localization_localization_payload",
+      "target": "app_services_localization_localization_fallback",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L85",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_localization_localization_options",
+      "target": "app_services_localization_localization_direction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L106",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_localization_localization_payload",
+      "target": "app_services_localization_localization_direction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L84",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_localization_localization_options",
+      "target": "app_services_localization_localization_nativename",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L107",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_localization_localization_payload",
+      "target": "app_services_localization_localization_options",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L108",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_localization_localization_payload",
+      "target": "app_services_localization_localization_clientcatalog",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/Localization.php",
+      "source_location": "L126",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_localization_localization_clientcatalog",
+      "target": "app_services_localization_localization_loadgroups",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -18453,7 +19708,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "bootstrap/app.php",
-      "source_location": "L7",
+      "source_location": "L8",
       "weight": 1.0,
       "_origin": "ast",
       "source": "bootstrap_app",
@@ -23923,6 +25178,113 @@
       "_origin": "ast",
       "source": "resources_js_pages_settings_security",
       "target": "resources_js_components_input_error_inputerror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/components/language-switcher.tsx",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_components_language_switcher",
+      "target": "resources_js_components_language_switcher_languageswitcher",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/components/language-switcher.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_components_language_switcher",
+      "target": "resources_js_hooks_use_translation",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/components/language-switcher.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_components_language_switcher",
+      "target": "resources_js_hooks_use_translation_usetranslation",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/components/language-switcher.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_components_language_switcher",
+      "target": "resources_js_lib_utils",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/components/language-switcher.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_components_language_switcher",
+      "target": "resources_js_lib_utils_cn",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/pages/settings/appearance.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_pages_settings_appearance",
+      "target": "resources_js_components_language_switcher",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "resources/js/components/language-switcher.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_components_language_switcher_languageswitcher",
+      "target": "resources_js_hooks_use_translation_usetranslation"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "resources/js/components/language-switcher.tsx",
+      "source_location": "L22",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_components_language_switcher_languageswitcher",
+      "target": "resources_js_lib_utils_cn"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/pages/settings/appearance.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_pages_settings_appearance",
+      "target": "resources_js_components_language_switcher_languageswitcher",
       "confidence_score": 1.0
     },
     {
@@ -29959,6 +31321,101 @@
       "confidence_score": 0.5
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/hooks/use-translation.ts",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_hooks_use_translation",
+      "target": "resources_js_hooks_use_translation_usetranslation",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/hooks/use-translation.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_hooks_use_translation",
+      "target": "resources_js_lib_i18n",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/hooks/use-translation.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_hooks_use_translation",
+      "target": "resources_js_lib_i18n_translate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/hooks/use-translation.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_hooks_use_translation",
+      "target": "resources_js_lib_i18n_translationreplacements",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/pages/settings/appearance.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_pages_settings_appearance",
+      "target": "resources_js_hooks_use_translation",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "resources/js/hooks/use-translation.ts",
+      "source_location": "L18",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_hooks_use_translation_usetranslation",
+      "target": "resources_js_lib_i18n_translate"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/pages/settings/appearance.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_pages_settings_appearance",
+      "target": "resources_js_hooks_use_translation_usetranslation",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "resources/js/pages/settings/appearance.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_pages_settings_appearance_appearance",
+      "target": "resources_js_hooks_use_translation_usetranslation"
+    },
+    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -30312,6 +31769,100 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "resources/js/lib/i18n.ts",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_lib_i18n",
+      "target": "resources_js_lib_i18n_translate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/lib/i18n.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_lib_i18n",
+      "target": "resources_js_lib_i18n_translationreplacements",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/lib/i18n.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_lib_i18n",
+      "target": "resources_js_types_localization",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/lib/i18n.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_lib_i18n",
+      "target": "resources_js_types_localization_translations",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/miniapp/localization.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_miniapp_localization",
+      "target": "resources_js_lib_i18n",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/miniapp/localization.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_miniapp_localization",
+      "target": "resources_js_lib_i18n_translationreplacements",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/miniapp/localization.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_miniapp_localization",
+      "target": "resources_js_lib_i18n_translate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "resources/js/miniapp/localization.ts",
+      "source_location": "L39",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_miniapp_localization_t",
+      "target": "resources_js_lib_i18n_translate"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "resources/js/lib/utils.ts",
       "source_location": "L6",
       "weight": 1.0,
@@ -30334,8 +31885,100 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "resources/js/miniapp/localization.ts",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_miniapp_localization",
+      "target": "resources_js_miniapp_localization_fallback",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/miniapp/localization.ts",
+      "source_location": "L36",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_miniapp_localization",
+      "target": "resources_js_miniapp_localization_localization",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/miniapp/localization.ts",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_miniapp_localization",
+      "target": "resources_js_miniapp_localization_readpayload",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/miniapp/localization.ts",
+      "source_location": "L38",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_miniapp_localization",
+      "target": "resources_js_miniapp_localization_t",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/miniapp/localization.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_miniapp_localization",
+      "target": "resources_js_types_localization",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/miniapp/localization.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_miniapp_localization",
+      "target": "resources_js_types_localization_localizationpayload",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "resources/js/miniapp/main.tsx",
-      "source_location": "L14",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_miniapp_main",
+      "target": "resources_js_miniapp_localization",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/miniapp/main.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_miniapp_main",
+      "target": "resources_js_miniapp_localization_t",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/miniapp/main.tsx",
+      "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
       "source": "resources_js_miniapp_main",
@@ -30456,7 +32099,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "resources/js/pages/settings/appearance.tsx",
-      "source_location": "L6",
+      "source_location": "L8",
       "weight": 1.0,
       "_origin": "ast",
       "source": "resources_js_pages_settings_appearance",
@@ -30605,7 +32248,7 @@
       "context": "field",
       "confidence": "EXTRACTED",
       "source_file": "resources/js/types/global.d.ts",
-      "source_location": "L12",
+      "source_location": "L17",
       "weight": 1.0,
       "_origin": "ast",
       "source": "resources_js_types_global_d_inertiaconfig",
@@ -30616,7 +32259,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "resources/js/types/global.d.ts",
-      "source_location": "L11",
+      "source_location": "L16",
       "weight": 1.0,
       "_origin": "ast",
       "source": "resources_js_types_global_d",
@@ -30627,7 +32270,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "resources/js/types/global.d.ts",
-      "source_location": "L10",
+      "source_location": "L15",
       "weight": 1.0,
       "_origin": "ast",
       "source": "resources_js_types_global_d",
@@ -30638,7 +32281,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "resources/js/types/global.d.ts",
-      "source_location": "L5",
+      "source_location": "L10",
       "weight": 1.0,
       "_origin": "ast",
       "source": "resources_js_types_global_d",
@@ -30649,11 +32292,95 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "resources/js/types/global.d.ts",
-      "source_location": "L3",
+      "source_location": "L8",
       "weight": 1.0,
       "_origin": "ast",
       "source": "resources_js_types_global_d",
       "target": "resources_js_types_global_d_react",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/types/global.d.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_types_global_d",
+      "target": "resources_js_types_localization",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/types/global.d.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_types_global_d",
+      "target": "resources_js_types_localization_direction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/types/global.d.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_types_global_d",
+      "target": "resources_js_types_localization_localeoption",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/types/global.d.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_types_global_d",
+      "target": "resources_js_types_localization_translations",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "field",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/types/global.d.ts",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_types_global_d_inertiaconfig",
+      "target": "resources_js_types_localization_direction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "field",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/types/global.d.ts",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_types_global_d_inertiaconfig",
+      "target": "resources_js_types_localization_localeoption",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "field",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/types/global.d.ts",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_types_global_d_inertiaconfig",
+      "target": "resources_js_types_localization_translations",
       "confidence_score": 1.0
     },
     {
@@ -30665,7 +32392,7 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "resources_js_types_index",
-      "target": "resources_js_types_navigation",
+      "target": "resources_js_types_localization",
       "confidence_score": 1.0
     },
     {
@@ -30677,7 +32404,63 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "resources_js_types_index",
+      "target": "resources_js_types_navigation",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/types/index.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_types_index",
       "target": "resources_js_types_ui",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/types/localization.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_types_localization",
+      "target": "resources_js_types_localization_direction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/types/localization.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_types_localization",
+      "target": "resources_js_types_localization_localeoption",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/types/localization.ts",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_types_localization",
+      "target": "resources_js_types_localization_localizationpayload",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "resources/js/types/localization.ts",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "resources_js_types_localization",
+      "target": "resources_js_types_localization_translations",
       "confidence_score": 1.0
     },
     {
@@ -31565,6 +33348,17 @@
       "_origin": "ast",
       "source": "tests_feature_exampletest_exampletest",
       "target": "tests_testcase_testcase",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/LocalizationTest.php",
+      "source_location": "L56",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_localizationtest",
+      "target": "tests_feature_localizationtest_preferredlocale",
       "confidence_score": 1.0
     },
     {
@@ -38506,7 +40300,7 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "prompts_progress_log",
-      "target": "prompts_progress_setup_task_1_project_bootstrap_in_progress",
+      "target": "prompts_progress_setup_task_1_project_bootstrap",
       "confidence_score": 1.0
     },
     {
@@ -39136,5 +40930,5 @@
       "source_file": "prompts/main.md"
     }
   ],
-  "built_at_commit": "4a64950d123b763677a92e0161aa8b6bc3176d64"
+  "built_at_commit": "64bb5c107d9f5f697fa2bd1de09c2d271c5ba573"
 }

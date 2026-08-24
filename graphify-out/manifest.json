@@ -50,9 +50,9 @@
     "semantic_hash": "2f2d2c81b158e77427a6ccce5aa17a30"
   },
   "app/Http/Middleware/HandleInertiaRequests.php": {
-    "mtime": 1787315451.0,
-    "ast_hash": "7091350ce4161b247d278753d6c4d83a",
-    "semantic_hash": "7091350ce4161b247d278753d6c4d83a"
+    "mtime": 1787601196.0978532,
+    "ast_hash": "979f11d8cbca814d2e324d69bb57e667",
+    "semantic_hash": ""
   },
   "app/Http/Requests/Settings/PasswordUpdateRequest.php": {
     "mtime": 1787315451.0,
@@ -95,8 +95,8 @@
     "semantic_hash": "e66bb13691f6184c762c196427d8e685"
   },
   "bootstrap/app.php": {
-    "mtime": 1787599494.0649233,
-    "ast_hash": "f1975de954d60b2d1e4dd2c38255b027",
+    "mtime": 1787601170.5254636,
+    "ast_hash": "3059947243afd4352bbf02cf4107669b",
     "semantic_hash": ""
   },
   "bootstrap/providers.php": {
@@ -265,9 +265,9 @@
     "semantic_hash": "4e03e78612240a0088225bc0b14b8912"
   },
   "resources/js/components/appearance-tabs.tsx": {
-    "mtime": 1787315451.0,
-    "ast_hash": "a24441d6ddb13be4bd3eb1a7f46f52b8",
-    "semantic_hash": "a24441d6ddb13be4bd3eb1a7f46f52b8"
+    "mtime": 1787601445.2095737,
+    "ast_hash": "96a33487e4195e99db67ae2b9239508b",
+    "semantic_hash": ""
   },
   "resources/js/components/breadcrumbs.tsx": {
     "mtime": 1787315451.0,
@@ -565,9 +565,9 @@
     "semantic_hash": "77bb330f26d6ca441f30b87c8febc54f"
   },
   "resources/js/pages/settings/appearance.tsx": {
-    "mtime": 1787315451.0,
-    "ast_hash": "260785a31c2ff6abaf4c364f9f44d70e",
-    "semantic_hash": "260785a31c2ff6abaf4c364f9f44d70e"
+    "mtime": 1787601462.1478226,
+    "ast_hash": "db376effa772ff544363ac796b5046ed",
+    "semantic_hash": ""
   },
   "resources/js/pages/settings/profile.tsx": {
     "mtime": 1787590270.9521277,
@@ -590,14 +590,14 @@
     "semantic_hash": "524c79094b956bad8125c129fffebc95"
   },
   "resources/js/types/global.d.ts": {
-    "mtime": 1787315451.0,
-    "ast_hash": "e0e764b6f787ba65dd6a07da5d57a5bb",
-    "semantic_hash": "e0e764b6f787ba65dd6a07da5d57a5bb"
+    "mtime": 1787601418.4221792,
+    "ast_hash": "57f52b566827071681594770ce5775a6",
+    "semantic_hash": ""
   },
   "resources/js/types/index.ts": {
-    "mtime": 1787315451.0,
-    "ast_hash": "5291a951548db922531abd7779b7d8fc",
-    "semantic_hash": "5291a951548db922531abd7779b7d8fc"
+    "mtime": 1787601380.0956128,
+    "ast_hash": "998205ff88e76a17410b215d7f54c357",
+    "semantic_hash": ""
   },
   "resources/js/types/navigation.ts": {
     "mtime": 1787315451.0,
@@ -615,9 +615,9 @@
     "semantic_hash": "0352474ba2918efe13895edbc3780d94"
   },
   "resources/views/app.blade.php": {
-    "mtime": 1787315451.0,
-    "ast_hash": "2761a6ee705430dfb30b4ba7ddaa8290",
-    "semantic_hash": "2761a6ee705430dfb30b4ba7ddaa8290"
+    "mtime": 1787601219.5312088,
+    "ast_hash": "a070656dfddc6991f3d6a1ab04050098",
+    "semantic_hash": ""
   },
   "routes/console.php": {
     "mtime": 1787315451.0,
@@ -630,8 +630,8 @@
     "semantic_hash": "591ad5493f3d9df713601e17abe15ff9"
   },
   "routes/web.php": {
-    "mtime": 1787599731.9176376,
-    "ast_hash": "b5959a2d04870a15ff5fbf410f9f9899",
+    "mtime": 1787601286.0022106,
+    "ast_hash": "488cac7c8ad9c83039a1b15fbc9c1aa3",
     "semantic_hash": ""
   },
   "tests/Feature/Auth/AuthenticationTest.php": {
@@ -765,13 +765,13 @@
     "semantic_hash": ""
   },
   "resources/js/miniapp/main.tsx": {
-    "mtime": 1787599723.1215346,
-    "ast_hash": "b4305bf734c98579da7587778643920f",
+    "mtime": 1787601444.3615613,
+    "ast_hash": "44bc93f1beba74aaf57b307495e2bc8d",
     "semantic_hash": ""
   },
   "resources/views/miniapp.blade.php": {
-    "mtime": 1787599728.7496006,
-    "ast_hash": "4d4609fe5239c87593cf12acc3fb62b7",
+    "mtime": 1787601220.2892203,
+    "ast_hash": "2483caac03993c29cb4cb112ca4156b2",
     "semantic_hash": ""
   },
   "routes/admin.php": {
@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "prompts/progress.md": {
-    "mtime": 1787598672.639029,
-    "ast_hash": "dedf2346b23cda98cadc41ef15b1cf88",
+    "mtime": 1787600522.8046882,
+    "ast_hash": "1a3e7cef2f781b3a255d162a99fd8979",
     "semantic_hash": ""
   },
   "prompts/task-01-setup.md": {
@@ -1112,6 +1112,76 @@
   "public/robots.txt": {
     "mtime": 1787315451.0,
     "ast_hash": "b6216d61c03e6ce0c9aea6ca7808f7ca",
+    "semantic_hash": ""
+  },
+  "app/Http/Controllers/LocaleController.php": {
+    "mtime": 1787601285.7332065,
+    "ast_hash": "5dbd3deb1cedb99cd4e1d23161442bd7",
+    "semantic_hash": ""
+  },
+  "app/Http/Middleware/SetLocale.php": {
+    "mtime": 1787601157.0902581,
+    "ast_hash": "48b8fc9bf2e1c0bbba5917ce953ff0ef",
+    "semantic_hash": ""
+  },
+  "app/Http/Requests/LocaleUpdateRequest.php": {
+    "mtime": 1787601282.834163,
+    "ast_hash": "1c8756f5151b6f2bce922cef7e109718",
+    "semantic_hash": ""
+  },
+  "app/Services/Localization.php": {
+    "mtime": 1787601156.9202557,
+    "ast_hash": "00f11d3c006bb52d084fa1244252745b",
+    "semantic_hash": ""
+  },
+  "config/localization.php": {
+    "mtime": 1787601124.2297537,
+    "ast_hash": "5244505417b2b902133a4bd6713fd0a6",
+    "semantic_hash": ""
+  },
+  "lang/en/common.php": {
+    "mtime": 1787601462.575829,
+    "ast_hash": "ad0ff5ce4ad5479761d6262a79a2ee82",
+    "semantic_hash": ""
+  },
+  "lang/fa/common.php": {
+    "mtime": 1787601463.668845,
+    "ast_hash": "ff7c5a0c457f944bb3a358141dd8ba56",
+    "semantic_hash": ""
+  },
+  "resources/js/components/language-switcher.tsx": {
+    "mtime": 1787601445.1165724,
+    "ast_hash": "27e9133abc3caede2fb404a35c72155c",
+    "semantic_hash": ""
+  },
+  "resources/js/hooks/use-translation.ts": {
+    "mtime": 1787601402.2409403,
+    "ast_hash": "d11578e5a58ede274c4b38b70aa0bcdb",
+    "semantic_hash": ""
+  },
+  "resources/js/lib/i18n.ts": {
+    "mtime": 1787601402.165939,
+    "ast_hash": "e4e02da02226f59c79044b5f244590d9",
+    "semantic_hash": ""
+  },
+  "resources/js/miniapp/localization.ts": {
+    "mtime": 1787601886.6749516,
+    "ast_hash": "8c82cdf2dbd5bd2f49120a091b5d8976",
+    "semantic_hash": ""
+  },
+  "resources/js/types/localization.ts": {
+    "mtime": 1787601378.765593,
+    "ast_hash": "3d7fc8421b76dfb733c90f4aaf2c2037",
+    "semantic_hash": ""
+  },
+  "tests/Feature/LocalizationServiceTest.php": {
+    "mtime": 1787601833.7091959,
+    "ast_hash": "200498eb04e26df47f2f36ce426be507",
+    "semantic_hash": ""
+  },
+  "tests/Feature/LocalizationTest.php": {
+    "mtime": 1787601833.777197,
+    "ast_hash": "ab6566002645fe25096625026f7ad2b8",
     "semantic_hash": ""
   }
 }
