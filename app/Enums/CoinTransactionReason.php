@@ -56,4 +56,22 @@ enum CoinTransactionReason: string
     {
         return $this->isCredit() ? 1 : -1;
     }
+
+    /**
+     * Whether this reason may take a balance below zero.
+     *
+     * Only consulted for debits. A user-initiated spend must never overdraw —
+     * you cannot buy a freeze you cannot afford. A clawback must: if someone buys
+     * 100 coins, spends them, and then the Stars purchase is refunded, the
+     * reversal has to complete or we have handed out goods and given the money
+     * back. The resulting negative balance correctly blocks further purchases
+     * until it is cleared.
+     */
+    public function allowsOverdraft(): bool
+    {
+        return match ($this) {
+            self::StarsRefund, self::AdminDebit => true,
+            default => false,
+        };
+    }
 }

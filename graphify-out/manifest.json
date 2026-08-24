@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "prompts/progress.md": {
-    "mtime": 1787605173.262335,
-    "ast_hash": "54e97ebe412af5b777ae8a3e196fad54",
+    "mtime": 1787607281.0076132,
+    "ast_hash": "2604438e4de1e95595fdf6852ba10c7c",
     "semantic_hash": ""
   },
   "prompts/task-01-setup.md": {
@@ -1335,13 +1335,13 @@
     "semantic_hash": ""
   },
   "prompts/new-ideas-TODO.md": {
-    "mtime": 1787606024.0245347,
-    "ast_hash": "d66ff865febc5e68cc5093bffdf151b1",
+    "mtime": 1787607261.7803538,
+    "ast_hash": "7e2e0cb9dbaa5321e4c01b1705a70287",
     "semantic_hash": ""
   },
   "app/Enums/CoinTransactionReason.php": {
-    "mtime": 1787605389.6015656,
-    "ast_hash": "ea688728b1442964f805d8bc24aecd77",
+    "mtime": 1787607446.5716987,
+    "ast_hash": "192c5c27d97b0255a0350d74e75a85a4",
     "semantic_hash": ""
   },
   "app/Enums/ConversationState.php": {
@@ -1482,6 +1482,26 @@
   "tests/Feature/Domain/EconomySchemaTest.php": {
     "mtime": 1787607143.7827616,
     "ast_hash": "78b75653c1e01035e6b007bad24fa226",
+    "semantic_hash": ""
+  },
+  "app/Exceptions/InsufficientCoinsException.php": {
+    "mtime": 1787607434.9936585,
+    "ast_hash": "46029ff1261f34be0c0c90ca40553a9b",
+    "semantic_hash": ""
+  },
+  "app/Services/CoinLedger.php": {
+    "mtime": 1787607635.0457282,
+    "ast_hash": "5b7e83d4390a54b40481f8bd0b6703e3",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Domain/CoinLedgerConcurrencyTest.php": {
+    "mtime": 1787608122.9445162,
+    "ast_hash": "e4668b5739474b17680a0df055755d1a",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Domain/CoinLedgerTest.php": {
+    "mtime": 1787608154.5868132,
+    "ast_hash": "b20e390014d8bcf513e493290d7257a1",
     "semantic_hash": ""
   }
 }

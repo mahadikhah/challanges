@@ -16,7 +16,8 @@ Status key: ✅ done · 🔄 in progress · ⬜ not started
 - ✅ **Domain Task 1 — challenge core: backed enums, schema, models, factories**
 - ✅ **Domain Task 2 — economy + infra schema** (`CoinTransaction`, `Entitlement`, `Invite`, `StarPayment`,
   `TelegramUpdate`, `BotConversation`, `ReminderDispatch`)
-- ⬜ `CoinLedger` service (locked, transactional, idempotency-keyed)
+- ✅ **Domain Task 3 — `CoinLedger` service** (locked, transactional, idempotency-keyed; §6 coin-concurrency
+  test with real forked writers)
 - ⬜ Entitlement grant/consume
 - ⬜ Period materialisation (all six `period_type`)
 - ⬜ Streak / freeze / miss engine (+ `streak_resets_count`, no auto-remove)
@@ -430,3 +431,101 @@ code was written.
 transaction, with `lockForUpdate()` on the user row and a required `idempotency_key`. Balance derived from the
 ledger and reconciled against it, never a bare mutable integer. Needs the §6 **coin-concurrency test** — real
 parallel writers against MySQL, asserting no lost update and no double credit on a replayed key.
+
+---
+
+## Domain Task 3 — `CoinLedger` (done)
+
+`app/Services/CoinLedger.php` is the only writer of `coin_transactions`. Everything that moves a coin —
+Stars purchases, invite credits, completion rewards, slot and freeze purchases, refunds, admin corrections —
+goes through `record()`, or through the `credit()`/`debit()` wrappers that additionally assert the reason
+matches the direction the caller believed they were moving coins in.
+
+**Decisions**
+
+- **The `users` row is used purely as a per-user mutex.** The balance lives in `coin_transactions`, not on the
+  user, so `lockForUpdate()` on `users` reads a row nobody cares about — that is the point. Every writer for a
+  given user blocks on the same row before reading the balance, which serialises read-then-write per user.
+  Locking the ledger rows instead would not work: the row that needs excluding is the one that does not exist
+  yet.
+- **Magnitude + reason, never a signed amount.** `credit($user, 100, ...)` and `debit($user, 15, ...)` both
+  take a positive number; `CoinTransactionReason::sign()` decides the direction. A caller cannot pass `-50` to
+  a credit because a caller never passes a sign at all. A magnitude of `0` or less throws
+  `InvalidArgumentException` — zero would burn an idempotency key on a no-op.
+- **Overdraft is allowed for exactly two reasons: `StarsRefund` and `AdminDebit`** (`allowsOverdraft()` on the
+  enum). A user-initiated spend must never overdraw — you cannot buy a freeze you cannot afford. A clawback
+  must: if someone buys 100 coins, spends them, and Telegram then refunds the Stars, the reversal has to
+  complete or we have handed out the goods *and* given the money back. The resulting negative balance is the
+  correct state — it blocks further purchases until cleared, which is exactly the desired consequence.
+- **The overdraft guard is gated on `isDebit()`.** Subtle and worth stating: without that gate, crediting a
+  user who sits at −100 would be *refused*, because `$balanceAfter < 0` is still true after adding coins. A
+  credit can never be refused; it only ever moves a debt towards zero. Covered by a test.
+- **A cross-user idempotency key throws `LogicException` rather than returning the other user's entry.** This
+  was a real bug found by the test, not a hypothetical: the replay lookup inside the lock is keyed on
+  `idempotency_key` alone, so the second user's call would have been handed the first user's transaction and
+  reported success — crediting the wrong person. `assertBelongsTo()` now refuses. A key shared across users is
+  a caller bug (usually a key built from something not actually unique per user), so failing loudly is right.
+  The `UniqueConstraintViolationException` catch in `write()` remains as the backstop for the case the lock
+  cannot cover: the same key racing for two *different* users takes two *different* row locks, so neither
+  serialises it.
+- **`balance_after` is a cache, and there is a way to find out when it lies.** `balanceFor()` reads the newest
+  entry's running total (one indexed lookup via `(user_id, id)`, so it does not degrade as the ledger grows);
+  `sum()` recomputes authoritatively; `drift()` returns the difference and is `0` on a healthy ledger. A test
+  fabricates a row with a wrong `balance_after` and asserts `drift()` names it rather than the ledger trusting
+  it. This is what "reconciled against, never a bare mutable integer" means in practice.
+- **`canAfford()` is documented as advisory only.** It answers "should I render this button?", not "may this
+  spend proceed?" — the balance can move between the check and the spend, so the authoritative check is the one
+  `record()` makes inside the lock. Named that way to discourage its use as a gate.
+- **`InsufficientCoinsException` carries the numbers** (`balance`, `required`, `shortfall()`), so a bot reply
+  can say "you need 30 more coins" in the user's own language without re-reading the ledger.
+
+**Tests — 49 new, in two files.**
+
+`tests/Feature/Domain/CoinLedgerTest.php` (41) covers reading a balance, writing an entry, refusing to
+overdraw, and idempotency. Notable cases: drift detection; the sign of all nine reasons as a dataset; a spend
+landing exactly on zero; a Stars refund clawing an already-spent balance to −100; further spending blocked
+while negative but a credit still accepted; a replay returning the original and *ignoring* the replayed amount
+(999 coins replayed onto a 100-coin key does not top the balance up); credit and refund keys for one payment
+being distinct so the reversal can write.
+
+`tests/Feature/Domain/CoinLedgerConcurrencyTest.php` (8) is the §6 requirement, and the parallelism is real —
+each writer is a **forked process with its own MySQL connection**, contending through the actual InnoDB lock
+manager. Two decisions made it work:
+
+- **`DatabaseTruncation`, not `RefreshDatabase`.** `RefreshDatabase`'s wrapping transaction would hide every
+  write from every other connection, which is precisely the thing under test; the suite would have passed while
+  proving nothing.
+- **`DB::disconnect()` in the parent before forking.** A child that inherits an open PDO and then lets it fall
+  out of scope sends `COM_QUIT` down a socket its siblings are still using.
+
+The lock itself is proven directly, not just inferred: a second connection with
+`SET SESSION innodb_lock_wait_timeout = 1` is shown to *fail* while the first holds `FOR UPDATE`, and to pass
+through once it commits. Then: 8 parallel credits produce 8 rows with `balance_after` exactly
+`[10,20,…,80]` (a lost update would repeat or skip a value); 8 racers against a 50-coin float produce exactly
+5 spends and 3 refusals with a final balance of exactly 0 and `min(balance_after) >= 0`; 8 processes replaying
+one key produce **1** row; and 4 keys delivered twice each across 8 workers produce exactly 4.
+
+**Assumptions / follow-ups recorded**
+
+- The concurrency file **skips with an explicit message** when `pcntl_fork` is unavailable. The Sail image
+  ships `pcntl` and `posix`, so it runs locally. **The `.github/workflows/tests.yml` follow-up now carries two
+  requirements, not one:** a MySQL service *and* `pcntl`, or CI silently loses the coin-concurrency coverage
+  while still reporting green.
+- A test file that commits for real has to clean up *after* itself, not only before. `DatabaseTruncation`
+  truncates at the **start** of each test, which says nothing about what the last one leaves behind — so the
+  final concurrency test's 4 committed rows were visible to the next file's `RefreshDatabase` transaction,
+  breaking 8 assertions there while both files passed in isolation. Fixed at both ends: an `afterEach` that
+  clears what the file wrote, and count assertions scoped to the user under test rather than counting the whole
+  table. **Worth remembering for every future non-transactional test.**
+- The ledger is append-only by convention, not by database trigger (as recorded in Domain Task 2). Nothing in
+  the application updates or deletes a `coin_transactions` row; `drift()` is the detection mechanism if
+  something ever does.
+
+**Result — `sail composer ci:check` GREEN:** eslint ✓, prettier ✓, `tsc --noEmit` ✓, pint ✓,
+phpstan lvl 7 (0 errors) ✓, tests **377 (373 pass, 4 skipped = Fortify 2FA disabled)**, +49 from this task.
+
+**Next:** Domain Task 4 — period materialisation. Generate `ChallengePeriod` rows for all six `period_type`
+values from `starts_at` + `total_periods`, with boundaries computed in the **challenge's** timezone and stored
+UTC. Idempotent (safe to re-run), and DST-correct: a daily challenge in a zone that shifts must still produce
+one period per local day, not a 23- or 25-hour drift that accumulates.
+

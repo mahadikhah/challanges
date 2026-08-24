@@ -251,7 +251,7 @@
       "_origin": "ast",
       "id": "app_enums_challengestatus",
       "community": 30,
-      "community_name": "HasTranslatedLabel.php",
+      "community_name": "Challenge",
       "norm_label": "challengestatus.php"
     },
     {
@@ -263,7 +263,7 @@
       "_origin": "ast",
       "id": "app_enums_challengestatus_acceptsjoins",
       "community": 30,
-      "community_name": "HasTranslatedLabel.php",
+      "community_name": "Challenge",
       "norm_label": "acceptsjoins()"
     },
     {
@@ -275,7 +275,7 @@
       "_origin": "ast",
       "id": "app_enums_challengestatus_acceptscheckins",
       "community": 30,
-      "community_name": "HasTranslatedLabel.php",
+      "community_name": "Challenge",
       "norm_label": "acceptscheckins()"
     },
     {
@@ -287,7 +287,7 @@
       "_origin": "ast",
       "id": "app_enums_challengestatus_isterminal",
       "community": 30,
-      "community_name": "HasTranslatedLabel.php",
+      "community_name": "Challenge",
       "norm_label": "isterminal()"
     },
     {
@@ -298,7 +298,7 @@
       "_origin": "ast",
       "id": "app_enums_challengevisibility",
       "community": 30,
-      "community_name": "HasTranslatedLabel.php",
+      "community_name": "Challenge",
       "norm_label": "challengevisibility.php"
     },
     {
@@ -310,7 +310,7 @@
       "_origin": "ast",
       "id": "app_enums_challengevisibility_shouldannounce",
       "community": 30,
-      "community_name": "HasTranslatedLabel.php",
+      "community_name": "Challenge",
       "norm_label": "shouldannounce()"
     },
     {
@@ -403,8 +403,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_enums_cointransactionreason",
-      "community": 31,
-      "community_name": "User.php",
+      "community": 156,
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": "cointransactionreason.php"
     },
     {
@@ -415,8 +415,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_enums_cointransactionreason_iscredit",
-      "community": 31,
-      "community_name": "User.php",
+      "community": 156,
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": "iscredit()"
     },
     {
@@ -427,8 +427,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_enums_cointransactionreason_isdebit",
-      "community": 31,
-      "community_name": "User.php",
+      "community": 156,
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": "isdebit()"
     },
     {
@@ -439,9 +439,21 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_enums_cointransactionreason_sign",
-      "community": 31,
-      "community_name": "User.php",
+      "community": 156,
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": "sign()"
+    },
+    {
+      "label": "allowsOverdraft()",
+      "file_type": "code",
+      "source_file": "app/Enums/CoinTransactionReason.php",
+      "source_location": "L70",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_enums_cointransactionreason_allowsoverdraft",
+      "community": 156,
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "norm_label": "allowsoverdraft()"
     },
     {
       "label": "HasTranslatedLabel.php",
@@ -451,7 +463,7 @@
       "_origin": "ast",
       "id": "app_enums_concerns_hastranslatedlabel",
       "community": 30,
-      "community_name": "HasTranslatedLabel.php",
+      "community_name": "Challenge",
       "norm_label": "hastranslatedlabel.php"
     },
     {
@@ -463,7 +475,7 @@
       "_origin": "ast",
       "id": "app_enums_concerns_hastranslatedlabel_label",
       "community": 30,
-      "community_name": "HasTranslatedLabel.php",
+      "community_name": "Challenge",
       "norm_label": "label()"
     },
     {
@@ -475,7 +487,7 @@
       "_origin": "ast",
       "id": "app_enums_concerns_hastranslatedlabel_options",
       "community": 30,
-      "community_name": "HasTranslatedLabel.php",
+      "community_name": "Challenge",
       "norm_label": "options()"
     },
     {
@@ -487,7 +499,7 @@
       "_origin": "ast",
       "id": "app_enums_concerns_hastranslatedlabel_translationgroup",
       "community": 30,
-      "community_name": "HasTranslatedLabel.php",
+      "community_name": "Challenge",
       "norm_label": "translationgroup()"
     },
     {
@@ -661,7 +673,7 @@
       "_origin": "ast",
       "id": "app_enums_invitestatus",
       "community": 28,
-      "community_name": "Invite",
+      "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
       "norm_label": "invitestatus.php"
     },
     {
@@ -673,7 +685,7 @@
       "_origin": "ast",
       "id": "app_enums_invitestatus_isclaimed",
       "community": 28,
-      "community_name": "Invite",
+      "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
       "norm_label": "isclaimed()"
     },
     {
@@ -685,7 +697,7 @@
       "_origin": "ast",
       "id": "app_enums_invitestatus_isopen",
       "community": 28,
-      "community_name": "Invite",
+      "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
       "norm_label": "isopen()"
     },
     {
@@ -697,7 +709,7 @@
       "_origin": "ast",
       "id": "app_enums_invitestatus_waspaid",
       "community": 28,
-      "community_name": "Invite",
+      "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
       "norm_label": "waspaid()"
     },
     {
@@ -708,7 +720,7 @@
       "_origin": "ast",
       "id": "app_enums_participantstatus",
       "community": 30,
-      "community_name": "HasTranslatedLabel.php",
+      "community_name": "Challenge",
       "norm_label": "participantstatus.php"
     },
     {
@@ -720,7 +732,7 @@
       "_origin": "ast",
       "id": "app_enums_participantstatus_owescheckins",
       "community": 30,
-      "community_name": "HasTranslatedLabel.php",
+      "community_name": "Challenge",
       "norm_label": "owescheckins()"
     },
     {
@@ -732,7 +744,7 @@
       "_origin": "ast",
       "id": "app_enums_participantstatus_isterminal",
       "community": 30,
-      "community_name": "HasTranslatedLabel.php",
+      "community_name": "Challenge",
       "norm_label": "isterminal()"
     },
     {
@@ -743,7 +755,7 @@
       "_origin": "ast",
       "id": "app_enums_periodtype",
       "community": 30,
-      "community_name": "HasTranslatedLabel.php",
+      "community_name": "Challenge",
       "norm_label": "periodtype.php"
     },
     {
@@ -755,7 +767,7 @@
       "_origin": "ast",
       "id": "app_enums_periodtype_requirescustomdays",
       "community": 30,
-      "community_name": "HasTranslatedLabel.php",
+      "community_name": "Challenge",
       "norm_label": "requirescustomdays()"
     },
     {
@@ -766,7 +778,7 @@
       "_origin": "ast",
       "id": "app_enums_prooftype",
       "community": 30,
-      "community_name": "HasTranslatedLabel.php",
+      "community_name": "Challenge",
       "norm_label": "prooftype.php"
     },
     {
@@ -778,7 +790,7 @@
       "_origin": "ast",
       "id": "app_enums_prooftype_isautoapproved",
       "community": 30,
-      "community_name": "HasTranslatedLabel.php",
+      "community_name": "Challenge",
       "norm_label": "isautoapproved()"
     },
     {
@@ -790,7 +802,7 @@
       "_origin": "ast",
       "id": "app_enums_prooftype_requiresreview",
       "community": 30,
-      "community_name": "HasTranslatedLabel.php",
+      "community_name": "Challenge",
       "norm_label": "requiresreview()"
     },
     {
@@ -802,7 +814,7 @@
       "_origin": "ast",
       "id": "app_enums_prooftype_supportspublicproof",
       "community": 30,
-      "community_name": "HasTranslatedLabel.php",
+      "community_name": "Challenge",
       "norm_label": "supportspublicproof()"
     },
     {
@@ -814,7 +826,7 @@
       "_origin": "ast",
       "id": "app_enums_prooftype_expectstext",
       "community": 30,
-      "community_name": "HasTranslatedLabel.php",
+      "community_name": "Challenge",
       "norm_label": "expectstext()"
     },
     {
@@ -826,7 +838,7 @@
       "_origin": "ast",
       "id": "app_enums_prooftype_expectsfile",
       "community": 30,
-      "community_name": "HasTranslatedLabel.php",
+      "community_name": "Challenge",
       "norm_label": "expectsfile()"
     },
     {
@@ -836,8 +848,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_enums_reminderkind",
-      "community": 132,
-      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
+      "community": 180,
+      "community_name": "ChallengeParticipant",
       "norm_label": "reminderkind.php"
     },
     {
@@ -848,8 +860,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_enums_reminderkind_skipwhensettled",
-      "community": 132,
-      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
+      "community": 180,
+      "community_name": "ChallengeParticipant",
       "norm_label": "skipwhensettled()"
     },
     {
@@ -940,8 +952,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_enums_starpaymentstatus",
-      "community": 10,
-      "community_name": "EconomySchemaTest.php",
+      "community": 47,
+      "community_name": "User.php",
       "norm_label": "starpaymentstatus.php"
     },
     {
@@ -952,8 +964,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_enums_starpaymentstatus_ispaid",
-      "community": 10,
-      "community_name": "EconomySchemaTest.php",
+      "community": 47,
+      "community_name": "User.php",
       "norm_label": "ispaid()"
     },
     {
@@ -964,8 +976,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_enums_starpaymentstatus_isrefundable",
-      "community": 10,
-      "community_name": "EconomySchemaTest.php",
+      "community": 47,
+      "community_name": "User.php",
       "norm_label": "isrefundable()"
     },
     {
@@ -976,9 +988,68 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_enums_starpaymentstatus_isterminal",
-      "community": 10,
-      "community_name": "EconomySchemaTest.php",
+      "community": 47,
+      "community_name": "User.php",
       "norm_label": "isterminal()"
+    },
+    {
+      "label": "InsufficientCoinsException.php",
+      "file_type": "code",
+      "source_file": "app/Exceptions/InsufficientCoinsException.php",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "app_exceptions_insufficientcoinsexception",
+      "community": 47,
+      "community_name": "User.php",
+      "norm_label": "insufficientcoinsexception.php"
+    },
+    {
+      "label": "InsufficientCoinsException",
+      "file_type": "code",
+      "source_file": "app/Exceptions/InsufficientCoinsException.php",
+      "source_location": "L14",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "app_exceptions_insufficientcoinsexception_insufficientcoinsexception",
+      "community": 47,
+      "community_name": "User.php",
+      "norm_label": "insufficientcoinsexception"
+    },
+    {
+      "label": "RuntimeException",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "runtimeexception",
+      "community": 47,
+      "community_name": "User.php",
+      "norm_label": "runtimeexception"
+    },
+    {
+      "label": ".__construct()",
+      "file_type": "code",
+      "source_file": "app/Exceptions/InsufficientCoinsException.php",
+      "source_location": "L16",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_exceptions_insufficientcoinsexception_insufficientcoinsexception_construct",
+      "community": 47,
+      "community_name": "User.php",
+      "norm_label": ".__construct()"
+    },
+    {
+      "label": ".shortfall()",
+      "file_type": "code",
+      "source_file": "app/Exceptions/InsufficientCoinsException.php",
+      "source_location": "L23",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_exceptions_insufficientcoinsexception_insufficientcoinsexception_shortfall",
+      "community": 47,
+      "community_name": "User.php",
+      "norm_label": ".shortfall()"
     },
     {
       "label": "Controller.php",
@@ -1504,7 +1575,7 @@
       "_origin": "ast",
       "id": "app_models_botconversation",
       "community": 5,
-      "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": "botconversation.php"
     },
     {
@@ -1517,7 +1588,7 @@
       "_origin": "ast",
       "id": "app_models_botconversation_botconversation",
       "community": 5,
-      "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": "botconversation"
     },
     {
@@ -1529,7 +1600,7 @@
       "_origin": "ast",
       "id": "app_models_botconversation_botconversation_user",
       "community": 5,
-      "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": ".user()"
     },
     {
@@ -1541,7 +1612,7 @@
       "_origin": "ast",
       "id": "app_models_botconversation_botconversation_hasexpired",
       "community": 5,
-      "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": ".hasexpired()"
     },
     {
@@ -1553,7 +1624,7 @@
       "_origin": "ast",
       "id": "app_models_botconversation_botconversation_islive",
       "community": 5,
-      "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": ".islive()"
     },
     {
@@ -1565,7 +1636,7 @@
       "_origin": "ast",
       "id": "app_models_botconversation_botconversation_answer",
       "community": 5,
-      "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": ".answer()"
     },
     {
@@ -1588,7 +1659,7 @@
       "_origin": "ast",
       "id": "app_models_botconversation_php_conversationstate",
       "community": 5,
-      "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": "conversationstate"
     },
     {
@@ -1611,7 +1682,7 @@
       "_origin": "ast",
       "id": "app_models_botconversation_botconversation_live",
       "community": 5,
-      "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": ".live()"
     },
     {
@@ -1623,7 +1694,7 @@
       "_origin": "ast",
       "id": "app_models_botconversation_botconversation_expired",
       "community": 5,
-      "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": ".expired()"
     },
     {
@@ -1635,7 +1706,7 @@
       "_origin": "ast",
       "id": "app_models_botconversation_botconversation_casts",
       "community": 5,
-      "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": ".casts()"
     },
     {
@@ -1646,7 +1717,7 @@
       "_origin": "ast",
       "id": "app_models_challenge",
       "community": 30,
-      "community_name": "HasTranslatedLabel.php",
+      "community_name": "Challenge",
       "norm_label": "challenge.php"
     },
     {
@@ -1658,7 +1729,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_models_challenge_challenge",
-      "community": 47,
+      "community": 30,
       "community_name": "Challenge",
       "norm_label": "challenge"
     },
@@ -1670,7 +1741,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challenge_challenge_creator",
-      "community": 47,
+      "community": 30,
       "community_name": "Challenge",
       "norm_label": ".creator()"
     },
@@ -1682,7 +1753,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challenge_challenge_periods",
-      "community": 47,
+      "community": 30,
       "community_name": "Challenge",
       "norm_label": ".periods()"
     },
@@ -1694,7 +1765,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challenge_challenge_participants",
-      "community": 47,
+      "community": 30,
       "community_name": "Challenge",
       "norm_label": ".participants()"
     },
@@ -1706,7 +1777,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challenge_challenge_sharesproofpublicly",
-      "community": 47,
+      "community": 30,
       "community_name": "Challenge",
       "norm_label": ".sharesproofpublicly()"
     },
@@ -1718,7 +1789,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challenge_challenge_awaitsannouncement",
-      "community": 47,
+      "community": 30,
       "community_name": "Challenge",
       "norm_label": ".awaitsannouncement()"
     },
@@ -1730,7 +1801,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challenge_challenge_customperioddays",
-      "community": 47,
+      "community": 30,
       "community_name": "Challenge",
       "norm_label": ".customperioddays()"
     },
@@ -1742,7 +1813,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challenge_challenge_joinable",
-      "community": 47,
+      "community": 30,
       "community_name": "Challenge",
       "norm_label": ".joinable()"
     },
@@ -1754,7 +1825,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challenge_challenge_active",
-      "community": 47,
+      "community": 30,
       "community_name": "Challenge",
       "norm_label": ".active()"
     },
@@ -1766,7 +1837,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challenge_challenge_casts",
-      "community": 47,
+      "community": 30,
       "community_name": "Challenge",
       "norm_label": ".casts()"
     },
@@ -1778,7 +1849,7 @@
       "_origin": "ast",
       "id": "app_models_challengeparticipant",
       "community": 30,
-      "community_name": "HasTranslatedLabel.php",
+      "community_name": "Challenge",
       "norm_label": "challengeparticipant.php"
     },
     {
@@ -1826,8 +1897,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challengeparticipant_challengeparticipant_checkins",
-      "community": 47,
-      "community_name": "Challenge",
+      "community": 180,
+      "community_name": "ChallengeParticipant",
       "norm_label": ".checkins()"
     },
     {
@@ -1909,8 +1980,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_challengeperiod",
-      "community": 132,
-      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
+      "community": 180,
+      "community_name": "ChallengeParticipant",
       "norm_label": "challengeperiod.php"
     },
     {
@@ -1922,8 +1993,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_models_challengeperiod_challengeperiod",
-      "community": 132,
-      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
+      "community": 180,
+      "community_name": "ChallengeParticipant",
       "norm_label": "challengeperiod"
     },
     {
@@ -1934,8 +2005,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challengeperiod_challengeperiod_challenge",
-      "community": 132,
-      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
+      "community": 180,
+      "community_name": "ChallengeParticipant",
       "norm_label": ".challenge()"
     },
     {
@@ -1946,8 +2017,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challengeperiod_challengeperiod_checkins",
-      "community": 132,
-      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
+      "community": 180,
+      "community_name": "ChallengeParticipant",
       "norm_label": ".checkins()"
     },
     {
@@ -1958,8 +2029,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challengeperiod_challengeperiod_reminderdispatches",
-      "community": 132,
-      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
+      "community": 180,
+      "community_name": "ChallengeParticipant",
       "norm_label": ".reminderdispatches()"
     },
     {
@@ -1970,8 +2041,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challengeperiod_challengeperiod_contains",
-      "community": 132,
-      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
+      "community": 180,
+      "community_name": "ChallengeParticipant",
       "norm_label": ".contains()"
     },
     {
@@ -1982,8 +2053,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challengeperiod_challengeperiod_hasended",
-      "community": 132,
-      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
+      "community": 180,
+      "community_name": "ChallengeParticipant",
       "norm_label": ".hasended()"
     },
     {
@@ -1994,8 +2065,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challengeperiod_challengeperiod_isrolledover",
-      "community": 132,
-      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
+      "community": 180,
+      "community_name": "ChallengeParticipant",
       "norm_label": ".isrolledover()"
     },
     {
@@ -2006,8 +2077,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challengeperiod_challengeperiod_awaitingrollover",
-      "community": 132,
-      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
+      "community": 180,
+      "community_name": "ChallengeParticipant",
       "norm_label": ".awaitingrollover()"
     },
     {
@@ -2018,8 +2089,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challengeperiod_challengeperiod_casts",
-      "community": 132,
-      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
+      "community": 180,
+      "community_name": "ChallengeParticipant",
       "norm_label": ".casts()"
     },
     {
@@ -2042,8 +2113,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_models_checkin_checkin",
-      "community": 175,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 5,
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": "checkin"
     },
     {
@@ -2054,8 +2125,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_checkin_checkin_participant",
-      "community": 175,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 5,
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": ".participant()"
     },
     {
@@ -2066,8 +2137,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_checkin_checkin_period",
-      "community": 175,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 5,
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": ".period()"
     },
     {
@@ -2078,8 +2149,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_checkin_checkin_reviewer",
-      "community": 175,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 5,
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": ".reviewer()"
     },
     {
@@ -2090,8 +2161,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_checkin_checkin_matchesexpectedphrase",
-      "community": 175,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 5,
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": ".matchesexpectedphrase()"
     },
     {
@@ -2102,8 +2173,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_checkin_checkin_normalisephrase",
-      "community": 175,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 5,
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": ".normalisephrase()"
     },
     {
@@ -2114,8 +2185,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_checkin_checkin_awaitingreview",
-      "community": 175,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 5,
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": ".awaitingreview()"
     },
     {
@@ -2126,8 +2197,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_checkin_checkin_unsettled",
-      "community": 175,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 5,
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": ".unsettled()"
     },
     {
@@ -2138,8 +2209,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_checkin_checkin_casts",
-      "community": 175,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 5,
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": ".casts()"
     },
     {
@@ -2150,7 +2221,7 @@
       "_origin": "ast",
       "id": "app_models_cointransaction",
       "community": 156,
-      "community_name": "CoinTransaction",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": "cointransaction.php"
     },
     {
@@ -2163,7 +2234,7 @@
       "_origin": "ast",
       "id": "app_models_cointransaction_cointransaction",
       "community": 156,
-      "community_name": "CoinTransaction",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": "cointransaction"
     },
     {
@@ -2174,8 +2245,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_cointransaction_cointransaction_user",
-      "community": 156,
-      "community_name": "CoinTransaction",
+      "community": 5,
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": ".user()"
     },
     {
@@ -2187,7 +2258,7 @@
       "_origin": "ast",
       "id": "app_models_cointransaction_cointransaction_reference",
       "community": 156,
-      "community_name": "CoinTransaction",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": ".reference()"
     },
     {
@@ -2199,7 +2270,7 @@
       "_origin": "ast",
       "id": "app_models_cointransaction_cointransaction_iscredit",
       "community": 156,
-      "community_name": "CoinTransaction",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": ".iscredit()"
     },
     {
@@ -2211,7 +2282,7 @@
       "_origin": "ast",
       "id": "app_models_cointransaction_cointransaction_isdebit",
       "community": 156,
-      "community_name": "CoinTransaction",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": ".isdebit()"
     },
     {
@@ -2223,7 +2294,7 @@
       "_origin": "ast",
       "id": "app_models_cointransaction_cointransaction_magnitude",
       "community": 156,
-      "community_name": "CoinTransaction",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": ".magnitude()"
     },
     {
@@ -2235,7 +2306,7 @@
       "_origin": "ast",
       "id": "app_models_cointransaction_cointransaction_hasconsistentsign",
       "community": 156,
-      "community_name": "CoinTransaction",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": ".hasconsistentsign()"
     },
     {
@@ -2246,8 +2317,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_cointransaction_cointransaction_foruser",
-      "community": 156,
-      "community_name": "CoinTransaction",
+      "community": 5,
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": ".foruser()"
     },
     {
@@ -2259,7 +2330,7 @@
       "_origin": "ast",
       "id": "app_models_cointransaction_cointransaction_casts",
       "community": 156,
-      "community_name": "CoinTransaction",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": ".casts()"
     },
     {
@@ -2282,8 +2353,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_models_entitlement_entitlement",
-      "community": 175,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 10,
+      "community_name": "EconomySchemaTest.php",
       "norm_label": "entitlement"
     },
     {
@@ -2294,8 +2365,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_entitlement_entitlement_user",
-      "community": 175,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 10,
+      "community_name": "EconomySchemaTest.php",
       "norm_label": ".user()"
     },
     {
@@ -2306,8 +2377,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_entitlement_entitlement_challenge",
-      "community": 175,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 10,
+      "community_name": "EconomySchemaTest.php",
       "norm_label": ".challenge()"
     },
     {
@@ -2318,8 +2389,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_entitlement_entitlement_isconsumed",
-      "community": 175,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 10,
+      "community_name": "EconomySchemaTest.php",
       "norm_label": ".isconsumed()"
     },
     {
@@ -2330,8 +2401,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_entitlement_entitlement_isavailable",
-      "community": 175,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 10,
+      "community_name": "EconomySchemaTest.php",
       "norm_label": ".isavailable()"
     },
     {
@@ -2342,8 +2413,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_entitlement_entitlement_waspaidfor",
-      "community": 175,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 10,
+      "community_name": "EconomySchemaTest.php",
       "norm_label": ".waspaidfor()"
     },
     {
@@ -2354,8 +2425,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_entitlement_entitlement_available",
-      "community": 175,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 10,
+      "community_name": "EconomySchemaTest.php",
       "norm_label": ".available()"
     },
     {
@@ -2365,8 +2436,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_models_entitlement_php_entitlementtype",
-      "community": 175,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 10,
+      "community_name": "EconomySchemaTest.php",
       "norm_label": "entitlementtype"
     },
     {
@@ -2377,8 +2448,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_entitlement_entitlement_consumed",
-      "community": 175,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 10,
+      "community_name": "EconomySchemaTest.php",
       "norm_label": ".consumed()"
     },
     {
@@ -2389,8 +2460,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_entitlement_entitlement_casts",
-      "community": 175,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 10,
+      "community_name": "EconomySchemaTest.php",
       "norm_label": ".casts()"
     },
     {
@@ -2401,7 +2472,7 @@
       "_origin": "ast",
       "id": "app_models_invite",
       "community": 28,
-      "community_name": "Invite",
+      "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
       "norm_label": "invite.php"
     },
     {
@@ -2413,8 +2484,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_models_invite_invite",
-      "community": 28,
-      "community_name": "Invite",
+      "community": 5,
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": "invite"
     },
     {
@@ -2425,8 +2496,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_invite_invite_inviter",
-      "community": 28,
-      "community_name": "Invite",
+      "community": 5,
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": ".inviter()"
     },
     {
@@ -2437,8 +2508,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_invite_invite_inviteduser",
-      "community": 28,
-      "community_name": "Invite",
+      "community": 5,
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": ".inviteduser()"
     },
     {
@@ -2449,8 +2520,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_invite_invite_isopen",
-      "community": 28,
-      "community_name": "Invite",
+      "community": 5,
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": ".isopen()"
     },
     {
@@ -2461,8 +2532,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_invite_invite_isclaimed",
-      "community": 28,
-      "community_name": "Invite",
+      "community": 5,
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": ".isclaimed()"
     },
     {
@@ -2473,8 +2544,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_invite_invite_waspaid",
-      "community": 28,
-      "community_name": "Invite",
+      "community": 5,
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": ".waspaid()"
     },
     {
@@ -2485,8 +2556,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_invite_invite_deeplink",
-      "community": 28,
-      "community_name": "Invite",
+      "community": 5,
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": ".deeplink()"
     },
     {
@@ -2497,8 +2568,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_invite_invite_open",
-      "community": 28,
-      "community_name": "Invite",
+      "community": 5,
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": ".open()"
     },
     {
@@ -2509,8 +2580,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_invite_invite_credited",
-      "community": 28,
-      "community_name": "Invite",
+      "community": 5,
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": ".credited()"
     },
     {
@@ -2521,8 +2592,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_invite_invite_casts",
-      "community": 28,
-      "community_name": "Invite",
+      "community": 5,
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": ".casts()"
     },
     {
@@ -2532,8 +2603,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_reminderdispatch",
-      "community": 132,
-      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
+      "community": 180,
+      "community_name": "ChallengeParticipant",
       "norm_label": "reminderdispatch.php"
     },
     {
@@ -2546,7 +2617,7 @@
       "_origin": "ast",
       "id": "app_models_reminderdispatch_reminderdispatch",
       "community": 132,
-      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
+      "community_name": "ReminderDispatch",
       "norm_label": "reminderdispatch"
     },
     {
@@ -2558,7 +2629,7 @@
       "_origin": "ast",
       "id": "app_models_reminderdispatch_reminderdispatch_participant",
       "community": 132,
-      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
+      "community_name": "ReminderDispatch",
       "norm_label": ".participant()"
     },
     {
@@ -2570,7 +2641,7 @@
       "_origin": "ast",
       "id": "app_models_reminderdispatch_reminderdispatch_period",
       "community": 132,
-      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
+      "community_name": "ReminderDispatch",
       "norm_label": ".period()"
     },
     {
@@ -2582,7 +2653,7 @@
       "_origin": "ast",
       "id": "app_models_reminderdispatch_reminderdispatch_issent",
       "community": 132,
-      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
+      "community_name": "ReminderDispatch",
       "norm_label": ".issent()"
     },
     {
@@ -2594,7 +2665,7 @@
       "_origin": "ast",
       "id": "app_models_reminderdispatch_reminderdispatch_hasstalled",
       "community": 132,
-      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
+      "community_name": "ReminderDispatch",
       "norm_label": ".hasstalled()"
     },
     {
@@ -2606,7 +2677,7 @@
       "_origin": "ast",
       "id": "app_models_reminderdispatch_reminderdispatch_due",
       "community": 132,
-      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
+      "community_name": "ReminderDispatch",
       "norm_label": ".due()"
     },
     {
@@ -2618,7 +2689,7 @@
       "_origin": "ast",
       "id": "app_models_reminderdispatch_reminderdispatch_casts",
       "community": 132,
-      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
+      "community_name": "ReminderDispatch",
       "norm_label": ".casts()"
     },
     {
@@ -2628,8 +2699,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_setting",
-      "community": 5,
-      "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
+      "community": 26,
+      "community_name": "SettingKey.php",
       "norm_label": "setting.php"
     },
     {
@@ -2641,8 +2712,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_models_setting_setting",
-      "community": 5,
-      "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
+      "community": 26,
+      "community_name": "SettingKey.php",
       "norm_label": "setting"
     },
     {
@@ -2653,8 +2724,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_setting_setting_casts",
-      "community": 5,
-      "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
+      "community": 26,
+      "community_name": "SettingKey.php",
       "norm_label": ".casts()"
     },
     {
@@ -2664,8 +2735,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_starpayment",
-      "community": 10,
-      "community_name": "EconomySchemaTest.php",
+      "community": 47,
+      "community_name": "User.php",
       "norm_label": "starpayment.php"
     },
     {
@@ -2784,7 +2855,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_telegramupdate",
-      "community": 5,
+      "community": 28,
       "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
       "norm_label": "telegramupdate.php"
     },
@@ -2797,7 +2868,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_models_telegramupdate_telegramupdate",
-      "community": 5,
+      "community": 28,
       "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
       "norm_label": "telegramupdate"
     },
@@ -2809,7 +2880,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_telegramupdate_telegramupdate_isprocessed",
-      "community": 5,
+      "community": 28,
       "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
       "norm_label": ".isprocessed()"
     },
@@ -2821,7 +2892,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_telegramupdate_telegramupdate_kind",
-      "community": 5,
+      "community": 28,
       "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
       "norm_label": ".kind()"
     },
@@ -2833,7 +2904,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_telegramupdate_telegramupdate_value",
-      "community": 5,
+      "community": 28,
       "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
       "norm_label": ".value()"
     },
@@ -2845,7 +2916,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_telegramupdate_telegramupdate_fromtelegramid",
-      "community": 5,
+      "community": 28,
       "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
       "norm_label": ".fromtelegramid()"
     },
@@ -2857,7 +2928,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_telegramupdate_telegramupdate_unprocessed",
-      "community": 5,
+      "community": 28,
       "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
       "norm_label": ".unprocessed()"
     },
@@ -2869,7 +2940,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_telegramupdate_telegramupdate_casts",
-      "community": 5,
+      "community": 28,
       "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
       "norm_label": ".casts()"
     },
@@ -2880,7 +2951,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_user",
-      "community": 31,
+      "community": 47,
       "community_name": "User.php",
       "norm_label": "user.php"
     },
@@ -2917,8 +2988,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_user_user_referrals",
-      "community": 47,
-      "community_name": "Challenge",
+      "community": 15,
+      "community_name": "User",
       "norm_label": ".referrals()"
     },
     {
@@ -2929,8 +3000,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_user_user_createdchallenges",
-      "community": 47,
-      "community_name": "Challenge",
+      "community": 15,
+      "community_name": "User",
       "norm_label": ".createdchallenges()"
     },
     {
@@ -2941,8 +3012,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_user_user_participations",
-      "community": 47,
-      "community_name": "Challenge",
+      "community": 15,
+      "community_name": "User",
       "norm_label": ".participations()"
     },
     {
@@ -2953,8 +3024,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_user_user_cointransactions",
-      "community": 47,
-      "community_name": "Challenge",
+      "community": 15,
+      "community_name": "User",
       "norm_label": ".cointransactions()"
     },
     {
@@ -2965,8 +3036,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_user_user_entitlements",
-      "community": 47,
-      "community_name": "Challenge",
+      "community": 15,
+      "community_name": "User",
       "norm_label": ".entitlements()"
     },
     {
@@ -2977,8 +3048,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_user_user_sentinvites",
-      "community": 47,
-      "community_name": "Challenge",
+      "community": 15,
+      "community_name": "User",
       "norm_label": ".sentinvites()"
     },
     {
@@ -3001,8 +3072,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_user_user_starpayments",
-      "community": 47,
-      "community_name": "Challenge",
+      "community": 15,
+      "community_name": "User",
       "norm_label": ".starpayments()"
     },
     {
@@ -3232,6 +3303,174 @@
       "community": 2,
       "community_name": "PasswordValidationRules.php",
       "norm_label": ".configureratelimiting()"
+    },
+    {
+      "label": "CoinLedger.php",
+      "file_type": "code",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "app_services_coinledger",
+      "community": 47,
+      "community_name": "User.php",
+      "norm_label": "coinledger.php"
+    },
+    {
+      "label": "CoinLedger",
+      "file_type": "code",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L45",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "app_services_coinledger_coinledger",
+      "community": 156,
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "norm_label": "coinledger"
+    },
+    {
+      "label": ".balanceFor()",
+      "file_type": "code",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L53",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_services_coinledger_coinledger_balancefor",
+      "community": 156,
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "norm_label": ".balancefor()"
+    },
+    {
+      "label": ".sum()",
+      "file_type": "code",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L70",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_services_coinledger_coinledger_sum",
+      "community": 156,
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "norm_label": ".sum()"
+    },
+    {
+      "label": ".drift()",
+      "file_type": "code",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L83",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_services_coinledger_coinledger_drift",
+      "community": 156,
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "norm_label": ".drift()"
+    },
+    {
+      "label": ".canAfford()",
+      "file_type": "code",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L95",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_services_coinledger_coinledger_canafford",
+      "community": 156,
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "norm_label": ".canafford()"
+    },
+    {
+      "label": ".findByKey()",
+      "file_type": "code",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L103",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_services_coinledger_coinledger_findbykey",
+      "community": 156,
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "norm_label": ".findbykey()"
+    },
+    {
+      "label": ".credit()",
+      "file_type": "code",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L115",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_services_coinledger_coinledger_credit",
+      "community": 156,
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "norm_label": ".credit()"
+    },
+    {
+      "label": ".debit()",
+      "file_type": "code",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L135",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_services_coinledger_coinledger_debit",
+      "community": 156,
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "norm_label": ".debit()"
+    },
+    {
+      "label": ".record()",
+      "file_type": "code",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L159",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_services_coinledger_coinledger_record",
+      "community": 156,
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "norm_label": ".record()"
+    },
+    {
+      "label": ".assertBelongsTo()",
+      "file_type": "code",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L203",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_services_coinledger_coinledger_assertbelongsto",
+      "community": 156,
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "norm_label": ".assertbelongsto()"
+    },
+    {
+      "label": ".lock()",
+      "file_type": "code",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L221",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_services_coinledger_coinledger_lock",
+      "community": 156,
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "norm_label": ".lock()"
+    },
+    {
+      "label": ".write()",
+      "file_type": "code",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L235",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_services_coinledger_coinledger_write",
+      "community": 156,
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "norm_label": ".write()"
+    },
+    {
+      "label": ".idOf()",
+      "file_type": "code",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L264",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_services_coinledger_coinledger_idof",
+      "community": 156,
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "norm_label": ".idof()"
     },
     {
       "label": "Localization.php",
@@ -4827,7 +5066,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "config_auth",
-      "community": 31,
+      "community": 47,
       "community_name": "User.php",
       "norm_label": "auth.php"
     },
@@ -4981,7 +5220,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "database_factories_botconversationfactory",
-      "community": 31,
+      "community": 47,
       "community_name": "User.php",
       "norm_label": "botconversationfactory.php"
     },
@@ -5088,7 +5327,7 @@
       "_origin": "ast",
       "id": "database_factories_challengefactory",
       "community": 30,
-      "community_name": "HasTranslatedLabel.php",
+      "community_name": "Challenge",
       "norm_label": "challengefactory.php"
     },
     {
@@ -5265,7 +5504,7 @@
       "_origin": "ast",
       "id": "database_factories_challengeparticipantfactory",
       "community": 30,
-      "community_name": "HasTranslatedLabel.php",
+      "community_name": "Challenge",
       "norm_label": "challengeparticipantfactory.php"
     },
     {
@@ -5395,8 +5634,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "database_factories_challengeperiodfactory",
-      "community": 47,
-      "community_name": "Challenge",
+      "community": 180,
+      "community_name": "ChallengeParticipant",
       "norm_label": "challengeperiodfactory.php"
     },
     {
@@ -5621,8 +5860,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "database_factories_cointransactionfactory",
-      "community": 31,
-      "community_name": "User.php",
+      "community": 156,
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": "cointransactionfactory.php"
     },
     {
@@ -5635,7 +5874,7 @@
       "_origin": "ast",
       "id": "database_factories_cointransactionfactory_cointransactionfactory",
       "community": 31,
-      "community_name": "User.php",
+      "community_name": "CoinTransactionFactory",
       "norm_label": "cointransactionfactory"
     },
     {
@@ -5659,7 +5898,7 @@
       "_origin": "ast",
       "id": "database_factories_cointransactionfactory_cointransactionfactory_because",
       "community": 31,
-      "community_name": "User.php",
+      "community_name": "CoinTransactionFactory",
       "norm_label": ".because()"
     },
     {
@@ -5681,7 +5920,7 @@
       "_origin": "ast",
       "id": "database_factories_cointransactionfactory_php_static",
       "community": 31,
-      "community_name": "User.php",
+      "community_name": "CoinTransactionFactory",
       "norm_label": "static"
     },
     {
@@ -5693,7 +5932,7 @@
       "_origin": "ast",
       "id": "database_factories_cointransactionfactory_cointransactionfactory_leavingbalance",
       "community": 31,
-      "community_name": "User.php",
+      "community_name": "CoinTransactionFactory",
       "norm_label": ".leavingbalance()"
     },
     {
@@ -5705,7 +5944,7 @@
       "_origin": "ast",
       "id": "database_factories_cointransactionfactory_cointransactionfactory_about",
       "community": 31,
-      "community_name": "User.php",
+      "community_name": "CoinTransactionFactory",
       "norm_label": ".about()"
     },
     {
@@ -5717,7 +5956,7 @@
       "_origin": "ast",
       "id": "database_factories_cointransactionfactory_cointransactionfactory_keyedby",
       "community": 31,
-      "community_name": "User.php",
+      "community_name": "CoinTransactionFactory",
       "norm_label": ".keyedby()"
     },
     {
@@ -5881,7 +6120,7 @@
       "_origin": "ast",
       "id": "database_factories_invitefactory",
       "community": 28,
-      "community_name": "Invite",
+      "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
       "norm_label": "invitefactory.php"
     },
     {
@@ -5963,8 +6202,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "database_factories_reminderdispatchfactory",
-      "community": 132,
-      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
+      "community": 180,
+      "community_name": "ChallengeParticipant",
       "norm_label": "reminderdispatchfactory.php"
     },
     {
@@ -6093,8 +6332,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "database_factories_settingfactory",
-      "community": 5,
-      "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
+      "community": 26,
+      "community_name": "SettingKey.php",
       "norm_label": "settingfactory.php"
     },
     {
@@ -6106,8 +6345,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "database_factories_settingfactory_settingfactory",
-      "community": 31,
-      "community_name": "User.php",
+      "community": 26,
+      "community_name": "SettingKey.php",
       "norm_label": "settingfactory"
     },
     {
@@ -6118,8 +6357,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "database_factories_settingfactory_settingfactory_definition",
-      "community": 31,
-      "community_name": "User.php",
+      "community": 26,
+      "community_name": "SettingKey.php",
       "norm_label": ".definition()"
     },
     {
@@ -6141,8 +6380,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "database_factories_settingfactory_php_settingkey",
-      "community": 31,
-      "community_name": "User.php",
+      "community": 26,
+      "community_name": "SettingKey.php",
       "norm_label": "settingkey"
     },
     {
@@ -6163,8 +6402,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "database_factories_starpaymentfactory",
-      "community": 10,
-      "community_name": "EconomySchemaTest.php",
+      "community": 47,
+      "community_name": "User.php",
       "norm_label": "starpaymentfactory.php"
     },
     {
@@ -6270,8 +6509,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "database_factories_telegramupdatefactory",
-      "community": 5,
-      "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
+      "community": 47,
+      "community_name": "User.php",
       "norm_label": "telegramupdatefactory.php"
     },
     {
@@ -6401,7 +6640,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "database_factories_userfactory",
-      "community": 31,
+      "community": 47,
       "community_name": "User.php",
       "norm_label": "userfactory.php"
     },
@@ -7878,8 +8117,8 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "package_dependencies_radix_ui_react_avatar",
-      "community": 22,
-      "community_name": "dependencies",
+      "community": 206,
+      "community_name": "@radix-ui/react-avatar",
       "norm_label": "@radix-ui/react-avatar"
     },
     {
@@ -7889,8 +8128,8 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "radix_ui_react_avatar",
-      "community": 22,
-      "community_name": "dependencies",
+      "community": 206,
+      "community_name": "@radix-ui/react-avatar",
       "norm_label": "@radix-ui/react-avatar"
     },
     {
@@ -8252,8 +8491,8 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "package_dependencies_class_variance_authority",
-      "community": 120,
-      "community_name": "class-variance-authority",
+      "community": 22,
+      "community_name": "dependencies",
       "norm_label": "class-variance-authority"
     },
     {
@@ -8263,8 +8502,8 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "class_variance_authority",
-      "community": 120,
-      "community_name": "class-variance-authority",
+      "community": 22,
+      "community_name": "dependencies",
       "norm_label": "class-variance-authority"
     },
     {
@@ -8737,7 +8976,7 @@
       "_origin": "ast",
       "id": "resources_js_app",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "app.tsx",
       "norm_label": "app.tsx"
     },
     {
@@ -8749,7 +8988,7 @@
       "_origin": "ast",
       "id": "resources_js_app_withapp",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "app.tsx",
       "norm_label": "withapp()"
     },
     {
@@ -8782,8 +9021,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_app_content",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "app-content.tsx"
     },
     {
@@ -8795,8 +9034,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_components_app_content_props",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "props"
     },
     {
@@ -8807,8 +9046,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_app_content_appcontent",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "appcontent()"
     },
     {
@@ -8866,7 +9105,7 @@
       "_origin": "ast",
       "id": "resources_js_components_app_header_appheader",
       "community": 53,
-      "community_name": "utils.ts",
+      "community_name": "use-current-url.ts",
       "norm_label": "appheader()"
     },
     {
@@ -8877,7 +9116,7 @@
       "_origin": "ast",
       "id": "resources_js_components_app_logo_icon",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "app.tsx",
       "norm_label": "app-logo-icon.tsx"
     },
     {
@@ -8889,7 +9128,7 @@
       "_origin": "ast",
       "id": "resources_js_components_app_logo_icon_applogoicon",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "app.tsx",
       "norm_label": "applogoicon()"
     },
     {
@@ -8899,8 +9138,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_app_logo",
-      "community": 12,
-      "community_name": "app-header.tsx",
+      "community": 4,
+      "community_name": "app.tsx",
       "norm_label": "app-logo.tsx"
     },
     {
@@ -8911,8 +9150,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_app_logo_applogo",
-      "community": 12,
-      "community_name": "app-header.tsx",
+      "community": 4,
+      "community_name": "app.tsx",
       "norm_label": "applogo()"
     },
     {
@@ -8922,8 +9161,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_app_shell",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "app-shell.tsx"
     },
     {
@@ -8935,8 +9174,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_components_app_shell_props",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "props"
     },
     {
@@ -8947,8 +9186,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_app_shell_appshell",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "appshell()"
     },
     {
@@ -8958,7 +9197,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_app_sidebar_header",
-      "community": 60,
+      "community": 37,
       "community_name": "index.ts",
       "norm_label": "app-sidebar-header.tsx"
     },
@@ -8970,7 +9209,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_app_sidebar_header_appsidebarheader",
-      "community": 60,
+      "community": 37,
       "community_name": "index.ts",
       "norm_label": "appsidebarheader()"
     },
@@ -9026,7 +9265,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_appearance_tabs",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "appearance-tabs.tsx"
     },
@@ -9038,7 +9277,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_appearance_tabs_appearancetoggletab",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "appearancetoggletab()"
     },
@@ -9050,7 +9289,7 @@
       "_origin": "ast",
       "id": "resources_js_components_breadcrumbs",
       "community": 60,
-      "community_name": "index.ts",
+      "community_name": "breadcrumbs.tsx",
       "norm_label": "breadcrumbs.tsx"
     },
     {
@@ -9061,7 +9300,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_breadcrumbs_breadcrumbs",
-      "community": 60,
+      "community": 37,
       "community_name": "index.ts",
       "norm_label": "breadcrumbs()"
     },
@@ -9072,8 +9311,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_delete_user",
-      "community": 135,
-      "community_name": "delete-user.tsx",
+      "community": 0,
+      "community_name": "utils.ts",
       "norm_label": "delete-user.tsx"
     },
     {
@@ -9085,7 +9324,7 @@
       "_origin": "ast",
       "id": "resources_js_components_delete_user_deleteuser",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "deleteuser()"
     },
     {
@@ -9096,7 +9335,7 @@
       "_origin": "ast",
       "id": "resources_js_components_heading",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "heading.tsx"
     },
     {
@@ -9108,7 +9347,7 @@
       "_origin": "ast",
       "id": "resources_js_components_heading_heading",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "heading()"
     },
     {
@@ -9119,7 +9358,7 @@
       "_origin": "ast",
       "id": "resources_js_components_input_error",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "input-error.tsx"
     },
     {
@@ -9131,7 +9370,7 @@
       "_origin": "ast",
       "id": "resources_js_components_input_error_inputerror",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "inputerror()"
     },
     {
@@ -9142,7 +9381,7 @@
       "_origin": "ast",
       "id": "resources_js_components_language_switcher",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "language-switcher.tsx"
     },
     {
@@ -9154,7 +9393,7 @@
       "_origin": "ast",
       "id": "resources_js_components_language_switcher_languageswitcher",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "languageswitcher()"
     },
     {
@@ -9234,7 +9473,7 @@
       "_origin": "ast",
       "id": "resources_js_components_password_input",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "password-input.tsx"
     },
     {
@@ -9246,7 +9485,7 @@
       "_origin": "ast",
       "id": "resources_js_components_password_input_passwordinput",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "passwordinput()"
     },
     {
@@ -9257,7 +9496,7 @@
       "_origin": "ast",
       "id": "resources_js_components_text_link",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "text-link.tsx"
     },
     {
@@ -9270,7 +9509,7 @@
       "_origin": "ast",
       "id": "resources_js_components_text_link_props",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "props"
     },
     {
@@ -9282,7 +9521,7 @@
       "_origin": "ast",
       "id": "resources_js_components_text_link_textlink",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "textlink()"
     },
     {
@@ -9432,7 +9671,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_breadcrumb",
       "community": 60,
-      "community_name": "index.ts",
+      "community_name": "breadcrumbs.tsx",
       "norm_label": "breadcrumb.tsx"
     },
     {
@@ -9444,7 +9683,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_breadcrumb_breadcrumb",
       "community": 60,
-      "community_name": "index.ts",
+      "community_name": "breadcrumbs.tsx",
       "norm_label": "breadcrumb()"
     },
     {
@@ -9456,7 +9695,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_breadcrumb_breadcrumblist",
       "community": 60,
-      "community_name": "index.ts",
+      "community_name": "breadcrumbs.tsx",
       "norm_label": "breadcrumblist()"
     },
     {
@@ -9468,7 +9707,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_breadcrumb_breadcrumbitem",
       "community": 60,
-      "community_name": "index.ts",
+      "community_name": "breadcrumbs.tsx",
       "norm_label": "breadcrumbitem()"
     },
     {
@@ -9480,7 +9719,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_breadcrumb_breadcrumblink",
       "community": 60,
-      "community_name": "index.ts",
+      "community_name": "breadcrumbs.tsx",
       "norm_label": "breadcrumblink()"
     },
     {
@@ -9492,7 +9731,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_breadcrumb_breadcrumbpage",
       "community": 60,
-      "community_name": "index.ts",
+      "community_name": "breadcrumbs.tsx",
       "norm_label": "breadcrumbpage()"
     },
     {
@@ -9504,7 +9743,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_breadcrumb_breadcrumbseparator",
       "community": 60,
-      "community_name": "index.ts",
+      "community_name": "breadcrumbs.tsx",
       "norm_label": "breadcrumbseparator()"
     },
     {
@@ -9516,7 +9755,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_breadcrumb_breadcrumbellipsis",
       "community": 60,
-      "community_name": "index.ts",
+      "community_name": "breadcrumbs.tsx",
       "norm_label": "breadcrumbellipsis()"
     },
     {
@@ -9527,7 +9766,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_button",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "button.tsx"
     },
     {
@@ -9538,7 +9777,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_button_buttonvariants",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "buttonvariants"
     },
     {
@@ -9550,7 +9789,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_button_button",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "button()"
     },
     {
@@ -9560,8 +9799,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_ui_card",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 7,
+      "community_name": "cn",
       "norm_label": "card.tsx"
     },
     {
@@ -9572,8 +9811,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_card_card",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 7,
+      "community_name": "cn",
       "norm_label": "card()"
     },
     {
@@ -9584,8 +9823,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_card_cardheader",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 7,
+      "community_name": "cn",
       "norm_label": "cardheader()"
     },
     {
@@ -9596,8 +9835,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_card_cardtitle",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 7,
+      "community_name": "cn",
       "norm_label": "cardtitle()"
     },
     {
@@ -9608,8 +9847,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_card_carddescription",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 7,
+      "community_name": "cn",
       "norm_label": "carddescription()"
     },
     {
@@ -9620,8 +9859,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_card_cardcontent",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 7,
+      "community_name": "cn",
       "norm_label": "cardcontent()"
     },
     {
@@ -9632,8 +9871,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_card_cardfooter",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 7,
+      "community_name": "cn",
       "norm_label": "cardfooter()"
     },
     {
@@ -9644,7 +9883,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_checkbox",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "checkbox.tsx"
     },
     {
@@ -9656,7 +9895,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_checkbox_checkbox",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "checkbox()"
     },
     {
@@ -9713,8 +9952,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_ui_dialog",
-      "community": 135,
-      "community_name": "delete-user.tsx",
+      "community": 0,
+      "community_name": "utils.ts",
       "norm_label": "dialog.tsx"
     },
     {
@@ -9725,8 +9964,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_dialog_dialog",
-      "community": 135,
-      "community_name": "delete-user.tsx",
+      "community": 0,
+      "community_name": "utils.ts",
       "norm_label": "dialog()"
     },
     {
@@ -9737,8 +9976,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_dialog_dialogtrigger",
-      "community": 135,
-      "community_name": "delete-user.tsx",
+      "community": 0,
+      "community_name": "utils.ts",
       "norm_label": "dialogtrigger()"
     },
     {
@@ -9749,8 +9988,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_dialog_dialogportal",
-      "community": 135,
-      "community_name": "delete-user.tsx",
+      "community": 0,
+      "community_name": "utils.ts",
       "norm_label": "dialogportal()"
     },
     {
@@ -9761,8 +10000,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_dialog_dialogclose",
-      "community": 135,
-      "community_name": "delete-user.tsx",
+      "community": 0,
+      "community_name": "utils.ts",
       "norm_label": "dialogclose()"
     },
     {
@@ -9773,8 +10012,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_dialog_dialogoverlay",
-      "community": 135,
-      "community_name": "delete-user.tsx",
+      "community": 0,
+      "community_name": "utils.ts",
       "norm_label": "dialogoverlay()"
     },
     {
@@ -9785,8 +10024,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_dialog_dialogcontent",
-      "community": 135,
-      "community_name": "delete-user.tsx",
+      "community": 0,
+      "community_name": "utils.ts",
       "norm_label": "dialogcontent()"
     },
     {
@@ -9797,8 +10036,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_dialog_dialogheader",
-      "community": 135,
-      "community_name": "delete-user.tsx",
+      "community": 0,
+      "community_name": "utils.ts",
       "norm_label": "dialogheader()"
     },
     {
@@ -9809,8 +10048,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_dialog_dialogfooter",
-      "community": 135,
-      "community_name": "delete-user.tsx",
+      "community": 0,
+      "community_name": "utils.ts",
       "norm_label": "dialogfooter()"
     },
     {
@@ -9821,8 +10060,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_dialog_dialogtitle",
-      "community": 135,
-      "community_name": "delete-user.tsx",
+      "community": 0,
+      "community_name": "utils.ts",
       "norm_label": "dialogtitle()"
     },
     {
@@ -9833,8 +10072,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_dialog_dialogdescription",
-      "community": 135,
-      "community_name": "delete-user.tsx",
+      "community": 0,
+      "community_name": "utils.ts",
       "norm_label": "dialogdescription()"
     },
     {
@@ -10072,7 +10311,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_input",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "input.tsx"
     },
     {
@@ -10084,7 +10323,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_input_input",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "input()"
     },
     {
@@ -10095,7 +10334,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_label",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "label.tsx"
     },
     {
@@ -10107,7 +10346,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_label_label",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "label()"
     },
     {
@@ -10402,8 +10641,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_ui_separator",
-      "community": 53,
-      "community_name": "utils.ts",
+      "community": 9,
+      "community_name": "sidebar.tsx",
       "norm_label": "separator.tsx"
     },
     {
@@ -10414,8 +10653,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_separator_separator",
-      "community": 53,
-      "community_name": "utils.ts",
+      "community": 9,
+      "community_name": "sidebar.tsx",
       "norm_label": "separator()"
     },
     {
@@ -10593,8 +10832,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_sidebar_sidebarprovider",
-      "community": 13,
-      "community_name": "dropdown-menu.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "sidebarprovider()"
     },
     {
@@ -10617,8 +10856,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_sidebar_sidebartrigger",
-      "community": 9,
-      "community_name": "sidebar.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "sidebartrigger()"
     },
     {
@@ -10641,8 +10880,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_sidebar_sidebarinset",
-      "community": 9,
-      "community_name": "sidebar.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "sidebarinset()"
     },
     {
@@ -10903,7 +11142,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_sonner",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "app.tsx",
       "norm_label": "sonner.tsx"
     },
     {
@@ -10915,7 +11154,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_sonner_toaster",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "app.tsx",
       "norm_label": "toaster()"
     },
     {
@@ -10926,7 +11165,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_spinner",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "spinner.tsx"
     },
     {
@@ -10938,7 +11177,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_spinner_spinner",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "spinner()"
     },
     {
@@ -10948,8 +11187,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_ui_toggle_group",
-      "community": 7,
-      "community_name": "cn",
+      "community": 135,
+      "community_name": "toggle-group.tsx",
       "norm_label": "toggle-group.tsx"
     },
     {
@@ -10959,8 +11198,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "resources_js_components_ui_toggle_group_togglegroupcontext",
-      "community": 7,
-      "community_name": "cn",
+      "community": 135,
+      "community_name": "toggle-group.tsx",
       "norm_label": "togglegroupcontext"
     },
     {
@@ -10971,8 +11210,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_toggle_group_togglegroup",
-      "community": 7,
-      "community_name": "cn",
+      "community": 135,
+      "community_name": "toggle-group.tsx",
       "norm_label": "togglegroup()"
     },
     {
@@ -10983,8 +11222,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_toggle_group_togglegroupitem",
-      "community": 7,
-      "community_name": "cn",
+      "community": 135,
+      "community_name": "toggle-group.tsx",
       "norm_label": "togglegroupitem()"
     },
     {
@@ -10994,8 +11233,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_ui_toggle",
-      "community": 7,
-      "community_name": "cn",
+      "community": 135,
+      "community_name": "toggle-group.tsx",
       "norm_label": "toggle.tsx"
     },
     {
@@ -11005,8 +11244,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "resources_js_components_ui_toggle_togglevariants",
-      "community": 7,
-      "community_name": "cn",
+      "community": 135,
+      "community_name": "toggle-group.tsx",
       "norm_label": "togglevariants"
     },
     {
@@ -11017,8 +11256,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_toggle_toggle",
-      "community": 7,
-      "community_name": "cn",
+      "community": 135,
+      "community_name": "toggle-group.tsx",
       "norm_label": "toggle()"
     },
     {
@@ -11041,7 +11280,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_tooltip_tooltipprovider",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "app.tsx",
       "norm_label": "tooltipprovider()"
     },
     {
@@ -11146,7 +11385,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "use-appearance.tsx"
     },
@@ -11159,7 +11398,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_resolvedappearance",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "resolvedappearance"
     },
@@ -11172,7 +11411,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_appearance",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "appearance"
     },
@@ -11185,7 +11424,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_useappearancereturn",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "useappearancereturn"
     },
@@ -11196,7 +11435,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_listeners",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "listeners"
     },
@@ -11208,7 +11447,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_prefersdark",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "prefersdark()"
     },
@@ -11220,7 +11459,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_setcookie",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "setcookie()"
     },
@@ -11232,7 +11471,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_getstoredappearance",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "getstoredappearance()"
     },
@@ -11244,7 +11483,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_isdarkmode",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "isdarkmode()"
     },
@@ -11256,7 +11495,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_applytheme",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "applytheme()"
     },
@@ -11268,7 +11507,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_subscribe",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "subscribe()"
     },
@@ -11280,7 +11519,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_notify",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "notify()"
     },
@@ -11292,7 +11531,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_mediaquery",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "mediaquery()"
     },
@@ -11304,7 +11543,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_handlesystemthemechange",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "handlesystemthemechange()"
     },
@@ -11316,7 +11555,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_initializetheme",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "initializetheme()"
     },
@@ -11328,7 +11567,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_useappearance",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "useappearance()"
     },
@@ -11402,7 +11641,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_current_url",
       "community": 53,
-      "community_name": "utils.ts",
+      "community_name": "use-current-url.ts",
       "norm_label": "use-current-url.ts"
     },
     {
@@ -11415,7 +11654,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_current_url_iscurrenturlfn",
       "community": 53,
-      "community_name": "utils.ts",
+      "community_name": "use-current-url.ts",
       "norm_label": "iscurrenturlfn"
     },
     {
@@ -11428,7 +11667,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_current_url_iscurrentorparenturlfn",
       "community": 53,
-      "community_name": "utils.ts",
+      "community_name": "use-current-url.ts",
       "norm_label": "iscurrentorparenturlfn"
     },
     {
@@ -11441,7 +11680,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_current_url_whencurrenturlfn",
       "community": 53,
-      "community_name": "utils.ts",
+      "community_name": "use-current-url.ts",
       "norm_label": "whencurrenturlfn"
     },
     {
@@ -11454,7 +11693,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_current_url_usecurrenturlreturn",
       "community": 53,
-      "community_name": "utils.ts",
+      "community_name": "use-current-url.ts",
       "norm_label": "usecurrenturlreturn"
     },
     {
@@ -11466,7 +11705,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_current_url_usecurrenturl",
       "community": 53,
-      "community_name": "utils.ts",
+      "community_name": "use-current-url.ts",
       "norm_label": "usecurrenturl()"
     },
     {
@@ -11477,7 +11716,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_flash_toast",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "app.tsx",
       "norm_label": "use-flash-toast.ts"
     },
     {
@@ -11489,7 +11728,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_flash_toast_useflashtoast",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "app.tsx",
       "norm_label": "useflashtoast()"
     },
     {
@@ -11643,7 +11882,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_translation",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "use-translation.ts"
     },
     {
@@ -11655,7 +11894,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_translation_usetranslation",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "usetranslation()"
     },
     {
@@ -11665,8 +11904,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_layouts_app_layout",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "app-layout.tsx"
     },
     {
@@ -11678,7 +11917,7 @@
       "_origin": "ast",
       "id": "resources_js_layouts_app_layout_applayout",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "app.tsx",
       "norm_label": "applayout()"
     },
     {
@@ -11688,8 +11927,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_layouts_app_app_header_layout",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "app-header-layout.tsx"
     },
     {
@@ -11700,8 +11939,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_layouts_app_app_header_layout_appheaderlayout",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "appheaderlayout()"
     },
     {
@@ -11711,8 +11950,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_layouts_app_app_sidebar_layout",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "app-sidebar-layout.tsx"
     },
     {
@@ -11723,8 +11962,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_layouts_app_app_sidebar_layout_appsidebarlayout",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "appsidebarlayout()"
     },
     {
@@ -11735,7 +11974,7 @@
       "_origin": "ast",
       "id": "resources_js_layouts_auth_layout",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "app.tsx",
       "norm_label": "auth-layout.tsx"
     },
     {
@@ -11747,7 +11986,7 @@
       "_origin": "ast",
       "id": "resources_js_layouts_auth_layout_authlayout",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "app.tsx",
       "norm_label": "authlayout()"
     },
     {
@@ -11757,8 +11996,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_layouts_auth_auth_card_layout",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 7,
+      "community_name": "cn",
       "norm_label": "auth-card-layout.tsx"
     },
     {
@@ -11769,8 +12008,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_layouts_auth_auth_card_layout_authcardlayout",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 7,
+      "community_name": "cn",
       "norm_label": "authcardlayout()"
     },
     {
@@ -11781,7 +12020,7 @@
       "_origin": "ast",
       "id": "resources_js_layouts_auth_auth_simple_layout",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "app.tsx",
       "norm_label": "auth-simple-layout.tsx"
     },
     {
@@ -11793,7 +12032,7 @@
       "_origin": "ast",
       "id": "resources_js_layouts_auth_auth_simple_layout_authsimplelayout",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "app.tsx",
       "norm_label": "authsimplelayout()"
     },
     {
@@ -11804,7 +12043,7 @@
       "_origin": "ast",
       "id": "resources_js_layouts_auth_auth_split_layout",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "app.tsx",
       "norm_label": "auth-split-layout.tsx"
     },
     {
@@ -11816,7 +12055,7 @@
       "_origin": "ast",
       "id": "resources_js_layouts_auth_auth_split_layout_authsplitlayout",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "app.tsx",
       "norm_label": "authsplitlayout()"
     },
     {
@@ -11826,7 +12065,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_layouts_settings_layout",
-      "community": 53,
+      "community": 0,
       "community_name": "utils.ts",
       "norm_label": "layout.tsx"
     },
@@ -11837,7 +12076,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "resources_js_layouts_settings_layout_sidebarnavitems",
-      "community": 53,
+      "community": 0,
       "community_name": "utils.ts",
       "norm_label": "sidebarnavitems"
     },
@@ -11850,7 +12089,7 @@
       "_origin": "ast",
       "id": "resources_js_layouts_settings_layout_settingslayout",
       "community": 53,
-      "community_name": "utils.ts",
+      "community_name": "use-current-url.ts",
       "norm_label": "settingslayout()"
     },
     {
@@ -11861,7 +12100,7 @@
       "_origin": "ast",
       "id": "resources_js_lib_i18n",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "i18n.ts"
     },
     {
@@ -11874,7 +12113,7 @@
       "_origin": "ast",
       "id": "resources_js_lib_i18n_translationreplacements",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "translationreplacements"
     },
     {
@@ -11886,7 +12125,7 @@
       "_origin": "ast",
       "id": "resources_js_lib_i18n_translate",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "translate()"
     },
     {
@@ -11896,7 +12135,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_lib_utils",
-      "community": 53,
+      "community": 0,
       "community_name": "utils.ts",
       "norm_label": "utils.ts"
     },
@@ -11921,7 +12160,7 @@
       "_origin": "ast",
       "id": "resources_js_lib_utils_tourl",
       "community": 53,
-      "community_name": "utils.ts",
+      "community_name": "use-current-url.ts",
       "norm_label": "tourl()"
     },
     {
@@ -11932,7 +12171,7 @@
       "_origin": "ast",
       "id": "resources_js_miniapp_localization",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "miniapp/localization.ts"
     },
     {
@@ -11943,7 +12182,7 @@
       "_origin": "ast",
       "id": "resources_js_miniapp_localization_fallback",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "fallback"
     },
     {
@@ -11955,7 +12194,7 @@
       "_origin": "ast",
       "id": "resources_js_miniapp_localization_readpayload",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "readpayload()"
     },
     {
@@ -11966,7 +12205,7 @@
       "_origin": "ast",
       "id": "resources_js_miniapp_localization_localization",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "localization"
     },
     {
@@ -11978,7 +12217,7 @@
       "_origin": "ast",
       "id": "resources_js_miniapp_localization_t",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "t()"
     },
     {
@@ -11989,7 +12228,7 @@
       "_origin": "ast",
       "id": "resources_js_miniapp_main",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "main.tsx"
     },
     {
@@ -12000,7 +12239,7 @@
       "_origin": "ast",
       "id": "resources_js_miniapp_main_rootelement",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "rootelement"
     },
     {
@@ -12011,7 +12250,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_confirm_password",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "confirm-password.tsx"
     },
     {
@@ -12023,7 +12262,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_confirm_password_confirmpassword",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "confirmpassword()"
     },
     {
@@ -12034,7 +12273,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_forgot_password",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "forgot-password.tsx"
     },
     {
@@ -12046,7 +12285,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_forgot_password_forgotpassword",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "forgotpassword()"
     },
     {
@@ -12057,7 +12296,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_login",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "login.tsx"
     },
     {
@@ -12070,7 +12309,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_login_props",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "props"
     },
     {
@@ -12082,7 +12321,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_login_login",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "login()"
     },
     {
@@ -12093,7 +12332,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_register",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "register.tsx"
     },
     {
@@ -12106,7 +12345,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_register_props",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "props"
     },
     {
@@ -12118,7 +12357,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_register_register",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "register()"
     },
     {
@@ -12129,7 +12368,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_reset_password",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "reset-password.tsx"
     },
     {
@@ -12142,7 +12381,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_reset_password_props",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "props"
     },
     {
@@ -12154,7 +12393,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_reset_password_resetpassword",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "resetpassword()"
     },
     {
@@ -12165,7 +12404,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_verify_email",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "verify-email.tsx"
     },
     {
@@ -12177,7 +12416,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_verify_email_verifyemail",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "verifyemail()"
     },
     {
@@ -12211,7 +12450,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_settings_appearance",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "appearance.tsx"
     },
     {
@@ -12223,7 +12462,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_settings_appearance_appearance",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "appearance()"
     },
     {
@@ -12234,7 +12473,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_settings_profile",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "profile.tsx"
     },
     {
@@ -12247,7 +12486,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_settings_profile_pageprops",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "pageprops"
     },
     {
@@ -12259,7 +12498,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_settings_profile_profile",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "profile()"
     },
     {
@@ -12270,7 +12509,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_settings_security",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "security.tsx"
     },
     {
@@ -12283,7 +12522,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_settings_security_props",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "props"
     },
     {
@@ -12295,7 +12534,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_settings_security_security",
       "community": 0,
-      "community_name": "login.tsx",
+      "community_name": "utils.ts",
       "norm_label": "security()"
     },
     {
@@ -12329,7 +12568,7 @@
       "_origin": "ast",
       "id": "resources_js_types_auth",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "auth.ts"
     },
     {
@@ -12341,8 +12580,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_types_auth_user",
-      "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community": 13,
+      "community_name": "dropdown-menu.tsx",
       "norm_label": "user"
     },
     {
@@ -12355,7 +12594,7 @@
       "_origin": "ast",
       "id": "resources_js_types_auth_auth",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "auth"
     },
     {
@@ -12366,7 +12605,7 @@
       "_origin": "ast",
       "id": "resources_js_types_global_d",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "global.d.ts"
     },
     {
@@ -12377,7 +12616,7 @@
       "_origin": "ast",
       "id": "resources_js_types_global_d_react",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "react"
     },
     {
@@ -12390,7 +12629,7 @@
       "_origin": "ast",
       "id": "resources_js_types_global_d_inputhtmlattributes",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "inputhtmlattributes"
     },
     {
@@ -12401,7 +12640,7 @@
       "_origin": "ast",
       "id": "resources_js_types_global_d_inertiajs_core",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "@inertiajs/core"
     },
     {
@@ -12414,7 +12653,7 @@
       "_origin": "ast",
       "id": "resources_js_types_global_d_inertiaconfig",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "inertiaconfig"
     },
     {
@@ -12424,7 +12663,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_types_index",
-      "community": 60,
+      "community": 37,
       "community_name": "index.ts",
       "norm_label": "index.ts"
     },
@@ -12436,7 +12675,7 @@
       "_origin": "ast",
       "id": "resources_js_types_localization",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "types/localization.ts"
     },
     {
@@ -12449,7 +12688,7 @@
       "_origin": "ast",
       "id": "resources_js_types_localization_direction",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "direction"
     },
     {
@@ -12462,7 +12701,7 @@
       "_origin": "ast",
       "id": "resources_js_types_localization_localeoption",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "localeoption"
     },
     {
@@ -12475,7 +12714,7 @@
       "_origin": "ast",
       "id": "resources_js_types_localization_translations",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "translations"
     },
     {
@@ -12488,7 +12727,7 @@
       "_origin": "ast",
       "id": "resources_js_types_localization_localizationpayload",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "localizationpayload"
     },
     {
@@ -12498,8 +12737,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_types_navigation",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "navigation.ts"
     },
     {
@@ -12511,8 +12750,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_types_navigation_breadcrumbitem",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "breadcrumbitem"
     },
     {
@@ -12524,8 +12763,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_types_navigation_navitem",
-      "community": 9,
-      "community_name": "sidebar.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "navitem"
     },
     {
@@ -12535,8 +12774,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_types_ui",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "ui.ts"
     },
     {
@@ -12548,8 +12787,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_types_ui_applayoutprops",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "applayoutprops"
     },
     {
@@ -12561,8 +12800,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_types_ui_appvariant",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "appvariant"
     },
     {
@@ -12575,7 +12814,7 @@
       "_origin": "ast",
       "id": "resources_js_types_ui_flashtoast",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "app.tsx",
       "norm_label": "flashtoast"
     },
     {
@@ -12588,7 +12827,7 @@
       "_origin": "ast",
       "id": "resources_js_types_ui_authlayoutprops",
       "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community_name": "app.tsx",
       "norm_label": "authlayoutprops"
     },
     {
@@ -12804,8 +13043,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_auth_emailverificationtest",
-      "community": 15,
-      "community_name": "User",
+      "community": 120,
+      "community_name": "EmailVerificationTest",
       "norm_label": "emailverificationtest.php"
     },
     {
@@ -12817,8 +13056,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "tests_feature_auth_emailverificationtest_emailverificationtest",
-      "community": 15,
-      "community_name": "User",
+      "community": 120,
+      "community_name": "EmailVerificationTest",
       "norm_label": "emailverificationtest"
     },
     {
@@ -12829,8 +13068,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_auth_emailverificationtest_emailverificationtest_setup",
-      "community": 15,
-      "community_name": "User",
+      "community": 120,
+      "community_name": "EmailVerificationTest",
       "norm_label": ".setup()"
     },
     {
@@ -12841,8 +13080,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_auth_emailverificationtest_emailverificationtest_test_email_verification_screen_can_be_rendered",
-      "community": 15,
-      "community_name": "User",
+      "community": 120,
+      "community_name": "EmailVerificationTest",
       "norm_label": ".test_email_verification_screen_can_be_rendered()"
     },
     {
@@ -12853,8 +13092,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_auth_emailverificationtest_emailverificationtest_test_email_can_be_verified",
-      "community": 15,
-      "community_name": "User",
+      "community": 120,
+      "community_name": "EmailVerificationTest",
       "norm_label": ".test_email_can_be_verified()"
     },
     {
@@ -12865,8 +13104,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_auth_emailverificationtest_emailverificationtest_test_email_is_not_verified_with_invalid_hash",
-      "community": 15,
-      "community_name": "User",
+      "community": 120,
+      "community_name": "EmailVerificationTest",
       "norm_label": ".test_email_is_not_verified_with_invalid_hash()"
     },
     {
@@ -12877,8 +13116,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_auth_emailverificationtest_emailverificationtest_test_email_is_not_verified_with_invalid_user_id",
-      "community": 15,
-      "community_name": "User",
+      "community": 120,
+      "community_name": "EmailVerificationTest",
       "norm_label": ".test_email_is_not_verified_with_invalid_user_id()"
     },
     {
@@ -12889,8 +13128,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_auth_emailverificationtest_emailverificationtest_test_verified_user_is_redirected_to_dashboard_from_verification_prompt",
-      "community": 15,
-      "community_name": "User",
+      "community": 120,
+      "community_name": "EmailVerificationTest",
       "norm_label": ".test_verified_user_is_redirected_to_dashboard_from_verification_prompt()"
     },
     {
@@ -12901,8 +13140,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_auth_emailverificationtest_emailverificationtest_test_already_verified_user_visiting_verification_link_is_redirected_without_firing_event_again",
-      "community": 15,
-      "community_name": "User",
+      "community": 120,
+      "community_name": "EmailVerificationTest",
       "norm_label": ".test_already_verified_user_visiting_verification_link_is_redirected_without_firing_event_again()"
     },
     {
@@ -12913,7 +13152,7 @@
       "_origin": "ast",
       "id": "tests_feature_auth_passwordconfirmationtest",
       "community": 11,
-      "community_name": "TestCase",
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "passwordconfirmationtest.php"
     },
     {
@@ -12926,7 +13165,7 @@
       "_origin": "ast",
       "id": "tests_feature_auth_passwordconfirmationtest_passwordconfirmationtest",
       "community": 11,
-      "community_name": "TestCase",
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "passwordconfirmationtest"
     },
     {
@@ -12938,7 +13177,7 @@
       "_origin": "ast",
       "id": "tests_feature_auth_passwordconfirmationtest_passwordconfirmationtest_test_confirm_password_screen_can_be_rendered",
       "community": 11,
-      "community_name": "TestCase",
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": ".test_confirm_password_screen_can_be_rendered()"
     },
     {
@@ -12950,7 +13189,7 @@
       "_origin": "ast",
       "id": "tests_feature_auth_passwordconfirmationtest_passwordconfirmationtest_test_password_confirmation_requires_authentication",
       "community": 11,
-      "community_name": "TestCase",
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": ".test_password_confirmation_requires_authentication()"
     },
     {
@@ -13057,7 +13296,7 @@
       "_origin": "ast",
       "id": "tests_feature_auth_registrationtest",
       "community": 11,
-      "community_name": "TestCase",
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "registrationtest.php"
     },
     {
@@ -13070,7 +13309,7 @@
       "_origin": "ast",
       "id": "tests_feature_auth_registrationtest_registrationtest",
       "community": 11,
-      "community_name": "TestCase",
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "registrationtest"
     },
     {
@@ -13082,7 +13321,7 @@
       "_origin": "ast",
       "id": "tests_feature_auth_registrationtest_registrationtest_setup",
       "community": 11,
-      "community_name": "TestCase",
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": ".setup()"
     },
     {
@@ -13094,7 +13333,7 @@
       "_origin": "ast",
       "id": "tests_feature_auth_registrationtest_registrationtest_test_registration_screen_can_be_rendered",
       "community": 11,
-      "community_name": "TestCase",
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": ".test_registration_screen_can_be_rendered()"
     },
     {
@@ -13106,7 +13345,7 @@
       "_origin": "ast",
       "id": "tests_feature_auth_registrationtest_registrationtest_test_new_users_can_register",
       "community": 11,
-      "community_name": "TestCase",
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": ".test_new_users_can_register()"
     },
     {
@@ -13116,8 +13355,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_auth_verificationnotificationtest",
-      "community": 37,
-      "community_name": "VerificationNotificationTest",
+      "community": 11,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "verificationnotificationtest.php"
     },
     {
@@ -13129,8 +13368,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "tests_feature_auth_verificationnotificationtest_verificationnotificationtest",
-      "community": 37,
-      "community_name": "VerificationNotificationTest",
+      "community": 11,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "verificationnotificationtest"
     },
     {
@@ -13141,8 +13380,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_auth_verificationnotificationtest_verificationnotificationtest_setup",
-      "community": 37,
-      "community_name": "VerificationNotificationTest",
+      "community": 11,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": ".setup()"
     },
     {
@@ -13153,8 +13392,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_auth_verificationnotificationtest_verificationnotificationtest_test_sends_verification_notification",
-      "community": 37,
-      "community_name": "VerificationNotificationTest",
+      "community": 11,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": ".test_sends_verification_notification()"
     },
     {
@@ -13165,8 +13404,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_auth_verificationnotificationtest_verificationnotificationtest_test_does_not_send_verification_notification_if_email_is_verified",
-      "community": 37,
-      "community_name": "VerificationNotificationTest",
+      "community": 11,
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": ".test_does_not_send_verification_notification_if_email_is_verified()"
     },
     {
@@ -13177,7 +13416,7 @@
       "_origin": "ast",
       "id": "tests_feature_dashboardtest",
       "community": 11,
-      "community_name": "TestCase",
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "dashboardtest.php"
     },
     {
@@ -13190,7 +13429,7 @@
       "_origin": "ast",
       "id": "tests_feature_dashboardtest_dashboardtest",
       "community": 11,
-      "community_name": "TestCase",
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "dashboardtest"
     },
     {
@@ -13202,7 +13441,7 @@
       "_origin": "ast",
       "id": "tests_feature_dashboardtest_dashboardtest_test_guests_are_redirected_to_the_login_page",
       "community": 11,
-      "community_name": "TestCase",
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": ".test_guests_are_redirected_to_the_login_page()"
     },
     {
@@ -13214,7 +13453,7 @@
       "_origin": "ast",
       "id": "tests_feature_dashboardtest_dashboardtest_test_authenticated_users_can_visit_the_dashboard",
       "community": 11,
-      "community_name": "TestCase",
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": ".test_authenticated_users_can_visit_the_dashboard()"
     },
     {
@@ -13225,8 +13464,53 @@
       "_origin": "ast",
       "id": "tests_feature_domain_challengeschematest",
       "community": 30,
-      "community_name": "HasTranslatedLabel.php",
+      "community_name": "Challenge",
       "norm_label": "challengeschematest.php"
+    },
+    {
+      "label": "CoinLedgerConcurrencyTest.php",
+      "file_type": "code",
+      "source_file": "tests/Feature/Domain/CoinLedgerConcurrencyTest.php",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "tests_feature_domain_coinledgerconcurrencytest",
+      "community": 47,
+      "community_name": "User.php",
+      "norm_label": "coinledgerconcurrencytest.php"
+    },
+    {
+      "label": "inParallel()",
+      "file_type": "code",
+      "source_file": "tests/Feature/Domain/CoinLedgerConcurrencyTest.php",
+      "source_location": "L66",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "tests_feature_domain_coinledgerconcurrencytest_inparallel",
+      "community": 47,
+      "community_name": "User.php",
+      "norm_label": "inparallel()"
+    },
+    {
+      "label": "Closure",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "tests_feature_domain_coinledgerconcurrencytest_php_closure",
+      "community": 47,
+      "community_name": "User.php",
+      "norm_label": "closure"
+    },
+    {
+      "label": "CoinLedgerTest.php",
+      "file_type": "code",
+      "source_file": "tests/Feature/Domain/CoinLedgerTest.php",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "tests_feature_domain_coinledgertest",
+      "community": 47,
+      "community_name": "User.php",
+      "norm_label": "coinledgertest.php"
     },
     {
       "label": "EconomySchemaTest.php",
@@ -13247,7 +13531,7 @@
       "_origin": "ast",
       "id": "tests_feature_exampletest",
       "community": 11,
-      "community_name": "TestCase",
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "feature/exampletest.php"
     },
     {
@@ -13260,7 +13544,7 @@
       "_origin": "ast",
       "id": "tests_feature_exampletest_exampletest",
       "community": 11,
-      "community_name": "TestCase",
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "exampletest"
     },
     {
@@ -13272,7 +13556,7 @@
       "_origin": "ast",
       "id": "tests_feature_exampletest_exampletest_test_returns_a_successful_response",
       "community": 11,
-      "community_name": "TestCase",
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": ".test_returns_a_successful_response()"
     },
     {
@@ -13411,8 +13695,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_settings_securitytest",
-      "community": 15,
-      "community_name": "User",
+      "community": 175,
+      "community_name": "SecurityTest",
       "norm_label": "securitytest.php"
     },
     {
@@ -13424,8 +13708,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "tests_feature_settings_securitytest_securitytest",
-      "community": 15,
-      "community_name": "User",
+      "community": 175,
+      "community_name": "SecurityTest",
       "norm_label": "securitytest"
     },
     {
@@ -13436,8 +13720,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_settings_securitytest_securitytest_test_security_page_is_displayed",
-      "community": 15,
-      "community_name": "User",
+      "community": 175,
+      "community_name": "SecurityTest",
       "norm_label": ".test_security_page_is_displayed()"
     },
     {
@@ -13448,8 +13732,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_settings_securitytest_securitytest_test_security_page_requires_password_confirmation_when_enabled",
-      "community": 15,
-      "community_name": "User",
+      "community": 175,
+      "community_name": "SecurityTest",
       "norm_label": ".test_security_page_requires_password_confirmation_when_enabled()"
     },
     {
@@ -13460,8 +13744,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_settings_securitytest_securitytest_test_security_page_renders_without_two_factor_when_feature_is_disabled",
-      "community": 15,
-      "community_name": "User",
+      "community": 175,
+      "community_name": "SecurityTest",
       "norm_label": ".test_security_page_renders_without_two_factor_when_feature_is_disabled()"
     },
     {
@@ -13472,8 +13756,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_settings_securitytest_securitytest_test_password_can_be_updated",
-      "community": 15,
-      "community_name": "User",
+      "community": 175,
+      "community_name": "SecurityTest",
       "norm_label": ".test_password_can_be_updated()"
     },
     {
@@ -13484,8 +13768,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_settings_securitytest_securitytest_test_correct_password_must_be_provided_to_update_password",
-      "community": 15,
-      "community_name": "User",
+      "community": 175,
+      "community_name": "SecurityTest",
       "norm_label": ".test_correct_password_must_be_provided_to_update_password()"
     },
     {
@@ -13530,7 +13814,7 @@
       "_origin": "ast",
       "id": "tests_pest",
       "community": 11,
-      "community_name": "TestCase",
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "pest.php"
     },
     {
@@ -13542,7 +13826,7 @@
       "_origin": "ast",
       "id": "tests_pest_something",
       "community": 11,
-      "community_name": "TestCase",
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "something()"
     },
     {
@@ -13553,7 +13837,7 @@
       "_origin": "ast",
       "id": "tests_testcase",
       "community": 11,
-      "community_name": "TestCase",
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "testcase.php"
     },
     {
@@ -13566,7 +13850,7 @@
       "_origin": "ast",
       "id": "tests_testcase_testcase",
       "community": 11,
-      "community_name": "TestCase",
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "testcase"
     },
     {
@@ -13578,7 +13862,7 @@
       "_origin": "ast",
       "id": "tests_testcase_testcase_skipunlessfortifyhas",
       "community": 11,
-      "community_name": "TestCase",
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": ".skipunlessfortifyhas()"
     },
     {
@@ -13589,7 +13873,7 @@
       "_origin": "ast",
       "id": "tests_unit_exampletest",
       "community": 11,
-      "community_name": "TestCase",
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "unit/exampletest.php"
     },
     {
@@ -13602,7 +13886,7 @@
       "_origin": "ast",
       "id": "tests_unit_exampletest_exampletest",
       "community": 11,
-      "community_name": "TestCase",
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "exampletest"
     },
     {
@@ -13614,7 +13898,7 @@
       "_origin": "ast",
       "id": "tests_unit_exampletest_exampletest_test_that_true_is_true",
       "community": 11,
-      "community_name": "TestCase",
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": ".test_that_true_is_true()"
     },
     {
@@ -20504,6 +20788,17 @@
       "norm_label": "domain task 1 \u2014 challenge core: enums, schema, models, factories \u2705"
     },
     {
+      "label": "Domain Task 2 \u2014 economy + infra schema: enums, migrations, models, factories \u2705",
+      "file_type": "document",
+      "source_file": "prompts/progress.md",
+      "source_location": "L355",
+      "_origin": "ast",
+      "id": "prompts_progress_domain_task_2_economy_infra_schema_enums_migrations_models_factories",
+      "community": 101,
+      "community_name": "Build Progress \u2014 Telegram Challenges Platform",
+      "norm_label": "domain task 2 \u2014 economy + infra schema: enums, migrations, models, factories \u2705"
+    },
+    {
       "label": "task-01-setup.md",
       "file_type": "document",
       "source_file": "prompts/task-01-setup.md",
@@ -20719,7 +21014,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "illuminate_database_eloquent_builder",
-      "community": 132,
+      "community": 5,
       "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": "illuminate\\database\\eloquent\\builder"
     },
@@ -20730,7 +21025,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "illuminate_database_eloquent_factories_hasfactory",
-      "community": 5,
+      "community": 28,
       "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
       "norm_label": "illuminate\\database\\eloquent\\factories\\hasfactory"
     },
@@ -20741,8 +21036,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "illuminate_database_eloquent_model",
-      "community": 5,
-      "community_name": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
+      "community": 156,
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": "illuminate\\database\\eloquent\\model"
     },
     {
@@ -20752,8 +21047,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "illuminate_database_eloquent_relations_belongsto",
-      "community": 175,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 5,
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": "illuminate\\database\\eloquent\\relations\\belongsto"
     },
     {
@@ -20763,8 +21058,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "illuminate_database_eloquent_relations_hasmany",
-      "community": 47,
-      "community_name": "Challenge",
+      "community": 15,
+      "community_name": "User",
       "norm_label": "illuminate\\database\\eloquent\\relations\\hasmany"
     },
     {
@@ -20774,8 +21069,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "carbon_carboninterface",
-      "community": 132,
-      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
+      "community": 180,
+      "community_name": "ChallengeParticipant",
       "norm_label": "carbon\\carboninterface"
     },
     {
@@ -20786,7 +21081,7 @@
       "_origin": "ast",
       "id": "illuminate_database_eloquent_relations_morphto",
       "community": 156,
-      "community_name": "CoinTransaction",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": "illuminate\\database\\eloquent\\relations\\morphto"
     },
     {
@@ -20851,7 +21146,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "illuminate_database_eloquent_factories_factory",
-      "community": 31,
+      "community": 47,
       "community_name": "User.php",
       "norm_label": "illuminate\\database\\eloquent\\factories\\factory"
     },
@@ -20885,7 +21180,7 @@
       "_origin": "ast",
       "id": "illuminate_foundation_testing_refreshdatabase",
       "community": 11,
-      "community_name": "TestCase",
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "illuminate\\foundation\\testing\\refreshdatabase"
     },
     {
@@ -20896,7 +21191,7 @@
       "_origin": "ast",
       "id": "illuminate_foundation_testing_testcase",
       "community": 11,
-      "community_name": "TestCase",
+      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "norm_label": "illuminate\\foundation\\testing\\testcase"
     },
     {
@@ -21261,7 +21556,7 @@
       "author": null,
       "contributor": null,
       "rationale": "Multi-language from day one (Farsi + English minimum), locale per user, RTL required. Scaffold has no i18n layer and no RTL handling at all, so both are genuine net-new build work.",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "i18n + rtl requirement",
       "_origin": "semantic",
@@ -22245,6 +22540,17 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/Enums/CoinTransactionReason.php",
+      "source_location": "L70",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_enums_cointransactionreason",
+      "target": "app_enums_cointransactionreason_allowsoverdraft",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Enums/CoinTransactionReason.php",
       "source_location": "L33",
       "weight": 1.0,
       "_origin": "ast",
@@ -22302,6 +22608,66 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger",
+      "target": "app_enums_cointransactionreason",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L115",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_credit",
+      "target": "app_enums_cointransactionreason",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L135",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_debit",
+      "target": "app_enums_cointransactionreason",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L159",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_record",
+      "target": "app_enums_cointransactionreason",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L235",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_write",
+      "target": "app_enums_cointransactionreason",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "database/factories/CoinTransactionFactory.php",
       "source_location": "L5",
       "weight": 1.0,
@@ -22319,6 +22685,30 @@
       "context": "parameter_type",
       "_origin": "ast",
       "source": "database_factories_cointransactionfactory_cointransactionfactory_because",
+      "target": "app_enums_cointransactionreason",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/CoinLedgerConcurrencyTest.php",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_coinledgerconcurrencytest",
+      "target": "app_enums_cointransactionreason",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/CoinLedgerTest.php",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_coinledgertest",
       "target": "app_enums_cointransactionreason",
       "confidence_score": 1.0
     },
@@ -23513,6 +23903,98 @@
       "_origin": "ast",
       "source": "tests_feature_domain_economyschematest",
       "target": "app_enums_starpaymentstatus",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Exceptions/InsufficientCoinsException.php",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_exceptions_insufficientcoinsexception",
+      "target": "app_exceptions_insufficientcoinsexception_insufficientcoinsexception",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Exceptions/InsufficientCoinsException.php",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_exceptions_insufficientcoinsexception",
+      "target": "runtimeexception",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger",
+      "target": "app_exceptions_insufficientcoinsexception",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/CoinLedgerConcurrencyTest.php",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_coinledgerconcurrencytest",
+      "target": "app_exceptions_insufficientcoinsexception",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/CoinLedgerTest.php",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_coinledgertest",
+      "target": "app_exceptions_insufficientcoinsexception",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Exceptions/InsufficientCoinsException.php",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_exceptions_insufficientcoinsexception_insufficientcoinsexception",
+      "target": "app_exceptions_insufficientcoinsexception_insufficientcoinsexception_construct",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Exceptions/InsufficientCoinsException.php",
+      "source_location": "L23",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_exceptions_insufficientcoinsexception_insufficientcoinsexception",
+      "target": "app_exceptions_insufficientcoinsexception_insufficientcoinsexception_shortfall",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Exceptions/InsufficientCoinsException.php",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_exceptions_insufficientcoinsexception_insufficientcoinsexception",
+      "target": "runtimeexception",
       "confidence_score": 1.0
     },
     {
@@ -26500,18 +26982,6 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/Feature/Domain/EconomySchemaTest.php",
-      "source_location": "L15",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "tests_feature_domain_economyschematest",
-      "target": "app_models_cointransaction",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/Models/CoinTransaction.php",
@@ -26619,6 +27089,162 @@
       "_origin": "ast",
       "source": "app_models_cointransaction_cointransaction",
       "target": "illuminate_database_eloquent_model",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger",
+      "target": "app_models_cointransaction_cointransaction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L203",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_assertbelongsto",
+      "target": "app_models_cointransaction_cointransaction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L55",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_balancefor",
+      "target": "app_models_cointransaction_cointransaction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L115",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_credit",
+      "target": "app_models_cointransaction_cointransaction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L135",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_debit",
+      "target": "app_models_cointransaction_cointransaction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "return_type",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L103",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_findbykey",
+      "target": "app_models_cointransaction_cointransaction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L159",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_record",
+      "target": "app_models_cointransaction_cointransaction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L72",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_sum",
+      "target": "app_models_cointransaction_cointransaction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "return_type",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L235",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_write",
+      "target": "app_models_cointransaction_cointransaction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "database/factories/CoinTransactionFactory.php",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "database_factories_cointransactionfactory",
+      "target": "app_models_cointransaction_cointransaction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/CoinLedgerConcurrencyTest.php",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_coinledgerconcurrencytest",
+      "target": "app_models_cointransaction_cointransaction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/CoinLedgerTest.php",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_coinledgertest",
+      "target": "app_models_cointransaction_cointransaction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/EconomySchemaTest.php",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_economyschematest",
+      "target": "app_models_cointransaction_cointransaction",
       "confidence_score": 1.0
     },
     {
@@ -27690,6 +28316,18 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/CoinLedgerTest.php",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_coinledgertest",
+      "target": "app_models_starpayment",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "tests/Feature/Domain/EconomySchemaTest.php",
       "source_location": "L19",
       "weight": 1.0,
@@ -28330,6 +28968,30 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/CoinLedgerConcurrencyTest.php",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_coinledgerconcurrencytest",
+      "target": "app_models_user",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/CoinLedgerTest.php",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_coinledgertest",
+      "target": "app_models_user",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "tests/Feature/Domain/EconomySchemaTest.php",
       "source_location": "L21",
       "weight": 1.0,
@@ -28592,6 +29254,150 @@
       "_origin": "ast",
       "source": "app_models_user_user",
       "target": "illuminate_notifications_notifiable",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger",
+      "target": "app_models_user_user",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L203",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_assertbelongsto",
+      "target": "app_models_user_user",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L53",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_balancefor",
+      "target": "app_models_user_user",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L95",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_canafford",
+      "target": "app_models_user_user",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L115",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_credit",
+      "target": "app_models_user_user",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L135",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_debit",
+      "target": "app_models_user_user",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L83",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_drift",
+      "target": "app_models_user_user",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L264",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_idof",
+      "target": "app_models_user_user",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L221",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_lock",
+      "target": "app_models_user_user",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L159",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_record",
+      "target": "app_models_user_user",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L70",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_sum",
+      "target": "app_models_user_user",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L235",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_write",
+      "target": "app_models_user_user",
       "confidence_score": 1.0
     },
     {
@@ -29550,6 +30356,401 @@
       "_origin": "ast",
       "source": "app_providers_fortifyserviceprovider_fortifyserviceprovider_boot",
       "target": "app_providers_fortifyserviceprovider_fortifyserviceprovider_configureviews",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L45",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger",
+      "target": "app_services_coinledger_coinledger",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger",
+      "target": "illuminate_database_eloquent_model",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/CoinLedgerConcurrencyTest.php",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_coinledgerconcurrencytest",
+      "target": "app_services_coinledger",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/CoinLedgerTest.php",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_coinledgertest",
+      "target": "app_services_coinledger",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L203",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger",
+      "target": "app_services_coinledger_coinledger_assertbelongsto",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L53",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger",
+      "target": "app_services_coinledger_coinledger_balancefor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L95",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger",
+      "target": "app_services_coinledger_coinledger_canafford",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L115",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger",
+      "target": "app_services_coinledger_coinledger_credit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L135",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger",
+      "target": "app_services_coinledger_coinledger_debit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L83",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger",
+      "target": "app_services_coinledger_coinledger_drift",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L103",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger",
+      "target": "app_services_coinledger_coinledger_findbykey",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L264",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger",
+      "target": "app_services_coinledger_coinledger_idof",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L221",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger",
+      "target": "app_services_coinledger_coinledger_lock",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L159",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger",
+      "target": "app_services_coinledger_coinledger_record",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L70",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger",
+      "target": "app_services_coinledger_coinledger_sum",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L235",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger",
+      "target": "app_services_coinledger_coinledger_write",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L56",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_balancefor",
+      "target": "app_services_coinledger_coinledger_idof",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L97",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_canafford",
+      "target": "app_services_coinledger_coinledger_balancefor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L85",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_drift",
+      "target": "app_services_coinledger_coinledger_balancefor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L182",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_record",
+      "target": "app_services_coinledger_coinledger_balancefor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L73",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_sum",
+      "target": "app_services_coinledger_coinledger_idof",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L177",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_record",
+      "target": "app_services_coinledger_coinledger_findbykey",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L254",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_write",
+      "target": "app_services_coinledger_coinledger_findbykey",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L126",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_credit",
+      "target": "app_services_coinledger_coinledger_record",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L115",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_credit",
+      "target": "illuminate_database_eloquent_model",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L146",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_debit",
+      "target": "app_services_coinledger_coinledger_record",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L135",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_debit",
+      "target": "illuminate_database_eloquent_model",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L178",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_record",
+      "target": "app_services_coinledger_coinledger_assertbelongsto",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L173",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_record",
+      "target": "app_services_coinledger_coinledger_lock",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L189",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_record",
+      "target": "app_services_coinledger_coinledger_write",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L159",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_record",
+      "target": "illuminate_database_eloquent_model",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L205",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_assertbelongsto",
+      "target": "app_services_coinledger_coinledger_idof",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L245",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_write",
+      "target": "app_services_coinledger_coinledger_idof",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/CoinLedger.php",
+      "source_location": "L235",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_services_coinledger_coinledger_write",
+      "target": "illuminate_database_eloquent_model",
       "confidence_score": 1.0
     },
     {
@@ -46443,6 +47644,41 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/CoinLedgerConcurrencyTest.php",
+      "source_location": "L66",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_coinledgerconcurrencytest",
+      "target": "tests_feature_domain_coinledgerconcurrencytest_inparallel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/CoinLedgerConcurrencyTest.php",
+      "source_location": "L66",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "tests_feature_domain_coinledgerconcurrencytest_inparallel",
+      "target": "tests_feature_domain_coinledgerconcurrencytest_php_closure",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/CoinLedgerTest.php",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_coinledgertest",
+      "target": "illuminate_foundation_testing_refreshdatabase",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -53558,6 +54794,17 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "prompts/progress.md",
+      "source_location": "L355",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "prompts_progress_log",
+      "target": "prompts_progress_domain_task_2_economy_infra_schema_enums_migrations_models_factories",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "prompts/progress.md",
       "source_location": "L68",
       "weight": 1.0,
       "_origin": "ast",
@@ -54214,5 +55461,5 @@
       "source_file": "prompts/main.md"
     }
   ],
-  "built_at_commit": "04e0e2955ac137c9f1564a69ac16294e16a89c3b"
+  "built_at_commit": "d00670d334fed621114de2776b2f27253ee50efa"
 }
