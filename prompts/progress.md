@@ -24,7 +24,8 @@ Status key: ✅ done · 🔄 in progress · ⬜ not started
   `CoinLedger` atomically, consumption idempotent per challenge)
 - ✅ **Domain Task 6 — streak / freeze / miss engine** (`SettleCheckIn` + `RollOverPeriod`; transition-as-token
   idempotency, participant mutex, `streak_resets_count`, no auto-remove)
-- ⬜ Invite code generation + brand-new-user crediting rule
+- ✅ **Domain Task 7 — invite codes + brand-new-user crediting** (single-use codes, `wasRecentlyCreated`
+  eligibility, `Claimed` vs `Credited`, paid once per invite row)
 - ⬜ Per-participant-per-period phrase generation
 
 ## Phase 3 — Bot core
@@ -804,5 +805,115 @@ phpstan lvl 7 (0 errors) ✓, tests **493 (489 pass, 4 skipped = Fortify 2FA dis
 credit coins **only if the invited user is brand-new to the bot** (first-ever `/start`, no prior user row) —
 through `CoinLedger` with an idempotency key so a replayed `/start` cannot pay twice. The invite→coin rate comes
 from `Setting`. Self-invites and re-using a code for an existing user must credit nothing.
+
+---
+
+## Domain Task 7 — invites (done)
+
+Two Actions in `app/Actions/Invites/` — `IssueInviteCode` and `ClaimInvite` — plus `App\Enums\InviteRejection`
+and `App\Exceptions\InviteNotClaimableException`. No migration and no model changes: the `invites` table,
+`InviteStatus`, `Invite::open()`/`credited()`/`deepLink()`, `User::sentInvites()`/`claimedInvite()`/`referrals()`
+and `CoinTransactionReason::InviteCredit` all already existed from Domain Tasks 1–2 and are used as-is.
+
+**Decisions**
+
+- **Eligibility is `$invitee->wasRecentlyCreated`, not an argument.** This is the security-relevant choice in the
+  task. The obvious signature is `handle(User $invitee, string $code, bool $isNew)`, and it is wrong: it puts
+  *"should I be paid?"* in the hands of the caller on a money path, and the caller is a webhook handler acting on
+  client input. `wasRecentlyCreated` is true only on the instance that performed the INSERT in this process, which
+  is precisely the question being asked and is not reachable from the wire. It also **fails closed** — a
+  re-loaded model reports false and the inviter goes unpaid. Under-paying is a support conversation;
+  over-paying is a mint. The contract this creates is documented on `handle()`: **pass the instance the arrival
+  created or found**, i.e. what `firstOrCreate` returned on this `/start`.
+- **`Claimed` and `Credited` are both success.** An existing user redeeming a code is attributed —
+  `referred_by_user_id` is set, the inviter sees them in `referrals()`, the code is spent — but no coins move.
+  Collapsing the two would make "used but unpaid" indistinguishable from "never used", which was already the
+  documented reason the enum has three cases.
+- **A zero or negative rate settles as `Claimed`, not `Credited`.** Paying nothing is not a payment, and
+  `wasPaid()` has to keep meaning what it says — it will matter to a refund or audit view later. An admin who
+  zeroes `InviteCoinReward` has switched rewards off, not made them free. Tested with a dataset over `0` and `-5`.
+- **The ledger key is `invite:<id>` — one payment per invite row, for all time.** Not per claim, not per
+  `(inviter, invitee)`. Proven directly by resetting a claimed row through the query builder and re-claiming it:
+  the status checks are bypassed and the ledger still refuses to pay twice. That is the last line of defence, so
+  it is asserted rather than assumed.
+- **The lock is on the invite row, not on either user.** The contended resource is the *code*: two brand-new
+  users tapping one link must not both be attributed to it. Locking the invite and letting `CoinLedger` take the
+  inviter's lock inside `credit()` also fixes the order as invite → user for every caller, so claims can never
+  deadlock against each other or against a slot purchase.
+- **`alreadyAttributed()` queries the database rather than reading `referred_by_user_id`** off the in-memory
+  model, which may be a stale null. The unique index on `invited_user_id` is the real backstop; this check exists
+  so the caller gets a domain exception it can explain instead of a constraint violation it cannot.
+- **Codes stay single-use, because the schema says so.** `invites.code` unique + `invites.invited_user_id` unique
+  means one row attributes exactly one arrival — a decision made and documented in Domain Task 2, not revisited
+  here. `IssueInviteCode::handle()` therefore means *"the inviter's current link"*: it returns the oldest open
+  code they already have rather than minting one per screen view, so a link copied yesterday still works today.
+  `mint()` forces a fresh one for "give me another link". Two concurrent `handle()` calls can both mint; both
+  codes are valid and both credit, so that is not worth a lock.
+- **Code alphabet excludes `i`, `l`, `o`, `0` and `1`.** Ten characters of the remaining 31 is ~49 bits — a
+  collision is a non-event and a guess is pointless — and codes get read off one screen and typed into another,
+  so every ambiguous character is a support message. `random_int` rather than `rand`, because a guessable code
+  lets a stranger take credit for an arrival. Collisions are handled by **re-rolling against the unique index**,
+  not by a pre-flight existence check, which is the only version that is safe under concurrency; five attempts,
+  after which it rethrows, because at 49 bits a repeat collision means the generator is broken.
+- **Codes are matched case-insensitively and trimmed.** `ClaimInvite::normalise()` is public so the bot echoes
+  back the form that actually matched. This is what makes a link survive a phone keyboard capitalising the first
+  letter.
+- **One exception class with four named constructors, carrying an `InviteRejection`**, rather than four exception
+  classes — every caller handles these together (`/start` catches and picks a reply) and the reason is what
+  selects the reply. `InviteRejection` deliberately has **no** `label()`, for the same reason `ConversationState`
+  has none: these select which sentence the bot sends, not a noun to render, and those sentences are their own
+  lang lines. So no new `lang/*/enums.php` entries and nothing to add to the enum-translation dataset.
+
+**Tests — 32 new** (`tests/Feature/Domain/InvitesTest.php`), five groups: minting, claiming as brand-new,
+claiming as a returning user, refusals, and a retried `/start`, plus the ledger over time. Notable coverage: the
+same link handed back on repeat asks; a fresh one minted only after the last was claimed; charset and length
+asserted over 40 generated codes and uniqueness over 60; self-invite, unknown code, already-claimed and
+already-attributed each asserting the `reason` *and* that nothing was written; two arrivals racing one code
+paying the inviter once; the rate not applying retroactively (`10` then `25` → ledger `[25, 10]`); and
+`drift() === 0` so the invite path cannot desynchronise the running balance.
+
+**A trap that cost a debug cycle — now recorded in `.ai/rules/exceptions.md`.** `InviteNotClaimableException`
+originally carried `public readonly string $code`. `Exception` already declares a non-readonly `$code`, so
+redeclaring it readonly is a **compile-time fatal** raised when the class is autoloaded — and under Pest's agent
+output format that killed the entire run with exit 1 and **zero bytes of output**, which reads like a segfault
+rather than a type error. `php -l` passed; the real message only appeared via
+`sail artisan tinker --execute 'throw …'`. The property is now `$inviteCode`, with a comment saying why, and the
+rule is filed so the next exception with a payload does not repeat it. **Diagnostic worth remembering: a Pest run
+that exits 1 with no output is a fatal during class loading, not a crash — reproduce it in tinker.**
+
+**A second, smaller trap.** `$invite->update(['status' => Pending, …])` on a model whose in-memory attributes
+already hold those values writes **nothing** — Eloquent only sends dirty attributes, and the row had been changed
+underneath by another instance. A test that means "the row changed underneath the model" has to use the query
+builder.
+
+**Assumptions / follow-ups recorded**
+
+- **A single-use code cannot be posted to a group chat and credit everyone.** First tap wins; the rest get
+  `AlreadyClaimed`. That follows from the Task 2 schema and is the honest reading of it, but it is a real product
+  limitation worth a decision in Phase 3: the bot can either mint a small batch of codes on `/invite`, or the
+  schema gains a `max_uses` column / an `invite_claims` child table. **Not** something to change silently — it
+  would need a migration and a rewrite of the uniqueness argument above.
+- **Nothing calls these yet.** `/start` invite attribution, the channel gate and `GrantFreeBaseline` are composed
+  in Bot Core (Phase 3). The `?startapp=` Mini App path also carries a code (`start_param` in initData **and** the
+  server-visible `tgWebAppStartParam` GET parameter) and will reuse `ClaimInvite` unchanged.
+- **`wasRecentlyCreated` does not survive a queue boundary**, which is fine as designed: the queued webhook job
+  does its own `firstOrCreate` and so holds a genuinely fresh instance. If the user is ever created in one job
+  and claimed in another, eligibility must be carried explicitly and deliberately — not by re-loading and hoping.
+- **Factory-built users report `wasRecentlyCreated`**, so the test suite needs `returning()` (a re-load) to
+  express "this person was already here". Documented in the test file, because the default reads the wrong way
+  round.
+- **No un-attribution path.** Nothing releases a claimed invite or reverses an `InviteCredit`. A refund would
+  need its own Action, its own idempotency key, and a decision about whether the invitee stays attributed.
+
+**Result — `sail composer ci:check` GREEN:** eslint ✓, prettier ✓, `tsc --noEmit` ✓, pint ✓,
+phpstan lvl 7 (0 errors) ✓, tests **525 (521 pass, 4 skipped = Fortify 2FA disabled)**, +32 from this task.
+
+**Next:** Domain Task 8 — per-participant-per-period phrase generation for `proof_type = text_autogen`. Generate
+a unique, meaningful phrase for **each participant in each period** (per-participant, *not* per-period, so
+participants cannot paste the phrase to each other and defeat the mechanic), store it on
+`CheckIn.expected_phrase`, and match it on normalised exact comparison. `CheckIn::normalisePhrase()` and
+`matchesExpectedPhrase()` already exist from Domain Task 1 — reuse them. Must be deterministic-per-row or
+generated once and persisted, so a re-run of period materialisation does not change a phrase a participant is
+already looking at. Phrases must work in both Farsi and English.
 
 
