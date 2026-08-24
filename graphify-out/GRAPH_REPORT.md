@@ -1,98 +1,173 @@
-# Graph Report - .  (2026-08-24)
+# Graph Report - challenges  (2026-08-24)
 
 ## Corpus Check
-- Corpus is ~29,556 words - fits in a single context window. You may not need a graph.
+- 217 files · ~65,100 words
+- Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 788 nodes · 1387 edges · 92 communities (51 shown, 41 thin omitted)
-- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 53 edges (avg confidence: 0.78)
+- 1427 nodes · 1995 edges · 172 communities (125 shown, 47 thin omitted)
+- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 53 edges (avg confidence: 0.78)
 - Token cost: 0 input · 0 output
 
+## Graph Freshness
+- Built from commit: `4a64950d`
+- Run `git rev-parse HEAD` and compare to check if the graph is stale.
+- Run `graphify update .` after code changes (no API cost).
+
 ## Community Hubs (Navigation)
-- Form & Page Components
-- Composer Autoload & Config
-- Auth Actions & Form Requests
-- Composer Scripts (CI/Dev)
-- App Bootstrap & Theming
-- App Shell & Layout Components
-- NPM Dev Dependencies (Lint/Build)
-- Navigation Menu Component
-- NPM Optional Platform Binaries
-- Sidebar Navigation Components
-- Sidebar UI Primitives
-- Auth Feature Tests
-- Header & Avatar Components
-- Dropdown Menu Component
-- TypeScript Config
-- User Model & Email Verification
-- shadcn/ui Config
-- Logo & Card Components
-- HTTP Middleware & Bootstrap
-- Service Providers (Fortify)
-- Bot & Mini App Surfaces (spec)
-- Reminders, Payments & Idempotency (spec)
-- NPM Runtime Dependencies
-- Coin Economy & Ledger (spec)
-- Shared TS Types
-- Authentication Tests
-- User Factory
-- Proof Types & Check-In (spec)
-- Alert Components
-- Profile Settings Tests
-- Security Settings Tests
-- User Model & Auth Config
-- Challenge Domain Models (spec)
-- Mobile Breakpoint Hook
-- Database Seeder
-- Dashboard Page & Placeholder
-- Clipboard Hook
-- Verification Notification Tests
-- App Service Provider
+- utils.ts
+- composer.json
+- PasswordValidationRules.php
+- scripts
+- use-appearance.tsx
+- index.ts
+- devDependencies
+- cn
+- optionalDependencies
+- sidebar.tsx
+- layout.tsx
+- TestCase
+- app-header.tsx
+- dropdown-menu.tsx
+- compilerOptions
+- User
+- components.json
+- app.tsx
+- Illuminate\Http\Request
+- AGENTS.md
+- SubmitCheckIn Action
+- Inertia React Development
+- dependencies
+- Inertia React Development
+- global.d.ts
+- AuthenticationTest
+- UserFactory
+- Laravel Fortify Development
+- alert.tsx
+- Laravel Fortify Development
+- SecurityTest
+- User.php
+- Tailwind CSS Development
+- Tailwind CSS Development
+- DatabaseSeeder.php
+- placeholder-pattern.tsx
+- use-clipboard.ts
+- VerificationNotificationTest
+- require-dev
 - eslint.config.js
 - icon.tsx
+- Detection Checklist
+- clsx
+- globals
+- @inertiajs/react
+- @inertiajs/vite
+- laravel-vite-plugin
+- lucide-react
+- @radix-ui/react-avatar
+- @radix-ui/react-checkbox
+- @radix-ui/react-collapsible
+- @radix-ui/react-dialog
+- @radix-ui/react-dropdown-menu
+- @radix-ui/react-navigation-menu
+- @radix-ui/react-select
+- @radix-ui/react-separator
+- @radix-ui/react-slot
+- @radix-ui/react-tooltip
+- react
+- react-dom
+- sonner
+- tailwind-merge
+- tailwindcss
+- @tailwindcss/vite
+- tw-animate-css
+- @types/react
+- @types/react-dom
+- typescript
+- vite
+- @vitejs/plugin-react
+- Apple Touch Icon (Laravel logo)
+- Dependabot (github-actions)
+- Process
+- Detection Checklist
+- Process
+- Architecture Best Practices
+- Queue & Job Best Practices
+- Security Best Practices
+- Architecture Best Practices
+- Queue & Job Best Practices
+- Security Best Practices
+- Build Progress — Telegram Challenges Platform
+- Advanced Query Patterns
+- Database Performance Best Practices
+- Events & Notifications Best Practices
+- Wayfinder Development
+- Advanced Query Patterns
+- Database Performance Best Practices
+- Events & Notifications Best Practices
+- Wayfinder Development
+- require
+- command
+- Caching Best Practices
+- Eloquent Best Practices
+- Migration Best Practices
+- Caching Best Practices
+- Eloquent Best Practices
+- Migration Best Practices
+- scripts
+- Project Goal — Autonomous Build Driver
+- breadcrumbs.tsx
+- .agents/skills/laravel-best-practices/SKILL.md
+- Blade & Views Best Practices
+- Error Handling Best Practices
+- Task Scheduling Best Practices
+- Testing Best Practices
+- .claude/skills/laravel-best-practices/SKILL.md
+- Blade & Views Best Practices
+- Error Handling Best Practices
+- Task Scheduling Best Practices
+- Testing Best Practices
+- Setup Task 1: Project Bootstrap
+- PasswordResetTest
+- Collection Best Practices
+- HTTP Client Best Practices
+- Mail Best Practices
+- Routing & Controllers Best Practices
+- Conventions & Style
+- Validation & Forms Best Practices
+- Collection Best Practices
+- HTTP Client Best Practices
+- Mail Best Practices
+- Routing & Controllers Best Practices
+- Conventions & Style
+- Validation & Forms Best Practices
+- config
+- Configuration Best Practices
+- Configuration Best Practices
+- psr-4
+- laravel
 - package.json
-- package.json
-- package.json
-- package.json
-- package.json
-- package.json
-- package.json
-- package.json
-- package.json
-- package.json
-- package.json
-- package.json
-- package.json
-- package.json
-- package.json
-- package.json
-- package.json
-- package.json
-- package.json
-- package.json
-- package.json
-- package.json
-- package.json
-- package.json
-- package.json
-- package.json
-- package.json
-- package.json
-- package.json
-- apple-touch-icon.png
-- dependabot.yml
+- autoload-dev
+- laravel-boost
+- concurrently
+- eslint-import-resolver-typescript
+- eslint-plugin-import
+- eslint-plugin-react
+- eslint-plugin-react-hooks
+- prettier
+- prettier-plugin-tailwindcss
+- main.tsx
 
 ## God Nodes (most connected - your core abstractions)
 1. `cn()` - 123 edges
 2. `User` - 40 edges
-3. `TestCase` - 25 edges
+3. `TestCase` - 26 edges
 4. `Button()` - 15 edges
 5. `compilerOptions` - 15 edges
-6. `scripts` - 13 edges
-7. `require-dev` - 10 edges
-8. `InputError()` - 10 edges
-9. `Label()` - 10 edges
-10. `useAppearance()` - 10 edges
+6. `require-dev` - 13 edges
+7. `scripts` - 13 edges
+8. `Detection Checklist` - 11 edges
+9. `Architecture Best Practices` - 11 edges
+10. `Security Best Practices` - 11 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Admin Panel` --references--> `FortifyServiceProvider`  [INFERRED]
@@ -103,8 +178,8 @@
   .github/workflows/tests.yml → composer.json
 - `Admin Panel` --conceptually_related_to--> `AppSidebar()`  [INFERRED]
   prompts/main.md → resources/js/components/app-sidebar.tsx
-- `SubmitCheckIn Action` --shares_data_with--> `CheckIn (model)`  [INFERRED]
-  prompts/main.md → CLAUDE.md
+- `Setting (model)` --rationale_for--> `Single-Currency Coin Economy`  [INFERRED]
+  CLAUDE.md → prompts/main.md
 
 ## Import Cycles
 - None detected.
@@ -114,151 +189,403 @@
 - **Idempotency keys across the system** — claude_md_telegram_update_model, claude_md_star_payment_model, claude_md_checkin_model, claude_md_reminder_dispatch_model [EXTRACTED 1.00]
 - **Three proof types** — prompts_main_proof_button, prompts_main_proof_text_autogen, prompts_main_proof_image_approval [EXTRACTED 1.00]
 
-## Communities (92 total, 41 thin omitted)
+## Communities (172 total, 47 thin omitted)
 
-### Community 0 - "Form & Page Components"
+### Community 0 - "utils.ts"
 Cohesion: 0.09
-Nodes (29): DeleteUser(), Heading(), InputError(), PasswordInput(), Props, TextLink(), Badge(), badgeVariants (+21 more)
+Nodes (28): DeleteUser(), Heading(), InputError(), PasswordInput(), Props, TextLink(), Badge(), badgeVariants (+20 more)
 
-### Community 1 - "Composer Autoload & Config"
-Cohesion: 0.04
-Nodes (48): pestphp/pest-plugin, php-http/discovery, autoload, autoload-dev, psr-4, psr-4, config, allow-plugins (+40 more)
+### Community 1 - "composer.json"
+Cohesion: 0.18
+Nodes (10): description, keywords, license, minimum-stability, name, prefer-stable, $schema, type (+2 more)
 
-### Community 2 - "Auth Actions & Form Requests"
-Cohesion: 0.08
-Nodes (18): CreateNewUser, ResetUserPassword, emailRules(), nameRules(), profileRules(), Controller, ProfileController, SecurityController (+10 more)
+### Community 2 - "PasswordValidationRules.php"
+Cohesion: 0.06
+Nodes (21): CreateNewUser, ResetUserPassword, emailRules(), nameRules(), profileRules(), Controller, ProfileController, SecurityController (+13 more)
 
-### Community 3 - "Composer Scripts (CI/Dev)"
+### Community 3 - "scripts"
 Cohesion: 0.05
 Nodes (40): scripts, ci:check, dev, lint, lint:check, post-autoload-dump, post-create-project-cmd, post-root-package-install (+32 more)
 
-### Community 4 - "App Bootstrap & Theming"
+### Community 4 - "use-appearance.tsx"
+Cohesion: 0.16
+Nodes (20): i18n + RTL Requirement, AppearanceToggleTab(), Toaster(), Appearance, applyTheme(), getStoredAppearance(), handleSystemThemeChange(), initializeTheme() (+12 more)
+
+### Community 5 - "index.ts"
+Cohesion: 0.16
+Nodes (14): AppContent(), Props, AppShell(), Props, AppSidebarHeader(), Breadcrumbs(), SidebarInset(), SidebarProvider() (+6 more)
+
+### Community 6 - "devDependencies"
 Cohesion: 0.12
-Nodes (22): i18n + RTL Requirement, AppearanceToggleTab(), Toaster(), Appearance, applyTheme(), getStoredAppearance(), handleSystemThemeChange(), initializeTheme() (+14 more)
+Nodes (17): babel-plugin-react-compiler, eslint-config-prettier, @eslint/js, @laravel/vite-plugin-wayfinder, devDependencies, babel-plugin-react-compiler, eslint, eslint-config-prettier (+9 more)
 
-### Community 5 - "App Shell & Layout Components"
-Cohesion: 0.13
-Nodes (18): AppContent(), Props, AppShell(), Props, AppSidebarHeader(), Breadcrumbs(), Breadcrumb(), BreadcrumbEllipsis() (+10 more)
-
-### Community 6 - "NPM Dev Dependencies (Lint/Build)"
-Cohesion: 0.07
-Nodes (29): babel-plugin-react-compiler, eslint-config-prettier, eslint-import-resolver-typescript, @eslint/js, eslint-plugin-import, eslint-plugin-react, eslint-plugin-react-hooks, @laravel/vite-plugin-wayfinder (+21 more)
-
-### Community 7 - "Navigation Menu Component"
-Cohesion: 0.13
-Nodes (22): NavigationMenu(), NavigationMenuContent(), NavigationMenuIndicator(), NavigationMenuItem(), NavigationMenuLink(), NavigationMenuList(), NavigationMenuTrigger(), navigationMenuTriggerStyle (+14 more)
-
-### Community 8 - "NPM Optional Platform Binaries"
-Cohesion: 0.07
-Nodes (27): @laravel/multiplex, lightningcss-linux-x64-gnu, lightningcss-win32-x64-msvc, optionalDependencies, @laravel/multiplex, lightningcss-linux-x64-gnu, lightningcss-win32-x64-msvc, @rollup/rollup-linux-x64-gnu (+19 more)
-
-### Community 9 - "Sidebar Navigation Components"
-Cohesion: 0.13
-Nodes (23): AppHeader(), footerNavItems, mainNavItems, NavFooter(), NavMain(), SidebarContent(), SidebarFooter(), SidebarGroup() (+15 more)
-
-### Community 10 - "Sidebar UI Primitives"
+### Community 7 - "cn"
 Cohesion: 0.10
-Nodes (23): NavUser(), Separator(), SheetDescription(), Sidebar(), SidebarContext, SidebarGroupAction(), SidebarInput(), SidebarInset() (+15 more)
+Nodes (28): Card(), CardContent(), CardDescription(), CardFooter(), CardHeader(), CardTitle(), NavigationMenu(), NavigationMenuContent() (+20 more)
 
-### Community 11 - "Auth Feature Tests"
+### Community 8 - "optionalDependencies"
 Cohesion: 0.13
+Nodes (15): @laravel/multiplex, lightningcss-linux-x64-gnu, lightningcss-win32-x64-msvc, optionalDependencies, @laravel/multiplex, lightningcss-linux-x64-gnu, lightningcss-win32-x64-msvc, @rollup/rollup-linux-x64-gnu (+7 more)
+
+### Community 9 - "sidebar.tsx"
+Cohesion: 0.10
+Nodes (31): footerNavItems, mainNavItems, NavFooter(), NavMain(), NavUser(), SheetDescription(), Sidebar(), SidebarContent() (+23 more)
+
+### Community 10 - "layout.tsx"
+Cohesion: 0.24
+Nodes (10): AppHeader(), Separator(), IsCurrentOrParentUrlFn, IsCurrentUrlFn, useCurrentUrl(), UseCurrentUrlReturn, WhenCurrentUrlFn, SettingsLayout() (+2 more)
+
+### Community 11 - "TestCase"
+Cohesion: 0.12
 Nodes (8): Illuminate\Foundation\Testing\RefreshDatabase, Illuminate\Foundation\Testing\TestCase, PasswordConfirmationTest, RegistrationTest, DashboardTest, ExampleTest, TestCase, ExampleTest
 
-### Community 12 - "Header & Avatar Components"
+### Community 12 - "app-header.tsx"
 Cohesion: 0.14
 Nodes (17): mainNavItems, Props, rightNavItems, Avatar(), AvatarFallback(), AvatarImage(), Sheet(), SheetContent() (+9 more)
 
-### Community 13 - "Dropdown Menu Component"
-Cohesion: 0.13
-Nodes (16): DropdownMenu(), DropdownMenuCheckboxItem(), DropdownMenuContent(), DropdownMenuGroup(), DropdownMenuItem(), DropdownMenuLabel(), DropdownMenuRadioItem(), DropdownMenuSeparator() (+8 more)
+### Community 13 - "dropdown-menu.tsx"
+Cohesion: 0.11
+Nodes (20): DropdownMenu(), DropdownMenuCheckboxItem(), DropdownMenuContent(), DropdownMenuGroup(), DropdownMenuItem(), DropdownMenuLabel(), DropdownMenuRadioItem(), DropdownMenuSeparator() (+12 more)
 
-### Community 14 - "TypeScript Config"
+### Community 14 - "compilerOptions"
 Cohesion: 0.10
 Nodes (19): resources/js/**/*.d.ts, resources/js/**/*.ts, resources/js/**/*.tsx, compilerOptions, allowJs, baseUrl, esModuleInterop, forceConsistentCasingInFileNames (+11 more)
 
-### Community 15 - "User Model & Email Verification"
-Cohesion: 0.16
-Nodes (4): User, Illuminate\Foundation\Auth\User, EmailVerificationTest, PasswordResetTest
+### Community 15 - "User"
+Cohesion: 0.18
+Nodes (4): User, Illuminate\Foundation\Auth\User, EmailVerificationTest, ProfileUpdateTest
 
-### Community 16 - "shadcn/ui Config"
+### Community 16 - "components.json"
 Cohesion: 0.11
 Nodes (17): aliases, components, hooks, lib, ui, utils, iconLibrary, rsc (+9 more)
 
-### Community 17 - "Logo & Card Components"
-Cohesion: 0.19
-Nodes (9): AppLogo(), AppLogoIcon(), Card(), CardContent(), CardDescription(), CardFooter(), CardHeader(), CardTitle() (+1 more)
+### Community 17 - "app.tsx"
+Cohesion: 0.16
+Nodes (9): AppLogo(), AppLogoIcon(), Tooltip(), TooltipContent(), TooltipProvider(), TooltipTrigger(), AuthSimpleLayout(), AuthLayout() (+1 more)
 
-### Community 18 - "HTTP Middleware & Bootstrap"
+### Community 18 - "Illuminate\Http\Request"
 Cohesion: 0.24
 Nodes (7): HandleAppearance, HandleInertiaRequests, Closure, Illuminate\Foundation\Configuration\Middleware, Illuminate\Http\Request, Inertia\Middleware, Symfony\Component\HttpFoundation\Response
 
-### Community 20 - "Bot & Mini App Surfaces (spec)"
-Cohesion: 0.25
-Nodes (8): BotConversation (model), Channel Access Gate, Telegram Bot (primary surface), Telegram Challenges Platform, initData Validation, Mini App = SPA + API, not Inertia, Mini App (gameish dashboard), Public Website
+### Community 19 - "AGENTS.md"
+Cohesion: 0.06
+Nodes (33): APIs & Eloquent Resources, Application Structure & Architecture, Artisan, Conventions, Deployment, Do Things the Laravel Way, Documentation Files, Foundational Context (+25 more)
 
-### Community 21 - "Reminders, Payments & Idempotency (spec)"
+### Community 20 - "SubmitCheckIn Action"
+Cohesion: 0.06
+Nodes (38): BotConversation (model), Challenge (model), ChallengeParticipant (model), ChallengePeriod (model), CheckIn (model), CoinTransaction (ledger), Entitlement (model), Invite (model) (+30 more)
+
+### Community 21 - "Inertia React Development"
+Cohesion: 0.07
+Nodes (27): Basic Link Component, Basic Usage, Client-Side Navigation, Common Pitfalls, Deferred Props, Documentation, Form Component (Recommended), Form Component Reset Props (+19 more)
+
+### Community 22 - "dependencies"
 Cohesion: 0.22
-Nodes (9): ReminderDispatch (model), StarPayment (model), TelegramUpdate (model), laravel.test Sail service, Idempotency Requirement, No-Redis / MySQL 8.4 Constraint, Period Materialisation, Per-Period Reminders (+1 more)
+Nodes (9): class-variance-authority, dependencies, class-variance-authority, @radix-ui/react-label, @radix-ui/react-toggle, @radix-ui/react-toggle-group, @radix-ui/react-label, @radix-ui/react-toggle (+1 more)
 
-### Community 22 - "NPM Runtime Dependencies"
-Cohesion: 0.22
-Nodes (9): concurrently, dependencies, concurrently, @radix-ui/react-label, @radix-ui/react-toggle, @radix-ui/react-toggle-group, @radix-ui/react-label, @radix-ui/react-toggle (+1 more)
+### Community 23 - "Inertia React Development"
+Cohesion: 0.07
+Nodes (27): Basic Link Component, Basic Usage, Client-Side Navigation, Common Pitfalls, Deferred Props, Documentation, Form Component (Recommended), Form Component Reset Props (+19 more)
 
-### Community 23 - "Coin Economy & Ledger (spec)"
-Cohesion: 0.29
-Nodes (8): CoinTransaction (ledger), Entitlement (model), Invite (model), Setting (model), User model Telegram extension, Single-Currency Coin Economy, CoinLedger Service, Brand-New-User Invite Crediting
-
-### Community 24 - "Shared TS Types"
+### Community 24 - "global.d.ts"
 Cohesion: 0.32
 Nodes (6): Auth, User, InertiaConfig, @inertiajs/core, InputHTMLAttributes, react
 
-### Community 26 - "User Factory"
+### Community 26 - "UserFactory"
 Cohesion: 0.43
 Nodes (3): UserFactory, Illuminate\Database\Eloquent\Factories\Factory, static
 
-### Community 27 - "Proof Types & Check-In (spec)"
-Cohesion: 0.33
-Nodes (7): Admin Panel, Button Proof Type, Image-Approval Proof Type, Text-Autogen Proof Type, Shared-Core Action Rule, SubmitCheckIn Action, AppSidebar()
+### Community 27 - "Laravel Fortify Development"
+Cohesion: 0.12
+Nodes (16): Available Features, Best Practices, Custom Authentication Logic, Documentation, Email Verification Setup, Key Endpoints, Laravel Fortify Development, Passkeys Setup (+8 more)
 
-### Community 28 - "Alert Components"
+### Community 28 - "alert.tsx"
 Cohesion: 0.48
 Nodes (4): Alert(), AlertDescription(), AlertTitle(), alertVariants
 
-### Community 32 - "Challenge Domain Models (spec)"
-Cohesion: 0.40
-Nodes (6): Challenge (model), ChallengeParticipant (model), ChallengePeriod (model), CheckIn (model), Freeze Mechanic, Miss / Streak-Reset Rule
+### Community 29 - "Laravel Fortify Development"
+Cohesion: 0.12
+Nodes (16): Available Features, Best Practices, Custom Authentication Logic, Documentation, Email Verification Setup, Key Endpoints, Laravel Fortify Development, Passkeys Setup (+8 more)
 
-### Community 33 - "Mobile Breakpoint Hook"
-Cohesion: 0.53
-Nodes (5): SidebarProvider(), getServerSnapshot(), isSmallerThanBreakpoint(), mediaQueryListener(), useIsMobile()
+### Community 32 - "Tailwind CSS Development"
+Cohesion: 0.14
+Nodes (13): Basic Usage, Common Patterns, Common Pitfalls, CSS-First Configuration, Dark Mode, Documentation, Flexbox Layout, Grid Layout (+5 more)
 
-### Community 34 - "Database Seeder"
+### Community 33 - "Tailwind CSS Development"
+Cohesion: 0.14
+Nodes (13): Basic Usage, Common Patterns, Common Pitfalls, CSS-First Configuration, Dark Mode, Documentation, Flexbox Layout, Grid Layout (+5 more)
+
+### Community 34 - "DatabaseSeeder.php"
 Cohesion: 0.60
 Nodes (3): DatabaseSeeder, Illuminate\Database\Console\Seeds\WithoutModelEvents, Illuminate\Database\Seeder
 
-### Community 36 - "Clipboard Hook"
+### Community 36 - "use-clipboard.ts"
 Cohesion: 0.40
 Nodes (3): CopiedValue, CopyFn, UseClipboardReturn
 
+### Community 38 - "require-dev"
+Cohesion: 0.15
+Nodes (13): require-dev, fakerphp/faker, larastan/larastan, laravel/boost, laravel/pail, laravel/pao, laravel/pint, laravel/sail (+5 more)
+
+### Community 46 - "Detection Checklist"
+Cohesion: 0.17
+Nodes (11): A. Validation & HTTP input, B. Controllers & routing, C. Authorization, D. Eloquent & models, Detection Checklist, E. Architecture & organization, F. Frontend & views, G. Database & migrations (+3 more)
+
+### Community 92 - "Process"
+Cohesion: 0.17
+Nodes (11): Edge cases, Glob mapping, Ground Rules (read before you start), Infer Conventions, Process, Step 0: Orient, Step 1: Predefined sweep, Step 2: Open-ended pass (+3 more)
+
+### Community 93 - "Detection Checklist"
+Cohesion: 0.17
+Nodes (11): A. Validation & HTTP input, B. Controllers & routing, C. Authorization, D. Eloquent & models, Detection Checklist, E. Architecture & organization, F. Frontend & views, G. Database & migrations (+3 more)
+
+### Community 94 - "Process"
+Cohesion: 0.17
+Nodes (11): Edge cases, Glob mapping, Ground Rules (read before you start), Infer Conventions, Process, Step 0: Orient, Step 1: Predefined sweep, Step 2: Open-ended pass (+3 more)
+
+### Community 95 - "Architecture Best Practices"
+Cohesion: 0.18
+Nodes (11): Architecture Best Practices, Code to Interfaces, Convention Over Configuration, Default Sort by Descending, Single-Purpose Action Classes, Use Atomic Locks for Race Conditions, Use `Concurrency::run()` for Parallel Execution, Use `Context` for Request-Scoped Data (+3 more)
+
+### Community 96 - "Queue & Job Best Practices"
+Cohesion: 0.18
+Nodes (10): Always Implement `failed()`, Batch Related Jobs, Implement `ShouldBeUnique`, Queue & Job Best Practices, Rate Limit External API Calls in Jobs, `retryUntil()` Needs `$tries = 0`, Set `retry_after` Greater Than `timeout`, Use Exponential Backoff (+2 more)
+
+### Community 97 - "Security Best Practices"
+Cohesion: 0.18
+Nodes (11): Audit Dependencies, Authorize Every Action, CSRF Protection, Encrypt Sensitive Database Fields, Escape Output to Prevent XSS, Keep Secrets Out of Code, Mass Assignment Protection, Prevent SQL Injection (+3 more)
+
+### Community 98 - "Architecture Best Practices"
+Cohesion: 0.18
+Nodes (11): Architecture Best Practices, Code to Interfaces, Convention Over Configuration, Default Sort by Descending, Single-Purpose Action Classes, Use Atomic Locks for Race Conditions, Use `Concurrency::run()` for Parallel Execution, Use `Context` for Request-Scoped Data (+3 more)
+
+### Community 99 - "Queue & Job Best Practices"
+Cohesion: 0.18
+Nodes (10): Always Implement `failed()`, Batch Related Jobs, Implement `ShouldBeUnique`, Queue & Job Best Practices, Rate Limit External API Calls in Jobs, `retryUntil()` Needs `$tries = 0`, Set `retry_after` Greater Than `timeout`, Use Exponential Backoff (+2 more)
+
+### Community 100 - "Security Best Practices"
+Cohesion: 0.18
+Nodes (11): Audit Dependencies, Authorize Every Action, CSRF Protection, Encrypt Sensitive Database Fields, Escape Output to Prevent XSS, Keep Secrets Out of Code, Mass Assignment Protection, Prevent SQL Injection (+3 more)
+
+### Community 101 - "Build Progress — Telegram Challenges Platform"
+Cohesion: 0.18
+Nodes (10): Build Progress — Telegram Challenges Platform, Log, Phase 1 — Setup, Phase 2 — Domain core (pure Actions, fully unit-tested, no Telegram coupling), Phase 3 — Bot core, Phase 4 — Stars payments, Phase 5 — Mini App, Phase 6 — Admin panel (+2 more)
+
+### Community 102 - "Advanced Query Patterns"
+Cohesion: 0.20
+Nodes (9): Advanced Query Patterns, Create Dynamic Relationships via Subquery FK, Prefer `whereIn` + Subquery Over `whereHas`, Sometimes Two Simple Queries Beat One Complex Query, Use `addSelect()` Subqueries for Single Values from Has-Many, Use Compound Indexes Matching `orderBy` Column Order, Use Conditional Aggregates Instead of Multiple Count Queries, Use Correlated Subqueries for Has-Many Ordering (+1 more)
+
+### Community 103 - "Database Performance Best Practices"
+Cohesion: 0.20
+Nodes (9): Add Database Indexes, Always Eager Load Relationships, Chunk Large Datasets, Database Performance Best Practices, No Queries in Blade Templates, Prevent Lazy Loading in Development, Select Only Needed Columns, Use `cursor()` for Memory-Efficient Iteration (+1 more)
+
+### Community 104 - "Events & Notifications Best Practices"
+Cohesion: 0.20
+Nodes (9): Always Queue Notifications, Events & Notifications Best Practices, Implement `HasLocalePreference` on Notifiable Models, Rely on Event Discovery, Route Notification Channels to Dedicated Queues, Run `event:cache` in Production Deploy, Use `afterCommit()` on Notifications in Transactions, Use On-Demand Notifications for Non-User Recipients (+1 more)
+
+### Community 105 - "Wayfinder Development"
+Cohesion: 0.20
+Nodes (9): Common Methods, Common Pitfalls, Documentation, Generate Routes, Import Patterns, Quick Reference, Verification, Wayfinder Development (+1 more)
+
+### Community 106 - "Advanced Query Patterns"
+Cohesion: 0.20
+Nodes (9): Advanced Query Patterns, Create Dynamic Relationships via Subquery FK, Prefer `whereIn` + Subquery Over `whereHas`, Sometimes Two Simple Queries Beat One Complex Query, Use `addSelect()` Subqueries for Single Values from Has-Many, Use Compound Indexes Matching `orderBy` Column Order, Use Conditional Aggregates Instead of Multiple Count Queries, Use Correlated Subqueries for Has-Many Ordering (+1 more)
+
+### Community 107 - "Database Performance Best Practices"
+Cohesion: 0.20
+Nodes (9): Add Database Indexes, Always Eager Load Relationships, Chunk Large Datasets, Database Performance Best Practices, No Queries in Blade Templates, Prevent Lazy Loading in Development, Select Only Needed Columns, Use `cursor()` for Memory-Efficient Iteration (+1 more)
+
+### Community 108 - "Events & Notifications Best Practices"
+Cohesion: 0.20
+Nodes (9): Always Queue Notifications, Events & Notifications Best Practices, Implement `HasLocalePreference` on Notifiable Models, Rely on Event Discovery, Route Notification Channels to Dedicated Queues, Run `event:cache` in Production Deploy, Use `afterCommit()` on Notifications in Transactions, Use On-Demand Notifications for Non-User Recipients (+1 more)
+
+### Community 109 - "Wayfinder Development"
+Cohesion: 0.20
+Nodes (9): Common Methods, Common Pitfalls, Documentation, Generate Routes, Import Patterns, Quick Reference, Verification, Wayfinder Development (+1 more)
+
+### Community 110 - "require"
+Cohesion: 0.20
+Nodes (10): require, inertiajs/inertia-laravel, irazasyed/telegram-bot-sdk, laravel/chisel, laravel/fortify, laravel/framework, laravel/sanctum, laravel/tinker (+2 more)
+
+### Community 111 - "command"
+Cohesion: 0.20
+Nodes (9): command, enabled, type, mcp, laravel-boost, $schema, artisan, boost:mcp (+1 more)
+
+### Community 112 - "Caching Best Practices"
+Cohesion: 0.22
+Nodes (8): Caching Best Practices, Configure Failover Cache Stores in Production, Use `Cache::add()` for Atomic Conditional Writes, Use `Cache::flexible()` for Stale-While-Revalidate, Use `Cache::memo()` to Avoid Redundant Hits Within a Request, Use `Cache::remember()` Instead of Manual Get/Put, Use Cache Tags to Invalidate Related Groups, Use `once()` for Per-Request Memoization
+
+### Community 113 - "Eloquent Best Practices"
+Cohesion: 0.22
+Nodes (8): Apply Global Scopes Sparingly, Avoid Hardcoded Table Names in Queries, Cast Date Columns Properly, Define Attribute Casts, Eloquent Best Practices, Use Correct Relationship Types, Use Local Scopes for Reusable Queries, Use `whereBelongsTo()` for Relationship Queries
+
+### Community 114 - "Migration Best Practices"
+Cohesion: 0.22
+Nodes (8): Add Indexes in the Migration, Generate Migrations with Artisan, Keep Migrations Focused, Migration Best Practices, Mirror Defaults in Model `$attributes`, Never Modify Deployed Migrations, Use `constrained()` for Foreign Keys, Write Reversible `down()` Methods by Default
+
+### Community 115 - "Caching Best Practices"
+Cohesion: 0.22
+Nodes (8): Caching Best Practices, Configure Failover Cache Stores in Production, Use `Cache::add()` for Atomic Conditional Writes, Use `Cache::flexible()` for Stale-While-Revalidate, Use `Cache::memo()` to Avoid Redundant Hits Within a Request, Use `Cache::remember()` Instead of Manual Get/Put, Use Cache Tags to Invalidate Related Groups, Use `once()` for Per-Request Memoization
+
+### Community 116 - "Eloquent Best Practices"
+Cohesion: 0.22
+Nodes (8): Apply Global Scopes Sparingly, Avoid Hardcoded Table Names in Queries, Cast Date Columns Properly, Define Attribute Casts, Eloquent Best Practices, Use Correct Relationship Types, Use Local Scopes for Reusable Queries, Use `whereBelongsTo()` for Relationship Queries
+
+### Community 117 - "Migration Best Practices"
+Cohesion: 0.22
+Nodes (8): Add Indexes in the Migration, Generate Migrations with Artisan, Keep Migrations Focused, Migration Best Practices, Mirror Defaults in Model `$attributes`, Never Modify Deployed Migrations, Use `constrained()` for Foreign Keys, Write Reversible `down()` Methods by Default
+
+### Community 118 - "scripts"
+Cohesion: 0.22
+Nodes (9): scripts, build, build:ssr, dev, format, format:check, lint, lint:check (+1 more)
+
+### Community 119 - "Project Goal — Autonomous Build Driver"
+Cohesion: 0.22
+Nodes (8): Baked-in decisions — do NOT stop to ask about these, Build order (strict), Guardrails, North Star (definition of done), Operating loop — repeat until done, Project Goal — Autonomous Build Driver, Running me across resets, When you MAY stop and ask (only these)
+
+### Community 120 - "breadcrumbs.tsx"
+Cohesion: 0.39
+Nodes (7): Breadcrumb(), BreadcrumbEllipsis(), BreadcrumbItem(), BreadcrumbLink(), BreadcrumbList(), BreadcrumbPage(), BreadcrumbSeparator()
+
+### Community 121 - ".agents/skills/laravel-best-practices/SKILL.md"
+Cohesion: 0.25
+Nodes (5): Consistency First, Decision Rules, How to Apply, Laravel Best Practices, Rule Index
+
+### Community 122 - "Blade & Views Best Practices"
+Cohesion: 0.25
+Nodes (7): Blade & Views Best Practices, Prefer Blade Components Over `@include`, Use `$attributes->merge()` in Component Templates, Use `@aware` for Deeply Nested Component Props, Use Blade Fragments for Partial Re-Renders (htmx/Turbo), Use `@pushOnce` for Per-Component Scripts, Use View Composers for Shared View Data
+
+### Community 123 - "Error Handling Best Practices"
+Cohesion: 0.25
+Nodes (7): Add Context to Exception Classes, Enable `dontReportDuplicates()`, Error Handling Best Practices, Exception Reporting and Rendering, Force JSON Error Rendering for API Routes, Throttle High-Volume Exceptions, Use `ShouldntReport` for Exceptions That Should Never Log
+
+### Community 124 - "Task Scheduling Best Practices"
+Cohesion: 0.25
+Nodes (7): Task Scheduling Best Practices, Use `environments()` to Restrict Tasks, Use `onOneServer()` on Multi-Server Deployments, Use `runInBackground()` for Concurrent Long Tasks, Use Schedule Groups for Shared Configuration, Use `takeUntilTimeout()` for Time-Bounded Processing, Use `withoutOverlapping()` on Variable-Duration Tasks
+
+### Community 125 - "Testing Best Practices"
+Cohesion: 0.25
+Nodes (7): Call `Event::fake()` After Factory Setup, Testing Best Practices, Use `Exceptions::fake()` to Assert Exception Reporting, Use Factory States and Sequences, Use `LazilyRefreshDatabase` Over `RefreshDatabase`, Use Model Assertions Over Raw Database Assertions, Use `recycle()` to Share Relationship Instances Across Factories
+
+### Community 126 - ".claude/skills/laravel-best-practices/SKILL.md"
+Cohesion: 0.25
+Nodes (5): Consistency First, Decision Rules, How to Apply, Laravel Best Practices, Rule Index
+
+### Community 127 - "Blade & Views Best Practices"
+Cohesion: 0.25
+Nodes (7): Blade & Views Best Practices, Prefer Blade Components Over `@include`, Use `$attributes->merge()` in Component Templates, Use `@aware` for Deeply Nested Component Props, Use Blade Fragments for Partial Re-Renders (htmx/Turbo), Use `@pushOnce` for Per-Component Scripts, Use View Composers for Shared View Data
+
+### Community 128 - "Error Handling Best Practices"
+Cohesion: 0.25
+Nodes (7): Add Context to Exception Classes, Enable `dontReportDuplicates()`, Error Handling Best Practices, Exception Reporting and Rendering, Force JSON Error Rendering for API Routes, Throttle High-Volume Exceptions, Use `ShouldntReport` for Exceptions That Should Never Log
+
+### Community 129 - "Task Scheduling Best Practices"
+Cohesion: 0.25
+Nodes (7): Task Scheduling Best Practices, Use `environments()` to Restrict Tasks, Use `onOneServer()` on Multi-Server Deployments, Use `runInBackground()` for Concurrent Long Tasks, Use Schedule Groups for Shared Configuration, Use `takeUntilTimeout()` for Time-Bounded Processing, Use `withoutOverlapping()` on Variable-Duration Tasks
+
+### Community 130 - "Testing Best Practices"
+Cohesion: 0.25
+Nodes (7): Call `Event::fake()` After Factory Setup, Testing Best Practices, Use `Exceptions::fake()` to Assert Exception Reporting, Use Factory States and Sequences, Use `LazilyRefreshDatabase` Over `RefreshDatabase`, Use Model Assertions Over Raw Database Assertions, Use `recycle()` to Share Relationship Instances Across Factories
+
+### Community 131 - "Setup Task 1: Project Bootstrap"
+Cohesion: 0.25
+Nodes (7): Before starting, Code Rules, Explicitly Out of Scope, Goal, Setup Task 1: Project Bootstrap, Tests (Pest, required), What to Build (in order)
+
+### Community 133 - "Collection Best Practices"
+Cohesion: 0.29
+Nodes (6): Choose `cursor()` vs. `lazy()` Correctly, Collection Best Practices, Use `#[CollectedBy]` for Custom Collection Classes, Use Higher-Order Messages for Simple Operations, Use `lazyById()` When Updating Records While Iterating, Use `toQuery()` for Bulk Operations on Collections
+
+### Community 134 - "HTTP Client Best Practices"
+Cohesion: 0.29
+Nodes (6): Always Set Explicit Timeouts, Fake HTTP Calls in Tests, Handle Errors Explicitly, HTTP Client Best Practices, Use Request Pooling for Concurrent Requests, Use Retry with Backoff for External APIs
+
+### Community 135 - "Mail Best Practices"
+Cohesion: 0.29
+Nodes (6): Implement `ShouldQueue` on the Mailable Class, Mail Best Practices, Separate Content Tests from Sending Tests, Use `afterCommit()` on Mailables Inside Transactions, Use `assertQueued()` Not `assertSent()` for Queued Mailables, Use Markdown Mailables for Transactional Emails
+
+### Community 136 - "Routing & Controllers Best Practices"
+Cohesion: 0.29
+Nodes (6): Keep Controllers Thin, Routing & Controllers Best Practices, Type-Hint Form Requests, Use Implicit Route Model Binding, Use Resource Controllers, Use Scoped Bindings for Nested Resources
+
+### Community 137 - "Conventions & Style"
+Cohesion: 0.29
+Nodes (6): Conventions & Style, Follow Laravel Naming Conventions, No Inline JS/CSS in Blade, No Unnecessary Comments, Prefer Shorter Readable Syntax, Use Laravel String & Array Helpers
+
+### Community 138 - "Validation & Forms Best Practices"
+Cohesion: 0.29
+Nodes (6): Always Use `validated()`, Array vs. String Notation for Rules, Use Form Request Classes, Use `Rule::when()` for Conditional Validation, Use the `after()` Method for Custom Validation, Validation & Forms Best Practices
+
+### Community 139 - "Collection Best Practices"
+Cohesion: 0.29
+Nodes (6): Choose `cursor()` vs. `lazy()` Correctly, Collection Best Practices, Use `#[CollectedBy]` for Custom Collection Classes, Use Higher-Order Messages for Simple Operations, Use `lazyById()` When Updating Records While Iterating, Use `toQuery()` for Bulk Operations on Collections
+
+### Community 140 - "HTTP Client Best Practices"
+Cohesion: 0.29
+Nodes (6): Always Set Explicit Timeouts, Fake HTTP Calls in Tests, Handle Errors Explicitly, HTTP Client Best Practices, Use Request Pooling for Concurrent Requests, Use Retry with Backoff for External APIs
+
+### Community 141 - "Mail Best Practices"
+Cohesion: 0.29
+Nodes (6): Implement `ShouldQueue` on the Mailable Class, Mail Best Practices, Separate Content Tests from Sending Tests, Use `afterCommit()` on Mailables Inside Transactions, Use `assertQueued()` Not `assertSent()` for Queued Mailables, Use Markdown Mailables for Transactional Emails
+
+### Community 142 - "Routing & Controllers Best Practices"
+Cohesion: 0.29
+Nodes (6): Keep Controllers Thin, Routing & Controllers Best Practices, Type-Hint Form Requests, Use Implicit Route Model Binding, Use Resource Controllers, Use Scoped Bindings for Nested Resources
+
+### Community 143 - "Conventions & Style"
+Cohesion: 0.29
+Nodes (6): Conventions & Style, Follow Laravel Naming Conventions, No Inline JS/CSS in Blade, No Unnecessary Comments, Prefer Shorter Readable Syntax, Use Laravel String & Array Helpers
+
+### Community 144 - "Validation & Forms Best Practices"
+Cohesion: 0.29
+Nodes (6): Always Use `validated()`, Array vs. String Notation for Rules, Use Form Request Classes, Use `Rule::when()` for Conditional Validation, Use the `after()` Method for Custom Validation, Validation & Forms Best Practices
+
+### Community 145 - "config"
+Cohesion: 0.29
+Nodes (7): pestphp/pest-plugin, php-http/discovery, config, allow-plugins, optimize-autoloader, preferred-install, sort-packages
+
+### Community 146 - "Configuration Best Practices"
+Cohesion: 0.33
+Nodes (5): Configuration Best Practices, `env()` Only in Config Files, Use `App::environment()` for Environment Checks, Use Constants and Language Files, Use Encrypted Env or External Secrets
+
+### Community 147 - "Configuration Best Practices"
+Cohesion: 0.33
+Nodes (5): Configuration Best Practices, `env()` Only in Config Files, Use `App::environment()` for Environment Checks, Use Constants and Language Files, Use Encrypted Env or External Secrets
+
+### Community 148 - "psr-4"
+Cohesion: 0.40
+Nodes (5): autoload, psr-4, App\\, Database\\Factories\\, Database\\Seeders\\
+
+### Community 149 - "laravel"
+Cohesion: 0.40
+Nodes (5): extra, laravel, post-create-project, dont-discover, installer
+
+### Community 150 - "package.json"
+Cohesion: 0.50
+Nodes (3): private, $schema, type
+
+### Community 151 - "autoload-dev"
+Cohesion: 0.67
+Nodes (3): autoload-dev, psr-4, Tests\\
+
 ## Knowledge Gaps
-- **209 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+204 more)
+- **683 isolated node(s):** `vendor/bin/sail`, `$schema`, `style`, `rsc`, `tsx` (+678 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **41 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **47 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Admin Panel` connect `Proof Types & Check-In (spec)` to `Service Providers (Fortify)`, `Bot & Mini App Surfaces (spec)`?**
-  _High betweenness centrality (0.190) - this node is a cross-community bridge._
-- **Why does `AppSidebar()` connect `Proof Types & Check-In (spec)` to `Sidebar Navigation Components`, `App Shell & Layout Components`?**
-  _High betweenness centrality (0.184) - this node is a cross-community bridge._
-- **Why does `FortifyServiceProvider` connect `Service Providers (Fortify)` to `Proof Types & Check-In (spec)`?**
-  _High betweenness centrality (0.157) - this node is a cross-community bridge._
+- **Why does `Admin Panel` connect `SubmitCheckIn Action` to `PasswordValidationRules.php`?**
+  _High betweenness centrality (0.066) - this node is a cross-community bridge._
+- **Why does `AppSidebar()` connect `SubmitCheckIn Action` to `sidebar.tsx`, `index.ts`?**
+  _High betweenness centrality (0.063) - this node is a cross-community bridge._
+- **Why does `FortifyServiceProvider` connect `PasswordValidationRules.php` to `SubmitCheckIn Action`?**
+  _High betweenness centrality (0.054) - this node is a cross-community bridge._
 - **Are the 30 inferred relationships involving `User` (e.g. with `.run()` and `.test_users_are_rate_limited()`) actually correct?**
   _`User` has 30 INFERRED edges - model-reasoned connections that need verification._
-- **What connects `$schema`, `style`, `rsc` to the rest of the system?**
-  _209 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Form & Page Components` be split into smaller, more focused modules?**
-  _Cohesion score 0.09322033898305085 - nodes in this community are weakly interconnected._
-- **Should `Composer Autoload & Config` be split into smaller, more focused modules?**
-  _Cohesion score 0.04081632653061224 - nodes in this community are weakly interconnected._
+- **What connects `vendor/bin/sail`, `$schema`, `style` to the rest of the system?**
+  _683 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `utils.ts` be split into smaller, more focused modules?**
+  _Cohesion score 0.09152542372881356 - nodes in this community are weakly interconnected._
+- **Should `PasswordValidationRules.php` be split into smaller, more focused modules?**
+  _Cohesion score 0.05961426066627703 - nodes in this community are weakly interconnected._

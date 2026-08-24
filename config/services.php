@@ -35,4 +35,38 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Telegram (platform-specific)
+    |--------------------------------------------------------------------------
+    |
+    | The telegram-bot-sdk publishes its own `config/telegram.php` (bot token,
+    | HTTP client, etc.). This block holds the *platform* keys the SDK config
+    | does not cover — the webhook secret, required announcement channel, Mini
+    | App URL, and Telegram's Ed25519 public keys for third-party initData
+    | verification. `bot_token` is mirrored here so all platform code can read a
+    | single `services.telegram.*` namespace; it derives from the same env var
+    | the SDK uses. Runtime-tunable values (token TTLs, required channel) may
+    | later be overridden by the admin `Setting` store.
+    |
+    */
+    'telegram' => [
+        'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+        'bot_username' => env('TELEGRAM_BOT_USERNAME'),
+        'webhook_secret' => env('TELEGRAM_WEBHOOK_SECRET'),
+        'required_channel' => env('TELEGRAM_REQUIRED_CHANNEL'),
+        'miniapp_url' => env('MINIAPP_URL'),
+        'initdata_ttl' => (int) env('TELEGRAM_INITDATA_TTL', 3600),
+        'ed25519_public_keys' => [
+            'production' => env(
+                'TELEGRAM_ED25519_PUBLIC_KEY_PRODUCTION',
+                'e7bf03a2fa4602af4580703d88dda5bb59f32ed8b02a56c187fe7d34caed242d',
+            ),
+            'test' => env(
+                'TELEGRAM_ED25519_PUBLIC_KEY_TEST',
+                '40055058a4ee38156a06562e52eece92a771bcd8346a8c4615cb7376eddf72ec',
+            ),
+        ],
+    ],
+
 ];
