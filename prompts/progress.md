@@ -22,7 +22,8 @@ Status key: ✅ done · 🔄 in progress · ⬜ not started
   month-end-correct, idempotent)
 - ✅ **Domain Task 5 — entitlement grant/consume** (free baseline tops up, extra slots bought through
   `CoinLedger` atomically, consumption idempotent per challenge)
-- ⬜ Streak / freeze / miss engine (+ `streak_resets_count`, no auto-remove)
+- ✅ **Domain Task 6 — streak / freeze / miss engine** (`SettleCheckIn` + `RollOverPeriod`; transition-as-token
+  idempotency, participant mutex, `streak_resets_count`, no auto-remove)
 - ⬜ Invite code generation + brand-new-user crediting rule
 - ⬜ Per-participant-per-period phrase generation
 
@@ -707,5 +708,101 @@ approved check-in extends `current_streak` and `longest_streak`; a miss with a f
 `streak_resets_count`, and **leaves the participant in the challenge** (no auto-removal — baked-in decision).
 Late joiners owe nothing before `joined_period_index`. Must be idempotent per `(participant, period)` so period
 rollover can be re-run.
+
+---
+
+## Domain Task 6 — streak / freeze / miss engine (done)
+
+Two Actions and one exception: `App\Actions\CheckIns\SettleCheckIn` (the only place a streak moves),
+`App\Actions\Challenges\RollOverPeriod` (the sweep that closes a period), and
+`App\Exceptions\PeriodNotEndedException`. Plus one method on `CheckInStatus` — `consumesFreeze()` — joining the
+`incrementsStreak()` / `breaksStreak()` / `preservesStreak()` predicates that already existed from Domain Task 1.
+No migration: `streak_resets_count` was added to `challenge_participants` in Domain Task 1 precisely so this task
+would not need one.
+
+**Decisions**
+
+- **The status transition *is* the idempotency token.** No separate "already counted" flag, no `settled_at`
+  column. `SettleCheckIn` refuses to re-settle a row whose status `isSettled()`, and the status write and the
+  counter writes share one transaction — so a streak can only move on the transition *into* a settled status,
+  which by definition happens once. A retried webhook, a double-tapped button and a twice-run sweep are all the
+  same no-op. The alternative (a counter flag) would be a second source of truth that can disagree with the
+  status.
+- **The participant row is locked before anything is read.** `current_streak`, `longest_streak`, `freezes_used`
+  and `streak_resets_count` are all read-then-write, and two settlements for one participant genuinely arrive
+  together: the nightly sweep closing yesterday while the participant taps today's button. Without the lock both
+  read the same streak and one increment silently vanishes. It also makes the freeze decision atomic — *"is a
+  freeze available?"* and *"spend it"* are one step under the lock, so a participant with one freeze left cannot
+  have two periods frozen by it. Tested directly.
+- **`lockParticipant()` deliberately avoids `$checkIn->participant`.** An already-hydrated relation may hold
+  counters from before another settlement committed, and the arithmetic would then write a stale streak back.
+  Same reason `$checkIn->refresh()` runs inside the lock rather than trusting the caller's instance. Both have
+  their own test.
+- **A freeze protects a streak; it does not extend one.** `Frozen` touches `freezes_used` only. The participant
+  did not do the thing — they spent a freeze to avoid the penalty — so `current_streak` and `longest_streak` both
+  stand still. This is why `preservesStreak()` and `incrementsStreak()` are two separate predicates.
+- **A reset touches `current_streak` only.** `longest_streak` is a personal best and stays on the record; the
+  reset is counted in `streak_resets_count` and `status` is untouched, so the participant stays `Active`. Asserted
+  explicitly, including three consecutive resets, because "no auto-removal" is a settled product decision and the
+  test is what stops a future contributor helpfully adding one.
+- **`SettleCheckIn::approve()` returns the settled row, and the caller must read its status.** Approving a period
+  the rollover has already closed returns a `Missed` row rather than throwing or silently overwriting. Late
+  review is a real scenario (a creator who reviews photos the next morning), and neither rewriting history nor
+  losing the fact matters less than telling the caller. Recorded as a follow-up for Domain Task 9, which owns the
+  message.
+- **`Rejected` is settleable.** It is not an ending — resubmission is allowed while the period is open — so a
+  better photo can still win the streak. Only the rollover decides a rejected period was actually lost.
+- **`RollOverPeriod` refuses to run before `ends_at`.** Settling early is destructive in a way settling late is
+  not: everyone who has not checked in yet would be marked `Missed` while they still had time. `hasEnded()`
+  treats `ends_at` as exclusive, so the boundary instant closes the period — tested a second either side.
+  `$now` is injectable so the scheduled sweep and the tests agree on the instant rather than racing the clock.
+- **No early return on `rolled_over_at`.** This is the deliberate choice in the class. If a previous attempt
+  marked the period swept but died partway through the participant list, an early return would leave the rest
+  unsettled *forever*. Idempotency lives at the row level instead, so a re-run only ever completes work.
+  `rolled_over_at` is the "already swept" marker that keeps the `awaitingRollover()` scope from re-scanning, not
+  the guard — and it is not restamped on a re-run, so it keeps meaning *when the period was first closed*. Both
+  behaviours tested, including a hand-built half-finished sweep.
+- **Who owes a period is decided in `RollOverPeriod`; what a settlement does is decided in `SettleCheckIn`.**
+  Two exclusions live in the query: late joiners (`joined_period_index <= period.index`) and anyone not `Active`.
+  Neither class second-guesses the other, which is what keeps the check-in path and the sweep path from drifting.
+- **A participant who never opened the bot still missed the period.** `firstOrCreate` on
+  `(participant, period)` materialises the obligation during the sweep; the unique index makes that race-safe by
+  turning a concurrent insert into a read of the winner's row.
+- **Chunked at 200 participants.** A popular public challenge has a long list and the sweep already holds one
+  settled check-in per participant, so the participant models are not also held all at once.
+
+**Tests — 35 new** (`tests/Feature/Domain/StreakEngineTest.php`), three groups: approving, closing a missed
+period, and rolling a period over. Notable coverage: one freeze cannot cover two periods; the full
+freeze-budget-then-break sequence; a stale hydrated relation not eating an increment; late joiners spared history
+and judged from their join index; a dataset over `left` / `removed` / `completed` proving a departed participant
+stops accruing misses; another challenge's participants never touched; a re-run changing nothing; a half-finished
+sweep healed; and one end-to-end timeline settling `Approved, Approved, Frozen, Missed` with all four counters
+asserted.
+
+**Assumptions / follow-ups recorded**
+
+- **Challenge completion is not implemented and is deliberately out of scope.** `main.md` §5 has no Phase 2 task
+  for it. Nothing yet moves a participant to `Completed` after the final period, moves a challenge to
+  `Completed`, or credits the flat completion reward. When it lands it needs its own Action with its own
+  idempotency key (`ChallengeCompletionCoinReward` from `Setting`, credited via `CoinLedger`) — **not** a hook
+  inside `advance()`, which runs per period and would pay out repeatedly. Note that `RollOverPeriod` already
+  skips `Completed` participants, so the ordering works out.
+- **A late approval returning a `Missed` row needs surfacing in the UI.** Domain Task 9 (`SubmitCheckIn` +
+  review actions) owns telling the creator "this period already closed" instead of reporting success. The domain
+  layer reports it honestly; no surface reads it yet.
+- **Nothing calls `RollOverPeriod` on a schedule yet.** The `awaitingRollover()` scope exists and is asserted, but
+  the scheduled command that sweeps it belongs to the bot/reminder phase. Until then no period ever closes
+  automatically.
+- **Concurrency here is argued from the lock, not forked.** The participant mutex is the same mechanism
+  `CoinLedgerConcurrencyTest` already proves blocks with real forked writers; these tests pin the atomicity
+  requirements (one freeze, one reset, one increment) rather than re-running the fork harness.
+
+**Result — `sail composer ci:check` GREEN:** eslint ✓, prettier ✓, `tsc --noEmit` ✓, pint ✓,
+phpstan lvl 7 (0 errors) ✓, tests **493 (489 pass, 4 skipped = Fortify 2FA disabled)**, +35 from this task.
+
+**Next:** Domain Task 7 — invites. Generate a unique `Invite` code per inviter, attribute it on `/start`, and
+credit coins **only if the invited user is brand-new to the bot** (first-ever `/start`, no prior user row) —
+through `CoinLedger` with an idempotency key so a replayed `/start` cannot pay twice. The invite→coin rate comes
+from `Setting`. Self-invites and re-using a code for an existing user must credit nothing.
 
 
