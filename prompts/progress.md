@@ -45,6 +45,22 @@ Status key: ✅ done · 🔄 in progress · ⬜ not started
 ## Phase 7 — Website
 - ⬜ Marketing landing (fuller mirror later)
 
+## Backlog — captured, not scheduled
+
+Ideas raised mid-build that are **not** in `CLAUDE.md` or the seven-phase roadmap. Recorded here so they
+aren't lost; each needs a scope decision before it becomes a task.
+
+- **Creator-owned channels/groups per challenge** (`prompts/new-ideas-TODO.md`). A creator registers their own
+  channel or group with the bot, adds the bot as admin, and the challenge gains social surface: daily or
+  on-demand leaderboard posts, a message in the group whenever someone checks in, and similar.
+  *Fits naturally after Phase 3* (it needs the check-in event and the reminder scheduler to exist first).
+  **Open questions to settle before building:** proof/streak data leaving the challenge into a group is a
+  privacy decision that interacts with `proof_is_public` (a private-proof challenge must not leak proofs via
+  a leaderboard); verifying the creator actually administers the channel needs `getChatMember` on the
+  *creator*, not just the bot; per-chat posting adds fan-out against the ~1 msg/sec per-chat rate limit; and
+  a `ChallengeChat` model plus an idempotency key per (challenge, period, post kind) would be needed so a
+  re-run cannot double-post.
+
 ---
 
 ## Log
