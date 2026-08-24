@@ -1490,8 +1490,8 @@
     "semantic_hash": ""
   },
   "app/Services/CoinLedger.php": {
-    "mtime": 1787607635.0457282,
-    "ast_hash": "5b7e83d4390a54b40481f8bd0b6703e3",
+    "mtime": 1787609423.771589,
+    "ast_hash": "3273d5ab3dd3860e6cba56d88c2539aa",
     "semantic_hash": ""
   },
   "tests/Feature/Domain/CoinLedgerConcurrencyTest.php": {
@@ -1512,6 +1512,36 @@
   "tests/Feature/Domain/MaterialiseChallengePeriodsTest.php": {
     "mtime": 1787608892.3889027,
     "ast_hash": "6005d83792a0273104bd297ae11d576e",
+    "semantic_hash": ""
+  },
+  "app/Actions/Entitlements/ConsumeEntitlement.php": {
+    "mtime": 1787609590.492118,
+    "ast_hash": "20bbe5de1b675bc8ad6fd4254caed40b",
+    "semantic_hash": ""
+  },
+  "app/Actions/Entitlements/GrantFreeBaseline.php": {
+    "mtime": 1787609544.6552396,
+    "ast_hash": "b173414abbb54e69a16e05800603b337",
+    "semantic_hash": ""
+  },
+  "app/Actions/Entitlements/PurchaseEntitlement.php": {
+    "mtime": 1787609571.4831676,
+    "ast_hash": "d812cdec200d763cc9ce0d76c261e2a3",
+    "semantic_hash": ""
+  },
+  "app/Exceptions/NoEntitlementAvailableException.php": {
+    "mtime": 1787609432.3725626,
+    "ast_hash": "d8eb84694a4286447a566c96235e7c44",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Domain/CoinLedgerLockTest.php": {
+    "mtime": 1787609791.303637,
+    "ast_hash": "148d9da53611ec263f955524d20b90ea",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Domain/EntitlementsTest.php": {
+    "mtime": 1787609777.2096684,
+    "ast_hash": "a9d8b2e3f8438e3f5434516cf2f6cba3",
     "semantic_hash": ""
   }
 }

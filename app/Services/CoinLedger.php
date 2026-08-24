@@ -147,6 +147,35 @@ class CoinLedger
     }
 
     /**
+     * Take the per-user economy mutex for the duration of the current
+     * transaction.
+     *
+     * Selects the `users` row `FOR UPDATE` and discards it. The row is not read
+     * for its data — the balance does not live there — so it is being used purely
+     * as a mutex, and every other writer for this user blocking here is the whole
+     * point.
+     *
+     * Public because a coin debit is rarely the whole story. Buying a slot
+     * creates an `Entitlement` *and* debits for it, and those two writes have to
+     * be serialised together — otherwise two replays of the same purchase can
+     * both create a slot while only one of them pays, leaving a free slot behind.
+     * Holding this lock across both writes closes that window, and because it is
+     * the same row `record()` locks, every per-user economy operation queues
+     * behind one mutex.
+     *
+     * @throws LogicException when called outside a transaction, where the lock
+     *                        would be released immediately and buy nothing
+     */
+    public function lockUser(User|int $user): void
+    {
+        if (DB::transactionLevel() === 0) {
+            throw new LogicException('lockUser() outside a transaction holds nothing; wrap the caller in one.');
+        }
+
+        User::query()->whereKey($this->idOf($user))->lockForUpdate()->first();
+    }
+
+    /**
      * Write one ledger entry, or return the one this key already wrote.
      *
      * `$magnitude` is always positive; the reason decides the direction. Prefer
@@ -170,7 +199,7 @@ class CoinLedger
         }
 
         return DB::transaction(function () use ($user, $magnitude, $reason, $idempotencyKey, $reference): CoinTransaction {
-            $this->lock($user);
+            $this->lockUser($user);
 
             // Inside the lock, so a replay racing the original waits for it and
             // then finds it here rather than writing a second entry.
@@ -209,18 +238,6 @@ class CoinLedger
         }
 
         return $entry;
-    }
-
-    /**
-     * Take the per-user mutex.
-     *
-     * Selects the `users` row `FOR UPDATE`. The row itself is not read for its
-     * data — every other writer for this user blocks here, which is the entire
-     * point.
-     */
-    private function lock(User $user): void
-    {
-        User::query()->whereKey($user->getKey())->lockForUpdate()->first();
     }
 
     /**

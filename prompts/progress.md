@@ -20,7 +20,8 @@ Status key: ✅ done · 🔄 in progress · ⬜ not started
   test with real forked writers)
 - ✅ **Domain Task 4 — period materialisation** (all six `period_type`, challenge-timezone boundaries, DST- and
   month-end-correct, idempotent)
-- ⬜ Entitlement grant/consume
+- ✅ **Domain Task 5 — entitlement grant/consume** (free baseline tops up, extra slots bought through
+  `CoinLedger` atomically, consumption idempotent per challenge)
 - ⬜ Streak / freeze / miss engine (+ `streak_resets_count`, no auto-remove)
 - ⬜ Invite code generation + brand-new-user crediting rule
 - ⬜ Per-participant-per-period phrase generation
@@ -613,5 +614,98 @@ phpstan lvl 7 (0 errors) ✓, tests **417 (413 pass, 4 skipped = Fortify 2FA dis
 created and one joined challenge per user, extra slots bought with coins through `CoinLedger`, and consumption
 tied to a challenge so the spend survives the challenge being deleted. Every price comes from `Setting`;
 nothing hardcoded.
+
+---
+
+## Domain Task 5 — entitlements (done)
+
+Three Actions in `app/Actions/Entitlements/` — `GrantFreeBaseline`, `PurchaseEntitlement`, `ConsumeEntitlement` —
+plus `App\Exceptions\NoEntitlementAvailableException` and one new public method on `CoinLedger`. Every price and
+allowance is read from `Setting` at call time; there is no hardcoded 1, 50 or 25 anywhere in the three classes.
+`EntitlementType::freeAllowanceSetting()`, `priceSetting()` and `purchaseReason()` already existed from Domain
+Task 2 and are reused rather than reimplemented.
+
+**Decisions**
+
+- **`GrantFreeBaseline` tops up; it does not grant.** It counts the user's existing `FreeBaseline` rows of that
+  type and inserts only the difference, which makes it safe to call on **every `/start`** — the common case,
+  since most bot traffic is returning users. It also means an admin raising `FreeCreateSlots` from 1 to 2 lifts
+  existing users on their next `/start` rather than only new sign-ups. Lowering it stops future top-ups but
+  **never revokes**: a held slot may already be spent on a live challenge, and un-granting it would mean
+  removing someone mid-streak. `owed()` floors at zero rather than implying a clawback.
+- **Consumed rows count towards the allowance.** Having *had* the free challenge is what the allowance measures;
+  otherwise `/start` would mint a fresh free slot after every join, forever. Tested explicitly, because the
+  naive `available()`-based version of this check is the obvious way to write it and is wrong.
+- **`CoinLedger::lockUser()` is now public** (the old private `lock()` is gone; `record()` calls the public one).
+  This is the security-relevant change in the task, and the reason is a real race, not tidiness. A slot purchase
+  has to insert the `Entitlement` **before** the debit, so the ledger entry's `reference` morph can point at it.
+  If the insert happened outside the per-user mutex, two concurrent replays of the same purchase would both
+  insert a slot while `CoinLedger` correctly charged only once — leaving **an unpaid slot behind**. Holding the
+  mutex across the replay check *and* the insert closes that window. Re-taking the same lock inside `debit()` is
+  a no-op, so there is no deadlock, and all three Actions take it, so every per-user economy operation now
+  serialises on one row.
+- **`lockUser()` throws when `DB::transactionLevel() === 0`.** A `lockForUpdate()` on an autocommitted select
+  releases the instant the statement finishes, so a caller who forgot the transaction would get no
+  serialisation and, worse, no warning. Failing loudly is the only safe behaviour for a money path.
+- **A refused purchase leaves no slot.** Entitlement-first ordering means the rollback is the only thing between
+  `InsufficientCoinsException` and a free slot, so that is asserted directly rather than assumed from the
+  `DB::transaction` wrapper.
+- **A replayed purchase returns the slot the original bought**, found through the ledger entry's `reference`
+  morph. If that reference is not an `Entitlement` of the right type belonging to the right user, it throws
+  `LogicException` instead of handing back something unrelated: a purchase key reused across slot types would
+  otherwise return a join slot to someone buying a create slot and report success.
+- **Selling a slot priced at 0 (or less) is refused.** A free extra slot is an allowance change —
+  `GrantFreeBaseline`'s job — and writing a `CoinPurchase` row for zero coins would misreport the slot as paid
+  for, which matters when a refund path later asks what was actually charged.
+- **Consumption is recorded against the challenge, not merely timestamped.** That is what makes it idempotent: a
+  double-tapped join finds the row already spent on that challenge and returns it rather than eating a second
+  slot. `challenge_id` is `nullOnDelete` and `consumed_at` is not, so **deleting a challenge is not a refund
+  route** — the slot stays spent. Both halves tested.
+- **Create and join are metered separately on the same challenge.** `spentOn()` scopes by `type` *and*
+  `challenge_id`, so a creator who also takes part spends two different slots on one challenge and neither
+  satisfies a claim for the other.
+- **Free slots are spent before paid ones** (`orderByRaw` on source, then `id`). A `FreeBaseline` slot is never
+  billed and never refunded, so it has no residual value; a `CoinPurchase` slot cost real money. Spending the
+  worthless one first leaves the user holding the one that is worth something.
+- **`NoEntitlementAvailableException` carries the `EntitlementType`**, because the recovery path depends on it:
+  the bot turns this into "you have used your free challenge — buy another create slot for N coins?" and needs
+  to know which price to quote. `PurchaseEntitlement::priceOf()` is public for exactly that prompt.
+
+**Tests — 41 new** (`tests/Feature/Domain/EntitlementsTest.php`, 38; `tests/Feature/Domain/CoinLedgerLockTest.php`, 3).
+Four groups: the free baseline, buying an extra slot, spending a slot, and the mutex. Datasets cover both slot
+types against their own price setting and ledger reason, and both non-positive prices.
+
+**A test-infrastructure trap worth remembering.** The `lockUser()` guard **cannot be tested under
+`RefreshDatabase`** — it wraps every test in a transaction, so `DB::transactionLevel()` is never 0 and the guard
+can never fire. The first version of that test failed for exactly this reason. It now lives in its own file
+using `DatabaseTruncation` purely because that trait leaves the ambient transaction level alone, with a comment
+saying **do not add `RefreshDatabase` here** and a third test asserting `transactionLevel() === 0` so that a
+future global `uses(RefreshDatabase::class)` in `tests/Pest.php` fails loudly instead of quietly hollowing the
+file out. Nothing in that file writes, so unlike `CoinLedgerConcurrencyTest` it needs no `afterEach` cleanup.
+
+**Assumptions / follow-ups recorded**
+
+- **No release/refund path for a consumed slot.** Leaving a challenge does not return the slot, and nothing in
+  scope here does. If "leave a challenge" ever refunds, it needs a deliberate Action with its own idempotency
+  key — not an `update()` clearing `consumed_at`, which would let someone farm one free slot across unlimited
+  challenges.
+- **`entitlements` has no unique index**, so "one free create slot per user" is enforced by the count-then-insert
+  under the mutex rather than by the schema. That is sufficient given every writer goes through
+  `GrantFreeBaseline`, but it is a convention, not a constraint — worth revisiting if a seeder or admin tool ever
+  writes entitlements directly.
+- **Concurrency here is argued, not forked.** The mutex is the same one `CoinLedgerConcurrencyTest` already
+  proves blocks with real forked writers; these tests pin the ordering and idempotency requirements rather than
+  re-running the fork harness for three more Actions. If the free-baseline top-up ever moves off the shared lock,
+  it needs its own parallel test.
+
+**Result — `sail composer ci:check` GREEN:** eslint ✓, prettier ✓, `tsc --noEmit` ✓, pint ✓,
+phpstan lvl 7 (0 errors) ✓, tests **458 (454 pass, 4 skipped = Fortify 2FA disabled)**, +41 from this task.
+
+**Next:** Domain Task 6 — the streak / freeze / miss engine. Advance a participant through a closed period:
+approved check-in extends `current_streak` and `longest_streak`; a miss with a freeze left burns one
+(`freezes_used`) and leaves the streak intact; a miss with none resets the streak to 0, increments the new
+`streak_resets_count`, and **leaves the participant in the challenge** (no auto-removal — baked-in decision).
+Late joiners owe nothing before `joined_period_index`. Must be idempotent per `(participant, period)` so period
+rollover can be re-run.
 
 
