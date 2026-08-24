@@ -1,0 +1,154 @@
+<?php
+
+namespace App\Models;
+
+use App\Enums\CheckInStatus;
+use Carbon\CarbonImmutable;
+use Database\Factories\CheckInFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+/**
+ * One participant's obligation for one period, and how it turned out.
+ *
+ * There is exactly one row per (participant, period) — enforced by a unique
+ * index — so a double-tap, a retried webhook and a re-run rollover all converge
+ * on the same row instead of creating a second one.
+ *
+ * @property int $id
+ * @property int $challenge_participant_id
+ * @property int $challenge_period_id
+ * @property CheckInStatus $status
+ * @property string|null $expected_phrase
+ * @property string|null $submitted_text
+ * @property string|null $proof_path
+ * @property CarbonImmutable|null $submitted_at
+ * @property int|null $reviewed_by
+ * @property CarbonImmutable|null $reviewed_at
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
+ * @property-read ChallengeParticipant $participant
+ * @property-read ChallengePeriod $period
+ * @property-read User|null $reviewer
+ */
+#[Fillable([
+    'challenge_participant_id',
+    'challenge_period_id',
+    'status',
+    'expected_phrase',
+    'submitted_text',
+    'proof_path',
+    'submitted_at',
+    'reviewed_by',
+    'reviewed_at',
+])]
+class CheckIn extends Model
+{
+    /** @use HasFactory<CheckInFactory> */
+    use HasFactory;
+
+    /**
+     * @return BelongsTo<ChallengeParticipant, $this>
+     */
+    public function participant(): BelongsTo
+    {
+        return $this->belongsTo(ChallengeParticipant::class, 'challenge_participant_id');
+    }
+
+    /**
+     * @return BelongsTo<ChallengePeriod, $this>
+     */
+    public function period(): BelongsTo
+    {
+        return $this->belongsTo(ChallengePeriod::class, 'challenge_period_id');
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    /**
+     * Whether the submitted text is the phrase that was issued to this
+     * participant for this period.
+     *
+     * Comparison is on the normalised forms so that stray whitespace, casing and
+     * the Arabic/Persian glyph variants that Farsi keyboards disagree about do
+     * not fail an otherwise correct answer. It stays an *exact* match on the
+     * normalised strings — the mechanic is worthless if near-misses pass.
+     */
+    public function matchesExpectedPhrase(?string $submitted): bool
+    {
+        if ($this->expected_phrase === null || $submitted === null) {
+            return false;
+        }
+
+        $expected = self::normalisePhrase($this->expected_phrase);
+
+        return $expected !== '' && $expected === self::normalisePhrase($submitted);
+    }
+
+    /**
+     * Fold away the differences that should not decide a check-in: casing,
+     * surrounding and repeated whitespace, Arabic Yeh/Kaf where Persian Yeh/Keheh
+     * was issued, and Eastern Arabic digits.
+     */
+    public static function normalisePhrase(string $phrase): string
+    {
+        $folded = str_replace(
+            ['ي', 'ك', '٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩', '۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'],
+            ['ی', 'ک', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+            $phrase,
+        );
+
+        // Collapse every run of whitespace, including the ZWNJ Farsi text carries.
+        $collapsed = preg_replace('/[\s\x{200C}]+/u', ' ', $folded) ?? $folded;
+
+        return mb_strtolower(trim($collapsed));
+    }
+
+    /**
+     * @param  Builder<$this>  $query
+     */
+    #[Scope]
+    protected function awaitingReview(Builder $query): void
+    {
+        $query->where('status', CheckInStatus::Submitted);
+    }
+
+    /**
+     * Rows the rollover still has to settle.
+     *
+     * @param  Builder<$this>  $query
+     */
+    #[Scope]
+    protected function unsettled(Builder $query): void
+    {
+        $query->whereIn('status', [
+            CheckInStatus::Pending,
+            CheckInStatus::Submitted,
+            CheckInStatus::Rejected,
+        ]);
+    }
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'status' => CheckInStatus::class,
+            'submitted_at' => 'datetime',
+            'reviewed_at' => 'datetime',
+        ];
+    }
+}

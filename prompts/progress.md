@@ -13,7 +13,9 @@ Status key: ✅ done · 🔄 in progress · ⬜ not started
 **Phase 1 complete.**
 
 ## Phase 2 — Domain core (pure Actions, fully unit-tested, no Telegram coupling)
-- ⬜ Migrations, models, backed enums
+- ✅ **Domain Task 1 — challenge core: backed enums, schema, models, factories**
+- ⬜ Economy + infra schema (`CoinTransaction`, `Entitlement`, `Invite`, `StarPayment`, `TelegramUpdate`,
+  `BotConversation`, `ReminderDispatch`)
 - ⬜ `CoinLedger` service (locked, transactional, idempotency-keyed)
 - ⬜ Entitlement grant/consume
 - ⬜ Period materialisation (all six `period_type`)
@@ -228,3 +230,106 @@ inputs off `type()`, and should surface `set()`'s exception message as the field
 **Next:** Phase 2, Domain core — migrations, models and backed enums, then the pure Actions (`CoinLedger`
 with `lockForUpdate()`, entitlements, period materialisation for all six `period_type`, streak/freeze/miss
 engine, invite crediting, per-participant-per-period phrase generation), unit-tested before any surface.
+
+### Domain Task 1 — challenge core: enums, schema, models, factories ✅
+
+The shape of the product, in the type system and the schema, before any behaviour is written. No Actions here
+on purpose: the engines in Tasks 3–9 are much easier to write against enums that already answer the
+domain questions ("does this break a streak?") than against strings.
+
+**Built:**
+- Six backed enums in `app/Enums/`: `PeriodType`, `ChallengeVisibility`, `ProofType`, `ChallengeStatus`,
+  `ParticipantStatus`, `CheckInStatus` — each carrying the predicates its callers would otherwise
+  re-implement (`requiresCustomDays()`, `shouldAnnounce()`, `isAutoApproved()`/`requiresReview()`/
+  `supportsPublicProof()`/`expectsText()`/`expectsFile()`, `acceptsJoins()`/`acceptsCheckIns()`,
+  `owesCheckIns()`, `isSettled()`/`allowsSubmission()`/`incrementsStreak()`/`preservesStreak()`/
+  `breaksStreak()`).
+- `app/Enums/Concerns/HasTranslatedLabel.php` — `label()` + `options()` for pickers and inline keyboards,
+  deriving the lang key from the class name (`CheckInStatus` → `enums.check_in_status.<value>`). One copy
+  instead of six.
+- `lang/{en,fa}/enums.php` — every case in both locales. `config/localization.php` `client_groups` now ships
+  `enums` to the browser, so the Mini App renders statuses without a second catalogue.
+- Five migrations: Telegram columns on `users`, then `challenges`, `challenge_periods`,
+  `challenge_participants`, `check_ins`.
+- Four new models (`Challenge`, `ChallengePeriod`, `ChallengeParticipant`, `CheckIn`) + a rewritten `User`,
+  all with `#[Fillable]`, `#[Scope]` and full `@property` docblocks.
+- Five factories, with states named after domain situations (`active()`, `publiclyVisible()`,
+  `provenBy()`, `every()`, `timeline()`, `joinedAtPeriod()`, `withoutFreezes()`, `on()`, `withPhrase()`).
+
+**Decisions:**
+- **`email` and `password` are now nullable.** A bot user has no credentials and an admin has no
+  `telegram_id`; the two auth paths stay disjoint rather than being forced through one shape. MySQL permits
+  repeated `NULL`s in a unique index, so the `users.email` unique constraint still bites for admins while
+  many credential-less bot users coexist — pinned by a test, since the whole design rests on it.
+- **`is_admin` and `channel_verified_at` are deliberately not `#[Fillable]`.** Both are privilege state.
+  A test asserts `User::create([... 'is_admin' => true])` produces a non-admin.
+- **`telegram_id` is `unsignedBigInteger`** — Telegram ids passed 2^32 long ago.
+- **No `draft` challenge status.** A half-built challenge lives in `BotConversation` (the wizard's state), so
+  a `challenges` row is only ever written complete. Four statuses: `scheduled|active|completed|cancelled`.
+- **`ChallengeStatus::Scheduled` and `Active` both accept joins** — late joiners catch up on the shared
+  timeline, which is the settled product rule, so joining mid-flight is correct rather than an edge case.
+- **No `ParticipantStatus` for repeated failure.** A miss costs the streak and nothing else; `Removed` is for
+  moderation. `streak_resets_count` is materialised now so a stricter rule can be layered later as a counter
+  check with no schema change. A test asserts the case list, so adding a "failed out" state is a conscious act.
+- **`CheckInStatus::Rejected` is *not* terminal.** Resubmission is allowed until the period closes; only
+  rollover decides Frozen vs Missed. Hence `unsettled()` covers Pending|Submitted|Rejected — those are all
+  still the rollover sweep's problem — and `breaksStreak()` is true for `Missed` *only*. That single
+  predicate is what keeps the Task 6 engine from having to reason about review state.
+- **A freeze preserves a streak but does not extend it** (`incrementsStreak()` is Approved-only,
+  `preservesStreak()` is Approved|Frozen). Buying out of a penalty is not the same as doing the thing.
+- **Period windows are half-open** — `starts_at` inclusive, `ends_at` exclusive, and period N's `ends_at`
+  *is* period N+1's `starts_at`. So `contains()` uses `lt`, not `lte`, and no instant belongs to two periods.
+  A test asserts the shared boundary instant resolves to the later period only.
+- **`rolled_over_at` added to `challenge_periods`** beyond CLAUDE.md's field list (the model list is
+  explicitly "living"). Materialising the timeline is only half of what makes rollover idempotent; without a
+  settled-at marker the sweep has no way to skip a period it already closed. `awaitingRollover()` is the
+  work queue: elapsed and unsettled.
+- **`ProofType::supportsPublicProof()` is `ImageApproval` only**, and `sharesProofPublicly()` requires *both*
+  it and the creator's opt-in. A tap has nothing to show, and publishing an autogenerated phrase would hand
+  every other participant the answer — the mechanic is per-participant precisely to prevent that.
+- **Date arithmetic is deliberately absent from `PeriodType`.** It belongs with the Task 4 materialiser, which
+  owns the challenge-timezone conversion; an enum method would invite a `now()`-in-server-tz call site.
+- **Deletion policy:** challenge deletion cascades its timeline, roster and check-ins (they are meaningless
+  without it), but a deleted *user* nulls out `referred_by_user_id` and `check_ins.reviewed_by` rather than
+  destroying someone else's history.
+
+**Trap worth remembering — `Illuminate\Support\Carbon` is the wrong model docblock type here.**
+`AppServiceProvider` calls `Date::use(CarbonImmutable::class)`, so every `datetime` cast returns
+`Carbon\CarbonImmutable`, which is **not** a subclass of `Illuminate\Support\Carbon` (that extends the
+*mutable* `Carbon\Carbon`). PHPStan never caught it because it trusts `@property` annotations rather than
+cross-checking them against the cast; it surfaced only as a runtime `TypeError` the first time a real
+attribute was passed to a `Carbon`-hinted parameter. Corrected across all six models — including
+`User`/`Setting`, which had shipped with the same wrong annotation. **Convention going forward:
+`CarbonImmutable` for `@property`, `CarbonInterface` for parameters** (so callers may pass either).
+
+**Trap worth remembering — Larastan wants generics on every relation.** `BelongsTo`/`HasMany` return types
+need `@return BelongsTo<Related, $this>` at level 7. Fifteen methods, all flagged at once.
+
+**Trap worth remembering — `index` is a MySQL reserved word.** Safe through the query builder (it
+backtick-quotes), so `where('index', …)`/`orderBy('index')` work; a raw expression would not. Asserted.
+
+**Tests:** `tests/Feature/Domain/ChallengeSchemaTest.php` — **95 tests / 261 assertions** in eight
+`describe()` blocks. Beyond casts/uniques/relationships, the ones that pin real decisions: every unique index
+actually bites (`users.telegram_id`, `(challenge_id, index)`, `(challenge_id, user_id)`, and
+`(challenge_participant_id, challenge_period_id)` — the constraint that makes a double-tap, a retried webhook
+and a re-run rollover all converge); many credential-less users coexist under the unique email index;
+mass assignment can't grant admin; the half-open boundary; `owesPeriod()` excluding periods that closed
+before a late joiner arrived, and returning false for every non-`Active` status; enum *values* (not names)
+are what land in MySQL, so a case rename can't orphan rows; and a dataset asserting every case of all six
+enums has a non-key label in **both** `en` and `fa`.
+
+Phrase normalisation gets its own block, because `text_autogen` auto-approves on match and a false negative
+is a lost streak: whitespace/case/ordering behaviour, plus the Farsi-specific folds — Arabic Yeh/Kaf
+(`ي`/`ك` → `ی`/`ک`, a keyboard difference, not a wrong answer), Eastern Arabic digits (`۴۲`/`٤٢` → `42`), and
+ZWNJ treated as a space. Near-misses, reordered words, a missing phrase and an empty `expected_phrase` all
+correctly fail — a corrupt row is not a free pass.
+
+**Result — `sail composer ci:check` GREEN:** eslint ✓, prettier ✓, `tsc --noEmit` ✓, pint ✓,
+phpstan lvl 7 (0 errors) ✓, tests **218 (214 pass, 4 skipped = Fortify 2FA disabled)**, +95 from this task.
+All five migrations verified to reverse cleanly (`migrate:rollback --step=5` then `migrate`) before any model
+code was written.
+
+**Next:** Domain Task 2 — the economy and infrastructure schema (`CoinTransaction` ledger with unique
+`idempotency_key`, `Entitlement`, `Invite`, `StarPayment` unique on `telegram_payment_charge_id`,
+`TelegramUpdate` unique on `update_id`, `BotConversation`, `ReminderDispatch` unique on
+`(participant, period, kind)`).

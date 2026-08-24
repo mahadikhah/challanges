@@ -75,9 +75,9 @@
     "semantic_hash": "28f0ef771e78133e6ac4ca7c1a3887c2"
   },
   "app/Models/User.php": {
-    "mtime": 1787590265.4213092,
-    "ast_hash": "653fd36e8422ab3a42e2fb22262389bf",
-    "semantic_hash": "653fd36e8422ab3a42e2fb22262389bf"
+    "mtime": 1787604670.493023,
+    "ast_hash": "7beb8e35763707f15160ee609b5e3054",
+    "semantic_hash": ""
   },
   "app/Providers/AppServiceProvider.php": {
     "mtime": 1787602660.6995907,
@@ -175,8 +175,8 @@
     "semantic_hash": "61dc261238a9dfcefab26b733d903ba2"
   },
   "database/factories/UserFactory.php": {
-    "mtime": 1787600353.3333666,
-    "ast_hash": "ffea02cbf27f457491d54a411aad8a93",
+    "mtime": 1787604075.3119712,
+    "ast_hash": "0b4b896f44f81d5c58980c9684cd413c",
     "semantic_hash": ""
   },
   "database/migrations/0001_01_01_000000_create_users_table.php": {
@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "prompts/progress.md": {
-    "mtime": 1787602190.9172623,
-    "ast_hash": "e004b318284ac32ddb2ea4b99eb798df",
+    "mtime": 1787603139.1105318,
+    "ast_hash": "3325da3360163bb12a04810004693638",
     "semantic_hash": ""
   },
   "prompts/task-01-setup.md": {
@@ -1135,8 +1135,8 @@
     "semantic_hash": ""
   },
   "config/localization.php": {
-    "mtime": 1787601124.2297537,
-    "ast_hash": "5244505417b2b902133a4bd6713fd0a6",
+    "mtime": 1787603550.8848948,
+    "ast_hash": "9dfa899af6322247fca54f363efaa34e",
     "semantic_hash": ""
   },
   "lang/en/common.php": {
@@ -1195,8 +1195,8 @@
     "semantic_hash": ""
   },
   "app/Models/Setting.php": {
-    "mtime": 1787602548.2539916,
-    "ast_hash": "f356b1d17278bbd6a775de40fb28f4d7",
+    "mtime": 1787604552.9608033,
+    "ast_hash": "a5c2de4c3fede660e7d6c70179168c15",
     "semantic_hash": ""
   },
   "app/Services/Settings.php": {
@@ -1217,6 +1217,126 @@
   "tests/Feature/SettingsTest.php": {
     "mtime": 1787602853.9339628,
     "ast_hash": "6efdbdedecea8e65f9c293f03b70b454",
+    "semantic_hash": ""
+  },
+  "app/Enums/ChallengeStatus.php": {
+    "mtime": 1787603471.661016,
+    "ast_hash": "df55ceabe7014afbca4517ca7c655914",
+    "semantic_hash": ""
+  },
+  "app/Enums/ChallengeVisibility.php": {
+    "mtime": 1787603442.7966998,
+    "ast_hash": "fc0ef5957fab7a9eeb07b85850377912",
+    "semantic_hash": ""
+  },
+  "app/Enums/CheckInStatus.php": {
+    "mtime": 1787603514.3314877,
+    "ast_hash": "5cf6174ff3ab0dcbddd2860b4b55407c",
+    "semantic_hash": ""
+  },
+  "app/Enums/Concerns/HasTranslatedLabel.php": {
+    "mtime": 1787603405.9262989,
+    "ast_hash": "4ef228cb604eba583d7783ba97662db1",
+    "semantic_hash": ""
+  },
+  "app/Enums/ParticipantStatus.php": {
+    "mtime": 1787603483.084142,
+    "ast_hash": "e36b474dd230898cd64f07ae122c7cd9",
+    "semantic_hash": ""
+  },
+  "app/Enums/PeriodType.php": {
+    "mtime": 1787603415.7014048,
+    "ast_hash": "8a288384ce433a442854efb2f182200e",
+    "semantic_hash": ""
+  },
+  "app/Enums/ProofType.php": {
+    "mtime": 1787603456.075845,
+    "ast_hash": "c028b97adae0bc5b80fc9911896277f8",
+    "semantic_hash": ""
+  },
+  "app/Models/Challenge.php": {
+    "mtime": 1787604599.5887015,
+    "ast_hash": "f293e4bb53d63482880bd55299200cef",
+    "semantic_hash": ""
+  },
+  "app/Models/ChallengeParticipant.php": {
+    "mtime": 1787604619.3730755,
+    "ast_hash": "6a65794f96ed889e7b009dbf167bc044",
+    "semantic_hash": ""
+  },
+  "app/Models/ChallengePeriod.php": {
+    "mtime": 1787604628.1392398,
+    "ast_hash": "e3e1a1bc6ee1a8484459a237635775dd",
+    "semantic_hash": ""
+  },
+  "app/Models/CheckIn.php": {
+    "mtime": 1787604643.5865276,
+    "ast_hash": "e5bc7502170f986d05009dd384284ccd",
+    "semantic_hash": ""
+  },
+  "database/factories/ChallengeFactory.php": {
+    "mtime": 1787604118.3694835,
+    "ast_hash": "a86f7879e9f66fd645b14b9bde3fd99c",
+    "semantic_hash": ""
+  },
+  "database/factories/ChallengeParticipantFactory.php": {
+    "mtime": 1787604151.460878,
+    "ast_hash": "2965ca24ad669edf1e141fad493838c3",
+    "semantic_hash": ""
+  },
+  "database/factories/ChallengePeriodFactory.php": {
+    "mtime": 1787604134.8056793,
+    "ast_hash": "04c27d9ee3e126aa74aac7626e700948",
+    "semantic_hash": ""
+  },
+  "database/factories/CheckInFactory.php": {
+    "mtime": 1787604168.1750774,
+    "ast_hash": "71b5e2631e2e47110fbae8d1dc787259",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_24_203239_add_telegram_columns_to_users_table.php": {
+    "mtime": 1787603618.2706528,
+    "ast_hash": "fbe76f83ba50e7db263f9b9e82c9f1a4",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_24_203347_create_challenges_table.php": {
+    "mtime": 1787603659.9611259,
+    "ast_hash": "78cb18fb81333e969c5e57af5ae5ee17",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_24_203350_create_challenge_periods_table.php": {
+    "mtime": 1787603686.4694283,
+    "ast_hash": "dff6541a3b8932806fdb9e32f7bb5c50",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_24_203353_create_challenge_participants_table.php": {
+    "mtime": 1787603702.6526136,
+    "ast_hash": "6a14cefdb780551dabe5f4467e02ea62",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_24_203356_create_check_ins_table.php": {
+    "mtime": 1787603729.7159245,
+    "ast_hash": "a293c7972372d8509d6d3fa4c089b3bc",
+    "semantic_hash": ""
+  },
+  "lang/en/enums.php": {
+    "mtime": 1787603526.1046183,
+    "ast_hash": "7f4964e78a407c2368d50b389da27247",
+    "semantic_hash": ""
+  },
+  "lang/fa/enums.php": {
+    "mtime": 1787603544.020818,
+    "ast_hash": "1a3d33faff674487b41f89217a8a5ddf",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Domain/ChallengeSchemaTest.php": {
+    "mtime": 1787604411.9809198,
+    "ast_hash": "de2f0a79b61694d7ad791f627a5c3099",
+    "semantic_hash": ""
+  },
+  "prompts/new-ideas-TODO.md": {
+    "mtime": 1787604657.352782,
+    "ast_hash": "a32fe1757d06be3b13ac790e45df925a",
     "semantic_hash": ""
   }
 }

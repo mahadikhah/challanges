@@ -1,21 +1,21 @@
-# Graph Report - challenges  (2026-08-24)
+# Graph Report - challenges  (2026-08-25)
 
 ## Corpus Check
-- 238 files · ~71,465 words
+- 262 files · ~80,795 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1513 nodes · 2177 edges · 174 communities (128 shown, 46 thin omitted)
-- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 53 edges (avg confidence: 0.78)
+- 1666 nodes · 2459 edges · 193 communities (141 shown, 52 thin omitted)
+- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 57 edges (avg confidence: 0.78)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `ad0916e6`
+- Built from commit: `13cd32d8`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- delete-user.tsx
+- utils.ts
 - composer.json
 - PasswordValidationRules.php
 - scripts
@@ -25,9 +25,9 @@
 - cn
 - optionalDependencies
 - sidebar.tsx
-- app-header.tsx
+- sheet.tsx
 - TestCase
-- user-info.tsx
+- app-header.tsx
 - dropdown-menu.tsx
 - compilerOptions
 - User
@@ -45,7 +45,7 @@
 - Laravel Fortify Development
 - alert.tsx
 - Laravel Fortify Development
-- utils.ts
+- Challenge.php
 - User.php
 - Tailwind CSS Development
 - Tailwind CSS Development
@@ -57,7 +57,7 @@
 - eslint.config.js
 - icon.tsx
 - Detection Checklist
-- clsx
+- Challenge
 - globals
 - @inertiajs/react
 - @inertiajs/vite
@@ -128,7 +128,7 @@
 - Task Scheduling Best Practices
 - Testing Best Practices
 - Setup Task 1: Project Bootstrap
-- PasswordResetTest
+- ChallengePeriod
 - Collection Best Practices
 - HTTP Client Best Practices
 - Mail Best Practices
@@ -155,18 +155,29 @@
 - prettier
 - prettier-plugin-tailwindcss
 - concurrently
+- card.tsx
+- Illuminate\Database\Eloquent\Relations\BelongsTo
+- ChallengeFactory
+- Illuminate\Database\Eloquent\Factories\Factory
+- CheckInFactory
+- UserFactory
+- ChallengeParticipant
+- ChallengeParticipantFactory
+- ProfileUpdateTest
+- @radix-ui/react-separator
+- new-ideas-TODO.md
 
 ## God Nodes (most connected - your core abstractions)
 1. `cn()` - 125 edges
-2. `User` - 40 edges
+2. `User` - 57 edges
 3. `TestCase` - 26 edges
 4. `Localization` - 18 edges
-5. `Button()` - 15 edges
-6. `compilerOptions` - 15 edges
-7. `Settings` - 13 edges
-8. `require-dev` - 13 edges
-9. `scripts` - 13 edges
-10. `Detection Checklist` - 11 edges
+5. `ChallengeParticipant` - 16 edges
+6. `Button()` - 15 edges
+7. `compilerOptions` - 15 edges
+8. `Challenge` - 14 edges
+9. `ChallengePeriod` - 14 edges
+10. `Settings` - 13 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Admin Panel` --references--> `FortifyServiceProvider`  [INFERRED]
@@ -188,11 +199,11 @@
 - **Idempotency keys across the system** — claude_md_telegram_update_model, claude_md_star_payment_model, claude_md_checkin_model, claude_md_reminder_dispatch_model [EXTRACTED 1.00]
 - **Three proof types** — prompts_main_proof_button, prompts_main_proof_text_autogen, prompts_main_proof_image_approval [EXTRACTED 1.00]
 
-## Communities (174 total, 46 thin omitted)
+## Communities (193 total, 52 thin omitted)
 
-### Community 0 - "delete-user.tsx"
-Cohesion: 0.11
-Nodes (25): DeleteUser(), Heading(), InputError(), PasswordInput(), Props, TextLink(), Button(), buttonVariants (+17 more)
+### Community 0 - "utils.ts"
+Cohesion: 0.10
+Nodes (27): DeleteUser(), Heading(), InputError(), PasswordInput(), Props, TextLink(), Button(), buttonVariants (+19 more)
 
 ### Community 1 - "composer.json"
 Cohesion: 0.18
@@ -208,19 +219,19 @@ Nodes (40): scripts, ci:check, dev, lint, lint:check, post-autoload-dump, post-c
 
 ### Community 4 - "index.ts"
 Cohesion: 0.06
-Nodes (45): i18n + RTL Requirement, AppContent(), Props, AppShell(), Props, AppSidebarHeader(), AppearanceToggleTab(), Breadcrumbs() (+37 more)
+Nodes (42): i18n + RTL Requirement, AppContent(), Props, AppShell(), Props, AppSidebarHeader(), AppearanceToggleTab(), Breadcrumbs() (+34 more)
 
 ### Community 5 - "useIsMobile"
-Cohesion: 0.70
-Nodes (4): getServerSnapshot(), isSmallerThanBreakpoint(), mediaQueryListener(), useIsMobile()
+Cohesion: 0.53
+Nodes (5): SidebarProvider(), getServerSnapshot(), isSmallerThanBreakpoint(), mediaQueryListener(), useIsMobile()
 
 ### Community 6 - "devDependencies"
 Cohesion: 0.12
 Nodes (17): babel-plugin-react-compiler, eslint-config-prettier, @eslint/js, @laravel/vite-plugin-wayfinder, devDependencies, babel-plugin-react-compiler, eslint, eslint-config-prettier (+9 more)
 
 ### Community 7 - "cn"
-Cohesion: 0.13
-Nodes (18): Badge(), badgeVariants, Card(), CardContent(), CardDescription(), CardFooter(), CardHeader(), CardTitle() (+10 more)
+Cohesion: 0.12
+Nodes (20): Badge(), badgeVariants, NavigationMenu(), NavigationMenuContent(), NavigationMenuIndicator(), NavigationMenuItem(), NavigationMenuLink(), NavigationMenuList() (+12 more)
 
 ### Community 8 - "optionalDependencies"
 Cohesion: 0.13
@@ -228,31 +239,31 @@ Nodes (15): @laravel/multiplex, lightningcss-linux-x64-gnu, lightningcss-win32-x
 
 ### Community 9 - "sidebar.tsx"
 Cohesion: 0.11
-Nodes (29): footerNavItems, mainNavItems, NavFooter(), NavMain(), NavUser(), Sidebar(), SidebarContent(), SidebarContext (+21 more)
+Nodes (31): footerNavItems, mainNavItems, NavFooter(), NavMain(), NavUser(), Sidebar(), SidebarContent(), SidebarContext (+23 more)
 
-### Community 10 - "app-header.tsx"
-Cohesion: 0.09
-Nodes (25): mainNavItems, Props, rightNavItems, AppLogo(), AppLogoIcon(), NavigationMenu(), NavigationMenuContent(), NavigationMenuIndicator() (+17 more)
+### Community 10 - "sheet.tsx"
+Cohesion: 0.18
+Nodes (8): Sheet(), SheetContent(), SheetDescription(), SheetFooter(), SheetHeader(), SheetOverlay(), SheetTitle(), SheetTrigger()
 
 ### Community 11 - "TestCase"
 Cohesion: 0.12
 Nodes (8): Illuminate\Foundation\Testing\RefreshDatabase, Illuminate\Foundation\Testing\TestCase, PasswordConfirmationTest, RegistrationTest, DashboardTest, ExampleTest, TestCase, ExampleTest
 
-### Community 12 - "user-info.tsx"
-Cohesion: 0.33
-Nodes (7): Avatar(), AvatarFallback(), AvatarImage(), UserInfo(), getInitial(), GetInitialsFn, useInitials()
+### Community 12 - "app-header.tsx"
+Cohesion: 0.13
+Nodes (22): AppHeader(), mainNavItems, Props, rightNavItems, Avatar(), AvatarFallback(), AvatarImage(), navigationMenuTriggerStyle (+14 more)
 
 ### Community 13 - "dropdown-menu.tsx"
 Cohesion: 0.13
-Nodes (16): DropdownMenu(), DropdownMenuCheckboxItem(), DropdownMenuContent(), DropdownMenuGroup(), DropdownMenuItem(), DropdownMenuLabel(), DropdownMenuRadioItem(), DropdownMenuSeparator() (+8 more)
+Nodes (17): DropdownMenu(), DropdownMenuCheckboxItem(), DropdownMenuContent(), DropdownMenuGroup(), DropdownMenuItem(), DropdownMenuLabel(), DropdownMenuRadioItem(), DropdownMenuSeparator() (+9 more)
 
 ### Community 14 - "compilerOptions"
 Cohesion: 0.10
 Nodes (19): resources/js/**/*.d.ts, resources/js/**/*.ts, resources/js/**/*.tsx, compilerOptions, allowJs, baseUrl, esModuleInterop, forceConsistentCasingInFileNames (+11 more)
 
 ### Community 15 - "User"
-Cohesion: 0.18
-Nodes (4): User, Illuminate\Foundation\Auth\User, EmailVerificationTest, ProfileUpdateTest
+Cohesion: 0.13
+Nodes (4): User, Illuminate\Foundation\Auth\User, EmailVerificationTest, PasswordResetTest
 
 ### Community 16 - "components.json"
 Cohesion: 0.11
@@ -280,7 +291,7 @@ Nodes (27): Basic Link Component, Basic Usage, Client-Side Navigation, Common Pi
 
 ### Community 22 - "dependencies"
 Cohesion: 0.22
-Nodes (9): dependencies, @radix-ui/react-label, @radix-ui/react-separator, @radix-ui/react-toggle, @radix-ui/react-toggle-group, @radix-ui/react-label, @radix-ui/react-separator, @radix-ui/react-toggle (+1 more)
+Nodes (9): clsx, dependencies, clsx, @radix-ui/react-label, @radix-ui/react-toggle, @radix-ui/react-toggle-group, @radix-ui/react-label, @radix-ui/react-toggle (+1 more)
 
 ### Community 23 - "Inertia React Development"
 Cohesion: 0.07
@@ -288,11 +299,11 @@ Nodes (27): Basic Link Component, Basic Usage, Client-Side Navigation, Common Pi
 
 ### Community 24 - "miniapp/localization.ts"
 Cohesion: 0.13
-Nodes (19): LanguageSwitcher(), useTranslation(), translate(), TranslationReplacements, fallback, localization, t(), rootElement (+11 more)
+Nodes (18): LanguageSwitcher(), useTranslation(), translate(), TranslationReplacements, fallback, localization, t(), rootElement (+10 more)
 
 ### Community 26 - "SettingKey.php"
-Cohesion: 0.09
-Nodes (14): SettingType, type(), Setting, SettingKey, SettingType, Settings, SettingKey, static (+6 more)
+Cohesion: 0.14
+Nodes (6): SettingType, type(), SettingKey, SettingType, Settings, static
 
 ### Community 27 - "Laravel Fortify Development"
 Cohesion: 0.12
@@ -306,9 +317,9 @@ Nodes (4): Alert(), AlertDescription(), AlertTitle(), alertVariants
 Cohesion: 0.12
 Nodes (16): Available Features, Best Practices, Custom Authentication Logic, Documentation, Email Verification Setup, Key Endpoints, Laravel Fortify Development, Passkeys Setup (+8 more)
 
-### Community 30 - "utils.ts"
-Cohesion: 0.25
-Nodes (10): AppHeader(), Separator(), IsCurrentOrParentUrlFn, IsCurrentUrlFn, useCurrentUrl(), UseCurrentUrlReturn, WhenCurrentUrlFn, SettingsLayout() (+2 more)
+### Community 30 - "Challenge.php"
+Cohesion: 0.16
+Nodes (4): label(), options(), isAutoApproved(), requiresReview()
 
 ### Community 32 - "Tailwind CSS Development"
 Cohesion: 0.14
@@ -334,6 +345,10 @@ Nodes (13): require-dev, fakerphp/faker, larastan/larastan, laravel/boost, larav
 Cohesion: 0.17
 Nodes (11): A. Validation & HTTP input, B. Controllers & routing, C. Authorization, D. Eloquent & models, Detection Checklist, E. Architecture & organization, F. Frontend & views, G. Database & migrations (+3 more)
 
+### Community 47 - "Challenge"
+Cohesion: 0.11
+Nodes (3): Challenge, Illuminate\Database\Eloquent\Builder, Illuminate\Database\Eloquent\Relations\HasMany
+
 ### Community 90 - "keywords"
 Cohesion: 0.67
 Nodes (3): keywords, framework, laravel
@@ -351,7 +366,7 @@ Cohesion: 0.17
 Nodes (11): Edge cases, Glob mapping, Ground Rules (read before you start), Infer Conventions, Process, Step 0: Orient, Step 1: Predefined sweep, Step 2: Open-ended pass (+3 more)
 
 ### Community 95 - "Architecture Best Practices"
-Cohesion: 0.18
+Cohesion: 0.17
 Nodes (11): Architecture Best Practices, Code to Interfaces, Convention Over Configuration, Default Sort by Descending, Single-Purpose Action Classes, Use Atomic Locks for Race Conditions, Use `Concurrency::run()` for Parallel Execution, Use `Context` for Request-Scoped Data (+3 more)
 
 ### Community 96 - "Queue & Job Best Practices"
@@ -363,20 +378,20 @@ Cohesion: 0.18
 Nodes (11): Audit Dependencies, Authorize Every Action, CSRF Protection, Encrypt Sensitive Database Fields, Escape Output to Prevent XSS, Keep Secrets Out of Code, Mass Assignment Protection, Prevent SQL Injection (+3 more)
 
 ### Community 98 - "Architecture Best Practices"
-Cohesion: 0.18
+Cohesion: 0.17
 Nodes (11): Architecture Best Practices, Code to Interfaces, Convention Over Configuration, Default Sort by Descending, Single-Purpose Action Classes, Use Atomic Locks for Race Conditions, Use `Concurrency::run()` for Parallel Execution, Use `Context` for Request-Scoped Data (+3 more)
 
 ### Community 99 - "Queue & Job Best Practices"
-Cohesion: 0.18
+Cohesion: 0.20
 Nodes (10): Always Implement `failed()`, Batch Related Jobs, Implement `ShouldBeUnique`, Queue & Job Best Practices, Rate Limit External API Calls in Jobs, `retryUntil()` Needs `$tries = 0`, Set `retry_after` Greater Than `timeout`, Use Exponential Backoff (+2 more)
 
 ### Community 100 - "Security Best Practices"
-Cohesion: 0.18
+Cohesion: 0.17
 Nodes (11): Audit Dependencies, Authorize Every Action, CSRF Protection, Encrypt Sensitive Database Fields, Escape Output to Prevent XSS, Keep Secrets Out of Code, Mass Assignment Protection, Prevent SQL Injection (+3 more)
 
 ### Community 101 - "Build Progress — Telegram Challenges Platform"
-Cohesion: 0.17
-Nodes (11): Build Progress — Telegram Challenges Platform, Log, Phase 1 — Setup, Phase 2 — Domain core (pure Actions, fully unit-tested, no Telegram coupling), Phase 3 — Bot core, Phase 4 — Stars payments, Phase 5 — Mini App, Phase 6 — Admin panel (+3 more)
+Cohesion: 0.15
+Nodes (12): Build Progress — Telegram Challenges Platform, Log, Phase 1 — Setup, Phase 2 — Domain core (pure Actions, fully unit-tested, no Telegram coupling), Phase 3 — Bot core, Phase 4 — Stars payments, Phase 5 — Mini App, Phase 6 — Admin panel (+4 more)
 
 ### Community 102 - "Advanced Query Patterns"
 Cohesion: 0.20
@@ -451,7 +466,7 @@ Cohesion: 0.22
 Nodes (8): Baked-in decisions — do NOT stop to ask about these, Build order (strict), Guardrails, North Star (definition of done), Operating loop — repeat until done, Project Goal — Autonomous Build Driver, Running me across resets, When you MAY stop and ask (only these)
 
 ### Community 121 - ".agents/skills/laravel-best-practices/SKILL.md"
-Cohesion: 0.25
+Cohesion: 0.29
 Nodes (5): Consistency First, Decision Rules, How to Apply, Laravel Best Practices, Rule Index
 
 ### Community 122 - "Blade & Views Best Practices"
@@ -471,7 +486,7 @@ Cohesion: 0.25
 Nodes (7): Call `Event::fake()` After Factory Setup, Testing Best Practices, Use `Exceptions::fake()` to Assert Exception Reporting, Use Factory States and Sequences, Use `LazilyRefreshDatabase` Over `RefreshDatabase`, Use Model Assertions Over Raw Database Assertions, Use `recycle()` to Share Relationship Instances Across Factories
 
 ### Community 126 - ".claude/skills/laravel-best-practices/SKILL.md"
-Cohesion: 0.25
+Cohesion: 0.29
 Nodes (5): Consistency First, Decision Rules, How to Apply, Laravel Best Practices, Rule Index
 
 ### Community 127 - "Blade & Views Best Practices"
@@ -493,6 +508,10 @@ Nodes (7): Call `Event::fake()` After Factory Setup, Testing Best Practices, Use
 ### Community 131 - "Setup Task 1: Project Bootstrap"
 Cohesion: 0.25
 Nodes (7): Before starting, Code Rules, Explicitly Out of Scope, Goal, Setup Task 1: Project Bootstrap, Tests (Pest, required), What to Build (in order)
+
+### Community 132 - "ChallengePeriod"
+Cohesion: 0.19
+Nodes (5): ChallengePeriod, Setting, Carbon\CarbonInterface, Illuminate\Database\Eloquent\Factories\HasFactory, Illuminate\Database\Eloquent\Model
 
 ### Community 133 - "Collection Best Practices"
 Cohesion: 0.29
@@ -566,25 +585,37 @@ Nodes (5): extra, laravel, post-create-project, dont-discover, installer
 Cohesion: 0.50
 Nodes (3): private, $schema, type
 
+### Community 174 - "card.tsx"
+Cohesion: 0.21
+Nodes (8): AppLogo(), AppLogoIcon(), Card(), CardContent(), CardDescription(), CardFooter(), CardHeader(), CardTitle()
+
+### Community 176 - "ChallengeFactory"
+Cohesion: 0.23
+Nodes (4): ChallengeFactory, static, PeriodType, ProofType
+
+### Community 177 - "Illuminate\Database\Eloquent\Factories\Factory"
+Cohesion: 0.20
+Nodes (5): ChallengePeriodFactory, static, SettingKey, SettingFactory, Illuminate\Database\Eloquent\Factories\Factory
+
 ## Knowledge Gaps
-- **686 isolated node(s):** `vendor/bin/sail`, `$schema`, `style`, `rsc`, `tsx` (+681 more)
+- **688 isolated node(s):** `vendor/bin/sail`, `$schema`, `style`, `rsc`, `tsx` (+683 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **46 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **52 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Admin Panel` connect `SubmitCheckIn Action` to `PasswordValidationRules.php`?**
-  _High betweenness centrality (0.070) - this node is a cross-community bridge._
+  _High betweenness centrality (0.082) - this node is a cross-community bridge._
 - **Why does `AppSidebar()` connect `SubmitCheckIn Action` to `sidebar.tsx`, `index.ts`?**
-  _High betweenness centrality (0.068) - this node is a cross-community bridge._
-- **Why does `FortifyServiceProvider` connect `PasswordValidationRules.php` to `SubmitCheckIn Action`?**
-  _High betweenness centrality (0.061) - this node is a cross-community bridge._
-- **Are the 30 inferred relationships involving `User` (e.g. with `.run()` and `.test_users_are_rate_limited()`) actually correct?**
-  _`User` has 30 INFERRED edges - model-reasoned connections that need verification._
+  _High betweenness centrality (0.080) - this node is a cross-community bridge._
+- **Why does `User` connect `User` to `PasswordValidationRules.php`, `DatabaseSeeder.php`, `ChallengePeriod`, `VerificationNotificationTest`, `TestCase`, `Illuminate\Database\Eloquent\Relations\BelongsTo`, `Challenge`, `ChallengeFactory`, `Illuminate\Database\Eloquent\Factories\Factory`, `CheckInFactory`, `SubmitCheckIn Action`, `UserFactory`, `ProfileUpdateTest`, `AuthenticationTest`, `SecurityTest`, `User.php`?**
+  _High betweenness centrality (0.074) - this node is a cross-community bridge._
+- **Are the 32 inferred relationships involving `User` (e.g. with `.definition()` and `.definition()`) actually correct?**
+  _`User` has 32 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `vendor/bin/sail`, `$schema`, `style` to the rest of the system?**
-  _686 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `delete-user.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.10784313725490197 - nodes in this community are weakly interconnected._
+  _688 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `utils.ts` be split into smaller, more focused modules?**
+  _Cohesion score 0.10087719298245613 - nodes in this community are weakly interconnected._
 - **Should `PasswordValidationRules.php` be split into smaller, more focused modules?**
   _Cohesion score 0.05201266395296246 - nodes in this community are weakly interconnected._
