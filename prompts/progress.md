@@ -917,3 +917,104 @@ generated once and persisted, so a re-run of period materialisation does not cha
 already looking at. Phrases must work in both Farsi and English.
 
 
+
+---
+
+## Domain Task 8 — per-participant-per-period phrase generation (done)
+
+**Commit:** `5deeea4 feat(check-ins): issue a per-participant, per-period proof phrase`
+
+**What shipped**
+
+| File | Role |
+|---|---|
+| `app/Actions/CheckIns/IssueCheckInPhrase.php` | issue / generate the phrase |
+| `app/Actions/CheckIns/OpenCheckIn.php` | `(participant, period) → CheckIn`, extracted from `RollOverPeriod` |
+| `app/Exceptions/PhraseUnavailableException.php` | `vocabularyMissing()` / `noFreePhrase()` |
+| `…add_phrase_uniqueness_to_check_ins_table.php` | unique `(challenge_period_id, expected_phrase)` |
+| `lang/en/phrases.php`, `lang/fa/phrases.php` | server-only vocabulary banks |
+| `app/Services/Localization.php` | new `best(...$candidates)` + `toSupportedCode()` |
+| `app/Http/Middleware/SetLocale.php` | now delegates to `best()` (≈30 lines → 5) |
+
+**The decision that shaped the rest: distinctness is structural, not probabilistic.**
+The attack this mechanic closes is *sharing* — the first person to check in pastes the phrase into the group
+chat and nobody else has to do the thing — **not** guessing. A participant already knows their own phrase, so
+entropy protects nothing. What has to hold is that two participants in the same period get different phrases.
+So that is a **unique index on `(challenge_period_id, expected_phrase)`** with a re-roll on rejection, mirroring
+`IssueInviteCode::mint()`. Hoping 216,000 combinations never collide would be a *statement about likelihood*
+where the product needs a *guarantee*; the index also means a future bug that narrows the vocabulary fails loudly
+instead of quietly handing a whole challenge the same words. NULLs are distinct in a MySQL unique index, so the
+many rows that never carry a phrase (`button`, `image_approval`) are unaffected.
+
+**Generate once, persist, never recompute** — chosen over deriving the phrase deterministically from
+`(participant_id, period_id)`. A participant reads the phrase off a reminder and types it back hours later, so a
+second call must not produce a different string. Derivation also fails a subtler test: it would silently *change*
+the phrase if the user switched locale between reading and typing. Persisted, the locale is frozen at issue time —
+there is a test for exactly that.
+
+**Stored phrases are already in `CheckIn::normalisePhrase()` form.** `generate()` puts its own output through
+that method, so the string shown to the participant and the string their answer is folded into cannot drift, and
+the unique index compares *canonical* forms — `Blue Anchor 42` cannot slip past it alongside `blue anchor 42`.
+This is why the banks use **ASCII digits in both locales**: the normaliser folds `۰-۹` and `٠-٩` to ASCII, so a
+Farsi participant may type either and the canonical form stays ASCII.
+
+**The row lock is not ceremony.** Two reminders for the same row can land together; without it both read a null
+phrase, both generate, and the loser overwrites the phrase the participant is already reading. `handle()` locks
+the check-in row, refreshes, and re-checks — the same lock-then-refresh shape as `SettleCheckIn`. The locked row
+is deliberately discarded and the caller's instance refreshed instead, because that instance is the one that has
+to come back carrying the phrase. Retrying the insert *inside* the open transaction is safe on MySQL, where a
+duplicate-key error rolls back the statement and not the transaction. **That is MySQL-specific and load-bearing** —
+on Postgres this would need a savepoint per attempt.
+
+**Farsi is not the English template reversed.** Persian puts the adjective after the noun, so each locale owns
+its own `template` (`:noun :adjective :number` vs `:adjective :noun :number`). Two further Farsi rules are
+enforced by test: **no ZWNJ (U+200C)** — the normaliser folds it to a space, and nobody retypes an invisible
+character consistently — and **Persian ی/ک (U+06CC/U+06A9), never the Arabic ي/ك**, since the normaliser folds
+Arabic → Persian and a bank word must equal its own normalised form. A test asserts that over every word in both
+banks.
+
+**`Localization::best()` rather than a second copy of tag-folding.** `SetLocale` resolves a *request*
+(user → cookie → `Accept-Language` → fallback). Anything addressing a *specific user outside a request* — a
+queued reminder, a phrase — must resolve per user, because `app()->getLocale()` in a worker belongs to whoever
+was handled last. Both now arrive at one allowlisting method. It tries the full tag before the primary subtag, so
+a future `zh-hans` entry would match exactly rather than collapsing to `zh`; there are traversal tests, because
+the result is interpolated into a path that gets `require`d.
+
+**`OpenCheckIn` extracted** from `RollOverPeriod::obligationFor()`. Three callers now need "the row for this
+(participant, period)" — the rollover sweep, the bot's check-in prompt, a reminder issuing a phrase — and
+`firstOrCreate` there is race-safe rather than merely convenient (it delegates to `createOrFirst`, which catches
+the unique violation and re-reads the winner). It deliberately does **not** check `owesPeriod()`: who owes a
+period belongs to the caller that decided to open the row, and answering it in two places is how the two answers
+start to disagree.
+
+**`phrases` is not in `localization.client_groups`**, so the bank never reaches a browser bundle. Asserted, not
+assumed. It leaks nobody's phrase, but advertising the shape of every phrase buys nothing.
+
+**Assumptions / follow-ups recorded**
+
+- **No fan-out.** There is no `IssueCheckInPhrase::forPeriod()`, because it would duplicate
+  `RollOverPeriod::participantsOwing()` (late joiners, non-`Active` participants). The **reminder job in Phase 3
+  owns the fan-out** and calls `forParticipant()` per participant — which is also where the staggered
+  `delay()` for Telegram's rate limit belongs.
+- **Nothing issues a phrase yet.** Domain Task 9's `SubmitCheckIn` is the first real caller; the bot prompt and
+  the reminder follow in Phase 3.
+- **`MINT_ATTEMPTS = 5`.** With ~200k combinations, five collisions in a row means the vocabulary is far too
+  small for the challenge's size, so it throws rather than loops. If a challenge ever plausibly has thousands of
+  participants in one period, add words — not attempts.
+- **A blank phrase is not treated as unissued.** Only `null` is. `expected_phrase` is written by this class alone
+  and never to a blank, so treating blank as unissued could only paper over a corrupt row — and would re-roll a
+  phrase somebody is looking at to do it.
+- **The number is never zero-padded** (`10`–`99`). A leading zero is a support message, not entropy.
+
+**Result — `sail composer ci:check` GREEN:** eslint ✓, prettier ✓, `tsc --noEmit` ✓, pint ✓,
+phpstan lvl 7 (0 errors) ✓, tests **572 (568 pass, 4 skipped = Fortify 2FA disabled)**, 1739 assertions,
++47 from this task.
+
+**Next:** Domain Task 9 — `SubmitCheckIn` plus the review actions, closing out Domain core. One Action every
+surface calls: resolve the actor's participant row server-side (never a client-supplied `participant_id`), open
+the obligation via `OpenCheckIn`, and branch on `proof_type` — `button` auto-approves, `text_autogen` compares
+via `matchesExpectedPhrase()` and auto-approves on a match, `image_approval` stores the proof and leaves the row
+`Submitted` for the creator. Then `ApproveCheckIn` / `RejectCheckIn` for the creator, authorising on challenge
+ownership. **Must surface the late-approval case:** `SettleCheckIn::approve()` returns a `Missed` row untouched
+when the rollover already closed the period, and a creator reviewing late has to be told that rather than shown
+a success message.
