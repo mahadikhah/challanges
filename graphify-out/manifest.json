@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "prompts/progress.md": {
-    "mtime": 1787609073.2159252,
-    "ast_hash": "e53539aef1946ab00df1a7041d3bc594",
+    "mtime": 1787609962.0282812,
+    "ast_hash": "6c21cfc4eddb664e745ba1c08a63af7f",
     "semantic_hash": ""
   },
   "prompts/task-01-setup.md": {
@@ -1230,8 +1230,8 @@
     "semantic_hash": ""
   },
   "app/Enums/CheckInStatus.php": {
-    "mtime": 1787603514.3314877,
-    "ast_hash": "5cf6174ff3ab0dcbddd2860b4b55407c",
+    "mtime": 1787610538.4095712,
+    "ast_hash": "b7df5b191e72711d6b01e2688a30e710",
     "semantic_hash": ""
   },
   "app/Enums/Concerns/HasTranslatedLabel.php": {
@@ -1542,6 +1542,26 @@
   "tests/Feature/Domain/EntitlementsTest.php": {
     "mtime": 1787609777.2096684,
     "ast_hash": "a9d8b2e3f8438e3f5434516cf2f6cba3",
+    "semantic_hash": ""
+  },
+  "app/Actions/Challenges/RollOverPeriod.php": {
+    "mtime": 1787610650.1887434,
+    "ast_hash": "546c256e9e32ff20052d9d11ef0fce69",
+    "semantic_hash": ""
+  },
+  "app/Actions/CheckIns/SettleCheckIn.php": {
+    "mtime": 1787610581.827857,
+    "ast_hash": "9518bf385137e9ee5de4391d00b5790f",
+    "semantic_hash": ""
+  },
+  "app/Exceptions/PeriodNotEndedException.php": {
+    "mtime": 1787610549.1725194,
+    "ast_hash": "384cd8fe1317039733d73d3534a4927e",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Domain/StreakEngineTest.php": {
+    "mtime": 1787610728.3223777,
+    "ast_hash": "1efc12112393af0d121f8d3e1234fb5e",
     "semantic_hash": ""
   }
 }

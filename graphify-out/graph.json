@@ -172,6 +172,173 @@
       "norm_label": "periodtype"
     },
     {
+      "label": "RollOverPeriod.php",
+      "file_type": "code",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "app_actions_challenges_rolloverperiod",
+      "community": 4,
+      "community_name": "ChallengePeriod",
+      "norm_label": "rolloverperiod.php"
+    },
+    {
+      "label": "RollOverPeriod",
+      "file_type": "code",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L37",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "app_actions_challenges_rolloverperiod_rolloverperiod",
+      "community": 4,
+      "community_name": "ChallengePeriod",
+      "norm_label": "rolloverperiod"
+    },
+    {
+      "label": ".__construct()",
+      "file_type": "code",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L48",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_actions_challenges_rolloverperiod_rolloverperiod_construct",
+      "community": 4,
+      "community_name": "ChallengePeriod",
+      "norm_label": ".__construct()"
+    },
+    {
+      "label": ".handle()",
+      "file_type": "code",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L60",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_actions_challenges_rolloverperiod_rolloverperiod_handle",
+      "community": 4,
+      "community_name": "ChallengePeriod",
+      "norm_label": ".handle()"
+    },
+    {
+      "label": ".participantsOwing()",
+      "file_type": "code",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L100",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_actions_challenges_rolloverperiod_rolloverperiod_participantsowing",
+      "community": 4,
+      "community_name": "ChallengePeriod",
+      "norm_label": ".participantsowing()"
+    },
+    {
+      "label": ".obligationFor()",
+      "file_type": "code",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L116",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_actions_challenges_rolloverperiod_rolloverperiod_obligationfor",
+      "community": 4,
+      "community_name": "ChallengePeriod",
+      "norm_label": ".obligationfor()"
+    },
+    {
+      "label": "SettleCheckIn.php",
+      "file_type": "code",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "app_actions_checkins_settlecheckin",
+      "community": 132,
+      "community_name": "CheckIn",
+      "norm_label": "settlecheckin.php"
+    },
+    {
+      "label": "SettleCheckIn",
+      "file_type": "code",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L37",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "app_actions_checkins_settlecheckin_settlecheckin",
+      "community": 132,
+      "community_name": "CheckIn",
+      "norm_label": "settlecheckin"
+    },
+    {
+      "label": ".approve()",
+      "file_type": "code",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L48",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_actions_checkins_settlecheckin_settlecheckin_approve",
+      "community": 132,
+      "community_name": "CheckIn",
+      "norm_label": ".approve()"
+    },
+    {
+      "label": ".close()",
+      "file_type": "code",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L60",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_actions_checkins_settlecheckin_settlecheckin_close",
+      "community": 132,
+      "community_name": "CheckIn",
+      "norm_label": ".close()"
+    },
+    {
+      "label": ".settle()",
+      "file_type": "code",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L72",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_actions_checkins_settlecheckin_settlecheckin_settle",
+      "community": 132,
+      "community_name": "CheckIn",
+      "norm_label": ".settle()"
+    },
+    {
+      "label": ".lockParticipant()",
+      "file_type": "code",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L102",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_actions_checkins_settlecheckin_settlecheckin_lockparticipant",
+      "community": 132,
+      "community_name": "CheckIn",
+      "norm_label": ".lockparticipant()"
+    },
+    {
+      "label": ".advance()",
+      "file_type": "code",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L127",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_actions_checkins_settlecheckin_settlecheckin_advance",
+      "community": 132,
+      "community_name": "CheckIn",
+      "norm_label": ".advance()"
+    },
+    {
+      "label": "CheckInStatus",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "checkinstatus",
+      "community": 132,
+      "community_name": "CheckIn",
+      "norm_label": "checkinstatus"
+    },
+    {
       "label": "ConsumeEntitlement.php",
       "file_type": "code",
       "source_file": "app/Actions/Entitlements/ConsumeEntitlement.php",
@@ -191,8 +358,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_actions_entitlements_consumeentitlement_consumeentitlement",
-      "community": 135,
-      "community_name": "Entitlement",
+      "community": 10,
+      "community_name": "EntitlementType.php",
       "norm_label": "consumeentitlement"
     },
     {
@@ -203,8 +370,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_actions_entitlements_consumeentitlement_consumeentitlement_construct",
-      "community": 135,
-      "community_name": "Entitlement",
+      "community": 156,
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": ".__construct()"
     },
     {
@@ -215,8 +382,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_actions_entitlements_consumeentitlement_consumeentitlement_handle",
-      "community": 135,
-      "community_name": "Entitlement",
+      "community": 10,
+      "community_name": "EntitlementType.php",
       "norm_label": ".handle()"
     },
     {
@@ -227,8 +394,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_actions_entitlements_consumeentitlement_consumeentitlement_available",
-      "community": 135,
-      "community_name": "Entitlement",
+      "community": 10,
+      "community_name": "EntitlementType.php",
       "norm_label": ".available()"
     },
     {
@@ -239,8 +406,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_actions_entitlements_consumeentitlement_consumeentitlement_spenton",
-      "community": 135,
-      "community_name": "Entitlement",
+      "community": 10,
+      "community_name": "EntitlementType.php",
       "norm_label": ".spenton()"
     },
     {
@@ -251,8 +418,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_actions_entitlements_consumeentitlement_consumeentitlement_nexttospend",
-      "community": 135,
-      "community_name": "Entitlement",
+      "community": 10,
+      "community_name": "EntitlementType.php",
       "norm_label": ".nexttospend()"
     },
     {
@@ -358,8 +525,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_actions_entitlements_purchaseentitlement_purchaseentitlement",
-      "community": 135,
-      "community_name": "Entitlement",
+      "community": 10,
+      "community_name": "EntitlementType.php",
       "norm_label": "purchaseentitlement"
     },
     {
@@ -370,8 +537,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_actions_entitlements_purchaseentitlement_purchaseentitlement_construct",
-      "community": 135,
-      "community_name": "Entitlement",
+      "community": 10,
+      "community_name": "EntitlementType.php",
       "norm_label": ".__construct()"
     },
     {
@@ -382,8 +549,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_actions_entitlements_purchaseentitlement_purchaseentitlement_handle",
-      "community": 135,
-      "community_name": "Entitlement",
+      "community": 10,
+      "community_name": "EntitlementType.php",
       "norm_label": ".handle()"
     },
     {
@@ -394,8 +561,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_actions_entitlements_purchaseentitlement_purchaseentitlement_priceof",
-      "community": 135,
-      "community_name": "Entitlement",
+      "community": 10,
+      "community_name": "EntitlementType.php",
       "norm_label": ".priceof()"
     },
     {
@@ -406,8 +573,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_actions_entitlements_purchaseentitlement_purchaseentitlement_slotpaidfor",
-      "community": 135,
-      "community_name": "Entitlement",
+      "community": 10,
+      "community_name": "EntitlementType.php",
       "norm_label": ".slotpaidfor()"
     },
     {
@@ -572,7 +739,7 @@
       "_origin": "ast",
       "id": "app_enums_challengestatus",
       "community": 30,
-      "community_name": "User.php",
+      "community_name": "Challenge.php",
       "norm_label": "challengestatus.php"
     },
     {
@@ -584,7 +751,7 @@
       "_origin": "ast",
       "id": "app_enums_challengestatus_acceptsjoins",
       "community": 30,
-      "community_name": "User.php",
+      "community_name": "Challenge.php",
       "norm_label": "acceptsjoins()"
     },
     {
@@ -596,7 +763,7 @@
       "_origin": "ast",
       "id": "app_enums_challengestatus_acceptscheckins",
       "community": 30,
-      "community_name": "User.php",
+      "community_name": "Challenge.php",
       "norm_label": "acceptscheckins()"
     },
     {
@@ -608,7 +775,7 @@
       "_origin": "ast",
       "id": "app_enums_challengestatus_isterminal",
       "community": 30,
-      "community_name": "User.php",
+      "community_name": "Challenge.php",
       "norm_label": "isterminal()"
     },
     {
@@ -619,7 +786,7 @@
       "_origin": "ast",
       "id": "app_enums_challengevisibility",
       "community": 30,
-      "community_name": "User.php",
+      "community_name": "Challenge.php",
       "norm_label": "challengevisibility.php"
     },
     {
@@ -631,7 +798,7 @@
       "_origin": "ast",
       "id": "app_enums_challengevisibility_shouldannounce",
       "community": 30,
-      "community_name": "User.php",
+      "community_name": "Challenge.php",
       "norm_label": "shouldannounce()"
     },
     {
@@ -718,6 +885,18 @@
       "norm_label": "breaksstreak()"
     },
     {
+      "label": "consumesFreeze()",
+      "file_type": "code",
+      "source_file": "app/Enums/CheckInStatus.php",
+      "source_location": "L113",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_enums_checkinstatus_consumesfreeze",
+      "community": 47,
+      "community_name": "CheckInStatus.php",
+      "norm_label": "consumesfreeze()"
+    },
+    {
       "label": "CoinTransactionReason.php",
       "file_type": "code",
       "source_file": "app/Enums/CoinTransactionReason.php",
@@ -725,7 +904,7 @@
       "_origin": "ast",
       "id": "app_enums_cointransactionreason",
       "community": 31,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community_name": "CoinTransactionReason.php",
       "norm_label": "cointransactionreason.php"
     },
     {
@@ -737,7 +916,7 @@
       "_origin": "ast",
       "id": "app_enums_cointransactionreason_iscredit",
       "community": 31,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community_name": "CoinTransactionReason.php",
       "norm_label": "iscredit()"
     },
     {
@@ -749,7 +928,7 @@
       "_origin": "ast",
       "id": "app_enums_cointransactionreason_isdebit",
       "community": 31,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community_name": "CoinTransactionReason.php",
       "norm_label": "isdebit()"
     },
     {
@@ -761,7 +940,7 @@
       "_origin": "ast",
       "id": "app_enums_cointransactionreason_sign",
       "community": 31,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community_name": "CoinTransactionReason.php",
       "norm_label": "sign()"
     },
     {
@@ -773,7 +952,7 @@
       "_origin": "ast",
       "id": "app_enums_cointransactionreason_allowsoverdraft",
       "community": 31,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community_name": "CoinTransactionReason.php",
       "norm_label": "allowsoverdraft()"
     },
     {
@@ -784,7 +963,7 @@
       "_origin": "ast",
       "id": "app_enums_concerns_hastranslatedlabel",
       "community": 30,
-      "community_name": "User.php",
+      "community_name": "Challenge.php",
       "norm_label": "hastranslatedlabel.php"
     },
     {
@@ -796,7 +975,7 @@
       "_origin": "ast",
       "id": "app_enums_concerns_hastranslatedlabel_label",
       "community": 30,
-      "community_name": "User.php",
+      "community_name": "Challenge.php",
       "norm_label": "label()"
     },
     {
@@ -808,7 +987,7 @@
       "_origin": "ast",
       "id": "app_enums_concerns_hastranslatedlabel_options",
       "community": 30,
-      "community_name": "User.php",
+      "community_name": "Challenge.php",
       "norm_label": "options()"
     },
     {
@@ -820,7 +999,7 @@
       "_origin": "ast",
       "id": "app_enums_concerns_hastranslatedlabel_translationgroup",
       "community": 30,
-      "community_name": "User.php",
+      "community_name": "Challenge.php",
       "norm_label": "translationgroup()"
     },
     {
@@ -994,7 +1173,7 @@
       "_origin": "ast",
       "id": "app_enums_invitestatus",
       "community": 195,
-      "community_name": "EconomySchemaTest.php",
+      "community_name": "User.php",
       "norm_label": "invitestatus.php"
     },
     {
@@ -1006,7 +1185,7 @@
       "_origin": "ast",
       "id": "app_enums_invitestatus_isclaimed",
       "community": 195,
-      "community_name": "EconomySchemaTest.php",
+      "community_name": "User.php",
       "norm_label": "isclaimed()"
     },
     {
@@ -1018,7 +1197,7 @@
       "_origin": "ast",
       "id": "app_enums_invitestatus_isopen",
       "community": 195,
-      "community_name": "EconomySchemaTest.php",
+      "community_name": "User.php",
       "norm_label": "isopen()"
     },
     {
@@ -1030,7 +1209,7 @@
       "_origin": "ast",
       "id": "app_enums_invitestatus_waspaid",
       "community": 195,
-      "community_name": "EconomySchemaTest.php",
+      "community_name": "User.php",
       "norm_label": "waspaid()"
     },
     {
@@ -1041,7 +1220,7 @@
       "_origin": "ast",
       "id": "app_enums_participantstatus",
       "community": 30,
-      "community_name": "User.php",
+      "community_name": "Challenge.php",
       "norm_label": "participantstatus.php"
     },
     {
@@ -1053,7 +1232,7 @@
       "_origin": "ast",
       "id": "app_enums_participantstatus_owescheckins",
       "community": 30,
-      "community_name": "User.php",
+      "community_name": "Challenge.php",
       "norm_label": "owescheckins()"
     },
     {
@@ -1065,7 +1244,7 @@
       "_origin": "ast",
       "id": "app_enums_participantstatus_isterminal",
       "community": 30,
-      "community_name": "User.php",
+      "community_name": "Challenge.php",
       "norm_label": "isterminal()"
     },
     {
@@ -1099,7 +1278,7 @@
       "_origin": "ast",
       "id": "app_enums_prooftype",
       "community": 30,
-      "community_name": "User.php",
+      "community_name": "Challenge.php",
       "norm_label": "prooftype.php"
     },
     {
@@ -1111,7 +1290,7 @@
       "_origin": "ast",
       "id": "app_enums_prooftype_isautoapproved",
       "community": 30,
-      "community_name": "User.php",
+      "community_name": "Challenge.php",
       "norm_label": "isautoapproved()"
     },
     {
@@ -1123,7 +1302,7 @@
       "_origin": "ast",
       "id": "app_enums_prooftype_requiresreview",
       "community": 30,
-      "community_name": "User.php",
+      "community_name": "Challenge.php",
       "norm_label": "requiresreview()"
     },
     {
@@ -1135,7 +1314,7 @@
       "_origin": "ast",
       "id": "app_enums_prooftype_supportspublicproof",
       "community": 30,
-      "community_name": "User.php",
+      "community_name": "Challenge.php",
       "norm_label": "supportspublicproof()"
     },
     {
@@ -1147,7 +1326,7 @@
       "_origin": "ast",
       "id": "app_enums_prooftype_expectstext",
       "community": 30,
-      "community_name": "User.php",
+      "community_name": "Challenge.php",
       "norm_label": "expectstext()"
     },
     {
@@ -1159,7 +1338,7 @@
       "_origin": "ast",
       "id": "app_enums_prooftype_expectsfile",
       "community": 30,
-      "community_name": "User.php",
+      "community_name": "Challenge.php",
       "norm_label": "expectsfile()"
     },
     {
@@ -1169,8 +1348,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_enums_reminderkind",
-      "community": 25,
-      "community_name": "ReminderDispatch.php",
+      "community": 195,
+      "community_name": "User.php",
       "norm_label": "reminderkind.php"
     },
     {
@@ -1181,8 +1360,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_enums_reminderkind_skipwhensettled",
-      "community": 25,
-      "community_name": "ReminderDispatch.php",
+      "community": 195,
+      "community_name": "User.php",
       "norm_label": "skipwhensettled()"
     },
     {
@@ -1274,7 +1453,7 @@
       "_origin": "ast",
       "id": "app_enums_starpaymentstatus",
       "community": 195,
-      "community_name": "EconomySchemaTest.php",
+      "community_name": "User.php",
       "norm_label": "starpaymentstatus.php"
     },
     {
@@ -1286,7 +1465,7 @@
       "_origin": "ast",
       "id": "app_enums_starpaymentstatus_ispaid",
       "community": 195,
-      "community_name": "EconomySchemaTest.php",
+      "community_name": "User.php",
       "norm_label": "ispaid()"
     },
     {
@@ -1298,7 +1477,7 @@
       "_origin": "ast",
       "id": "app_enums_starpaymentstatus_isrefundable",
       "community": 195,
-      "community_name": "EconomySchemaTest.php",
+      "community_name": "User.php",
       "norm_label": "isrefundable()"
     },
     {
@@ -1310,7 +1489,7 @@
       "_origin": "ast",
       "id": "app_enums_starpaymentstatus_isterminal",
       "community": 195,
-      "community_name": "EconomySchemaTest.php",
+      "community_name": "User.php",
       "norm_label": "isterminal()"
     },
     {
@@ -1320,8 +1499,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_exceptions_insufficientcoinsexception",
-      "community": 10,
-      "community_name": "EntitlementType.php",
+      "community": 31,
+      "community_name": "CoinTransactionReason.php",
       "norm_label": "insufficientcoinsexception.php"
     },
     {
@@ -1333,8 +1512,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_exceptions_insufficientcoinsexception_insufficientcoinsexception",
-      "community": 10,
-      "community_name": "EntitlementType.php",
+      "community": 31,
+      "community_name": "CoinTransactionReason.php",
       "norm_label": "insufficientcoinsexception"
     },
     {
@@ -1356,8 +1535,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_exceptions_insufficientcoinsexception_insufficientcoinsexception_construct",
-      "community": 10,
-      "community_name": "EntitlementType.php",
+      "community": 31,
+      "community_name": "CoinTransactionReason.php",
       "norm_label": ".__construct()"
     },
     {
@@ -1368,8 +1547,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_exceptions_insufficientcoinsexception_insufficientcoinsexception_shortfall",
-      "community": 10,
-      "community_name": "EntitlementType.php",
+      "community": 31,
+      "community_name": "CoinTransactionReason.php",
       "norm_label": ".shortfall()"
     },
     {
@@ -1406,6 +1585,42 @@
       "id": "app_exceptions_noentitlementavailableexception_noentitlementavailableexception_construct",
       "community": 10,
       "community_name": "EntitlementType.php",
+      "norm_label": ".__construct()"
+    },
+    {
+      "label": "PeriodNotEndedException.php",
+      "file_type": "code",
+      "source_file": "app/Exceptions/PeriodNotEndedException.php",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "app_exceptions_periodnotendedexception",
+      "community": 4,
+      "community_name": "ChallengePeriod",
+      "norm_label": "periodnotendedexception.php"
+    },
+    {
+      "label": "PeriodNotEndedException",
+      "file_type": "code",
+      "source_file": "app/Exceptions/PeriodNotEndedException.php",
+      "source_location": "L18",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "app_exceptions_periodnotendedexception_periodnotendedexception",
+      "community": 4,
+      "community_name": "ChallengePeriod",
+      "norm_label": "periodnotendedexception"
+    },
+    {
+      "label": ".__construct()",
+      "file_type": "code",
+      "source_file": "app/Exceptions/PeriodNotEndedException.php",
+      "source_location": "L20",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "app_exceptions_periodnotendedexception_periodnotendedexception_construct",
+      "community": 4,
+      "community_name": "ChallengePeriod",
       "norm_label": ".__construct()"
     },
     {
@@ -2074,7 +2289,7 @@
       "_origin": "ast",
       "id": "app_models_challenge",
       "community": 30,
-      "community_name": "User.php",
+      "community_name": "Challenge.php",
       "norm_label": "challenge.php"
     },
     {
@@ -2098,8 +2313,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challenge_challenge_creator",
-      "community": 15,
-      "community_name": "Challenge",
+      "community": 5,
+      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
       "norm_label": ".creator()"
     },
     {
@@ -2110,8 +2325,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challenge_challenge_periods",
-      "community": 180,
-      "community_name": "ChallengeParticipant",
+      "community": 15,
+      "community_name": "Challenge",
       "norm_label": ".periods()"
     },
     {
@@ -2122,8 +2337,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challenge_challenge_participants",
-      "community": 15,
-      "community_name": "Challenge",
+      "community": 180,
+      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\HasMany",
       "norm_label": ".participants()"
     },
     {
@@ -2206,7 +2421,7 @@
       "_origin": "ast",
       "id": "app_models_challengeparticipant",
       "community": 30,
-      "community_name": "User.php",
+      "community_name": "Challenge.php",
       "norm_label": "challengeparticipant.php"
     },
     {
@@ -2218,7 +2433,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_models_challengeparticipant_challengeparticipant",
-      "community": 180,
+      "community": 174,
       "community_name": "ChallengeParticipant",
       "norm_label": "challengeparticipant"
     },
@@ -2230,7 +2445,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challengeparticipant_challengeparticipant_challenge",
-      "community": 180,
+      "community": 174,
       "community_name": "ChallengeParticipant",
       "norm_label": ".challenge()"
     },
@@ -2242,7 +2457,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challengeparticipant_challengeparticipant_user",
-      "community": 180,
+      "community": 174,
       "community_name": "ChallengeParticipant",
       "norm_label": ".user()"
     },
@@ -2254,7 +2469,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challengeparticipant_challengeparticipant_checkins",
-      "community": 180,
+      "community": 174,
       "community_name": "ChallengeParticipant",
       "norm_label": ".checkins()"
     },
@@ -2266,7 +2481,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challengeparticipant_challengeparticipant_reminderdispatches",
-      "community": 180,
+      "community": 174,
       "community_name": "ChallengeParticipant",
       "norm_label": ".reminderdispatches()"
     },
@@ -2278,7 +2493,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challengeparticipant_challengeparticipant_freezesremaining",
-      "community": 180,
+      "community": 174,
       "community_name": "ChallengeParticipant",
       "norm_label": ".freezesremaining()"
     },
@@ -2290,7 +2505,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challengeparticipant_challengeparticipant_hasfreezeavailable",
-      "community": 180,
+      "community": 174,
       "community_name": "ChallengeParticipant",
       "norm_label": ".hasfreezeavailable()"
     },
@@ -2302,8 +2517,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challengeparticipant_challengeparticipant_owesperiod",
-      "community": 180,
-      "community_name": "ChallengeParticipant",
+      "community": 4,
+      "community_name": "ChallengePeriod",
       "norm_label": ".owesperiod()"
     },
     {
@@ -2314,7 +2529,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challengeparticipant_challengeparticipant_active",
-      "community": 180,
+      "community": 174,
       "community_name": "ChallengeParticipant",
       "norm_label": ".active()"
     },
@@ -2326,7 +2541,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challengeparticipant_challengeparticipant_casts",
-      "community": 180,
+      "community": 174,
       "community_name": "ChallengeParticipant",
       "norm_label": ".casts()"
     },
@@ -2350,7 +2565,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_models_challengeperiod_challengeperiod",
-      "community": 178,
+      "community": 4,
       "community_name": "ChallengePeriod",
       "norm_label": "challengeperiod"
     },
@@ -2362,7 +2577,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challengeperiod_challengeperiod_challenge",
-      "community": 178,
+      "community": 4,
       "community_name": "ChallengePeriod",
       "norm_label": ".challenge()"
     },
@@ -2375,7 +2590,7 @@
       "_origin": "ast",
       "id": "app_models_challengeperiod_challengeperiod_checkins",
       "community": 180,
-      "community_name": "ChallengeParticipant",
+      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\HasMany",
       "norm_label": ".checkins()"
     },
     {
@@ -2386,8 +2601,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challengeperiod_challengeperiod_reminderdispatches",
-      "community": 178,
-      "community_name": "ChallengePeriod",
+      "community": 180,
+      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\HasMany",
       "norm_label": ".reminderdispatches()"
     },
     {
@@ -2398,7 +2613,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challengeperiod_challengeperiod_contains",
-      "community": 178,
+      "community": 4,
       "community_name": "ChallengePeriod",
       "norm_label": ".contains()"
     },
@@ -2410,7 +2625,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challengeperiod_challengeperiod_hasended",
-      "community": 178,
+      "community": 4,
       "community_name": "ChallengePeriod",
       "norm_label": ".hasended()"
     },
@@ -2422,7 +2637,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challengeperiod_challengeperiod_isrolledover",
-      "community": 178,
+      "community": 4,
       "community_name": "ChallengePeriod",
       "norm_label": ".isrolledover()"
     },
@@ -2434,7 +2649,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challengeperiod_challengeperiod_awaitingrollover",
-      "community": 178,
+      "community": 4,
       "community_name": "ChallengePeriod",
       "norm_label": ".awaitingrollover()"
     },
@@ -2446,7 +2661,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_challengeperiod_challengeperiod_casts",
-      "community": 178,
+      "community": 4,
       "community_name": "ChallengePeriod",
       "norm_label": ".casts()"
     },
@@ -2457,8 +2672,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_checkin",
-      "community": 47,
-      "community_name": "CheckInStatus.php",
+      "community": 28,
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": "checkin.php"
     },
     {
@@ -2470,8 +2685,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_models_checkin_checkin",
-      "community": 5,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 132,
+      "community_name": "CheckIn",
       "norm_label": "checkin"
     },
     {
@@ -2482,8 +2697,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_checkin_checkin_participant",
-      "community": 5,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 132,
+      "community_name": "CheckIn",
       "norm_label": ".participant()"
     },
     {
@@ -2494,8 +2709,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_checkin_checkin_period",
-      "community": 5,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 132,
+      "community_name": "CheckIn",
       "norm_label": ".period()"
     },
     {
@@ -2506,8 +2721,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_checkin_checkin_reviewer",
-      "community": 5,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 132,
+      "community_name": "CheckIn",
       "norm_label": ".reviewer()"
     },
     {
@@ -2518,8 +2733,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_checkin_checkin_matchesexpectedphrase",
-      "community": 5,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 132,
+      "community_name": "CheckIn",
       "norm_label": ".matchesexpectedphrase()"
     },
     {
@@ -2530,8 +2745,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_checkin_checkin_normalisephrase",
-      "community": 5,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 132,
+      "community_name": "CheckIn",
       "norm_label": ".normalisephrase()"
     },
     {
@@ -2542,8 +2757,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_checkin_checkin_awaitingreview",
-      "community": 5,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 132,
+      "community_name": "CheckIn",
       "norm_label": ".awaitingreview()"
     },
     {
@@ -2554,8 +2769,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_checkin_checkin_unsettled",
-      "community": 5,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 132,
+      "community_name": "CheckIn",
       "norm_label": ".unsettled()"
     },
     {
@@ -2566,8 +2781,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_checkin_checkin_casts",
-      "community": 5,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community": 132,
+      "community_name": "CheckIn",
       "norm_label": ".casts()"
     },
     {
@@ -2578,7 +2793,7 @@
       "_origin": "ast",
       "id": "app_models_cointransaction",
       "community": 31,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community_name": "CoinTransactionReason.php",
       "norm_label": "cointransaction.php"
     },
     {
@@ -2591,7 +2806,7 @@
       "_origin": "ast",
       "id": "app_models_cointransaction_cointransaction",
       "community": 156,
-      "community_name": "User",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": "cointransaction"
     },
     {
@@ -2603,7 +2818,7 @@
       "_origin": "ast",
       "id": "app_models_cointransaction_cointransaction_user",
       "community": 156,
-      "community_name": "User",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": ".user()"
     },
     {
@@ -2614,8 +2829,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_cointransaction_cointransaction_reference",
-      "community": 156,
-      "community_name": "User",
+      "community": 31,
+      "community_name": "CoinTransactionReason.php",
       "norm_label": ".reference()"
     },
     {
@@ -2627,7 +2842,7 @@
       "_origin": "ast",
       "id": "app_models_cointransaction_cointransaction_iscredit",
       "community": 156,
-      "community_name": "User",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": ".iscredit()"
     },
     {
@@ -2639,7 +2854,7 @@
       "_origin": "ast",
       "id": "app_models_cointransaction_cointransaction_isdebit",
       "community": 156,
-      "community_name": "User",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": ".isdebit()"
     },
     {
@@ -2651,7 +2866,7 @@
       "_origin": "ast",
       "id": "app_models_cointransaction_cointransaction_magnitude",
       "community": 156,
-      "community_name": "User",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": ".magnitude()"
     },
     {
@@ -2663,7 +2878,7 @@
       "_origin": "ast",
       "id": "app_models_cointransaction_cointransaction_hasconsistentsign",
       "community": 156,
-      "community_name": "User",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": ".hasconsistentsign()"
     },
     {
@@ -2675,7 +2890,7 @@
       "_origin": "ast",
       "id": "app_models_cointransaction_cointransaction_foruser",
       "community": 156,
-      "community_name": "User",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": ".foruser()"
     },
     {
@@ -2687,7 +2902,7 @@
       "_origin": "ast",
       "id": "app_models_cointransaction_cointransaction_casts",
       "community": 156,
-      "community_name": "User",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": ".casts()"
     },
     {
@@ -2697,8 +2912,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_entitlement",
-      "community": 195,
-      "community_name": "EconomySchemaTest.php",
+      "community": 10,
+      "community_name": "EntitlementType.php",
       "norm_label": "entitlement.php"
     },
     {
@@ -2710,8 +2925,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_models_entitlement_entitlement",
-      "community": 135,
-      "community_name": "Entitlement",
+      "community": 10,
+      "community_name": "EntitlementType.php",
       "norm_label": "entitlement"
     },
     {
@@ -2722,8 +2937,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_entitlement_entitlement_user",
-      "community": 135,
-      "community_name": "Entitlement",
+      "community": 5,
+      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
       "norm_label": ".user()"
     },
     {
@@ -2734,8 +2949,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_entitlement_entitlement_challenge",
-      "community": 135,
-      "community_name": "Entitlement",
+      "community": 5,
+      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
       "norm_label": ".challenge()"
     },
     {
@@ -2746,8 +2961,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_entitlement_entitlement_isconsumed",
-      "community": 135,
-      "community_name": "Entitlement",
+      "community": 10,
+      "community_name": "EntitlementType.php",
       "norm_label": ".isconsumed()"
     },
     {
@@ -2758,8 +2973,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_entitlement_entitlement_isavailable",
-      "community": 135,
-      "community_name": "Entitlement",
+      "community": 10,
+      "community_name": "EntitlementType.php",
       "norm_label": ".isavailable()"
     },
     {
@@ -2770,8 +2985,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_entitlement_entitlement_waspaidfor",
-      "community": 135,
-      "community_name": "Entitlement",
+      "community": 10,
+      "community_name": "EntitlementType.php",
       "norm_label": ".waspaidfor()"
     },
     {
@@ -2782,8 +2997,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_entitlement_entitlement_available",
-      "community": 135,
-      "community_name": "Entitlement",
+      "community": 10,
+      "community_name": "EntitlementType.php",
       "norm_label": ".available()"
     },
     {
@@ -2793,8 +3008,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_models_entitlement_php_entitlementtype",
-      "community": 135,
-      "community_name": "Entitlement",
+      "community": 10,
+      "community_name": "EntitlementType.php",
       "norm_label": "entitlementtype"
     },
     {
@@ -2805,8 +3020,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_entitlement_entitlement_consumed",
-      "community": 135,
-      "community_name": "Entitlement",
+      "community": 28,
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": ".consumed()"
     },
     {
@@ -2817,8 +3032,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_entitlement_entitlement_casts",
-      "community": 135,
-      "community_name": "Entitlement",
+      "community": 10,
+      "community_name": "EntitlementType.php",
       "norm_label": ".casts()"
     },
     {
@@ -2829,7 +3044,7 @@
       "_origin": "ast",
       "id": "app_models_invite",
       "community": 195,
-      "community_name": "EconomySchemaTest.php",
+      "community_name": "User.php",
       "norm_label": "invite.php"
     },
     {
@@ -2960,8 +3175,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_reminderdispatch",
-      "community": 25,
-      "community_name": "ReminderDispatch.php",
+      "community": 195,
+      "community_name": "User.php",
       "norm_label": "reminderdispatch.php"
     },
     {
@@ -3033,8 +3248,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_reminderdispatch_reminderdispatch_due",
-      "community": 178,
-      "community_name": "ChallengePeriod",
+      "community": 5,
+      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
       "norm_label": ".due()"
     },
     {
@@ -3056,8 +3271,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_setting",
-      "community": 31,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 28,
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": "setting.php"
     },
     {
@@ -3093,7 +3308,7 @@
       "_origin": "ast",
       "id": "app_models_starpayment",
       "community": 195,
-      "community_name": "EconomySchemaTest.php",
+      "community_name": "User.php",
       "norm_label": "starpayment.php"
     },
     {
@@ -3308,7 +3523,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models_user",
-      "community": 30,
+      "community": 195,
       "community_name": "User.php",
       "norm_label": "user.php"
     },
@@ -3321,7 +3536,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_models_user_user",
-      "community": 156,
+      "community": 120,
       "community_name": "User",
       "norm_label": "user"
     },
@@ -3333,7 +3548,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_user_user_referrer",
-      "community": 156,
+      "community": 120,
       "community_name": "User",
       "norm_label": ".referrer()"
     },
@@ -3346,7 +3561,7 @@
       "_origin": "ast",
       "id": "app_models_user_user_referrals",
       "community": 180,
-      "community_name": "ChallengeParticipant",
+      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\HasMany",
       "norm_label": ".referrals()"
     },
     {
@@ -3358,7 +3573,7 @@
       "_origin": "ast",
       "id": "app_models_user_user_createdchallenges",
       "community": 180,
-      "community_name": "ChallengeParticipant",
+      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\HasMany",
       "norm_label": ".createdchallenges()"
     },
     {
@@ -3370,7 +3585,7 @@
       "_origin": "ast",
       "id": "app_models_user_user_participations",
       "community": 180,
-      "community_name": "ChallengeParticipant",
+      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\HasMany",
       "norm_label": ".participations()"
     },
     {
@@ -3382,7 +3597,7 @@
       "_origin": "ast",
       "id": "app_models_user_user_cointransactions",
       "community": 180,
-      "community_name": "ChallengeParticipant",
+      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\HasMany",
       "norm_label": ".cointransactions()"
     },
     {
@@ -3394,7 +3609,7 @@
       "_origin": "ast",
       "id": "app_models_user_user_entitlements",
       "community": 180,
-      "community_name": "ChallengeParticipant",
+      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\HasMany",
       "norm_label": ".entitlements()"
     },
     {
@@ -3406,7 +3621,7 @@
       "_origin": "ast",
       "id": "app_models_user_user_sentinvites",
       "community": 180,
-      "community_name": "ChallengeParticipant",
+      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\HasMany",
       "norm_label": ".sentinvites()"
     },
     {
@@ -3417,7 +3632,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_user_user_claimedinvite",
-      "community": 156,
+      "community": 120,
       "community_name": "User",
       "norm_label": ".claimedinvite()"
     },
@@ -3430,7 +3645,7 @@
       "_origin": "ast",
       "id": "app_models_user_user_starpayments",
       "community": 180,
-      "community_name": "ChallengeParticipant",
+      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\HasMany",
       "norm_label": ".starpayments()"
     },
     {
@@ -3441,7 +3656,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_user_user_conversation",
-      "community": 156,
+      "community": 120,
       "community_name": "User",
       "norm_label": ".conversation()"
     },
@@ -3453,7 +3668,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_user_user_preferredlocale",
-      "community": 156,
+      "community": 120,
       "community_name": "User",
       "norm_label": ".preferredlocale()"
     },
@@ -3465,7 +3680,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_user_user_istelegramuser",
-      "community": 156,
+      "community": 120,
       "community_name": "User",
       "norm_label": ".istelegramuser()"
     },
@@ -3477,7 +3692,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_user_user_hasverifiedchannel",
-      "community": 156,
+      "community": 120,
       "community_name": "User",
       "norm_label": ".hasverifiedchannel()"
     },
@@ -3489,7 +3704,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_user_user_admins",
-      "community": 156,
+      "community": 120,
       "community_name": "User",
       "norm_label": ".admins()"
     },
@@ -3501,7 +3716,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_user_user_telegram",
-      "community": 156,
+      "community": 120,
       "community_name": "User",
       "norm_label": ".telegram()"
     },
@@ -3513,7 +3728,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_models_user_user_casts",
-      "community": 156,
+      "community": 120,
       "community_name": "User",
       "norm_label": ".casts()"
     },
@@ -3669,7 +3884,7 @@
       "_origin": "ast",
       "id": "app_services_coinledger",
       "community": 31,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community_name": "CoinTransactionReason.php",
       "norm_label": "coinledger.php"
     },
     {
@@ -3682,7 +3897,7 @@
       "_origin": "ast",
       "id": "app_services_coinledger_coinledger",
       "community": 156,
-      "community_name": "User",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": "coinledger"
     },
     {
@@ -3694,7 +3909,7 @@
       "_origin": "ast",
       "id": "app_services_coinledger_coinledger_balancefor",
       "community": 156,
-      "community_name": "User",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": ".balancefor()"
     },
     {
@@ -3706,7 +3921,7 @@
       "_origin": "ast",
       "id": "app_services_coinledger_coinledger_sum",
       "community": 156,
-      "community_name": "User",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": ".sum()"
     },
     {
@@ -3718,7 +3933,7 @@
       "_origin": "ast",
       "id": "app_services_coinledger_coinledger_drift",
       "community": 156,
-      "community_name": "User",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": ".drift()"
     },
     {
@@ -3730,7 +3945,7 @@
       "_origin": "ast",
       "id": "app_services_coinledger_coinledger_canafford",
       "community": 156,
-      "community_name": "User",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": ".canafford()"
     },
     {
@@ -3742,7 +3957,7 @@
       "_origin": "ast",
       "id": "app_services_coinledger_coinledger_findbykey",
       "community": 156,
-      "community_name": "User",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": ".findbykey()"
     },
     {
@@ -3754,7 +3969,7 @@
       "_origin": "ast",
       "id": "app_services_coinledger_coinledger_credit",
       "community": 156,
-      "community_name": "User",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": ".credit()"
     },
     {
@@ -3766,7 +3981,7 @@
       "_origin": "ast",
       "id": "app_services_coinledger_coinledger_debit",
       "community": 156,
-      "community_name": "User",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": ".debit()"
     },
     {
@@ -3778,7 +3993,7 @@
       "_origin": "ast",
       "id": "app_services_coinledger_coinledger_lockuser",
       "community": 156,
-      "community_name": "User",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": ".lockuser()"
     },
     {
@@ -3790,7 +4005,7 @@
       "_origin": "ast",
       "id": "app_services_coinledger_coinledger_record",
       "community": 156,
-      "community_name": "User",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": ".record()"
     },
     {
@@ -3802,7 +4017,7 @@
       "_origin": "ast",
       "id": "app_services_coinledger_coinledger_assertbelongsto",
       "community": 156,
-      "community_name": "User",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": ".assertbelongsto()"
     },
     {
@@ -3814,7 +4029,7 @@
       "_origin": "ast",
       "id": "app_services_coinledger_coinledger_write",
       "community": 156,
-      "community_name": "User",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": ".write()"
     },
     {
@@ -3826,7 +4041,7 @@
       "_origin": "ast",
       "id": "app_services_coinledger_coinledger_idof",
       "community": 156,
-      "community_name": "User",
+      "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": ".idof()"
     },
     {
@@ -5423,7 +5638,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "config_auth",
-      "community": 30,
+      "community": 195,
       "community_name": "User.php",
       "norm_label": "auth.php"
     },
@@ -5577,7 +5792,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "database_factories_botconversationfactory",
-      "community": 30,
+      "community": 195,
       "community_name": "User.php",
       "norm_label": "botconversationfactory.php"
     },
@@ -5684,7 +5899,7 @@
       "_origin": "ast",
       "id": "database_factories_challengefactory",
       "community": 30,
-      "community_name": "User.php",
+      "community_name": "Challenge.php",
       "norm_label": "challengefactory.php"
     },
     {
@@ -5861,7 +6076,7 @@
       "_origin": "ast",
       "id": "database_factories_challengeparticipantfactory",
       "community": 30,
-      "community_name": "User.php",
+      "community_name": "Challenge.php",
       "norm_label": "challengeparticipantfactory.php"
     },
     {
@@ -5991,7 +6206,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "database_factories_challengeperiodfactory",
-      "community": 30,
+      "community": 195,
       "community_name": "User.php",
       "norm_label": "challengeperiodfactory.php"
     },
@@ -6086,8 +6301,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "database_factories_checkinfactory",
-      "community": 47,
-      "community_name": "CheckInStatus.php",
+      "community": 28,
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": "checkinfactory.php"
     },
     {
@@ -6100,7 +6315,7 @@
       "_origin": "ast",
       "id": "database_factories_checkinfactory_checkinfactory",
       "community": 178,
-      "community_name": "ChallengePeriod",
+      "community_name": "CheckInFactory",
       "norm_label": "checkinfactory"
     },
     {
@@ -6111,8 +6326,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "database_factories_checkinfactory_checkinfactory_definition",
-      "community": 178,
-      "community_name": "ChallengePeriod",
+      "community": 174,
+      "community_name": "ChallengeParticipant",
       "norm_label": ".definition()"
     },
     {
@@ -6124,7 +6339,7 @@
       "_origin": "ast",
       "id": "database_factories_checkinfactory_checkinfactory_on",
       "community": 178,
-      "community_name": "ChallengePeriod",
+      "community_name": "CheckInFactory",
       "norm_label": ".on()"
     },
     {
@@ -6135,7 +6350,7 @@
       "_origin": "ast",
       "id": "database_factories_checkinfactory_php_static",
       "community": 178,
-      "community_name": "ChallengePeriod",
+      "community_name": "CheckInFactory",
       "norm_label": "static"
     },
     {
@@ -6147,7 +6362,7 @@
       "_origin": "ast",
       "id": "database_factories_checkinfactory_checkinfactory_submitted",
       "community": 178,
-      "community_name": "ChallengePeriod",
+      "community_name": "CheckInFactory",
       "norm_label": ".submitted()"
     },
     {
@@ -6159,7 +6374,7 @@
       "_origin": "ast",
       "id": "database_factories_checkinfactory_checkinfactory_approved",
       "community": 178,
-      "community_name": "ChallengePeriod",
+      "community_name": "CheckInFactory",
       "norm_label": ".approved()"
     },
     {
@@ -6171,7 +6386,7 @@
       "_origin": "ast",
       "id": "database_factories_checkinfactory_checkinfactory_rejected",
       "community": 178,
-      "community_name": "ChallengePeriod",
+      "community_name": "CheckInFactory",
       "norm_label": ".rejected()"
     },
     {
@@ -6183,7 +6398,7 @@
       "_origin": "ast",
       "id": "database_factories_checkinfactory_checkinfactory_missed",
       "community": 178,
-      "community_name": "ChallengePeriod",
+      "community_name": "CheckInFactory",
       "norm_label": ".missed()"
     },
     {
@@ -6195,7 +6410,7 @@
       "_origin": "ast",
       "id": "database_factories_checkinfactory_checkinfactory_frozen",
       "community": 178,
-      "community_name": "ChallengePeriod",
+      "community_name": "CheckInFactory",
       "norm_label": ".frozen()"
     },
     {
@@ -6207,7 +6422,7 @@
       "_origin": "ast",
       "id": "database_factories_checkinfactory_checkinfactory_withphrase",
       "community": 178,
-      "community_name": "ChallengePeriod",
+      "community_name": "CheckInFactory",
       "norm_label": ".withphrase()"
     },
     {
@@ -6217,8 +6432,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "database_factories_cointransactionfactory",
-      "community": 31,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 195,
+      "community_name": "User.php",
       "norm_label": "cointransactionfactory.php"
     },
     {
@@ -6230,8 +6445,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "database_factories_cointransactionfactory_cointransactionfactory",
-      "community": 31,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 183,
+      "community_name": "CoinTransactionFactory",
       "norm_label": "cointransactionfactory"
     },
     {
@@ -6242,8 +6457,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "database_factories_cointransactionfactory_cointransactionfactory_definition",
-      "community": 156,
-      "community_name": "User",
+      "community": 183,
+      "community_name": "CoinTransactionFactory",
       "norm_label": ".definition()"
     },
     {
@@ -6254,8 +6469,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "database_factories_cointransactionfactory_cointransactionfactory_because",
-      "community": 31,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 183,
+      "community_name": "CoinTransactionFactory",
       "norm_label": ".because()"
     },
     {
@@ -6265,8 +6480,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "database_factories_cointransactionfactory_php_cointransactionreason",
-      "community": 156,
-      "community_name": "User",
+      "community": 183,
+      "community_name": "CoinTransactionFactory",
       "norm_label": "cointransactionreason"
     },
     {
@@ -6276,8 +6491,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "database_factories_cointransactionfactory_php_static",
-      "community": 31,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 183,
+      "community_name": "CoinTransactionFactory",
       "norm_label": "static"
     },
     {
@@ -6288,8 +6503,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "database_factories_cointransactionfactory_cointransactionfactory_leavingbalance",
-      "community": 31,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 183,
+      "community_name": "CoinTransactionFactory",
       "norm_label": ".leavingbalance()"
     },
     {
@@ -6300,8 +6515,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "database_factories_cointransactionfactory_cointransactionfactory_about",
-      "community": 31,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 183,
+      "community_name": "CoinTransactionFactory",
       "norm_label": ".about()"
     },
     {
@@ -6312,8 +6527,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "database_factories_cointransactionfactory_cointransactionfactory_keyedby",
-      "community": 31,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community": 183,
+      "community_name": "CoinTransactionFactory",
       "norm_label": ".keyedby()"
     },
     {
@@ -6323,8 +6538,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "database_factories_entitlementfactory",
-      "community": 30,
-      "community_name": "User.php",
+      "community": 10,
+      "community_name": "EntitlementType.php",
       "norm_label": "entitlementfactory.php"
     },
     {
@@ -6477,7 +6692,7 @@
       "_origin": "ast",
       "id": "database_factories_invitefactory",
       "community": 195,
-      "community_name": "EconomySchemaTest.php",
+      "community_name": "User.php",
       "norm_label": "invitefactory.php"
     },
     {
@@ -6559,8 +6774,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "database_factories_reminderdispatchfactory",
-      "community": 25,
-      "community_name": "ReminderDispatch.php",
+      "community": 195,
+      "community_name": "User.php",
       "norm_label": "reminderdispatchfactory.php"
     },
     {
@@ -6573,7 +6788,7 @@
       "_origin": "ast",
       "id": "database_factories_reminderdispatchfactory_reminderdispatchfactory",
       "community": 25,
-      "community_name": "ReminderDispatch.php",
+      "community_name": "ReminderDispatchFactory",
       "norm_label": "reminderdispatchfactory"
     },
     {
@@ -6585,7 +6800,7 @@
       "_origin": "ast",
       "id": "database_factories_reminderdispatchfactory_reminderdispatchfactory_definition",
       "community": 25,
-      "community_name": "ReminderDispatch.php",
+      "community_name": "ReminderDispatchFactory",
       "norm_label": ".definition()"
     },
     {
@@ -6597,7 +6812,7 @@
       "_origin": "ast",
       "id": "database_factories_reminderdispatchfactory_reminderdispatchfactory_on",
       "community": 25,
-      "community_name": "ReminderDispatch.php",
+      "community_name": "ReminderDispatchFactory",
       "norm_label": ".on()"
     },
     {
@@ -6608,7 +6823,7 @@
       "_origin": "ast",
       "id": "database_factories_reminderdispatchfactory_php_static",
       "community": 25,
-      "community_name": "ReminderDispatch.php",
+      "community_name": "ReminderDispatchFactory",
       "norm_label": "static"
     },
     {
@@ -6620,7 +6835,7 @@
       "_origin": "ast",
       "id": "database_factories_reminderdispatchfactory_reminderdispatchfactory_ofkind",
       "community": 25,
-      "community_name": "ReminderDispatch.php",
+      "community_name": "ReminderDispatchFactory",
       "norm_label": ".ofkind()"
     },
     {
@@ -6631,7 +6846,7 @@
       "_origin": "ast",
       "id": "reminderkind",
       "community": 25,
-      "community_name": "ReminderDispatch.php",
+      "community_name": "ReminderDispatchFactory",
       "norm_label": "reminderkind"
     },
     {
@@ -6643,7 +6858,7 @@
       "_origin": "ast",
       "id": "database_factories_reminderdispatchfactory_reminderdispatchfactory_scheduledfor",
       "community": 25,
-      "community_name": "ReminderDispatch.php",
+      "community_name": "ReminderDispatchFactory",
       "norm_label": ".scheduledfor()"
     },
     {
@@ -6655,7 +6870,7 @@
       "_origin": "ast",
       "id": "database_factories_reminderdispatchfactory_reminderdispatchfactory_upcoming",
       "community": 25,
-      "community_name": "ReminderDispatch.php",
+      "community_name": "ReminderDispatchFactory",
       "norm_label": ".upcoming()"
     },
     {
@@ -6667,7 +6882,7 @@
       "_origin": "ast",
       "id": "database_factories_reminderdispatchfactory_reminderdispatchfactory_sent",
       "community": 25,
-      "community_name": "ReminderDispatch.php",
+      "community_name": "ReminderDispatchFactory",
       "norm_label": ".sent()"
     },
     {
@@ -6679,7 +6894,7 @@
       "_origin": "ast",
       "id": "database_factories_reminderdispatchfactory_reminderdispatchfactory_stalled",
       "community": 25,
-      "community_name": "ReminderDispatch.php",
+      "community_name": "ReminderDispatchFactory",
       "norm_label": ".stalled()"
     },
     {
@@ -6760,7 +6975,7 @@
       "_origin": "ast",
       "id": "database_factories_starpaymentfactory",
       "community": 195,
-      "community_name": "EconomySchemaTest.php",
+      "community_name": "User.php",
       "norm_label": "starpaymentfactory.php"
     },
     {
@@ -6866,8 +7081,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "database_factories_telegramupdatefactory",
-      "community": 30,
-      "community_name": "User.php",
+      "community": 28,
+      "community_name": "Illuminate\\Database\\Eloquent\\Builder",
       "norm_label": "telegramupdatefactory.php"
     },
     {
@@ -6997,7 +7212,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "database_factories_userfactory",
-      "community": 30,
+      "community": 195,
       "community_name": "User.php",
       "norm_label": "userfactory.php"
     },
@@ -8155,8 +8370,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "package_devdependencies_stylistic_eslint_plugin",
-      "community": 6,
-      "community_name": "devDependencies",
+      "community": 209,
+      "community_name": "@stylistic/eslint-plugin",
       "norm_label": "@stylistic/eslint-plugin"
     },
     {
@@ -8166,8 +8381,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "stylistic_eslint_plugin",
-      "community": 6,
-      "community_name": "devDependencies",
+      "community": 209,
+      "community_name": "@stylistic/eslint-plugin",
       "norm_label": "@stylistic/eslint-plugin"
     },
     {
@@ -8199,8 +8414,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "package_devdependencies_babel_plugin_react_compiler",
-      "community": 6,
-      "community_name": "devDependencies",
+      "community": 208,
+      "community_name": "babel-plugin-react-compiler",
       "norm_label": "babel-plugin-react-compiler"
     },
     {
@@ -8210,8 +8425,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "babel_plugin_react_compiler",
-      "community": 6,
-      "community_name": "devDependencies",
+      "community": 208,
+      "community_name": "babel-plugin-react-compiler",
       "norm_label": "babel-plugin-react-compiler"
     },
     {
@@ -8287,8 +8502,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "package_devdependencies_eslint_plugin_import",
-      "community": 132,
-      "community_name": "eslint-plugin-import",
+      "community": 6,
+      "community_name": "devDependencies",
       "norm_label": "eslint-plugin-import"
     },
     {
@@ -8298,8 +8513,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "eslint_plugin_import",
-      "community": 132,
-      "community_name": "eslint-plugin-import",
+      "community": 6,
+      "community_name": "devDependencies",
       "norm_label": "eslint-plugin-import"
     },
     {
@@ -8331,8 +8546,8 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "package_devdependencies_eslint_plugin_react_hooks",
-      "community": 214,
-      "community_name": "eslint-plugin-react-hooks",
+      "community": 6,
+      "community_name": "devDependencies",
       "norm_label": "eslint-plugin-react-hooks"
     },
     {
@@ -8342,8 +8557,8 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "eslint_plugin_react_hooks",
-      "community": 214,
-      "community_name": "eslint-plugin-react-hooks",
+      "community": 6,
+      "community_name": "devDependencies",
       "norm_label": "eslint-plugin-react-hooks"
     },
     {
@@ -9332,8 +9547,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_app",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "app.tsx"
     },
     {
@@ -9344,8 +9559,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_app_withapp",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "withapp()"
     },
     {
@@ -9355,8 +9570,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_alert_error",
-      "community": 7,
-      "community_name": "cn",
+      "community": 203,
+      "community_name": "alert.tsx",
       "norm_label": "alert-error.tsx"
     },
     {
@@ -9367,8 +9582,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_alert_error_alerterror",
-      "community": 7,
-      "community_name": "cn",
+      "community": 203,
+      "community_name": "alert.tsx",
       "norm_label": "alerterror()"
     },
     {
@@ -9461,8 +9676,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_app_header_appheader",
-      "community": 7,
-      "community_name": "cn",
+      "community": 135,
+      "community_name": "utils.ts",
       "norm_label": "appheader()"
     },
     {
@@ -9622,7 +9837,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_appearance_tabs",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "appearance-tabs.tsx"
     },
@@ -9634,7 +9849,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_appearance_tabs_appearancetoggletab",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "appearancetoggletab()"
     },
@@ -9645,8 +9860,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_breadcrumbs",
-      "community": 37,
-      "community_name": "index.ts",
+      "community": 182,
+      "community_name": "breadcrumbs.tsx",
       "norm_label": "breadcrumbs.tsx"
     },
     {
@@ -9669,7 +9884,7 @@
       "_origin": "ast",
       "id": "resources_js_components_delete_user",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "delete-user.tsx"
     },
     {
@@ -9681,7 +9896,7 @@
       "_origin": "ast",
       "id": "resources_js_components_delete_user_deleteuser",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "deleteuser()"
     },
     {
@@ -9692,7 +9907,7 @@
       "_origin": "ast",
       "id": "resources_js_components_heading",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "heading.tsx"
     },
     {
@@ -9704,7 +9919,7 @@
       "_origin": "ast",
       "id": "resources_js_components_heading_heading",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "heading()"
     },
     {
@@ -9715,7 +9930,7 @@
       "_origin": "ast",
       "id": "resources_js_components_input_error",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "input-error.tsx"
     },
     {
@@ -9727,7 +9942,7 @@
       "_origin": "ast",
       "id": "resources_js_components_input_error_inputerror",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "inputerror()"
     },
     {
@@ -9738,7 +9953,7 @@
       "_origin": "ast",
       "id": "resources_js_components_language_switcher",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "language-switcher.tsx"
     },
     {
@@ -9750,7 +9965,7 @@
       "_origin": "ast",
       "id": "resources_js_components_language_switcher_languageswitcher",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "languageswitcher()"
     },
     {
@@ -9830,7 +10045,7 @@
       "_origin": "ast",
       "id": "resources_js_components_password_input",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "password-input.tsx"
     },
     {
@@ -9842,7 +10057,7 @@
       "_origin": "ast",
       "id": "resources_js_components_password_input_passwordinput",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "passwordinput()"
     },
     {
@@ -9853,7 +10068,7 @@
       "_origin": "ast",
       "id": "resources_js_components_text_link",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "text-link.tsx"
     },
     {
@@ -9866,7 +10081,7 @@
       "_origin": "ast",
       "id": "resources_js_components_text_link_props",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "props"
     },
     {
@@ -9878,7 +10093,7 @@
       "_origin": "ast",
       "id": "resources_js_components_text_link_textlink",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "textlink()"
     },
     {
@@ -9888,8 +10103,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_ui_alert",
-      "community": 7,
-      "community_name": "cn",
+      "community": 203,
+      "community_name": "alert.tsx",
       "norm_label": "alert.tsx"
     },
     {
@@ -9899,8 +10114,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "resources_js_components_ui_alert_alertvariants",
-      "community": 7,
-      "community_name": "cn",
+      "community": 203,
+      "community_name": "alert.tsx",
       "norm_label": "alertvariants"
     },
     {
@@ -9911,8 +10126,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_alert_alert",
-      "community": 7,
-      "community_name": "cn",
+      "community": 203,
+      "community_name": "alert.tsx",
       "norm_label": "alert()"
     },
     {
@@ -9923,8 +10138,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_alert_alerttitle",
-      "community": 7,
-      "community_name": "cn",
+      "community": 203,
+      "community_name": "alert.tsx",
       "norm_label": "alerttitle()"
     },
     {
@@ -9935,8 +10150,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_alert_alertdescription",
-      "community": 7,
-      "community_name": "cn",
+      "community": 203,
+      "community_name": "alert.tsx",
       "norm_label": "alertdescription()"
     },
     {
@@ -9946,8 +10161,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_ui_avatar",
-      "community": 12,
-      "community_name": "app-header.tsx",
+      "community": 13,
+      "community_name": "dropdown-menu.tsx",
       "norm_label": "avatar.tsx"
     },
     {
@@ -9958,8 +10173,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_avatar_avatar",
-      "community": 12,
-      "community_name": "app-header.tsx",
+      "community": 13,
+      "community_name": "dropdown-menu.tsx",
       "norm_label": "avatar()"
     },
     {
@@ -9970,8 +10185,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_avatar_avatarimage",
-      "community": 12,
-      "community_name": "app-header.tsx",
+      "community": 13,
+      "community_name": "dropdown-menu.tsx",
       "norm_label": "avatarimage()"
     },
     {
@@ -9982,8 +10197,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_avatar_avatarfallback",
-      "community": 12,
-      "community_name": "app-header.tsx",
+      "community": 13,
+      "community_name": "dropdown-menu.tsx",
       "norm_label": "avatarfallback()"
     },
     {
@@ -10027,8 +10242,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_ui_breadcrumb",
-      "community": 37,
-      "community_name": "index.ts",
+      "community": 182,
+      "community_name": "breadcrumbs.tsx",
       "norm_label": "breadcrumb.tsx"
     },
     {
@@ -10039,8 +10254,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_breadcrumb_breadcrumb",
-      "community": 37,
-      "community_name": "index.ts",
+      "community": 182,
+      "community_name": "breadcrumbs.tsx",
       "norm_label": "breadcrumb()"
     },
     {
@@ -10051,8 +10266,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_breadcrumb_breadcrumblist",
-      "community": 37,
-      "community_name": "index.ts",
+      "community": 182,
+      "community_name": "breadcrumbs.tsx",
       "norm_label": "breadcrumblist()"
     },
     {
@@ -10063,8 +10278,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_breadcrumb_breadcrumbitem",
-      "community": 37,
-      "community_name": "index.ts",
+      "community": 182,
+      "community_name": "breadcrumbs.tsx",
       "norm_label": "breadcrumbitem()"
     },
     {
@@ -10075,8 +10290,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_breadcrumb_breadcrumblink",
-      "community": 37,
-      "community_name": "index.ts",
+      "community": 182,
+      "community_name": "breadcrumbs.tsx",
       "norm_label": "breadcrumblink()"
     },
     {
@@ -10087,8 +10302,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_breadcrumb_breadcrumbpage",
-      "community": 37,
-      "community_name": "index.ts",
+      "community": 182,
+      "community_name": "breadcrumbs.tsx",
       "norm_label": "breadcrumbpage()"
     },
     {
@@ -10099,8 +10314,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_breadcrumb_breadcrumbseparator",
-      "community": 37,
-      "community_name": "index.ts",
+      "community": 182,
+      "community_name": "breadcrumbs.tsx",
       "norm_label": "breadcrumbseparator()"
     },
     {
@@ -10111,8 +10326,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_breadcrumb_breadcrumbellipsis",
-      "community": 37,
-      "community_name": "index.ts",
+      "community": 182,
+      "community_name": "breadcrumbs.tsx",
       "norm_label": "breadcrumbellipsis()"
     },
     {
@@ -10123,7 +10338,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_button",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "button.tsx"
     },
     {
@@ -10134,7 +10349,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_button_buttonvariants",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "buttonvariants"
     },
     {
@@ -10146,7 +10361,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_button_button",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "button()"
     },
     {
@@ -10240,7 +10455,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_checkbox",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "checkbox.tsx"
     },
     {
@@ -10252,7 +10467,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_checkbox_checkbox",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "checkbox()"
     },
     {
@@ -10310,7 +10525,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_dialog",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "dialog.tsx"
     },
     {
@@ -10322,7 +10537,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_dialog_dialog",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "dialog()"
     },
     {
@@ -10334,7 +10549,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_dialog_dialogtrigger",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "dialogtrigger()"
     },
     {
@@ -10346,7 +10561,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_dialog_dialogportal",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "dialogportal()"
     },
     {
@@ -10358,7 +10573,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_dialog_dialogclose",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "dialogclose()"
     },
     {
@@ -10370,7 +10585,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_dialog_dialogoverlay",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "dialogoverlay()"
     },
     {
@@ -10382,7 +10597,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_dialog_dialogcontent",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "dialogcontent()"
     },
     {
@@ -10394,7 +10609,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_dialog_dialogheader",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "dialogheader()"
     },
     {
@@ -10406,7 +10621,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_dialog_dialogfooter",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "dialogfooter()"
     },
     {
@@ -10418,7 +10633,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_dialog_dialogtitle",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "dialogtitle()"
     },
     {
@@ -10430,7 +10645,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_dialog_dialogdescription",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "dialogdescription()"
     },
     {
@@ -10668,7 +10883,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_input",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "input.tsx"
     },
     {
@@ -10680,7 +10895,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_input_input",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "input()"
     },
     {
@@ -10691,7 +10906,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_label",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "label.tsx"
     },
     {
@@ -10703,7 +10918,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_label_label",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "label()"
     },
     {
@@ -10998,8 +11213,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_ui_separator",
-      "community": 9,
-      "community_name": "sidebar.tsx",
+      "community": 135,
+      "community_name": "utils.ts",
       "norm_label": "separator.tsx"
     },
     {
@@ -11010,8 +11225,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_separator_separator",
-      "community": 9,
-      "community_name": "sidebar.tsx",
+      "community": 135,
+      "community_name": "utils.ts",
       "norm_label": "separator()"
     },
     {
@@ -11189,8 +11404,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_sidebar_sidebarprovider",
-      "community": 13,
-      "community_name": "dropdown-menu.tsx",
+      "community": 207,
+      "community_name": "useIsMobile",
       "norm_label": "sidebarprovider()"
     },
     {
@@ -11498,7 +11713,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_ui_sonner",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "sonner.tsx"
     },
@@ -11510,7 +11725,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_sonner_toaster",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "toaster()"
     },
@@ -11522,7 +11737,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_spinner",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "spinner.tsx"
     },
     {
@@ -11534,7 +11749,7 @@
       "_origin": "ast",
       "id": "resources_js_components_ui_spinner_spinner",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "spinner()"
     },
     {
@@ -11544,8 +11759,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_ui_toggle_group",
-      "community": 7,
-      "community_name": "cn",
+      "community": 204,
+      "community_name": "toggle-group.tsx",
       "norm_label": "toggle-group.tsx"
     },
     {
@@ -11555,8 +11770,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "resources_js_components_ui_toggle_group_togglegroupcontext",
-      "community": 7,
-      "community_name": "cn",
+      "community": 204,
+      "community_name": "toggle-group.tsx",
       "norm_label": "togglegroupcontext"
     },
     {
@@ -11567,8 +11782,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_toggle_group_togglegroup",
-      "community": 7,
-      "community_name": "cn",
+      "community": 204,
+      "community_name": "toggle-group.tsx",
       "norm_label": "togglegroup()"
     },
     {
@@ -11579,8 +11794,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_toggle_group_togglegroupitem",
-      "community": 7,
-      "community_name": "cn",
+      "community": 204,
+      "community_name": "toggle-group.tsx",
       "norm_label": "togglegroupitem()"
     },
     {
@@ -11590,8 +11805,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_ui_toggle",
-      "community": 7,
-      "community_name": "cn",
+      "community": 204,
+      "community_name": "toggle-group.tsx",
       "norm_label": "toggle.tsx"
     },
     {
@@ -11601,8 +11816,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "resources_js_components_ui_toggle_togglevariants",
-      "community": 7,
-      "community_name": "cn",
+      "community": 204,
+      "community_name": "toggle-group.tsx",
       "norm_label": "togglevariants"
     },
     {
@@ -11613,8 +11828,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_toggle_toggle",
-      "community": 7,
-      "community_name": "cn",
+      "community": 204,
+      "community_name": "toggle-group.tsx",
       "norm_label": "toggle()"
     },
     {
@@ -11636,8 +11851,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_ui_tooltip_tooltipprovider",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "tooltipprovider()"
     },
     {
@@ -11683,8 +11898,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_user_info",
-      "community": 12,
-      "community_name": "app-header.tsx",
+      "community": 13,
+      "community_name": "dropdown-menu.tsx",
       "norm_label": "user-info.tsx"
     },
     {
@@ -11695,8 +11910,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_components_user_info_userinfo",
-      "community": 12,
-      "community_name": "app-header.tsx",
+      "community": 13,
+      "community_name": "dropdown-menu.tsx",
       "norm_label": "userinfo()"
     },
     {
@@ -11742,7 +11957,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "use-appearance.tsx"
     },
@@ -11755,7 +11970,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_resolvedappearance",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "resolvedappearance"
     },
@@ -11768,7 +11983,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_appearance",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "appearance"
     },
@@ -11781,7 +11996,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_useappearancereturn",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "useappearancereturn"
     },
@@ -11792,7 +12007,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_listeners",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "listeners"
     },
@@ -11804,7 +12019,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_prefersdark",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "prefersdark()"
     },
@@ -11816,7 +12031,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_setcookie",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "setcookie()"
     },
@@ -11828,7 +12043,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_getstoredappearance",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "getstoredappearance()"
     },
@@ -11840,7 +12055,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_isdarkmode",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "isdarkmode()"
     },
@@ -11852,7 +12067,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_applytheme",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "applytheme()"
     },
@@ -11864,7 +12079,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_subscribe",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "subscribe()"
     },
@@ -11876,7 +12091,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_notify",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "notify()"
     },
@@ -11888,7 +12103,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_mediaquery",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "mediaquery()"
     },
@@ -11900,7 +12115,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_handlesystemthemechange",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "handlesystemthemechange()"
     },
@@ -11912,7 +12127,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_initializetheme",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "initializetheme()"
     },
@@ -11924,7 +12139,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_appearance_useappearance",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "useappearance()"
     },
@@ -11997,8 +12212,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_hooks_use_current_url",
-      "community": 9,
-      "community_name": "sidebar.tsx",
+      "community": 135,
+      "community_name": "utils.ts",
       "norm_label": "use-current-url.ts"
     },
     {
@@ -12010,8 +12225,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_current_url_iscurrenturlfn",
-      "community": 9,
-      "community_name": "sidebar.tsx",
+      "community": 135,
+      "community_name": "utils.ts",
       "norm_label": "iscurrenturlfn"
     },
     {
@@ -12023,8 +12238,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_current_url_iscurrentorparenturlfn",
-      "community": 9,
-      "community_name": "sidebar.tsx",
+      "community": 135,
+      "community_name": "utils.ts",
       "norm_label": "iscurrentorparenturlfn"
     },
     {
@@ -12036,8 +12251,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_current_url_whencurrenturlfn",
-      "community": 9,
-      "community_name": "sidebar.tsx",
+      "community": 135,
+      "community_name": "utils.ts",
       "norm_label": "whencurrenturlfn"
     },
     {
@@ -12049,8 +12264,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_current_url_usecurrenturlreturn",
-      "community": 9,
-      "community_name": "sidebar.tsx",
+      "community": 135,
+      "community_name": "utils.ts",
       "norm_label": "usecurrenturlreturn"
     },
     {
@@ -12061,8 +12276,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_current_url_usecurrenturl",
-      "community": 9,
-      "community_name": "sidebar.tsx",
+      "community": 135,
+      "community_name": "utils.ts",
       "norm_label": "usecurrenturl()"
     },
     {
@@ -12084,7 +12299,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_flash_toast_useflashtoast",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "useflashtoast()"
     },
@@ -12095,8 +12310,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_hooks_use_initials",
-      "community": 12,
-      "community_name": "app-header.tsx",
+      "community": 13,
+      "community_name": "dropdown-menu.tsx",
       "norm_label": "use-initials.tsx"
     },
     {
@@ -12108,8 +12323,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_initials_getinitialsfn",
-      "community": 12,
-      "community_name": "app-header.tsx",
+      "community": 13,
+      "community_name": "dropdown-menu.tsx",
       "norm_label": "getinitialsfn"
     },
     {
@@ -12120,8 +12335,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_initials_getinitial",
-      "community": 12,
-      "community_name": "app-header.tsx",
+      "community": 13,
+      "community_name": "dropdown-menu.tsx",
       "norm_label": "getinitial()"
     },
     {
@@ -12132,8 +12347,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_initials_useinitials",
-      "community": 12,
-      "community_name": "app-header.tsx",
+      "community": 13,
+      "community_name": "dropdown-menu.tsx",
       "norm_label": "useinitials()"
     },
     {
@@ -12179,8 +12394,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_hooks_use_mobile",
-      "community": 13,
-      "community_name": "dropdown-menu.tsx",
+      "community": 207,
+      "community_name": "useIsMobile",
       "norm_label": "use-mobile.tsx"
     },
     {
@@ -12191,8 +12406,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_mobile_mediaquerylistener",
-      "community": 13,
-      "community_name": "dropdown-menu.tsx",
+      "community": 207,
+      "community_name": "useIsMobile",
       "norm_label": "mediaquerylistener()"
     },
     {
@@ -12203,8 +12418,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_mobile_issmallerthanbreakpoint",
-      "community": 13,
-      "community_name": "dropdown-menu.tsx",
+      "community": 207,
+      "community_name": "useIsMobile",
       "norm_label": "issmallerthanbreakpoint()"
     },
     {
@@ -12215,8 +12430,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_mobile_getserversnapshot",
-      "community": 13,
-      "community_name": "dropdown-menu.tsx",
+      "community": 207,
+      "community_name": "useIsMobile",
       "norm_label": "getserversnapshot()"
     },
     {
@@ -12227,8 +12442,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_hooks_use_mobile_useismobile",
-      "community": 13,
-      "community_name": "dropdown-menu.tsx",
+      "community": 207,
+      "community_name": "useIsMobile",
       "norm_label": "useismobile()"
     },
     {
@@ -12239,7 +12454,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_translation",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "use-translation.ts"
     },
     {
@@ -12251,7 +12466,7 @@
       "_origin": "ast",
       "id": "resources_js_hooks_use_translation_usetranslation",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "usetranslation()"
     },
     {
@@ -12273,8 +12488,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_layouts_app_layout_applayout",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "applayout()"
     },
     {
@@ -12330,8 +12545,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_layouts_auth_layout",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "auth-layout.tsx"
     },
     {
@@ -12342,8 +12557,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_layouts_auth_layout_authlayout",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "authlayout()"
     },
     {
@@ -12376,8 +12591,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_layouts_auth_auth_simple_layout",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "auth-simple-layout.tsx"
     },
     {
@@ -12388,8 +12603,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_layouts_auth_auth_simple_layout_authsimplelayout",
-      "community": 4,
-      "community_name": "use-appearance.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "authsimplelayout()"
     },
     {
@@ -12422,8 +12637,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_layouts_settings_layout",
-      "community": 9,
-      "community_name": "sidebar.tsx",
+      "community": 135,
+      "community_name": "utils.ts",
       "norm_label": "layout.tsx"
     },
     {
@@ -12433,8 +12648,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "resources_js_layouts_settings_layout_sidebarnavitems",
-      "community": 9,
-      "community_name": "sidebar.tsx",
+      "community": 135,
+      "community_name": "utils.ts",
       "norm_label": "sidebarnavitems"
     },
     {
@@ -12445,8 +12660,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_layouts_settings_layout_settingslayout",
-      "community": 9,
-      "community_name": "sidebar.tsx",
+      "community": 135,
+      "community_name": "utils.ts",
       "norm_label": "settingslayout()"
     },
     {
@@ -12457,7 +12672,7 @@
       "_origin": "ast",
       "id": "resources_js_lib_i18n",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "i18n.ts"
     },
     {
@@ -12470,7 +12685,7 @@
       "_origin": "ast",
       "id": "resources_js_lib_i18n_translationreplacements",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "translationreplacements"
     },
     {
@@ -12482,7 +12697,7 @@
       "_origin": "ast",
       "id": "resources_js_lib_i18n_translate",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "translate()"
     },
     {
@@ -12492,7 +12707,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_lib_utils",
-      "community": 0,
+      "community": 135,
       "community_name": "utils.ts",
       "norm_label": "utils.ts"
     },
@@ -12516,8 +12731,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "resources_js_lib_utils_tourl",
-      "community": 9,
-      "community_name": "sidebar.tsx",
+      "community": 135,
+      "community_name": "utils.ts",
       "norm_label": "tourl()"
     },
     {
@@ -12528,7 +12743,7 @@
       "_origin": "ast",
       "id": "resources_js_miniapp_localization",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "miniapp/localization.ts"
     },
     {
@@ -12539,7 +12754,7 @@
       "_origin": "ast",
       "id": "resources_js_miniapp_localization_fallback",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "fallback"
     },
     {
@@ -12551,7 +12766,7 @@
       "_origin": "ast",
       "id": "resources_js_miniapp_localization_readpayload",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "readpayload()"
     },
     {
@@ -12562,7 +12777,7 @@
       "_origin": "ast",
       "id": "resources_js_miniapp_localization_localization",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "localization"
     },
     {
@@ -12574,7 +12789,7 @@
       "_origin": "ast",
       "id": "resources_js_miniapp_localization_t",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "t()"
     },
     {
@@ -12585,7 +12800,7 @@
       "_origin": "ast",
       "id": "resources_js_miniapp_main",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "main.tsx"
     },
     {
@@ -12596,7 +12811,7 @@
       "_origin": "ast",
       "id": "resources_js_miniapp_main_rootelement",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "rootelement"
     },
     {
@@ -12607,7 +12822,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_confirm_password",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "confirm-password.tsx"
     },
     {
@@ -12619,7 +12834,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_confirm_password_confirmpassword",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "confirmpassword()"
     },
     {
@@ -12630,7 +12845,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_forgot_password",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "forgot-password.tsx"
     },
     {
@@ -12642,7 +12857,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_forgot_password_forgotpassword",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "forgotpassword()"
     },
     {
@@ -12653,7 +12868,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_login",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "login.tsx"
     },
     {
@@ -12666,7 +12881,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_login_props",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "props"
     },
     {
@@ -12678,7 +12893,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_login_login",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "login()"
     },
     {
@@ -12689,7 +12904,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_register",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "register.tsx"
     },
     {
@@ -12702,7 +12917,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_register_props",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "props"
     },
     {
@@ -12714,7 +12929,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_register_register",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "register()"
     },
     {
@@ -12725,7 +12940,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_reset_password",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "reset-password.tsx"
     },
     {
@@ -12738,7 +12953,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_reset_password_props",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "props"
     },
     {
@@ -12750,7 +12965,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_reset_password_resetpassword",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "resetpassword()"
     },
     {
@@ -12761,7 +12976,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_verify_email",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "verify-email.tsx"
     },
     {
@@ -12773,7 +12988,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_verify_email_verifyemail",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "verifyemail()"
     },
     {
@@ -12807,7 +13022,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_settings_appearance",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "appearance.tsx"
     },
     {
@@ -12819,7 +13034,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_settings_appearance_appearance",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "appearance()"
     },
     {
@@ -12830,7 +13045,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_settings_profile",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "profile.tsx"
     },
     {
@@ -12843,7 +13058,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_settings_profile_pageprops",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "pageprops"
     },
     {
@@ -12855,7 +13070,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_settings_profile_profile",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "profile()"
     },
     {
@@ -12866,7 +13081,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_settings_security",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "security.tsx"
     },
     {
@@ -12879,7 +13094,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_settings_security_props",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "props"
     },
     {
@@ -12891,7 +13106,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_settings_security_security",
       "community": 0,
-      "community_name": "utils.ts",
+      "community_name": "delete-user.tsx",
       "norm_label": "security()"
     },
     {
@@ -12925,7 +13140,7 @@
       "_origin": "ast",
       "id": "resources_js_types_auth",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "auth.ts"
     },
     {
@@ -12937,8 +13152,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_types_auth_user",
-      "community": 12,
-      "community_name": "app-header.tsx",
+      "community": 13,
+      "community_name": "dropdown-menu.tsx",
       "norm_label": "user"
     },
     {
@@ -12951,7 +13166,7 @@
       "_origin": "ast",
       "id": "resources_js_types_auth_auth",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "auth"
     },
     {
@@ -12962,7 +13177,7 @@
       "_origin": "ast",
       "id": "resources_js_types_global_d",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "global.d.ts"
     },
     {
@@ -12973,7 +13188,7 @@
       "_origin": "ast",
       "id": "resources_js_types_global_d_react",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "react"
     },
     {
@@ -12986,7 +13201,7 @@
       "_origin": "ast",
       "id": "resources_js_types_global_d_inputhtmlattributes",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "inputhtmlattributes"
     },
     {
@@ -12997,7 +13212,7 @@
       "_origin": "ast",
       "id": "resources_js_types_global_d_inertiajs_core",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "@inertiajs/core"
     },
     {
@@ -13010,7 +13225,7 @@
       "_origin": "ast",
       "id": "resources_js_types_global_d_inertiaconfig",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "inertiaconfig"
     },
     {
@@ -13032,7 +13247,7 @@
       "_origin": "ast",
       "id": "resources_js_types_localization",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "types/localization.ts"
     },
     {
@@ -13045,7 +13260,7 @@
       "_origin": "ast",
       "id": "resources_js_types_localization_direction",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "direction"
     },
     {
@@ -13058,7 +13273,7 @@
       "_origin": "ast",
       "id": "resources_js_types_localization_localeoption",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "localeoption"
     },
     {
@@ -13071,7 +13286,7 @@
       "_origin": "ast",
       "id": "resources_js_types_localization_translations",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "translations"
     },
     {
@@ -13084,7 +13299,7 @@
       "_origin": "ast",
       "id": "resources_js_types_localization_localizationpayload",
       "community": 24,
-      "community_name": "miniapp/localization.ts",
+      "community_name": "use-appearance.tsx",
       "norm_label": "localizationpayload"
     },
     {
@@ -13183,8 +13398,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "resources_js_types_ui_authlayoutprops",
-      "community": 12,
-      "community_name": "app-header.tsx",
+      "community": 37,
+      "community_name": "index.ts",
       "norm_label": "authlayoutprops"
     },
     {
@@ -13304,8 +13519,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_auth_authenticationtest",
-      "community": 11,
-      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
+      "community": 120,
+      "community_name": "User",
       "norm_label": "authenticationtest.php"
     },
     {
@@ -13317,8 +13532,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "tests_feature_auth_authenticationtest_authenticationtest",
-      "community": 11,
-      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
+      "community": 120,
+      "community_name": "User",
       "norm_label": "authenticationtest"
     },
     {
@@ -13329,8 +13544,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_auth_authenticationtest_authenticationtest_test_login_screen_can_be_rendered",
-      "community": 11,
-      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
+      "community": 120,
+      "community_name": "User",
       "norm_label": ".test_login_screen_can_be_rendered()"
     },
     {
@@ -13341,8 +13556,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_auth_authenticationtest_authenticationtest_test_users_can_authenticate_using_the_login_screen",
-      "community": 11,
-      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
+      "community": 120,
+      "community_name": "User",
       "norm_label": ".test_users_can_authenticate_using_the_login_screen()"
     },
     {
@@ -13353,8 +13568,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_auth_authenticationtest_authenticationtest_test_users_with_two_factor_enabled_are_redirected_to_two_factor_challenge",
-      "community": 11,
-      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
+      "community": 120,
+      "community_name": "User",
       "norm_label": ".test_users_with_two_factor_enabled_are_redirected_to_two_factor_challenge()"
     },
     {
@@ -13365,8 +13580,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_auth_authenticationtest_authenticationtest_test_users_can_not_authenticate_with_invalid_password",
-      "community": 11,
-      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
+      "community": 120,
+      "community_name": "User",
       "norm_label": ".test_users_can_not_authenticate_with_invalid_password()"
     },
     {
@@ -13377,8 +13592,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_auth_authenticationtest_authenticationtest_test_users_can_logout",
-      "community": 11,
-      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
+      "community": 120,
+      "community_name": "User",
       "norm_label": ".test_users_can_logout()"
     },
     {
@@ -13389,8 +13604,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_auth_authenticationtest_authenticationtest_test_users_are_rate_limited",
-      "community": 11,
-      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
+      "community": 120,
+      "community_name": "User",
       "norm_label": ".test_users_are_rate_limited()"
     },
     {
@@ -13401,7 +13616,7 @@
       "_origin": "ast",
       "id": "tests_feature_auth_emailverificationtest",
       "community": 120,
-      "community_name": "EmailVerificationTest",
+      "community_name": "User",
       "norm_label": "emailverificationtest.php"
     },
     {
@@ -13414,7 +13629,7 @@
       "_origin": "ast",
       "id": "tests_feature_auth_emailverificationtest_emailverificationtest",
       "community": 120,
-      "community_name": "EmailVerificationTest",
+      "community_name": "User",
       "norm_label": "emailverificationtest"
     },
     {
@@ -13426,7 +13641,7 @@
       "_origin": "ast",
       "id": "tests_feature_auth_emailverificationtest_emailverificationtest_setup",
       "community": 120,
-      "community_name": "EmailVerificationTest",
+      "community_name": "User",
       "norm_label": ".setup()"
     },
     {
@@ -13438,7 +13653,7 @@
       "_origin": "ast",
       "id": "tests_feature_auth_emailverificationtest_emailverificationtest_test_email_verification_screen_can_be_rendered",
       "community": 120,
-      "community_name": "EmailVerificationTest",
+      "community_name": "User",
       "norm_label": ".test_email_verification_screen_can_be_rendered()"
     },
     {
@@ -13450,7 +13665,7 @@
       "_origin": "ast",
       "id": "tests_feature_auth_emailverificationtest_emailverificationtest_test_email_can_be_verified",
       "community": 120,
-      "community_name": "EmailVerificationTest",
+      "community_name": "User",
       "norm_label": ".test_email_can_be_verified()"
     },
     {
@@ -13462,7 +13677,7 @@
       "_origin": "ast",
       "id": "tests_feature_auth_emailverificationtest_emailverificationtest_test_email_is_not_verified_with_invalid_hash",
       "community": 120,
-      "community_name": "EmailVerificationTest",
+      "community_name": "User",
       "norm_label": ".test_email_is_not_verified_with_invalid_hash()"
     },
     {
@@ -13474,7 +13689,7 @@
       "_origin": "ast",
       "id": "tests_feature_auth_emailverificationtest_emailverificationtest_test_email_is_not_verified_with_invalid_user_id",
       "community": 120,
-      "community_name": "EmailVerificationTest",
+      "community_name": "User",
       "norm_label": ".test_email_is_not_verified_with_invalid_user_id()"
     },
     {
@@ -13486,7 +13701,7 @@
       "_origin": "ast",
       "id": "tests_feature_auth_emailverificationtest_emailverificationtest_test_verified_user_is_redirected_to_dashboard_from_verification_prompt",
       "community": 120,
-      "community_name": "EmailVerificationTest",
+      "community_name": "User",
       "norm_label": ".test_verified_user_is_redirected_to_dashboard_from_verification_prompt()"
     },
     {
@@ -13498,7 +13713,7 @@
       "_origin": "ast",
       "id": "tests_feature_auth_emailverificationtest_emailverificationtest_test_already_verified_user_visiting_verification_link_is_redirected_without_firing_event_again",
       "community": 120,
-      "community_name": "EmailVerificationTest",
+      "community_name": "User",
       "norm_label": ".test_already_verified_user_visiting_verification_link_is_redirected_without_firing_event_again()"
     },
     {
@@ -13821,7 +14036,7 @@
       "_origin": "ast",
       "id": "tests_feature_domain_challengeschematest",
       "community": 30,
-      "community_name": "User.php",
+      "community_name": "Challenge.php",
       "norm_label": "challengeschematest.php"
     },
     {
@@ -13832,7 +14047,7 @@
       "_origin": "ast",
       "id": "tests_feature_domain_coinledgerconcurrencytest",
       "community": 31,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community_name": "CoinTransactionReason.php",
       "norm_label": "coinledgerconcurrencytest.php"
     },
     {
@@ -13844,7 +14059,7 @@
       "_origin": "ast",
       "id": "tests_feature_domain_coinledgerconcurrencytest_inparallel",
       "community": 31,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community_name": "CoinTransactionReason.php",
       "norm_label": "inparallel()"
     },
     {
@@ -13855,7 +14070,7 @@
       "_origin": "ast",
       "id": "tests_feature_domain_coinledgerconcurrencytest_php_closure",
       "community": 31,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community_name": "CoinTransactionReason.php",
       "norm_label": "closure"
     },
     {
@@ -13866,7 +14081,7 @@
       "_origin": "ast",
       "id": "tests_feature_domain_coinledgerlocktest",
       "community": 31,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community_name": "CoinTransactionReason.php",
       "norm_label": "coinledgerlocktest.php"
     },
     {
@@ -13877,7 +14092,7 @@
       "_origin": "ast",
       "id": "tests_feature_domain_coinledgertest",
       "community": 31,
-      "community_name": "Illuminate\\Database\\Eloquent\\Model",
+      "community_name": "CoinTransactionReason.php",
       "norm_label": "coinledgertest.php"
     },
     {
@@ -13888,7 +14103,7 @@
       "_origin": "ast",
       "id": "tests_feature_domain_economyschematest",
       "community": 195,
-      "community_name": "EconomySchemaTest.php",
+      "community_name": "User.php",
       "norm_label": "economyschematest.php"
     },
     {
@@ -13910,8 +14125,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_domain_entitlementstest_fund",
-      "community": 10,
-      "community_name": "EntitlementType.php",
+      "community": 120,
+      "community_name": "User",
       "norm_label": "fund()"
     },
     {
@@ -13948,6 +14163,53 @@
       "community": 15,
       "community_name": "Challenge",
       "norm_label": "boundariesasseenfrom()"
+    },
+    {
+      "label": "StreakEngineTest.php",
+      "file_type": "code",
+      "source_file": "tests/Feature/Domain/StreakEngineTest.php",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "tests_feature_domain_streakenginetest",
+      "community": 4,
+      "community_name": "ChallengePeriod",
+      "norm_label": "streakenginetest.php"
+    },
+    {
+      "label": "endedPeriod()",
+      "file_type": "code",
+      "source_file": "tests/Feature/Domain/StreakEngineTest.php",
+      "source_location": "L25",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "tests_feature_domain_streakenginetest_endedperiod",
+      "community": 4,
+      "community_name": "ChallengePeriod",
+      "norm_label": "endedperiod()"
+    },
+    {
+      "label": "openPeriod()",
+      "file_type": "code",
+      "source_file": "tests/Feature/Domain/StreakEngineTest.php",
+      "source_location": "L36",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "tests_feature_domain_streakenginetest_openperiod",
+      "community": 4,
+      "community_name": "ChallengePeriod",
+      "norm_label": "openperiod()"
+    },
+    {
+      "label": "obligation()",
+      "file_type": "code",
+      "source_file": "tests/Feature/Domain/StreakEngineTest.php",
+      "source_location": "L47",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "tests_feature_domain_streakenginetest_obligation",
+      "community": 4,
+      "community_name": "ChallengePeriod",
+      "norm_label": "obligation()"
     },
     {
       "label": "Feature/ExampleTest.php",
@@ -14037,8 +14299,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_feature_settings_profileupdatetest",
-      "community": 11,
-      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
+      "community": 205,
+      "community_name": "ProfileUpdateTest",
       "norm_label": "profileupdatetest.php"
     },
     {
@@ -14050,8 +14312,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "tests_feature_settings_profileupdatetest_profileupdatetest",
-      "community": 11,
-      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
+      "community": 205,
+      "community_name": "ProfileUpdateTest",
       "norm_label": "profileupdatetest"
     },
     {
@@ -14062,8 +14324,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_settings_profileupdatetest_profileupdatetest_test_profile_page_is_displayed",
-      "community": 11,
-      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
+      "community": 205,
+      "community_name": "ProfileUpdateTest",
       "norm_label": ".test_profile_page_is_displayed()"
     },
     {
@@ -14074,8 +14336,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_settings_profileupdatetest_profileupdatetest_test_profile_information_can_be_updated",
-      "community": 11,
-      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
+      "community": 205,
+      "community_name": "ProfileUpdateTest",
       "norm_label": ".test_profile_information_can_be_updated()"
     },
     {
@@ -14086,8 +14348,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_settings_profileupdatetest_profileupdatetest_test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged",
-      "community": 11,
-      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
+      "community": 205,
+      "community_name": "ProfileUpdateTest",
       "norm_label": ".test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged()"
     },
     {
@@ -14098,8 +14360,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_settings_profileupdatetest_profileupdatetest_test_user_can_delete_their_account",
-      "community": 11,
-      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
+      "community": 205,
+      "community_name": "ProfileUpdateTest",
       "norm_label": ".test_user_can_delete_their_account()"
     },
     {
@@ -14110,8 +14372,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "tests_feature_settings_profileupdatetest_profileupdatetest_test_correct_password_must_be_provided_to_delete_account",
-      "community": 11,
-      "community_name": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
+      "community": 205,
+      "community_name": "ProfileUpdateTest",
       "norm_label": ".test_correct_password_must_be_provided_to_delete_account()"
     },
     {
@@ -18316,7 +18578,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_skills_laravel_best_practices_skill",
-      "community": 141,
+      "community": 147,
       "community_name": ".claude/skills/laravel-best-practices/SKILL.md",
       "norm_label": ".claude/skills/laravel-best-practices/skill.md"
     },
@@ -18327,7 +18589,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "claude_skills_laravel_best_practices_skill_laravel_best_practices",
-      "community": 141,
+      "community": 147,
       "community_name": ".claude/skills/laravel-best-practices/SKILL.md",
       "norm_label": "laravel best practices"
     },
@@ -18338,7 +18600,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "claude_skills_laravel_best_practices_skill_consistency_first",
-      "community": 141,
+      "community": 147,
       "community_name": ".claude/skills/laravel-best-practices/SKILL.md",
       "norm_label": "consistency first"
     },
@@ -18349,7 +18611,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "claude_skills_laravel_best_practices_skill_how_to_apply",
-      "community": 141,
+      "community": 147,
       "community_name": ".claude/skills/laravel-best-practices/SKILL.md",
       "norm_label": "how to apply"
     },
@@ -18360,7 +18622,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "claude_skills_laravel_best_practices_skill_rule_index",
-      "community": 141,
+      "community": 147,
       "community_name": ".claude/skills/laravel-best-practices/SKILL.md",
       "norm_label": "rule index"
     },
@@ -18371,7 +18633,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "claude_skills_laravel_best_practices_skill_decision_rules",
-      "community": 141,
+      "community": 147,
       "community_name": ".claude/skills/laravel-best-practices/SKILL.md",
       "norm_label": "decision rules"
     },
@@ -18889,7 +19151,7 @@
       "_origin": "ast",
       "id": "claude_skills_laravel_best_practices_rules_config",
       "community": 147,
-      "community_name": "Configuration Best Practices",
+      "community_name": ".claude/skills/laravel-best-practices/SKILL.md",
       "norm_label": ".claude/skills/laravel-best-practices/rules/config.md"
     },
     {
@@ -18900,7 +19162,7 @@
       "_origin": "ast",
       "id": "claude_skills_laravel_best_practices_rules_config_configuration_best_practices",
       "community": 147,
-      "community_name": "Configuration Best Practices",
+      "community_name": ".claude/skills/laravel-best-practices/SKILL.md",
       "norm_label": "configuration best practices"
     },
     {
@@ -18911,7 +19173,7 @@
       "_origin": "ast",
       "id": "claude_skills_laravel_best_practices_rules_config_env_only_in_config_files",
       "community": 147,
-      "community_name": "Configuration Best Practices",
+      "community_name": ".claude/skills/laravel-best-practices/SKILL.md",
       "norm_label": "`env()` only in config files"
     },
     {
@@ -18922,7 +19184,7 @@
       "_origin": "ast",
       "id": "claude_skills_laravel_best_practices_rules_config_use_encrypted_env_or_external_secrets",
       "community": 147,
-      "community_name": "Configuration Best Practices",
+      "community_name": ".claude/skills/laravel-best-practices/SKILL.md",
       "norm_label": "use encrypted env or external secrets"
     },
     {
@@ -18933,7 +19195,7 @@
       "_origin": "ast",
       "id": "claude_skills_laravel_best_practices_rules_config_use_app_environment_for_environment_checks",
       "community": 147,
-      "community_name": "Configuration Best Practices",
+      "community_name": ".claude/skills/laravel-best-practices/SKILL.md",
       "norm_label": "use `app::environment()` for environment checks"
     },
     {
@@ -18944,7 +19206,7 @@
       "_origin": "ast",
       "id": "claude_skills_laravel_best_practices_rules_config_use_constants_and_language_files",
       "community": 147,
-      "community_name": "Configuration Best Practices",
+      "community_name": ".claude/skills/laravel-best-practices/SKILL.md",
       "norm_label": "use constants and language files"
     },
     {
@@ -19439,7 +19701,7 @@
       "_origin": "ast",
       "id": "claude_skills_laravel_best_practices_rules_mail",
       "community": 141,
-      "community_name": ".claude/skills/laravel-best-practices/SKILL.md",
+      "community_name": "Mail Best Practices",
       "norm_label": ".claude/skills/laravel-best-practices/rules/mail.md"
     },
     {
@@ -19450,7 +19712,7 @@
       "_origin": "ast",
       "id": "claude_skills_laravel_best_practices_rules_mail_mail_best_practices",
       "community": 141,
-      "community_name": ".claude/skills/laravel-best-practices/SKILL.md",
+      "community_name": "Mail Best Practices",
       "norm_label": "mail best practices"
     },
     {
@@ -19461,7 +19723,7 @@
       "_origin": "ast",
       "id": "claude_skills_laravel_best_practices_rules_mail_implement_shouldqueue_on_the_mailable_class",
       "community": 141,
-      "community_name": ".claude/skills/laravel-best-practices/SKILL.md",
+      "community_name": "Mail Best Practices",
       "norm_label": "implement `shouldqueue` on the mailable class"
     },
     {
@@ -19472,7 +19734,7 @@
       "_origin": "ast",
       "id": "claude_skills_laravel_best_practices_rules_mail_use_aftercommit_on_mailables_inside_transactions",
       "community": 141,
-      "community_name": ".claude/skills/laravel-best-practices/SKILL.md",
+      "community_name": "Mail Best Practices",
       "norm_label": "use `aftercommit()` on mailables inside transactions"
     },
     {
@@ -19483,7 +19745,7 @@
       "_origin": "ast",
       "id": "claude_skills_laravel_best_practices_rules_mail_use_assertqueued_not_assertsent_for_queued_mailables",
       "community": 141,
-      "community_name": ".claude/skills/laravel-best-practices/SKILL.md",
+      "community_name": "Mail Best Practices",
       "norm_label": "use `assertqueued()` not `assertsent()` for queued mailables"
     },
     {
@@ -19494,7 +19756,7 @@
       "_origin": "ast",
       "id": "claude_skills_laravel_best_practices_rules_mail_use_markdown_mailables_for_transactional_emails",
       "community": 141,
-      "community_name": ".claude/skills/laravel-best-practices/SKILL.md",
+      "community_name": "Mail Best Practices",
       "norm_label": "use markdown mailables for transactional emails"
     },
     {
@@ -19505,7 +19767,7 @@
       "_origin": "ast",
       "id": "claude_skills_laravel_best_practices_rules_mail_separate_content_tests_from_sending_tests",
       "community": 141,
-      "community_name": ".claude/skills/laravel-best-practices/SKILL.md",
+      "community_name": "Mail Best Practices",
       "norm_label": "separate content tests from sending tests"
     },
     {
@@ -19900,8 +20162,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_skills_laravel_best_practices_rules_security",
-      "community": 141,
-      "community_name": ".claude/skills/laravel-best-practices/SKILL.md",
+      "community": 100,
+      "community_name": "Security Best Practices",
       "norm_label": ".claude/skills/laravel-best-practices/rules/security.md"
     },
     {
@@ -21096,7 +21358,7 @@
       "label": "Phase 3 \u2014 Bot core",
       "file_type": "document",
       "source_file": "prompts/progress.md",
-      "source_location": "L28",
+      "source_location": "L29",
       "_origin": "ast",
       "id": "prompts_progress_phase_3_bot_core",
       "community": 101,
@@ -21107,7 +21369,7 @@
       "label": "Phase 4 \u2014 Stars payments",
       "file_type": "document",
       "source_file": "prompts/progress.md",
-      "source_location": "L35",
+      "source_location": "L36",
       "_origin": "ast",
       "id": "prompts_progress_phase_4_stars_payments",
       "community": 101,
@@ -21118,7 +21380,7 @@
       "label": "Phase 5 \u2014 Mini App",
       "file_type": "document",
       "source_file": "prompts/progress.md",
-      "source_location": "L39",
+      "source_location": "L40",
       "_origin": "ast",
       "id": "prompts_progress_phase_5_mini_app",
       "community": 101,
@@ -21129,7 +21391,7 @@
       "label": "Phase 6 \u2014 Admin panel",
       "file_type": "document",
       "source_file": "prompts/progress.md",
-      "source_location": "L44",
+      "source_location": "L45",
       "_origin": "ast",
       "id": "prompts_progress_phase_6_admin_panel",
       "community": 101,
@@ -21140,7 +21402,7 @@
       "label": "Phase 7 \u2014 Website",
       "file_type": "document",
       "source_file": "prompts/progress.md",
-      "source_location": "L47",
+      "source_location": "L48",
       "_origin": "ast",
       "id": "prompts_progress_phase_7_website",
       "community": 101,
@@ -21151,7 +21413,7 @@
       "label": "Backlog \u2014 captured, not scheduled",
       "file_type": "document",
       "source_file": "prompts/progress.md",
-      "source_location": "L50",
+      "source_location": "L51",
       "_origin": "ast",
       "id": "prompts_progress_backlog_captured_not_scheduled",
       "community": 101,
@@ -21162,7 +21424,7 @@
       "label": "Log",
       "file_type": "document",
       "source_file": "prompts/progress.md",
-      "source_location": "L68",
+      "source_location": "L69",
       "_origin": "ast",
       "id": "prompts_progress_log",
       "community": 101,
@@ -21173,7 +21435,7 @@
       "label": "Setup Task 1 \u2014 Project Bootstrap \u2705",
       "file_type": "document",
       "source_file": "prompts/progress.md",
-      "source_location": "L70",
+      "source_location": "L71",
       "_origin": "ast",
       "id": "prompts_progress_setup_task_1_project_bootstrap",
       "community": 101,
@@ -21184,7 +21446,7 @@
       "label": "Setup Task 2 \u2014 i18n + RTL layer \u2705",
       "file_type": "document",
       "source_file": "prompts/progress.md",
-      "source_location": "L106",
+      "source_location": "L107",
       "_origin": "ast",
       "id": "prompts_progress_setup_task_2_i18n_rtl_layer",
       "community": 101,
@@ -21195,7 +21457,7 @@
       "label": "Setup Task 3 \u2014 `Setting` model + admin-tunable config \u2705",
       "file_type": "document",
       "source_file": "prompts/progress.md",
-      "source_location": "L175",
+      "source_location": "L176",
       "_origin": "ast",
       "id": "prompts_progress_setup_task_3_setting_model_admin_tunable_config",
       "community": 101,
@@ -21206,7 +21468,7 @@
       "label": "Domain Task 1 \u2014 challenge core: enums, schema, models, factories \u2705",
       "file_type": "document",
       "source_file": "prompts/progress.md",
-      "source_location": "L252",
+      "source_location": "L253",
       "_origin": "ast",
       "id": "prompts_progress_domain_task_1_challenge_core_enums_schema_models_factories",
       "community": 101,
@@ -21217,7 +21479,7 @@
       "label": "Domain Task 2 \u2014 economy + infra schema: enums, migrations, models, factories \u2705",
       "file_type": "document",
       "source_file": "prompts/progress.md",
-      "source_location": "L357",
+      "source_location": "L358",
       "_origin": "ast",
       "id": "prompts_progress_domain_task_2_economy_infra_schema_enums_migrations_models_factories",
       "community": 101,
@@ -21228,7 +21490,7 @@
       "label": "Domain Task 3 \u2014 `CoinLedger` (done)",
       "file_type": "document",
       "source_file": "prompts/progress.md",
-      "source_location": "L438",
+      "source_location": "L439",
       "_origin": "ast",
       "id": "prompts_progress_domain_task_3_coinledger_done",
       "community": 101,
@@ -21239,12 +21501,23 @@
       "label": "Domain Task 4 \u2014 period materialisation (done)",
       "file_type": "document",
       "source_file": "prompts/progress.md",
-      "source_location": "L535",
+      "source_location": "L536",
       "_origin": "ast",
       "id": "prompts_progress_domain_task_4_period_materialisation_done",
       "community": 101,
       "community_name": "Build Progress \u2014 Telegram Challenges Platform",
       "norm_label": "domain task 4 \u2014 period materialisation (done)"
+    },
+    {
+      "label": "Domain Task 5 \u2014 entitlements (done)",
+      "file_type": "document",
+      "source_file": "prompts/progress.md",
+      "source_location": "L620",
+      "_origin": "ast",
+      "id": "prompts_progress_domain_task_5_entitlements_done",
+      "community": 101,
+      "community_name": "Build Progress \u2014 Telegram Challenges Platform",
+      "norm_label": "domain task 5 \u2014 entitlements (done)"
     },
     {
       "label": "task-01-setup.md",
@@ -21352,9 +21625,53 @@
       "source_location": "",
       "_origin": "ast",
       "id": "illuminate_database_eloquent_collection",
-      "community": 15,
-      "community_name": "Challenge",
+      "community": 10,
+      "community_name": "EntitlementType.php",
       "norm_label": "illuminate\\database\\eloquent\\collection"
+    },
+    {
+      "label": "Carbon\\CarbonInterface",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "carbon_carboninterface",
+      "community": 4,
+      "community_name": "ChallengePeriod",
+      "norm_label": "carbon\\carboninterface"
+    },
+    {
+      "label": "Illuminate\\Support\\Collection",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "illuminate_support_collection",
+      "community": 4,
+      "community_name": "ChallengePeriod",
+      "norm_label": "illuminate\\support\\collection"
+    },
+    {
+      "label": "Illuminate\\Database\\Eloquent\\Relations\\HasMany",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "illuminate_database_eloquent_relations_hasmany",
+      "community": 180,
+      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\HasMany",
+      "norm_label": "illuminate\\database\\eloquent\\relations\\hasmany"
+    },
+    {
+      "label": "Closure",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "closure",
+      "community": 132,
+      "community_name": "CheckIn",
+      "norm_label": "closure"
     },
     {
       "label": "Laravel\\Fortify\\Contracts\\CreatesNewUsers",
@@ -21410,17 +21727,6 @@
       "community": 2,
       "community_name": "PasswordValidationRules.php",
       "norm_label": "inertia\\response"
-    },
-    {
-      "label": "Closure",
-      "file_type": "code",
-      "source_file": "",
-      "source_location": "",
-      "_origin": "ast",
-      "id": "closure",
-      "community": 18,
-      "community_name": "Localization",
-      "norm_label": "closure"
     },
     {
       "label": "Symfony\\Component\\HttpFoundation\\Response",
@@ -21506,7 +21812,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "illuminate_database_eloquent_model",
-      "community": 31,
+      "community": 156,
       "community_name": "Illuminate\\Database\\Eloquent\\Model",
       "norm_label": "illuminate\\database\\eloquent\\model"
     },
@@ -21522,36 +21828,14 @@
       "norm_label": "illuminate\\database\\eloquent\\relations\\belongsto"
     },
     {
-      "label": "Illuminate\\Database\\Eloquent\\Relations\\HasMany",
-      "file_type": "code",
-      "source_file": "",
-      "source_location": "",
-      "_origin": "ast",
-      "id": "illuminate_database_eloquent_relations_hasmany",
-      "community": 180,
-      "community_name": "ChallengeParticipant",
-      "norm_label": "illuminate\\database\\eloquent\\relations\\hasmany"
-    },
-    {
-      "label": "Carbon\\CarbonInterface",
-      "file_type": "code",
-      "source_file": "",
-      "source_location": "",
-      "_origin": "ast",
-      "id": "carbon_carboninterface",
-      "community": 178,
-      "community_name": "ChallengePeriod",
-      "norm_label": "carbon\\carboninterface"
-    },
-    {
       "label": "Illuminate\\Database\\Eloquent\\Relations\\MorphTo",
       "file_type": "code",
       "source_file": "",
       "source_location": "",
       "_origin": "ast",
       "id": "illuminate_database_eloquent_relations_morphto",
-      "community": 156,
-      "community_name": "User",
+      "community": 31,
+      "community_name": "CoinTransactionReason.php",
       "norm_label": "illuminate\\database\\eloquent\\relations\\morphto"
     },
     {
@@ -21561,7 +21845,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "illuminate_database_eloquent_relations_hasone",
-      "community": 156,
+      "community": 120,
       "community_name": "User",
       "norm_label": "illuminate\\database\\eloquent\\relations\\hasone"
     },
@@ -21572,7 +21856,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "illuminate_notifications_notifiable",
-      "community": 156,
+      "community": 120,
       "community_name": "User",
       "norm_label": "illuminate\\notifications\\notifiable"
     },
@@ -21583,7 +21867,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "illuminate_foundation_auth_user",
-      "community": 156,
+      "community": 120,
       "community_name": "User",
       "norm_label": "illuminate\\foundation\\auth\\user"
     },
@@ -21616,7 +21900,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "illuminate_database_eloquent_factories_factory",
-      "community": 30,
+      "community": 195,
       "community_name": "User.php",
       "norm_label": "illuminate\\database\\eloquent\\factories\\factory"
     },
@@ -22026,7 +22310,7 @@
       "author": null,
       "contributor": null,
       "rationale": "Multi-language from day one (Farsi + English minimum), locale per user, RTL required. Scaffold has no i18n layer and no RTL handling at all, so both are genuine net-new build work.",
-      "community": 4,
+      "community": 24,
       "community_name": "use-appearance.tsx",
       "norm_label": "i18n + rtl requirement",
       "_origin": "semantic",
@@ -22594,6 +22878,653 @@
       "_origin": "ast",
       "source": "app_actions_challenges_materialisechallengeperiods_materialisechallengeperiods_boundaryat",
       "target": "carbon_carbonimmutable",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L62",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod_rolloverperiod_handle",
+      "target": "carbonimmutable"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L37",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod",
+      "target": "app_actions_challenges_rolloverperiod_rolloverperiod",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod",
+      "target": "app_actions_checkins_settlecheckin_settlecheckin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod",
+      "target": "app_enums_checkinstatus",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod",
+      "target": "app_models_challengeparticipant_challengeparticipant",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod",
+      "target": "app_models_challengeperiod_challengeperiod",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod",
+      "target": "app_models_checkin_checkin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod",
+      "target": "carbon_carbonimmutable",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod",
+      "target": "carbon_carboninterface",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod",
+      "target": "app_models_challenge",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod",
+      "target": "illuminate_database_eloquent_relations_hasmany",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod",
+      "target": "illuminate_support_collection",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod",
+      "target": "app_exceptions_periodnotendedexception",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/StreakEngineTest.php",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_streakenginetest",
+      "target": "app_actions_challenges_rolloverperiod",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L48",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod_rolloverperiod",
+      "target": "app_actions_challenges_rolloverperiod_rolloverperiod_construct",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L60",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod_rolloverperiod",
+      "target": "app_actions_challenges_rolloverperiod_rolloverperiod_handle",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L116",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod_rolloverperiod",
+      "target": "app_actions_challenges_rolloverperiod_rolloverperiod_obligationfor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L100",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod_rolloverperiod",
+      "target": "app_actions_challenges_rolloverperiod_rolloverperiod_participantsowing",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L48",
+      "weight": 1.0,
+      "context": "field",
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod_rolloverperiod",
+      "target": "app_actions_checkins_settlecheckin_settlecheckin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L48",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod_rolloverperiod_construct",
+      "target": "app_actions_checkins_settlecheckin_settlecheckin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L77",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod_rolloverperiod_handle",
+      "target": "app_actions_challenges_rolloverperiod_rolloverperiod_obligationfor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L73",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod_rolloverperiod_handle",
+      "target": "app_actions_challenges_rolloverperiod_rolloverperiod_participantsowing",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L60",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod_rolloverperiod_handle",
+      "target": "app_models_challengeperiod_challengeperiod",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L60",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod_rolloverperiod_handle",
+      "target": "carbon_carboninterface",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L60",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod_rolloverperiod_handle",
+      "target": "illuminate_support_collection",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L100",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod_rolloverperiod_participantsowing",
+      "target": "app_models_challengeperiod_challengeperiod",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L100",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod_rolloverperiod_participantsowing",
+      "target": "illuminate_database_eloquent_relations_hasmany",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L116",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod_rolloverperiod_obligationfor",
+      "target": "app_models_challengeparticipant_challengeparticipant",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L116",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod_rolloverperiod_obligationfor",
+      "target": "app_models_challengeperiod_challengeperiod",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "return_type",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/Challenges/RollOverPeriod.php",
+      "source_location": "L116",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_challenges_rolloverperiod_rolloverperiod_obligationfor",
+      "target": "app_models_checkin_checkin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L37",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_checkins_settlecheckin",
+      "target": "app_actions_checkins_settlecheckin_settlecheckin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_checkins_settlecheckin",
+      "target": "app_enums_checkinstatus",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_checkins_settlecheckin",
+      "target": "app_models_challengeparticipant_challengeparticipant",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_checkins_settlecheckin",
+      "target": "app_models_checkin_checkin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_checkins_settlecheckin",
+      "target": "closure",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L127",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_checkins_settlecheckin_settlecheckin",
+      "target": "app_actions_checkins_settlecheckin_settlecheckin_advance",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L48",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_checkins_settlecheckin_settlecheckin",
+      "target": "app_actions_checkins_settlecheckin_settlecheckin_approve",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L60",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_checkins_settlecheckin_settlecheckin",
+      "target": "app_actions_checkins_settlecheckin_settlecheckin_close",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L102",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_checkins_settlecheckin_settlecheckin",
+      "target": "app_actions_checkins_settlecheckin_settlecheckin_lockparticipant",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L72",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_checkins_settlecheckin_settlecheckin",
+      "target": "app_actions_checkins_settlecheckin_settlecheckin_settle",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/StreakEngineTest.php",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_streakenginetest",
+      "target": "app_actions_checkins_settlecheckin_settlecheckin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L50",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_checkins_settlecheckin_settlecheckin_approve",
+      "target": "app_actions_checkins_settlecheckin_settlecheckin_settle",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L48",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast",
+      "source": "app_actions_checkins_settlecheckin_settlecheckin_approve",
+      "target": "app_models_checkin_checkin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references_constant",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L50",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_checkins_settlecheckin_settlecheckin_approve",
+      "target": "checkinstatus"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L62",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_checkins_settlecheckin_settlecheckin_close",
+      "target": "app_actions_checkins_settlecheckin_settlecheckin_settle",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L60",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast",
+      "source": "app_actions_checkins_settlecheckin_settlecheckin_close",
+      "target": "app_models_checkin_checkin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references_constant",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L63",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_checkins_settlecheckin_settlecheckin_close",
+      "target": "checkinstatus"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L89",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_checkins_settlecheckin_settlecheckin_settle",
+      "target": "app_actions_checkins_settlecheckin_settlecheckin_advance",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L75",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_checkins_settlecheckin_settlecheckin_settle",
+      "target": "app_actions_checkins_settlecheckin_settlecheckin_lockparticipant",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L72",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast",
+      "source": "app_actions_checkins_settlecheckin_settlecheckin_settle",
+      "target": "app_models_checkin_checkin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L72",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_actions_checkins_settlecheckin_settlecheckin_settle",
+      "target": "closure",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "return_type",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L102",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_actions_checkins_settlecheckin_settlecheckin_lockparticipant",
+      "target": "app_models_challengeparticipant_challengeparticipant",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L102",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_actions_checkins_settlecheckin_settlecheckin_lockparticipant",
+      "target": "app_models_checkin_checkin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L127",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_actions_checkins_settlecheckin_settlecheckin_advance",
+      "target": "app_enums_checkinstatus",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Actions/CheckIns/SettleCheckIn.php",
+      "source_location": "L127",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_actions_checkins_settlecheckin_settlecheckin_advance",
+      "target": "app_models_challengeparticipant_challengeparticipant",
       "confidence_score": 1.0
     },
     {
@@ -24192,6 +25123,17 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/Enums/CheckInStatus.php",
+      "source_location": "L113",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_enums_checkinstatus",
+      "target": "app_enums_checkinstatus_consumesfreeze",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Enums/CheckInStatus.php",
       "source_location": "L87",
       "weight": 1.0,
       "_origin": "ast",
@@ -24266,6 +25208,18 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "tests_feature_domain_challengeschematest",
+      "target": "app_enums_checkinstatus",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/StreakEngineTest.php",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_streakenginetest",
       "target": "app_enums_checkinstatus",
       "confidence_score": 1.0
     },
@@ -25161,6 +26115,18 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/StreakEngineTest.php",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_streakenginetest",
+      "target": "app_enums_participantstatus",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/Enums/PeriodType.php",
@@ -25874,6 +26840,29 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Exceptions/PeriodNotEndedException.php",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_exceptions_periodnotendedexception",
+      "target": "runtimeexception",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Exceptions/PeriodNotEndedException.php",
+      "source_location": "L18",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_exceptions_periodnotendedexception_periodnotendedexception",
+      "target": "runtimeexception",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/Exceptions/NoEntitlementAvailableException.php",
@@ -25905,6 +26894,112 @@
       "_origin": "ast",
       "source": "app_exceptions_noentitlementavailableexception_noentitlementavailableexception",
       "target": "app_exceptions_noentitlementavailableexception_noentitlementavailableexception_construct",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Exceptions/PeriodNotEndedException.php",
+      "source_location": "L18",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_exceptions_periodnotendedexception",
+      "target": "app_exceptions_periodnotendedexception_periodnotendedexception",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Exceptions/PeriodNotEndedException.php",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_exceptions_periodnotendedexception",
+      "target": "app_models_challengeperiod_challengeperiod",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Exceptions/PeriodNotEndedException.php",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_exceptions_periodnotendedexception",
+      "target": "carbon_carboninterface",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/StreakEngineTest.php",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_streakenginetest",
+      "target": "app_exceptions_periodnotendedexception",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Exceptions/PeriodNotEndedException.php",
+      "source_location": "L20",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_exceptions_periodnotendedexception_periodnotendedexception",
+      "target": "app_exceptions_periodnotendedexception_periodnotendedexception_construct",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Exceptions/PeriodNotEndedException.php",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "field",
+      "_origin": "ast",
+      "source": "app_exceptions_periodnotendedexception_periodnotendedexception",
+      "target": "app_models_challengeperiod_challengeperiod",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Exceptions/PeriodNotEndedException.php",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "field",
+      "_origin": "ast",
+      "source": "app_exceptions_periodnotendedexception_periodnotendedexception",
+      "target": "carbon_carboninterface",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Exceptions/PeriodNotEndedException.php",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_exceptions_periodnotendedexception_periodnotendedexception_construct",
+      "target": "app_models_challengeperiod_challengeperiod",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Exceptions/PeriodNotEndedException.php",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_exceptions_periodnotendedexception_periodnotendedexception_construct",
+      "target": "carbon_carboninterface",
       "confidence_score": 1.0
     },
     {
@@ -27775,6 +28870,42 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/StreakEngineTest.php",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_streakenginetest",
+      "target": "app_models_challenge_challenge",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/StreakEngineTest.php",
+      "source_location": "L25",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "tests_feature_domain_streakenginetest_endedperiod",
+      "target": "app_models_challenge_challenge",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/StreakEngineTest.php",
+      "source_location": "L36",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "tests_feature_domain_streakenginetest_openperiod",
+      "target": "app_models_challenge_challenge",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/Models/Challenge.php",
@@ -28143,6 +29274,30 @@
       "context": "parameter_type",
       "_origin": "ast",
       "source": "database_factories_reminderdispatchfactory_reminderdispatchfactory_on",
+      "target": "app_models_challengeparticipant_challengeparticipant",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/StreakEngineTest.php",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_streakenginetest",
+      "target": "app_models_challengeparticipant_challengeparticipant",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/StreakEngineTest.php",
+      "source_location": "L47",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "tests_feature_domain_streakenginetest_obligation",
       "target": "app_models_challengeparticipant_challengeparticipant",
       "confidence_score": 1.0
     },
@@ -28556,6 +29711,54 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/StreakEngineTest.php",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_streakenginetest",
+      "target": "app_models_challengeperiod_challengeperiod",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "return_type",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/StreakEngineTest.php",
+      "source_location": "L25",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_streakenginetest_endedperiod",
+      "target": "app_models_challengeperiod_challengeperiod",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/StreakEngineTest.php",
+      "source_location": "L47",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "tests_feature_domain_streakenginetest_obligation",
+      "target": "app_models_challengeperiod_challengeperiod",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "return_type",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/StreakEngineTest.php",
+      "source_location": "L36",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_streakenginetest_openperiod",
+      "target": "app_models_challengeperiod_challengeperiod",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/Models/ChallengePeriod.php",
@@ -28842,6 +30045,30 @@
       "_origin": "ast",
       "source": "app_models_checkin_checkin",
       "target": "illuminate_database_eloquent_model",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/StreakEngineTest.php",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_streakenginetest",
+      "target": "app_models_checkin_checkin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "return_type",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/StreakEngineTest.php",
+      "source_location": "L47",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_streakenginetest_obligation",
+      "target": "app_models_checkin_checkin",
       "confidence_score": 1.0
     },
     {
@@ -49937,6 +51164,51 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/StreakEngineTest.php",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_streakenginetest",
+      "target": "illuminate_foundation_testing_refreshdatabase",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/StreakEngineTest.php",
+      "source_location": "L25",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_streakenginetest",
+      "target": "tests_feature_domain_streakenginetest_endedperiod",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/StreakEngineTest.php",
+      "source_location": "L47",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_streakenginetest",
+      "target": "tests_feature_domain_streakenginetest_obligation",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/Feature/Domain/StreakEngineTest.php",
+      "source_location": "L36",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_feature_domain_streakenginetest",
+      "target": "tests_feature_domain_streakenginetest_openperiod",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "tests/Feature/ExampleTest.php",
       "source_location": "L5",
       "weight": 1.0,
@@ -56927,7 +58199,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "prompts/progress.md",
-      "source_location": "L50",
+      "source_location": "L51",
       "weight": 1.0,
       "_origin": "ast",
       "source": "prompts_progress_build_progress_telegram_challenges_platform",
@@ -56938,7 +58210,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "prompts/progress.md",
-      "source_location": "L438",
+      "source_location": "L439",
       "weight": 1.0,
       "_origin": "ast",
       "source": "prompts_progress_build_progress_telegram_challenges_platform",
@@ -56949,7 +58221,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "prompts/progress.md",
-      "source_location": "L535",
+      "source_location": "L536",
       "weight": 1.0,
       "_origin": "ast",
       "source": "prompts_progress_build_progress_telegram_challenges_platform",
@@ -56960,7 +58232,18 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "prompts/progress.md",
-      "source_location": "L68",
+      "source_location": "L620",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "prompts_progress_build_progress_telegram_challenges_platform",
+      "target": "prompts_progress_domain_task_5_entitlements_done",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "prompts/progress.md",
+      "source_location": "L69",
       "weight": 1.0,
       "_origin": "ast",
       "source": "prompts_progress_build_progress_telegram_challenges_platform",
@@ -56993,7 +58276,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "prompts/progress.md",
-      "source_location": "L28",
+      "source_location": "L29",
       "weight": 1.0,
       "_origin": "ast",
       "source": "prompts_progress_build_progress_telegram_challenges_platform",
@@ -57004,7 +58287,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "prompts/progress.md",
-      "source_location": "L35",
+      "source_location": "L36",
       "weight": 1.0,
       "_origin": "ast",
       "source": "prompts_progress_build_progress_telegram_challenges_platform",
@@ -57015,7 +58298,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "prompts/progress.md",
-      "source_location": "L39",
+      "source_location": "L40",
       "weight": 1.0,
       "_origin": "ast",
       "source": "prompts_progress_build_progress_telegram_challenges_platform",
@@ -57026,7 +58309,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "prompts/progress.md",
-      "source_location": "L44",
+      "source_location": "L45",
       "weight": 1.0,
       "_origin": "ast",
       "source": "prompts_progress_build_progress_telegram_challenges_platform",
@@ -57037,7 +58320,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "prompts/progress.md",
-      "source_location": "L47",
+      "source_location": "L48",
       "weight": 1.0,
       "_origin": "ast",
       "source": "prompts_progress_build_progress_telegram_challenges_platform",
@@ -57048,7 +58331,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "prompts/progress.md",
-      "source_location": "L252",
+      "source_location": "L253",
       "weight": 1.0,
       "_origin": "ast",
       "source": "prompts_progress_log",
@@ -57059,7 +58342,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "prompts/progress.md",
-      "source_location": "L357",
+      "source_location": "L358",
       "weight": 1.0,
       "_origin": "ast",
       "source": "prompts_progress_log",
@@ -57070,7 +58353,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "prompts/progress.md",
-      "source_location": "L70",
+      "source_location": "L71",
       "weight": 1.0,
       "_origin": "ast",
       "source": "prompts_progress_log",
@@ -57081,7 +58364,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "prompts/progress.md",
-      "source_location": "L106",
+      "source_location": "L107",
       "weight": 1.0,
       "_origin": "ast",
       "source": "prompts_progress_log",
@@ -57092,7 +58375,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "prompts/progress.md",
-      "source_location": "L175",
+      "source_location": "L176",
       "weight": 1.0,
       "_origin": "ast",
       "source": "prompts_progress_log",
@@ -57726,5 +59009,5 @@
       "source_file": "prompts/main.md"
     }
   ],
-  "built_at_commit": "52707a8e27a0936d240c121fcebe4eba52e354e2"
+  "built_at_commit": "1a0478ffa2e478dbb8f43fb6e0953904acbe1949"
 }

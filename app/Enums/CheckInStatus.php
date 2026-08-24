@@ -104,4 +104,14 @@ enum CheckInStatus: string
     {
         return $this === self::Missed;
     }
+
+    /**
+     * Whether settling into this status spends one of the participant's freezes.
+     *
+     * The defining property of a freeze, and the reason the streak survives it.
+     */
+    public function consumesFreeze(): bool
+    {
+        return $this === self::Frozen;
+    }
 }
