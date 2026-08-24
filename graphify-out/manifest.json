@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "prompts/progress.md": {
-    "mtime": 1787607281.0076132,
-    "ast_hash": "2604438e4de1e95595fdf6852ba10c7c",
+    "mtime": 1787609073.2159252,
+    "ast_hash": "e53539aef1946ab00df1a7041d3bc594",
     "semantic_hash": ""
   },
   "prompts/task-01-setup.md": {
@@ -1502,6 +1502,16 @@
   "tests/Feature/Domain/CoinLedgerTest.php": {
     "mtime": 1787608154.5868132,
     "ast_hash": "b20e390014d8bcf513e493290d7257a1",
+    "semantic_hash": ""
+  },
+  "app/Actions/Challenges/MaterialiseChallengePeriods.php": {
+    "mtime": 1787608958.867513,
+    "ast_hash": "5408c1737ae79f897c5c216daf3a56c8",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Domain/MaterialiseChallengePeriodsTest.php": {
+    "mtime": 1787608892.3889027,
+    "ast_hash": "6005d83792a0273104bd297ae11d576e",
     "semantic_hash": ""
   }
 }

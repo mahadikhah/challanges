@@ -18,8 +18,9 @@ Status key: ✅ done · 🔄 in progress · ⬜ not started
   `TelegramUpdate`, `BotConversation`, `ReminderDispatch`)
 - ✅ **Domain Task 3 — `CoinLedger` service** (locked, transactional, idempotency-keyed; §6 coin-concurrency
   test with real forked writers)
+- ✅ **Domain Task 4 — period materialisation** (all six `period_type`, challenge-timezone boundaries, DST- and
+  month-end-correct, idempotent)
 - ⬜ Entitlement grant/consume
-- ⬜ Period materialisation (all six `period_type`)
 - ⬜ Streak / freeze / miss engine (+ `streak_resets_count`, no auto-remove)
 - ⬜ Invite code generation + brand-new-user crediting rule
 - ⬜ Per-participant-per-period phrase generation
@@ -528,4 +529,89 @@ phpstan lvl 7 (0 errors) ✓, tests **377 (373 pass, 4 skipped = Fortify 2FA dis
 values from `starts_at` + `total_periods`, with boundaries computed in the **challenge's** timezone and stored
 UTC. Idempotent (safe to re-run), and DST-correct: a daily challenge in a zone that shifts must still produce
 one period per local day, not a 23- or 25-hour drift that accumulates.
+
+---
+
+## Domain Task 4 — period materialisation (done)
+
+`app/Actions/Challenges/MaterialiseChallengePeriods.php`. Two entry points: `boundaries()` computes the
+timeline the challenge's configuration implies and touches no database, and `handle()` persists it. Splitting
+them means the whole DST and month-end surface is testable as pure arithmetic, and the persistence layer only
+has to be tested for idempotency.
+
+**Decisions**
+
+- **The arithmetic happens in the challenge's timezone; only the results are UTC.** `starts_at` is stored UTC,
+  so the first thing the action does is convert it *back* to the creator's wall clock, advance there, and
+  convert each boundary to UTC. "Daily" means one period per **local day**, so boundaries advance in calendar
+  units where PHP holds the wall-clock time fixed across a shift. Adding a flat 24 hours to a UTC instant
+  would drift an hour on the changeover and stay drifted, so the check-in window would open at 23:00 for the
+  rest of the challenge.
+- **Every boundary is computed from the original anchor, never from its predecessor.** Stepping incrementally
+  accumulates whatever a clamp did: a monthly challenge starting 31 January would go 31 Jan → 29 Feb → **29
+  Mar** and lose the month-end anchor permanently. Multiplying the step off the anchor gives
+  31 Jan → 28 Feb → 31 Mar → 30 Apr. Tested explicitly, both directions.
+- **No-overflow month and year addition** (`addMonthsNoOverflow`, `addYearsNoOverflow`). PHP's native
+  `+1 month` on 31 January yields 2 or 3 March, **skipping February entirely** — a monthly challenge would
+  have no February period at all. A test asserts the month names are `Jan, Feb, Mar`, which is the failure
+  this would have caused. Same for a 29 February yearly anchor: 28 February, not 1 March.
+- **`Seasonal` = 3 months, a quarter.** Deliberately not the astronomical solstices: those differ by
+  hemisphere, and a participant needs to know when their period closes, not when the earth tilted.
+- **Boundaries are converted to UTC inside the action, not at the call site.** This is load-bearing, not
+  tidiness: the query builder formats a `DateTimeInterface` binding **in whatever timezone the object itself
+  carries**, so handing it a Tehran-local Carbon would write the local wall clock into a UTC column and lose
+  three and a half hours without erroring. A test reads the raw column through `DB::table()` to prove the
+  stored string is UTC.
+- **`insertOrIgnore`, so idempotency comes from the unique index rather than a read-then-write.** Two callers
+  racing is safe, and a re-run adds only what is missing. Critically it is **insert-only — never an upsert**:
+  an existing period's boundaries are never moved, because a check-in may already hang from them. A test
+  changes `starts_at` after materialising and asserts period 0 does *not* move. Rebuilding a live timeline is
+  a deliberate, separate act, not a side effect of re-running this.
+- **Raising `total_periods` and re-running extends the timeline**, keeping the original rows' ids — the one
+  edit that is safe to make in place. Tested.
+- **Chunked inserts (500/statement).** `total_periods` is an unsigned smallint, so a legal-but-pathological
+  challenge could ask for tens of thousands of periods.
+- **`boundaries()` refuses rather than guessing**: `total_periods < 1`, and a `custom` challenge with a
+  missing/zero/negative `custom_period_days`, both throw `InvalidArgumentException`. A garbage timezone throws
+  too — Carbon's `InvalidTimeZoneException` extends `InvalidArgumentException`, so callers have one thing to
+  catch. `handle()` writes nothing when it refuses, since validation happens before the first insert.
+- A stray `custom_period_days` on a non-custom type is **ignored**, via the existing `Challenge::customPeriodDays()`
+  gate — a leftover 90 from an edited draft cannot quietly turn a weekly challenge into a quarterly one.
+
+**Tests — 40 new (`tests/Feature/Domain/MaterialiseChallengePeriodsTest.php`), 63 assertions.** Six groups: the
+shape of a timeline, each period type, the challenge timezone, daylight saving, month ends, refusals, and
+idempotency. A dataset walks all six `period_type` values (plus `custom` with 1 day, which must be
+indistinguishable from `daily`) over **three periods, so four boundaries** — enough to catch an off-by-one in
+the step multiplier that a single period would hide. The DST group asserts both halves of the same fact: local
+midnight stays local midnight *because* the elapsed time is 23 or 25 hours, `[24, 24, 23, 24]` across London's
+spring shift and `[24, 24, 25, 24]` across the autumn one, plus a 365-period timeline through **both**
+changeovers landing exactly on the right local midnight a year later. One test asserts a Tehran timeline is a
+flat 24 hours through 22 March — the old changeover date — which documents why the platform's Farsi audience
+never sees a short period: **Iran abolished DST in 2022.**
+
+**Assumptions / follow-ups recorded**
+
+- **`app.timezone` must stay UTC, and this is now a load-bearing constraint rather than a default.** An
+  attempted test flipped the process timezone to prove the arithmetic ignored it, and the boundaries moved by
+  five hours. The cause is Laravel, not the action: Eloquent round-trips a `datetime` attribute **through a
+  string** and re-parses it using the process timezone, so assigning a zone-bearing `CarbonImmutable` does not
+  survive the setter. Changing `app.timezone` therefore silently reinterprets every timestamp already in the
+  database. The test was replaced with the invariant that genuinely belongs to this code — the timeline is a
+  pure function of the challenge and **not of `now()`**, verified by travelling the clock 18 months and
+  asserting nothing moves. Worth carrying into any future work that touches stored timestamps.
+- A DST *spring-forward* gap can make a chosen local wall-clock time nonexistent for one day (e.g. 00:30 in a
+  zone that jumps 00:00 → 01:00); PHP shifts it forward. Not currently asserted — the affected zones and
+  anchor times are a narrow slice, and the boundary still lands on the right local day. Noted rather than
+  silently assumed.
+- No upper bound on `total_periods` is enforced here. That belongs in the create-challenge Form Request
+  (Phase 3), and the chunked insert means a large value degrades rather than breaking.
+
+**Result — `sail composer ci:check` GREEN:** eslint ✓, prettier ✓, `tsc --noEmit` ✓, pint ✓,
+phpstan lvl 7 (0 errors) ✓, tests **417 (413 pass, 4 skipped = Fortify 2FA disabled)**, +40 from this task.
+
+**Next:** Domain Task 5 — entitlements. Grant and consume `create_slot` / `join_slot`: the free baseline of one
+created and one joined challenge per user, extra slots bought with coins through `CoinLedger`, and consumption
+tied to a challenge so the spend survives the challenge being deleted. Every price comes from `Setting`;
+nothing hardcoded.
+
 
