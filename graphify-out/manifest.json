@@ -80,9 +80,9 @@
     "semantic_hash": "653fd36e8422ab3a42e2fb22262389bf"
   },
   "app/Providers/AppServiceProvider.php": {
-    "mtime": 1787315451.0,
-    "ast_hash": "183c0dbbb438655ed74bc8bb2657dcd9",
-    "semantic_hash": "183c0dbbb438655ed74bc8bb2657dcd9"
+    "mtime": 1787602660.6995907,
+    "ast_hash": "8013abd69e2cc9cfb068564457306067",
+    "semantic_hash": ""
   },
   "app/Providers/FortifyServiceProvider.php": {
     "mtime": 1787590265.609303,
@@ -165,8 +165,8 @@
     "semantic_hash": "f98ce92e7bf51db1fabaf8a30e12fc5a"
   },
   "config/services.php": {
-    "mtime": 1787599790.251325,
-    "ast_hash": "867961dc5843dbf61997da1cefefde9b",
+    "mtime": 1787602521.8588772,
+    "ast_hash": "13de841bff40f50f4cd6a674433bf6af",
     "semantic_hash": ""
   },
   "config/session.php": {
@@ -195,9 +195,9 @@
     "semantic_hash": "b0603b9fa0a27473971da76bb0c42ee1"
   },
   "database/seeders/DatabaseSeeder.php": {
-    "mtime": 1787315451.0,
-    "ast_hash": "ab1e985d74209458e33e0f4eb89fb77e",
-    "semantic_hash": "ab1e985d74209458e33e0f4eb89fb77e"
+    "mtime": 1787602757.9272342,
+    "ast_hash": "3631996b2ccfd2e18daff657bf510d70",
+    "semantic_hash": ""
   },
   "eslint.config.js": {
     "mtime": 1787590264.249348,
@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "prompts/progress.md": {
-    "mtime": 1787600522.8046882,
-    "ast_hash": "1a3e7cef2f781b3a255d162a99fd8979",
+    "mtime": 1787602190.9172623,
+    "ast_hash": "e004b318284ac32ddb2ea4b99eb798df",
     "semantic_hash": ""
   },
   "prompts/task-01-setup.md": {
@@ -1182,6 +1182,41 @@
   "tests/Feature/LocalizationTest.php": {
     "mtime": 1787601833.777197,
     "ast_hash": "ab6566002645fe25096625026f7ad2b8",
+    "semantic_hash": ""
+  },
+  "app/Enums/SettingKey.php": {
+    "mtime": 1787602522.9568818,
+    "ast_hash": "1fa237eaed800fc3f65aa2b806ae5c43",
+    "semantic_hash": ""
+  },
+  "app/Enums/SettingType.php": {
+    "mtime": 1787602486.4357412,
+    "ast_hash": "2ad287e63a9735cd895847f0e277e2a2",
+    "semantic_hash": ""
+  },
+  "app/Models/Setting.php": {
+    "mtime": 1787602548.2539916,
+    "ast_hash": "f356b1d17278bbd6a775de40fb28f4d7",
+    "semantic_hash": ""
+  },
+  "app/Services/Settings.php": {
+    "mtime": 1787602632.5084248,
+    "ast_hash": "f526e76ba105656a5668334b953884b7",
+    "semantic_hash": ""
+  },
+  "database/factories/SettingFactory.php": {
+    "mtime": 1787602565.282071,
+    "ast_hash": "0050efacea0964906062a783f741a3c8",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_24_201327_create_settings_table.php": {
+    "mtime": 1787602543.5379703,
+    "ast_hash": "996aae1274b380adb03b1ad0c189a9e8",
+    "semantic_hash": ""
+  },
+  "tests/Feature/SettingsTest.php": {
+    "mtime": 1787602853.9339628,
+    "ast_hash": "6efdbdedecea8e65f9c293f03b70b454",
     "semantic_hash": ""
   }
 }

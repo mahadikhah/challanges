@@ -8,7 +8,9 @@ Status key: ✅ done · 🔄 in progress · ⬜ not started
 ## Phase 1 — Setup
 - ✅ **Setup Task 1 — Project Bootstrap** (`prompts/task-01-setup.md`)
 - ✅ **Setup Task 2 — i18n + RTL layer**
-- ⬜ Setup Task 3 — `Setting` model + admin-tunable config
+- ✅ **Setup Task 3 — `Setting` model + admin-tunable config**
+
+**Phase 1 complete.**
 
 ## Phase 2 — Domain core (pure Actions, fully unit-tested, no Telegram coupling)
 - ⬜ Migrations, models, backed enums
@@ -149,3 +151,80 @@ Both Vite entries build (`app.tsx`, `miniapp/main.tsx` both present in the manif
 - Consider caching the flattened catalogue if it grows (currently per-request memoised only).
 
 **Next:** Setup Task 3 (`Setting` model + admin-tunable config).
+
+### Setup Task 3 — `Setting` model + admin-tunable config ✅
+
+CLAUDE.md: *"Every rate and price is admin-configurable. Never hardcode one."* This is the layer that makes
+that true, built before any code needs a price so no phase has an excuse to inline one.
+
+**Built:**
+- `app/Enums/SettingType.php` — `Text|Integer|Boolean|Json`, with `matches(mixed): bool` (the write-time
+  gate) and `describe(): string` (the error/admin-form wording).
+- `app/Enums/SettingKey.php` — **the registry**: 12 cases, each carrying its own `default()` and `type()`.
+  Economy (`invite_coin_reward`, `create_slot_coin_price`, `join_slot_coin_price`, `freeze_coin_price`,
+  `challenge_completion_coin_reward`, `stars_packages`), baseline (`free_create_slots`, `free_join_slots`,
+  `default_challenge_freezes`), access/tokens (`required_channel`, `miniapp_token_ttl_minutes`,
+  `initdata_max_age_seconds`).
+- `settings` migration — `key` unique, nullable `json` `value`. No `type` column.
+- `app/Models/Setting.php` (`value` → `json` cast) + `SettingFactory`.
+- `app/Services/Settings.php` — `get()`, typed `string()/integer()/boolean()/array()`, `all()`, `set()`,
+  `forget()`, `flush()`.
+
+**Decisions:**
+- **A row means "an admin overrode this"; the enum case is the default.** So `get()` answers correctly
+  against an empty table: a forgotten seeder can't take pricing down, and a newly added tunable needs no
+  backfill migration.
+- **Therefore no `SettingsSeeder`** — one was generated, then deleted by design. Materialising a row per
+  default converts every default into a permanent override, so a *better* default shipped in a later release
+  could never reach an existing install. That also contradicts what `forget()` means.
+- **No `type` column.** The enum already declares each key's shape, and a second copy in the database can
+  disagree with it. `type()` is the single source.
+- **Writes reject the wrong shape rather than coercing it** (`InvalidArgumentException`, message
+  `Setting [freeze_coin_price] expects an integer.` — usable directly in the admin form). These are prices;
+  a silently-cast `'15'`/`true` is worse than a loud failure. `SettingType::Integer` deliberately uses
+  `is_int()`, so numeric strings, floats and booleans are all rejected.
+- **Reads never throw on bad data.** A hand-edited row of the wrong shape falls back to the registry
+  default — a corrupt setting must not be able to take check-ins down. The distinction is deliberate:
+  strict on the way in, forgiving on the way out.
+- **A wrong *accessor*, however, is a `LogicException`** (`integer(StarsPackages)`), because that's a bug at
+  the call site, not bad data.
+- **One cache entry holds every override** (`settings.overrides`, `rememberForever`), plus a per-request
+  memo. The cache store is the `database` driver (no Redis), so per-key entries would turn one webhook into
+  a dozen SELECTs; a test pins that four reads cost **1** query. Cache **tags are unavailable** on the
+  `database` driver, hence one key and a whole-entry bust on write.
+- **Both `Settings` and `Localization` are now singletons** (`AppServiceProvider::register`). Settings
+  *requires* it — `set()` clears the memo on the instance it was called on, so a second instance would keep
+  serving the pre-write value. Localization merely benefits: it was being resolved four times per request,
+  re-reading and re-flattening the lang files each time (a real Task 2 inefficiency, fixed here).
+- Anything writing to `settings` outside `set()`/`forget()` must call `flush()`; asserted by a test.
+- `config/services.php`: `required_channel` hardened to `(string) env(...)`, because
+  **`Config::string()` throws when a key exists holding `null`** — the default argument only applies when
+  the key is *absent*.
+
+**Trap worth remembering — MySQL JSON key order.** A native `json` column **sorts object keys** on storage,
+so `['stars' => 25, 'coins' => 25]` reads back as `['coins' => 25, 'stars' => 25]`. Order *within a list* is
+preserved (so the Stars package ordering users see is stable), but any assertion or comparison on an
+associative payload must be order-insensitive — `toEqual()`, not `toBe()`. Relevant to Phase 4, which reads
+`stars_packages` back out to build invoices.
+
+**Trap worth remembering — `make:enum`.** Once `app/Enums/` exists, `make:enum Enums/SettingType` writes to
+`app/Enums/Enums/SettingType.php`. Pass the bare name.
+
+**Tests:** `tests/Feature/SettingsTest.php` — 47 tests in six `describe()` blocks: the registry (a dataset
+asserting **every** case's default matches its own declared type; coverage of the tunables CLAUDE.md names;
+`all()` ordering), defaults (resolve against an empty table; free baseline is 1+1; Stars packages are
+invoice-shaped; env-derived default read through config), overrides (override wins, `set()` persists +
+busts a warmed cache, no duplicate rows, `forget()` reverts, structured round-trip, unknown key ignored),
+write validation (6-case wrong-type dataset, exact message, wrong-accessor `LogicException`, corrupt-row
+fallback), caching (4 reads = 1 query via `DB::listen`, raw write needs `flush()`, singleton identity), and
+`SettingType::matches()` (11 cases).
+
+**Result — `sail composer ci:check` GREEN:** eslint ✓, prettier ✓, `tsc --noEmit` ✓, pint ✓,
+phpstan lvl 7 (0 errors) ✓, tests **123 (119 pass, 4 skipped = Fortify 2FA disabled)**, +47 from this task.
+
+**Follow-up noted:** the admin UI for editing these lands in Phase 6 — it can render `all()` and drive
+inputs off `type()`, and should surface `set()`'s exception message as the field error.
+
+**Next:** Phase 2, Domain core — migrations, models and backed enums, then the pure Actions (`CoinLedger`
+with `lockForUpdate()`, entitlements, period materialisation for all six `period_type`, streak/freeze/miss
+engine, invite crediting, per-participant-per-period phrase generation), unit-tested before any surface.
