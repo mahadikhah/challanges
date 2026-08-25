@@ -92,6 +92,25 @@ class ChallengePeriod extends Model
     }
 
     /**
+     * The period that a moment falls inside — the one a check-in submitted now
+     * belongs to.
+     *
+     * The SQL mirrors `contains()` exactly, `ends_at` exclusive included, so the
+     * question "which period is open?" cannot be answered one way in PHP and
+     * another way in the database.
+     *
+     * @param  Builder<$this>  $query
+     */
+    #[Scope]
+    protected function containing(Builder $query, ?CarbonInterface $moment = null): void
+    {
+        $moment ??= now();
+
+        $query->where('starts_at', '<=', $moment)
+            ->where('ends_at', '>', $moment);
+    }
+
+    /**
      * Periods that have elapsed but have not been settled yet — the rollover
      * sweep's work queue.
      *
