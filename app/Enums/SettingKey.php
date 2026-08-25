@@ -43,6 +43,7 @@ enum SettingKey: string
     | remain overridable at runtime without a redeploy.
     */
     case RequiredChannel = 'required_channel';
+    case ChannelVerificationTtlMinutes = 'channel_verification_ttl_minutes';
     case MiniAppTokenTtlMinutes = 'miniapp_token_ttl_minutes';
     case InitDataMaxAgeSeconds = 'initdata_max_age_seconds';
 
@@ -94,6 +95,17 @@ enum SettingKey: string
             self::DefaultChallengeFreezes => 1,
 
             self::RequiredChannel => Config::string('services.telegram.required_channel'),
+
+            /*
+            | How long a confirmed channel membership is trusted before the gate
+            | asks Telegram again. Ten minutes is a deliberate compromise: at ~30
+            | Bot API calls a second globally, re-verifying on every privileged
+            | action would compete with reminder fan-out, and the cost of the
+            | cache is that somebody who leaves the channel keeps access for up to
+            | this long. Zero turns the cache off entirely.
+            */
+            self::ChannelVerificationTtlMinutes => 10,
+
             self::MiniAppTokenTtlMinutes => 60,
             self::InitDataMaxAgeSeconds => Config::integer('services.telegram.initdata_ttl', 3600),
         };

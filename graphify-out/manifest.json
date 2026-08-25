@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "prompts/progress.md": {
-    "mtime": 1787617090.5990915,
-    "ast_hash": "33d32bbeaa4936236bced889fb6d9fca",
+    "mtime": 1787620580.469159,
+    "ast_hash": "14896b7473d3122b49552743e0812e0c",
     "semantic_hash": ""
   },
   "prompts/task-01-setup.md": {
@@ -1185,8 +1185,8 @@
     "semantic_hash": ""
   },
   "app/Enums/SettingKey.php": {
-    "mtime": 1787602522.9568818,
-    "ast_hash": "1fa237eaed800fc3f65aa2b806ae5c43",
+    "mtime": 1787622199.563201,
+    "ast_hash": "8851f78acc8481264e7cc00da038b92e",
     "semantic_hash": ""
   },
   "app/Enums/SettingType.php": {
@@ -1440,8 +1440,8 @@
     "semantic_hash": ""
   },
   "database/factories/TelegramUpdateFactory.php": {
-    "mtime": 1787606261.7798,
-    "ast_hash": "dbf877e91794b0ce096279f1008763c6",
+    "mtime": 1787622807.6046462,
+    "ast_hash": "921e78bb174a7a9aa1a0ba688731a920",
     "semantic_hash": ""
   },
   "database/migrations/2026_08_24_210231_create_coin_transactions_table.php": {
@@ -1710,8 +1710,8 @@
     "semantic_hash": ""
   },
   "tests/Feature/Bot/TelegramWebhookTest.php": {
-    "mtime": 1787619815.9867642,
-    "ast_hash": "6861740c8f5f26dcb160b48c373895c2",
+    "mtime": 1787624112.644254,
+    "ast_hash": "21ee93765f1ed809293ed5c120020bd0",
     "semantic_hash": ""
   },
   "app/Console/Commands/Telegram/SetWebhookCommand.php": {
@@ -1725,8 +1725,8 @@
     "semantic_hash": ""
   },
   "app/Providers/TelegramServiceProvider.php": {
-    "mtime": 1787619723.631693,
-    "ast_hash": "a7fa7a7adda1b933921f70d0fed9651f",
+    "mtime": 1787622680.148474,
+    "ast_hash": "bcc6e4386db738720b6dee3a96006a09",
     "semantic_hash": ""
   },
   "app/Services/Telegram/HandlesUpdate.php": {
@@ -1757,6 +1757,81 @@
   "tests/Feature/Bot/UpdateRouterTest.php": {
     "mtime": 1787620071.312465,
     "ast_hash": "0e1ac3e44483d9310e8a2fc781380122",
+    "semantic_hash": ""
+  },
+  "app/Actions/Telegram/ResolveTelegramUser.php": {
+    "mtime": 1787622135.9935777,
+    "ast_hash": "e11576fe0f9550744449d15e45fbb1fc",
+    "semantic_hash": ""
+  },
+  "app/Actions/Telegram/VerifyChannelMembership.php": {
+    "mtime": 1787622175.151216,
+    "ast_hash": "b1fdd6f868dce2863cb9f4498863d050",
+    "semantic_hash": ""
+  },
+  "app/Enums/ChatMemberStatus.php": {
+    "mtime": 1787622094.1307404,
+    "ast_hash": "d8d73230fcd627d5e496dc754c5731ce",
+    "semantic_hash": ""
+  },
+  "app/Exceptions/ChannelGateException.php": {
+    "mtime": 1787622110.253459,
+    "ast_hash": "7b857aa2fa7e0d9abbbe1f1ffb5595ba",
+    "semantic_hash": ""
+  },
+  "app/Services/Telegram/BotCommand.php": {
+    "mtime": 1787622322.633786,
+    "ast_hash": "e3828626cb8cee226ab5ed72f125888f",
+    "semantic_hash": ""
+  },
+  "app/Services/Telegram/BotMessenger.php": {
+    "mtime": 1787622302.368071,
+    "ast_hash": "2e8f3de5ee37207b7f37af4379f88a6b",
+    "semantic_hash": ""
+  },
+  "app/Services/Telegram/CommandRouter.php": {
+    "mtime": 1787622455.7561493,
+    "ast_hash": "c3d3e48a4382cb7eca4ccd7269812e24",
+    "semantic_hash": ""
+  },
+  "app/Services/Telegram/Commands/StartCommand.php": {
+    "mtime": 1787622538.45161,
+    "ast_hash": "8a51f0616c9fb3a11553c56c7e05d311",
+    "semantic_hash": ""
+  },
+  "app/Services/Telegram/Handlers/MessageHandler.php": {
+    "mtime": 1787622479.2918673,
+    "ast_hash": "7483a40dc1f71481493d5e42a2273c2e",
+    "semantic_hash": ""
+  },
+  "app/Services/Telegram/HandlesBotCommand.php": {
+    "mtime": 1787622438.4946134,
+    "ast_hash": "7592f069ca35a63d9ec7c819ba31b65e",
+    "semantic_hash": ""
+  },
+  "lang/en/bot.php": {
+    "mtime": 1787622555.041084,
+    "ast_hash": "8b7551e7a3e52ab05d2deaaf640af586",
+    "semantic_hash": ""
+  },
+  "lang/fa/bot.php": {
+    "mtime": 1787622578.6807487,
+    "ast_hash": "6b1d11385d44fcb4c8c548c5ece026d5",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Bot/ChannelGateTest.php": {
+    "mtime": 1787623160.846425,
+    "ast_hash": "2ffa91412def8a47014c754535747453",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Bot/ResolveTelegramUserTest.php": {
+    "mtime": 1787623579.6905444,
+    "ast_hash": "f15177e6d1254e32f750361544b6ac52",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Bot/StartCommandTest.php": {
+    "mtime": 1787624039.8194728,
+    "ast_hash": "37c8d87551d96a3086ea8bbd81add0ec",
     "semantic_hash": ""
   }
 }

@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Services\Telegram\CommandRouter;
+use App\Services\Telegram\Commands\StartCommand;
+use App\Services\Telegram\Handlers\MessageHandler;
+use App\Services\Telegram\HandlesBotCommand;
 use App\Services\Telegram\HandlesUpdate;
 use App\Services\Telegram\LaravelHttpClient;
 use App\Services\Telegram\UpdateRouter;
@@ -48,7 +52,22 @@ class TelegramServiceProvider extends ServiceProvider
      *
      * @var array<string, class-string<HandlesUpdate>>
      */
-    public const array UPDATE_HANDLERS = [];
+    public const array UPDATE_HANDLERS = [
+        'message' => MessageHandler::class,
+    ];
+
+    /**
+     * Which handler serves each slash command, keyed by the command word.
+     *
+     * The same idea one level down: `UPDATE_HANDLERS` says what kinds of update
+     * the bot reacts to, this says what a user can actually type. A command absent
+     * from here gets the "I did not follow that" reply rather than silence.
+     *
+     * @var array<string, class-string<HandlesBotCommand>>
+     */
+    public const array BOT_COMMANDS = [
+        'start' => StartCommand::class,
+    ];
 
     public function register(): void
     {
@@ -72,6 +91,11 @@ class TelegramServiceProvider extends ServiceProvider
         $this->app->singleton(
             UpdateRouter::class,
             fn (): UpdateRouter => new UpdateRouter($this->app, self::UPDATE_HANDLERS),
+        );
+
+        $this->app->singleton(
+            CommandRouter::class,
+            fn (): CommandRouter => new CommandRouter($this->app, self::BOT_COMMANDS),
         );
     }
 }

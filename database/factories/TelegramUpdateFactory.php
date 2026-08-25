@@ -48,6 +48,36 @@ class TelegramUpdateFactory extends Factory
         ]);
     }
 
+    /**
+     * A message from a sender described field by field, for the profile fields
+     * `ResolveTelegramUser` reads — username, last name, client language.
+     *
+     * @param  array<string, mixed>  $from  merged over Telegram's `from` object
+     */
+    public function messageFrom(array $from, string $text = '/start'): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'payload' => $this->messagePayload(
+                $text,
+                is_int($from['id'] ?? null) ? $from['id'] : null,
+                $from,
+            ),
+        ]);
+    }
+
+    /**
+     * The same message, arriving from somewhere that is not a private chat.
+     *
+     * The bot is an admin of the announcement channel and can be added to groups,
+     * so this shape is real traffic rather than a hypothetical.
+     */
+    public function messageInChat(string $chatType, string $text = '/start'): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'payload' => $this->messagePayload($text, null, [], $chatType),
+        ]);
+    }
+
     public function callbackQuery(string $data, ?int $fromTelegramId = null): static
     {
         return $this->state(fn (array $attributes): array => [
@@ -88,21 +118,31 @@ class TelegramUpdateFactory extends Factory
     }
 
     /**
+     * @param  array<string, mixed>  $from  merged over the default sender
      * @return array<string, mixed>
      */
-    private function messagePayload(string $text, ?int $fromTelegramId = null): array
-    {
+    private function messagePayload(
+        string $text,
+        ?int $fromTelegramId = null,
+        array $from = [],
+        string $chatType = 'private',
+    ): array {
         $telegramId = $fromTelegramId ?? fake()->numberBetween(1, 999_999);
 
         return [
             'message' => [
                 'message_id' => fake()->numberBetween(1, 9999),
-                'from' => [
+                'from' => array_replace([
                     'id' => $telegramId,
                     'is_bot' => false,
                     'first_name' => fake()->firstName(),
+                ], $from),
+                // A private chat's id *is* the user's id; anywhere else it is not,
+                // which is precisely why the handler refuses anywhere else.
+                'chat' => [
+                    'id' => $chatType === 'private' ? $telegramId : -$telegramId,
+                    'type' => $chatType,
                 ],
-                'chat' => ['id' => $telegramId, 'type' => 'private'],
                 'date' => 1_760_000_000,
                 'text' => $text,
             ],

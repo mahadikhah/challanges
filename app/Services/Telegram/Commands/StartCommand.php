@@ -1,0 +1,184 @@
+<?php
+
+namespace App\Services\Telegram\Commands;
+
+use App\Actions\Entitlements\GrantFreeBaseline;
+use App\Actions\Invites\ClaimInvite;
+use App\Actions\Telegram\VerifyChannelMembership;
+use App\Enums\InviteRejection;
+use App\Exceptions\InviteNotClaimableException;
+use App\Models\Invite;
+use App\Models\User;
+use App\Services\Telegram\BotCommand;
+use App\Services\Telegram\BotMessenger;
+use App\Services\Telegram\HandlesBotCommand;
+use Illuminate\Support\Facades\Log;
+
+/**
+ * `/start` — the front door, and the only command that works before the gate.
+ *
+ * Three pieces of Domain core, composed in an order that is load-bearing:
+ *
+ * **1. Attribution first, before the gate decides anything.** An invite pays its
+ * inviter only when the invitee is brand-new, and "brand-new" is
+ * `wasRecentlyCreated` on the instance this very update created. Block first and
+ * the credit is not deferred — it is *lost*: the user joins the channel, sends
+ * `/start` again, and by then their row already exists, so `ClaimInvite` finds
+ * nobody new to pay. The framing that resolves it: the reward is for bringing a
+ * person to the bot, which has already happened; the channel gate is about
+ * *using* the bot, which has not.
+ *
+ * **2. The gate, always asking Telegram.** `handle()` rather than `ensure()`,
+ * because the overwhelmingly likely reason somebody sends `/start` twice is that
+ * they just tapped the join button — a cached "no" would send them round the loop
+ * again.
+ *
+ * **3. Provisioning only once they are in.** `GrantFreeBaseline` runs after the
+ * gate passes, so nothing is handed to a user who has not joined. It tops up
+ * rather than grants, so running it on every `/start` is free and lifts existing
+ * users when an admin raises the allowance.
+ *
+ * Everything the user is told goes out as **one** message. Telegram allows roughly
+ * a message a second per chat, and a greeting plus an invite note plus a nudge
+ * sent separately is how the third one gets dropped with a 429.
+ */
+class StartCommand implements HandlesBotCommand
+{
+    public function __construct(
+        private readonly ClaimInvite $invites,
+        private readonly VerifyChannelMembership $gate,
+        private readonly GrantFreeBaseline $baseline,
+        private readonly BotMessenger $messenger,
+    ) {}
+
+    public function handle(User $user, BotCommand $command): void
+    {
+        // Read before anything writes to the row, so the greeting can tell a first
+        // arrival from a returning user even if a later save clears the flag.
+        $isFirstArrival = $user->wasRecentlyCreated;
+
+        $outcome = $this->attribute($user, $command->argument);
+
+        if (! $this->gate->handle($user)) {
+            $this->askToJoin($user, $outcome);
+
+            return;
+        }
+
+        $this->baseline->handle($user);
+
+        $this->welcome($user, $isFirstArrival, $outcome);
+    }
+
+    /**
+     * Claim the `?start=` payload, if there was one.
+     *
+     * Returns the claimed invite, or the reason it was refused, or null when no
+     * code was offered — three outcomes the reply has to distinguish.
+     *
+     * A refused code is **never** fatal to the arrival. The user still gets in;
+     * they simply arrive unattributed, and are told which of the four things went
+     * wrong rather than left wondering.
+     */
+    private function attribute(User $user, ?string $code): Invite|InviteRejection|null
+    {
+        if ($code === null) {
+            return null;
+        }
+
+        try {
+            return $this->invites->handle($user, $code);
+        } catch (InviteNotClaimableException $refused) {
+            Log::info('An invite code offered on /start was refused.', [
+                'user_id' => $user->getKey(),
+                'code' => $refused->inviteCode,
+                'reason' => $refused->reason->value,
+            ]);
+
+            return $refused->reason;
+        }
+    }
+
+    /**
+     * Block with a join button until membership is confirmed.
+     */
+    private function askToJoin(User $user, Invite|InviteRejection|null $outcome): void
+    {
+        $url = $this->gate->joinUrl();
+
+        if ($url === null) {
+            // A numeric `-100…` channel id has no public link, so there is no
+            // button to offer and the user has to be invited another way. Worth a
+            // warning: it is a configuration choice that quietly degrades the gate.
+            Log::warning('The required channel has no public link, so no join button can be offered.', [
+                'channel' => $this->gate->channel(),
+            ]);
+        }
+
+        $this->messenger->paragraphs(
+            $user,
+            [
+                $this->messenger->line(
+                    $user,
+                    $url === null ? 'bot.gate.blocked_without_link' : 'bot.gate.blocked',
+                    ['channel' => $this->gate->channel()],
+                ),
+                $this->inviteNote($user, $outcome),
+                $this->messenger->line($user, 'bot.gate.then_start_again'),
+            ],
+            $url === null ? null : [[[
+                'text' => $this->messenger->line($user, 'bot.gate.join_button'),
+                'url' => $url,
+            ]]],
+        );
+    }
+
+    /**
+     * Let them in.
+     */
+    private function welcome(User $user, bool $isFirstArrival, Invite|InviteRejection|null $outcome): void
+    {
+        $this->messenger->paragraphs($user, [
+            $this->messenger->line($user, $isFirstArrival ? 'bot.start.welcome' : 'bot.start.welcome_back', [
+                'name' => $this->greetingName($user),
+                'app' => $this->messenger->line($user, 'common.app_name'),
+            ]),
+            $this->inviteNote($user, $outcome),
+            $this->messenger->line($user, 'bot.start.next_steps'),
+        ]);
+    }
+
+    /**
+     * One line about the invite code they arrived with, or nothing if they didn't.
+     */
+    private function inviteNote(User $user, Invite|InviteRejection|null $outcome): ?string
+    {
+        if ($outcome === null) {
+            return null;
+        }
+
+        if ($outcome instanceof InviteRejection) {
+            // The rejection cases exist to be told apart: "that link is spent" and
+            // "that is your own link" are different conversations.
+            return $this->messenger->line($user, "bot.invite.refused.{$outcome->value}");
+        }
+
+        return $this->messenger->line(
+            $user,
+            $outcome->wasPaid() ? 'bot.invite.credited' : 'bot.invite.claimed',
+            ['name' => $this->greetingName($outcome->inviter)],
+        );
+    }
+
+    /**
+     * What to call somebody in a sentence.
+     *
+     * `first_name` is what Telegram users recognise as their own name; `name` is
+     * the non-nullable column behind it, which for a bot user is the same thing
+     * plus a surname and for a Fortify admin is a full name.
+     */
+    private function greetingName(User $user): string
+    {
+        return $user->first_name ?? $user->name;
+    }
+}

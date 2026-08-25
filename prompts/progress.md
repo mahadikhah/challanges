@@ -36,7 +36,8 @@ Status key: ✅ done · 🔄 in progress · ⬜ not started
   immediate 200, queued processing)
 - ✅ **Bot Core Task 2 — outbound transport + webhook commands + update router** (`Http::fake()`-able
   transport, `telegram:set-webhook` / `telegram:webhook-info`, `kind()` → handler)
-- ⬜ Channel gate; `/start` with invite attribution
+- ✅ **Bot Core Task 3 — channel gate + `/start` with invite attribution** (`getChatMember` fail-closed,
+  join button, `ensure()` TTL cache, command router, one-message replies, per-recipient locale)
 - ⬜ Create-challenge wizard (`BotConversation`); join flow
 - ⬜ Check-in for all three proof types
 - ⬜ Reminders (scheduler + staggered queued jobs); locale selection
@@ -1373,3 +1374,144 @@ already built: `firstOrCreate` on `telegram_id` (the instance whose `wasRecently
 `ClaimInvite` for `?start=<code>` attribution, and `GrantFreeBaseline` on every arrival. This is where
 `TelegramServiceProvider::UPDATE_HANDLERS` gains its first entry (`'message' => …`) and where command parsing
 gets designed.
+
+---
+
+## Bot Core Task 3 — channel gate + `/start` with invite attribution (done)
+
+The bot's front door. Everything Domain core built for arrivals — `firstOrCreate` on `telegram_id`,
+`ClaimInvite`, `GrantFreeBaseline` — finally gets a caller, and `UPDATE_HANDLERS` gains its first entry.
+
+**What landed**
+
+- `ChatMemberStatus` — backed enum over Telegram's six statuses plus a non-Bot-API `Unknown` case, so a status
+  Telegram invents later reads as "no" instead of falling through. `grantsAccess(?bool $isMember)` folds in the
+  one status that needs a second field: `restricted` counts only while `is_member === true`, which is how a
+  muted member is told apart from somebody restricted *and* removed.
+- `VerifyChannelMembership` — two readings, and the split is the design. **`handle()` always asks Telegram**
+  and is what `/start` uses, because the overwhelmingly likely reason somebody sends `/start` twice is that
+  they just tapped the join button; a cached "no" would send them round the loop. **`ensure()` reuses a recent
+  answer** and is what privileged actions (create, join, spend) will use, because at ~30 Bot API calls a second
+  globally, one `getChatMember` per action competes with reminder fan-out. **The stamp is cleared on a "no"**,
+  so a cached yes can never outlive the fact it recorded.
+- `ChannelGateException` — `notConfigured()` (empty `required_channel`) and `notATelegramUser()` (an
+  email-only Fortify admin handed to a bot path). An unset channel throws rather than degrading to "everybody
+  is a member", matching the webhook secrets' fail-closed reasoning: **an unset required channel is a
+  deployment that is not finished, not a deployment with the gate turned off.**
+- `SettingKey::ChannelVerificationTtlMinutes` (default **10**) — how long a confirmed membership is trusted.
+  Zero turns the cache off entirely and makes `ensure()` identical to `handle()`.
+- `ResolveTelegramUser` — the bot has no sign-up step, so this action *is* registration. Returns the instance
+  whose `wasRecentlyCreated` is meaningful (the `ClaimInvite` contract). Writes `locale` **only at creation**,
+  refreshes Telegram-owned profile fields only when `isDirty()`, and never touches `is_admin` or
+  `channel_verified_at`.
+- `BotMessenger` — talks to one user in that user's own language. Exists because a queue worker's
+  `app()->getLocale()` is whoever was processed last. `paragraphs()` joins lines into **one** `sendMessage`
+  (roughly a message a second per chat). The chat id comes from our own row, never the payload.
+- `BotCommand` + `HandlesBotCommand` + `CommandRouter` + `TelegramServiceProvider::BOT_COMMANDS` — the
+  `UPDATE_HANDLERS` shape one level down, so "what a user can type" stays readable in one file.
+- `MessageHandler` — refuses anything that is not a private chat, refuses a bot sender, **resolves the user
+  exactly once**, then routes; unmatched input gets `bot.fallback.unknown`.
+- `StartCommand` + `lang/{en,fa}/bot.php`.
+
+**The ordering decision this task turns on**
+
+`/start` runs **attribution before the gate decides anything**. Blocking first does not defer the invite
+credit, it *loses* it: the user joins the channel, sends `/start` again, and by then their row already exists,
+so `ClaimInvite` finds nobody brand-new to pay. The framing that resolves it — **the reward is for bringing a
+person to the bot, which has already happened; the gate is about *using* the bot, which has not.** A blocked
+user is still told their inviter was credited, in the same message as the join button.
+`StartCommandTest::it('pays the inviter even when the arrival is then blocked at the gate')` is the regression
+guard, and it is the reason this task is tested end-to-end through `dispatch_sync()` rather than per class: the
+bug is an ordering bug between four collaborators, which no unit test of any one of them can see.
+
+**The gate is invoked explicitly, not as per-message middleware.** Deliberate, and recorded in the
+`HandlesBotCommand` docblock so the next task cannot forget it: **every command that creates, joins or spends
+must call `ensure()` first.** Blanket per-message verification would spend a Bot API call on every stray "hi"
+(`StartCommandTest::it('does not spend a gate check on it')` pins that), and §2.1's wording is "re-verify on
+privileged actions", not on everything.
+
+**SDK findings, verified by reading `vendor/`, not assumed**
+
+- **The SDK does not serialise `reply_markup`.** Params go straight through as form fields, so a nested array
+  would be rejected by Telegram. `BotMessenger::send()` `json_encode`s it. This also means the SDK's
+  `Keyboard` class is not used anywhere — a loosely typed Collection subclass that fights PHPStan level 7 buys
+  nothing over a plain array.
+- `Api::getChatMember()` uses `$this->get(...)`, i.e. a **GET with query parameters**. So `Http::fake()`
+  patterns must be `'*getChatMember*'` — `$request->url()` includes the query string and a pattern anchored on
+  the method name alone never matches. Same trap for `'*sendMessage*'`.
+- `BaseObject::getRawResult()` is `data_get($data, 'result', $data)`, so `result` *is* unwrapped and
+  `$member->get('status')` reads Telegram's field directly. Preferred over the SDK's magic `__get`, which
+  returns `mixed` and snake-cases behind the scenes.
+
+**Tests — 3 files, 78 tests, +80 over the previous run**
+
+- `ResolveTelegramUserTest` (18) — creation from a sender, the `wasRecentlyCreated` assertion that decides
+  whether an inviter gets paid, name fallbacks (`first+last` → `username` → `Telegram <id>`, because
+  `users.name` is NOT NULL), a changed username picked up, **a chosen `locale` never overwritten by a client
+  language**, no write when nothing changed, `is_admin`/`channel_verified_at` left alone, four bad-id refusals.
+- `ChannelGateTest` (27) — a dataset over all five real statuses, `restricted` × `is_member` × absent, the
+  unknown-status fail-closed case, stamp set on yes and **cleared on no**, the channel and the user's own id
+  actually asked, an admin moving the channel followed, both `ChannelGateException` paths asserting
+  `Http::assertNothingSent()`, a Telegram error propagating as `TelegramSDKException` **and leaving an existing
+  stamp untouched**, `joinUrl()` for `@name` / numeric / unconfigured, and five `ensure()` cases including the
+  one that records the cache's cost: a fresh stamp is trusted even if the user has since left.
+- `StartCommandTest` (33) — the whole inbound path, `dispatch_sync` → real `UPDATE_HANDLERS` →
+  `MessageHandler` → `StartCommand`. Register/admit/greet in one message; reply addressed to their own chat id;
+  baseline granted per settings and **topped up rather than doubled**; `welcome_back`; gate block with the join
+  button and nothing granted; re-asked on every `/start`; admitted the moment they join; the link-less
+  `-100…` channel; six invite paths (paid, **paid-then-blocked**, paid once across retries, `not_found`,
+  `self_invite`, `already_claimed`, `invitee_already_attributed`, an upper-cased code); non-private chats and
+  bot senders ignored with no user created and nothing sent — but **still stamped processed**, since ignoring
+  is a decision rather than a failure; the fallback for unknown commands, free text, a bare slash and a
+  text-less photo; `/start@botname`; and three locale tests including **one recipient's locale not leaking
+  into the next**.
+
+**Traps hit while writing these**
+
+- **`Http::clearRecorded()` does not exist** on this Laravel version. Where a test puts several updates
+  through, `latestBotMessage(int $ofTotal)` reads the last message *and* asserts the total, which keeps the
+  one-message-per-update rule enforced rather than dropped.
+- **A second `Http::fake()` call cannot change an existing stub** — `fake()` appends and the first match wins,
+  so "left, then member" needed `Http::sequence()`, not two `fake()` calls. Same appending trap as Task 2,
+  arriving from the other direction.
+- `Http::response()` returns a `PromiseInterface`, not a `Response` — the `array_map` building that sequence
+  had to be typed accordingly.
+- An attribute the action never touched is **absent from the in-memory instance**, so `$user->is_admin` is
+  `null` rather than the column default `false`. The assertion reads `$user->fresh()`.
+
+**Pre-existing test updated:** `TelegramWebhookTest`'s `beforeEach` now configures a bot token and a required
+channel and returns `['ok' => true, 'result' => []]` instead of a bare `Http::fake()`. Not a workaround — a
+`message` update now routes to a real handler, so those webhook-plumbing tests exercise more than they did.
+
+**Assumptions / follow-ups recorded**
+
+- **`bot.start.next_steps` is a placeholder.** Replace it with a real command menu (and `setMyCommands`) once
+  the create-challenge wizard lands.
+- **The inviter is not notified when their invite credits.** A second `sendMessage` that 403s if they have
+  blocked the bot; it belongs with the reminder infrastructure that already has to handle that failure mode.
+- **The "I've joined" callback button is deferred to the wizard task**, along with the whole `callback_query`
+  handler and its router — the gate currently asks the user to send `/start` again, which works and needs no
+  new update kind.
+- **A numeric `-100…` `required_channel` degrades the gate to a link-less prompt.** Logged as a warning on
+  every blocked user, since it is a configuration choice that quietly makes the gate harder to pass.
+- **A brand-new user whose first message is *not* `/start` still gets a `users` row**, which means a code they
+  send afterwards can never pay their inviter. Acceptable: the deep link always sends `/start <code>`, and
+  `ClaimInvite` failing closed is the documented trade (under-paying is a support conversation, over-paying is
+  a mint).
+- Carried unchanged: `.github/workflows/tests.yml` needs **both** a MySQL service *and* `pcntl`; nothing
+  sweeps `unprocessed()`; no rate limiting on the webhook path; `telegram:set-webhook` is not in a deploy step;
+  `entitlements` has no unique index; no release path for a consumed entitlement; nothing calls
+  `RollOverPeriod` on a schedule; no completion detection or flat completion reward yet.
+
+**Result — `sail composer ci:check` GREEN:** eslint ✓, prettier ✓, `tsc --noEmit` ✓, pint ✓,
+phpstan lvl 7 (0 errors) ✓, tests **771 (767 pass, 4 skipped = Fortify 2FA disabled)**, 2158 assertions,
+0 risky, +80 from this task. Graph: 2306 nodes / 3951 edges.
+
+**Next:** Bot Core Task 4 — the create-challenge wizard. `BotConversation` (state + payload JSON + expiry) is
+the model Domain Task 2 built for exactly this, because the SDK has no FSM. Five steps — title → period type
+(a six-case `PeriodType` dataset) → start date and total periods → proof type → visibility — then
+`MaterialisePeriods` and, for a public challenge, the announcement-channel post. This is where the
+`callback_query` handler and its router land (inline keyboards for every enum choice), where
+`ConsumeEntitlement` gets its first bot caller, and where `HandlesBotCommand`'s note about `ensure()` gets
+honoured for the first time. Free text stops being a fallback and becomes how a user answers a question, so
+`MessageHandler` grows a "does this user have an open conversation?" branch **before** command parsing.

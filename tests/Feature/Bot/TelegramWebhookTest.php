@@ -11,10 +11,15 @@ use Illuminate\Support\Facades\Queue;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    // The Bot API is never reached in tests, on any path.
-    Http::fake();
+    // The Bot API is never reached in tests, on any path. A shaped reply rather than
+    // a bare 200, because a `message` update now routes to a real handler that reads
+    // Telegram's answers — and that handler needs a token and a required channel
+    // configured before this file's own plumbing assertions can be reached.
+    Http::fake(['*' => Http::response(['ok' => true, 'result' => []])]);
 
     config([
+        'services.telegram.bot_token' => '123456:TEST-TOKEN',
+        'services.telegram.required_channel' => '@challenges',
         'services.telegram.webhook_secret' => 'path-secret',
         'services.telegram.webhook_header_secret' => 'header-secret',
     ]);
