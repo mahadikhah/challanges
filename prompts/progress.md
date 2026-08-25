@@ -26,10 +26,16 @@ Status key: ✅ done · 🔄 in progress · ⬜ not started
   idempotency, participant mutex, `streak_resets_count`, no auto-remove)
 - ✅ **Domain Task 7 — invite codes + brand-new-user crediting** (single-use codes, `wasRecentlyCreated`
   eligibility, `Claimed` vs `Credited`, paid once per invite row)
-- ⬜ Per-participant-per-period phrase generation
+- ✅ **Domain Task 8 — per-participant-per-period phrase generation** (unique `(period, phrase)` index,
+  generate-once-and-persist, locale frozen at issue time, Farsi template + folds)
+- ✅ **Domain Task 9 — `SubmitCheckIn` + review actions** (three proof types, actor resolved server-side,
+  `CheckInRejection`, late-approval surfaced) — **Domain core complete**
 
 ## Phase 3 — Bot core
-- ⬜ Webhook + `update_id` idempotency + immediate 200 + queued processing
+- ✅ **Bot Core Task 1 — webhook intake** (two secrets, 404 on mismatch, `update_id` idempotency,
+  immediate 200, queued processing)
+- ✅ **Bot Core Task 2 — outbound transport + webhook commands + update router** (`Http::fake()`-able
+  transport, `telegram:set-webhook` / `telegram:webhook-info`, `kind()` → handler)
 - ⬜ Channel gate; `/start` with invite attribution
 - ⬜ Create-challenge wizard (`BotConversation`); join flow
 - ⬜ Check-in for all three proof types
@@ -1234,3 +1240,136 @@ phpstan lvl 7 (0 errors) ✓, tests **651 (647 pass, 4 skipped = Fortify 2FA dis
 confirmed, re-verified on privileged actions. It must assert a non-empty `required_channel` rather than treating
 an unset one as "no gate" — same fail-closed reasoning as the webhook secrets. That task also owns the update
 router (`kind()` → handler) that `ProcessTelegramUpdate` currently stands in for, and `telegram:set-webhook`.
+
+---
+
+## Bot Core Task 2 — outbound transport, webhook commands, update router (done) — commit `14fbdfb`
+
+The task Bot Core Task 1 deferred: how platform code reaches Telegram, how the webhook gets registered, and
+which class acts on an update once it is recorded. No product behaviour — this is the seam every later bot task
+sends its replies through, and settling it wrong means either real network calls in tests or a rewrite of every
+send site.
+
+**Built**
+
+| File | Role |
+|---|---|
+| `app/Services/Telegram/LaravelHttpClient.php` | SDK `HttpClientInterface` over Laravel's HTTP client |
+| `app/Providers/TelegramServiceProvider.php` | the single `Api` binding + the `UPDATE_HANDLERS` registry |
+| `app/Console/Commands/Telegram/SetWebhookCommand.php` | `telegram:set-webhook` |
+| `app/Console/Commands/Telegram/WebhookInfoCommand.php` | `telegram:webhook-info` |
+| `app/Services/Telegram/HandlesUpdate.php` | the handler contract |
+| `app/Services/Telegram/UpdateRouter.php` | `kind()` → handler lookup |
+| `app/Jobs/Telegram/ProcessTelegramUpdate.php` | now delegates to the router |
+| `composer.json` | `extra.laravel.dont-discover: ["irazasyed/telegram-bot-sdk"]` |
+
+**The transport decision — settled, do not revisit.** Replace the SDK's own Guzzle client with an
+`HttpClientInterface` adapter over Laravel's HTTP client, so `Http::fake()` intercepts every outbound Bot API
+call and no test can reach real Telegram. CLAUDE.md's stated fallback was to abandon the SDK for raw `Http`
+calls; that was not necessary, and keeping the SDK keeps its request building, response objects and typed
+exceptions.
+
+Two things had to happen for the guarantee to actually hold, and both are recorded on the provider:
+
+- **The SDK's Laravel provider is un-discovered and `TelegramServiceProvider` replaces it.** The SDK reads its
+  transport from `config('telegram.http_client_handler')` and `BotsManager::makeBot()` passes that value into
+  the `Api` constructor as an *instance* — but config files must stay `var_export`-able for `config:cache`, so
+  an object cannot live in one. The transport therefore has to be injected in code, which means owning the
+  binding.
+- **The `Telegram` facade is deliberately left unbound.** `Telegram::sendMessage()` goes through
+  `BotsManager::__call()`, which builds its own bot and never consults the container's `Api` binding. Leaving
+  both wired would leave two ways to reach Telegram with only one of them fakeable — a test could pass while
+  quietly calling the real API from the other. Reaching for the facade now fails loudly. **One way in: resolve
+  `Telegram\Bot\Api`.**
+- **An empty `TELEGRAM_BOT_TOKEN` throws in the binding**, with that wording. Otherwise the SDK builds
+  `.../bot/sendMessage` and reports Telegram's 404 as the problem.
+- `extra.laravel.dont-discover` takes **package names**, not provider FQCNs. Easy to get wrong and silent when
+  wrong.
+
+**The two commands.** `telegram:set-webhook` is what makes the bot live at all — Task 1 shipped an endpoint
+nothing had told Telegram about, so every update would have 404'd. It builds the URL from
+`route('telegram.webhook', ['token' => …webhook_secret])`, passes `secret_token` from
+`…webhook_header_secret`, and restricts `allowed_updates` to `TelegramUpdate::HANDLED_KINDS` — asking only for
+what we record. Both secrets are required: it refuses rather than registering a URL that would then reject
+every delivery. `telegram:webhook-info` is the diagnostic twin, and it **compares Telegram's registered URL
+against this app's** — a bot pointed at a previous deploy is otherwise indistinguishable from a broken one. A
+mismatch or a `last_error_message` exits FAILURE, so it is usable as a deploy check rather than only as
+something to read.
+
+**The router.** `TelegramUpdate::kind()` names the update, `TelegramServiceProvider::UPDATE_HANDLERS` maps that
+name to a class, the container builds it. The map lives on the provider so the complete list of things the bot
+reacts to is readable in one place. **Routing is deliberately not the same thing as processing:** the router
+decides who acts, `ProcessTelegramUpdate` owns whether the update is then marked done. That separation is the
+whole point — a handler that throws leaves `processed_at` null and the queue retries, and the router needs to
+know nothing about the queue to make that true. `HandlesUpdate`'s docblock states the contract from the other
+side: a handler that cannot finish **must throw**, because a quiet return claims the update was dealt with.
+
+**`UPDATE_HANDLERS` is intentionally empty today.** A kind in `HANDLED_KINDS` but absent from the map is
+recorded and logged rather than acted on — asking Telegram for a kind and knowing what to do with it are
+separate deploys. Task 3 adds the first entry (`'message' => …`). Command parsing, `/start` and the channel
+gate were **not** stubbed here on purpose: they are Task 3's design, and a placeholder handler would pre-empt
+it. The router seam alone is justified because it is what makes the documented failure ordering testable.
+
+**Tests — 40 new** across `TelegramTransportTest.php` (13), `SetWebhookCommandTest.php` (16) and
+`UpdateRouterTest.php` (11). New global helpers: `telegramReplies`, `webhookInfo`, `webhookAccepted`,
+`routerWith`. Notable coverage: a faked Bot API call asserted at the `Http::fake()` layer (which is the whole
+transport claim); the facade being unbound; both commands refusing on an unset secret; `allowed_updates`
+matching `HANDLED_KINDS`; Telegram's own refusal reason surfaced with a FAILURE exit; a URL pointing at another
+deploy reported as a mismatch; container-built handlers; an unclaimed kind logged and returning false; and the
+ordering test that matters — **a throwing handler leaves the update unprocessed** while an unrouted one is
+stamped, so `unprocessed()` stays a triage queue rather than a landfill. `TelegramWebhookTest`'s four direct
+`$job->handle()` calls became `dispatch_sync()` so the container injects the router.
+
+**A test-infrastructure trap worth remembering — `Http::fake()` appends; it never replaces.**
+`Factory::fake(['*' => …])` delegates to `stubUrl()`, which **merges a closure into `stubCallbacks`**; the
+first non-null match wins. So a catch-all registered in `beforeEach` silently shadows every per-test stub, and
+five tests failed while looking like production bugs: the webhook-info tests parsed the catch-all's scalar
+`result: true`, found no URL, and took the "no webhook registered" branch before ever reaching the mismatch and
+last-error branches they were written for. The fix is the pattern to keep: **`Http::preventStrayRequests()` in
+`beforeEach`, and each test states its own reply.** The two `assertNothingSent` tests deliberately stub Telegram
+as *willing*, so the assertion means "we chose not to ask" rather than "nothing was configured".
+
+**A second trap — `expect([])->each->toBeIn(...)` performs zero assertions**, so PHPUnit marks the test risky
+and the invariant is not actually checked. The registry test now asserts
+`array_diff(array_keys(UPDATE_HANDLERS), HANDLED_KINDS)->toBe([])` — one real assertion that holds at size 0
+and still means the same thing once the map fills up.
+
+**A PHPStan note.** An empty `const array HANDLERS = []` on the router would let level 7 infer `array{}` and
+flag the handler branch as dead code. Avoided by putting the registry on the provider with an
+`@var array<string, class-string<HandlesUpdate>>` docblock and typing the router's constructor parameter by
+docblock.
+
+**Assumptions / follow-ups recorded**
+
+- **`URL::forceRootUrl()` + `URL::forceScheme()` are required in console tests.** Setting `config(['app.url'])`
+  mid-test does **not** reach `route()`: in console the URL generator takes its root and scheme from the
+  request Laravel synthesises at boot. Relevant to every future artisan command that builds a URL.
+- **`TelegramResponse::getResult()` does not throw** (`return $this->decodedBody['result'] ?? false;`) — it is
+  `TelegramClient::sendRequest()` that raises `TelegramResponseException` on an error response. So a command
+  that wants Telegram's own refusal reason must let the client throw rather than inspecting the result.
+  Verified by reading the SDK, not assumed.
+- **The 4 suite skips are all Fortify-feature-disabled** (`tests/TestCase.php:13`), *not* the coin-concurrency
+  file. `pcntl` is present in the Sail image, so `CoinLedgerConcurrencyTest` genuinely runs locally — confirmed
+  by a filtered run (8 passed, 45 assertions). **The `.github/workflows/tests.yml` follow-up therefore still
+  carries both requirements: a MySQL service *and* `pcntl`, or CI silently loses §6 coin-concurrency coverage
+  while reporting green.**
+- **Nothing sweeps `unprocessed()` yet.** Carried from Task 1 and now slightly sharper: with the router in
+  place a handler failure is the likely cause of a stuck row, and after three attempts nothing retries it. A
+  bounded scheduled re-dispatch with an attempt counter belongs with the reminder scheduler.
+- **No rate limiting on the webhook path.** Carried unchanged from Task 1.
+- **`telegram:set-webhook` is not wired into any deploy step.** It has to be run once per environment, and
+  after any change to either secret or to `HANDLED_KINDS`. `telegram:webhook-info` exits non-zero on a
+  mismatch specifically so a deploy script can call it.
+
+**Result — `sail composer ci:check` GREEN:** eslint ✓, prettier ✓, `tsc --noEmit` ✓, pint ✓,
+phpstan lvl 7 (0 errors) ✓, tests **691 (687 pass, 4 skipped = Fortify 2FA disabled)**, 2002 assertions,
+0 risky, +40 from this task. Graph: 2224 nodes / 3769 edges.
+
+**Next:** Bot Core Task 3 — the channel gate and `/start`. `getChatMember` against
+`services.telegram.required_channel`, blocking with a join button until confirmed and re-verifying on
+privileged actions; it must **assert a non-empty `required_channel`** rather than treating an unset one as "no
+gate", matching the webhook secrets' fail-closed reasoning. Then `/start` composing the pieces Domain core
+already built: `firstOrCreate` on `telegram_id` (the instance whose `wasRecentlyCreated` `ClaimInvite` reads),
+`ClaimInvite` for `?start=<code>` attribution, and `GrantFreeBaseline` on every arrival. This is where
+`TelegramServiceProvider::UPDATE_HANDLERS` gains its first entry (`'message' => …`) and where command parsing
+gets designed.
