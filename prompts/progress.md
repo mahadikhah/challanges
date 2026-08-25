@@ -1105,3 +1105,38 @@ process it. Then the channel gate (`getChatMember` on `/start`, asserting a non-
 **Before starting, read `prompts/phase-8.md`, `phase-9.md`, `phase-10.md`, `main-2.md` and
 `goal-phases-8to10.md`** — these appeared untracked during Task 8 and were not authored by this build loop;
 they may extend the definition of done past the original seven phases and could reorder what comes next.
+
+---
+
+## Roadmap extended to ten phases (noted 2026-08-25, no code)
+
+Five prompt files appeared untracked during Task 8 and were not authored by this build loop:
+`new-ideas-TODO.md` (the user's raw asks), `main-2.md` (spec addendum §2.6–2.8, §3.5–3.7, §5, §7),
+`phase-8.md`, `phase-9.md`, `phase-10.md`, and `goal-phases-8to10.md` (a second build driver).
+
+- **Phase 8 — creator-owned chats.** Register a channel/group as a challenge's home chat; check-in
+  announcements, daily + on-demand leaderboard. Dual admin verification (bot *and* creator), re-checked before
+  every post. `ChallengeChat.share_proof_media` defaults false and **cannot** be true on a
+  `proof_is_public = false` challenge.
+- **Phase 9 — timed & stepped challenges.** `flow_type = timed_session` (orthogonal to `proof_type`),
+  `challenge_steps` / `checkin_sessions` / `checkin_step_submissions`, min-wait gates, voice duration limits.
+  Sessions settle **through the existing `SettleCheckIn`**, never a parallel engine.
+- **Phase 10 — AI-assisted proof approval.** `approval_mode = ai` for `image_approval`; platform-authored
+  system prompt, creator criteria passed as delimited data and screened before storage, locked output schema,
+  low-confidence/error → manual queue. Needs a new `ReverseCheckIn` for admin overrides of settled rows.
+
+**Build order is unchanged.** `goal-phases-8to10.md` §"Before the first run" says to stop and finish Phases 1–7
+with the original `goal.md` first, because Phase 9 calls the Phase 2 settlement Actions directly and Phase 8
+posts on top of Phase 3's bot core. So: Bot Core next, as planned; Phases 8–10 after Website.
+
+**Two things to carry forward**
+
+- **`main-2.md` §3.5 assumes settlement events already exist** — "creator chats … subscribe to the same
+  check-in/settlement events the Mini App and bot already produce." **They do not.** Nothing in Domain core
+  dispatches an event. A `CheckInSettled` event on `SettleCheckIn` is therefore net-new work owned by Phase 8
+  Task 2, not a free side effect. Not built speculatively now: an event with no listener is infrastructure
+  guessing at its own consumers, and Phase 8 knows the payload it needs.
+- **File names in `goal-phases-8to10.md` do not match what is on disk.** It cites
+  `prompts/main-addendum-2.md` and `task-08-01`/`08-02`/`09-01`…`10-02`; the actual files are
+  `prompts/main-2.md` and `prompts/phase-8.md`/`phase-9.md`/`phase-10.md`. Same content, different names —
+  resolve by content, not by path.
