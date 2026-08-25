@@ -213,7 +213,7 @@ describe('processing the queued update', function () {
     it('stamps the row as processed', function () {
         $update = TelegramUpdate::factory()->create();
 
-        (new ProcessTelegramUpdate($update))->handle();
+        dispatch_sync(new ProcessTelegramUpdate($update));
 
         expect($update->refresh()->isProcessed())->toBeTrue();
     });
@@ -228,7 +228,7 @@ describe('processing the queued update', function () {
         $update = TelegramUpdate::factory()->create(['processed_at' => now()->subHour()]);
         $first = $update->processed_at;
 
-        (new ProcessTelegramUpdate($update))->handle();
+        dispatch_sync(new ProcessTelegramUpdate($update));
 
         expect($update->refresh()->processed_at->equalTo($first))->toBeTrue();
     });
@@ -243,7 +243,7 @@ describe('processing the queued update', function () {
 
         expect($update->isProcessed())->toBeFalse();
 
-        (new ProcessTelegramUpdate($update))->handle();
+        dispatch_sync(new ProcessTelegramUpdate($update));
 
         expect(TelegramUpdate::query()->sole()->processed_at->equalTo($settledAt))->toBeTrue();
     });
@@ -253,7 +253,7 @@ describe('processing the queued update', function () {
 
         $update = TelegramUpdate::factory()->withUpdateId(904)->unhandled()->create();
 
-        (new ProcessTelegramUpdate($update))->handle();
+        dispatch_sync(new ProcessTelegramUpdate($update));
 
         // Stamped, so it neither blocks the queue nor lingers as work to triage.
         expect($update->refresh()->isProcessed())->toBeTrue()

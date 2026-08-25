@@ -3,16 +3,17 @@
 namespace App\Jobs\Telegram;
 
 use App\Models\TelegramUpdate;
+use App\Services\Telegram\UpdateRouter;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Act on one recorded update, off the request.
  *
  * The webhook answers Telegram in milliseconds and leaves the work here, because
  * Telegram retries any non-2xx and treats a slow endpoint as a failing one. Every
- * side effect of an update — replies, check-ins, payments — happens in this job.
+ * side effect of an update — replies, check-ins, payments — happens in this job,
+ * in whichever handler `UpdateRouter` picks for the update's kind.
  *
  * **Safe to run twice.** `processed_at` is stamped only after the work succeeds,
  * so a failed attempt retries and a duplicate delivery no-ops. That ordering is
@@ -41,7 +42,7 @@ class ProcessTelegramUpdate implements ShouldQueue
 
     public function __construct(public readonly TelegramUpdate $update) {}
 
-    public function handle(): void
+    public function handle(UpdateRouter $router): void
     {
         // Re-read: the instance was serialised when the request came in, and
         // another attempt — or another delivery of the same update — may have
@@ -52,22 +53,12 @@ class ProcessTelegramUpdate implements ShouldQueue
             return;
         }
 
-        $kind = $this->update->kind();
+        // A handler that fails throws, and the throw is not caught here on
+        // purpose: it leaves `processed_at` null, so the queue retries the update
+        // instead of this job recording it as dealt with. An unrouted update logs
+        // and returns false, which is settled work — nothing was skipped.
+        $router->route($this->update);
 
-        if ($kind === null) {
-            // Telegram adds update kinds faster than we adopt them. Recorded and
-            // stamped, so it neither blocks the queue nor lingers as unprocessed
-            // work somebody has to triage.
-            Log::info('Ignored a Telegram update of an unhandled kind.', [
-                'update_id' => $this->update->update_id,
-                'keys' => array_keys($this->update->payload),
-            ]);
-        }
-
-        // Routing to the per-kind handlers arrives with the command router in Bot
-        // Core Task 2. Until then every recognised kind is a no-op, which is why
-        // stamping unconditionally here is honest rather than premature: nothing
-        // has been skipped.
         $this->update->update(['processed_at' => now()]);
     }
 }

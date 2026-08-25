@@ -101,7 +101,9 @@
     },
     "extra": {
         "laravel": {
-            "dont-discover": [],
+            "dont-discover": [
+                "irazasyed/telegram-bot-sdk"
+            ],
             "installer": {
                 "post-create-project": [
                 ]
