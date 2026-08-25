@@ -1018,3 +1018,90 @@ via `matchesExpectedPhrase()` and auto-approves on a match, `image_approval` sto
 ownership. **Must surface the late-approval case:** `SettleCheckIn::approve()` returns a `Missed` row untouched
 when the rollover already closed the period, and a creator reviewing late has to be told that rather than shown
 a success message.
+
+---
+
+## Domain Task 9 — `SubmitCheckIn` + review actions (done) — commit `92b4710`
+
+Closes out **Domain core**. Every surface now has one place to send proof and one place to record a verdict.
+
+**Built**
+
+- `app/Actions/CheckIns/SubmitCheckIn.php` — three entry points named for what the participant *did*:
+  `tap()`, `typePhrase()`, `uploadPhoto()`. Each asserts the challenge actually asks for that proof type, then
+  shares `openSubmittable()`: proof-type check → challenge accepts check-ins → resolve participant → resolve
+  open period → `OpenCheckIn` → settled/awaiting-review guards.
+- `app/Actions/CheckIns/ReviewCheckIn.php` — `approve()` / `reject()` for the creator, plus `authorise()`.
+- `app/Enums/CheckInRejection.php` — 10 cases. No `label()`, matching `InviteRejection`: these select which
+  sentence a surface sends, and those sentences are their own lang lines.
+- `app/Exceptions/CheckInRejectedException.php` — one class, `reason` + optional `checkIn`, 10 named ctors.
+- `app/Models/ChallengePeriod.php` — `#[Scope] containing(?CarbonInterface)`: `starts_at <= $m < ends_at`, the
+  query-side twin of the existing `contains()`.
+
+**Decisions**
+
+- **A returned `CheckIn` always means the proof was accepted; everything else throws.** The `SettleCheckIn`
+  precedent is "return the row, caller reads the status", and it was the wrong shape here: a wrong phrase leaves
+  the row `Pending` and a second tap leaves it `Approved`, so a surface distinguishing success from failure by
+  reading a status would eventually render "checked in!" for a typo. `InviteNotClaimableException` +
+  `InviteRejection` already established the pattern for routine, catchable refusals — this follows it.
+- **Nothing is taken from the caller but the proof.** The signatures ask for the *verified actor* and a
+  `Challenge`; there is nowhere to put a `participant_id`, so the class of bug CLAUDE.md warns about is not
+  merely rejected, it is unwritable. The period is resolved from the clock for the same reason: a stale callback
+  button from last week's reminder cannot backdate a check-in.
+- **Three named methods, not a proof DTO.** A DTO would mean a new base folder (Boost forbids without approval)
+  and the named-verb shape matches `SettleCheckIn::approve()`/`close()`.
+- **`typePhrase()` issues the phrase on demand** via `IssueCheckInPhrase::handle()`. A participant can open the
+  Mini App before any reminder went out; comparing against a null phrase would refuse an answer nobody could
+  have known. The mismatch path still leaves the phrase persisted, so the surface can then show it.
+- **A wrong phrase is not stored.** `submitted_text` means "the proof this row was settled on"; filling it with
+  a typo would put a `submitted_at` on a row that was never submitted.
+- **The successful phrase write and its settlement share one transaction**, so a settlement lost to the rollover
+  takes the recorded submission down with it rather than leaving a `Missed` row claiming an on-time submission.
+- **A photo resubmission clears `reviewed_by`/`reviewed_at`.** Otherwise the new photo looks already decided and
+  drops out of the creator's queue unseen.
+- **Approving is deliberately *not* idempotent.** `SettleCheckIn::approve()` returns an already-`Approved` row
+  untouched by design, so the `!== Approved` race-backstop cannot see a double approval — the first version of
+  this let a second admin silently overwrite the creator's `reviewed_by`. Caught by the test, fixed with
+  `guardAwaitingVerdict()` running *before* the settle. The backstop stays for the genuine race.
+- **`guardAwaitingVerdict()` distinguishes `AlreadySettled` from `NotAwaitingReview`** — "that period closed as
+  missed" and "there is no photo on the table" are different sentences, and a creator clicking an old inline
+  button deserves the right one. It refreshes inside the transaction, so a stale instance cannot decide.
+- **Admins may review.** They answer the support ticket when a creator goes quiet mid-challenge and a queue of
+  photos strands everybody's streak. A creator who is also a participant may approve their own photo: they chose
+  the proof type and could have picked `button`, and it is visible in `reviewed_by` rather than hidden.
+- **Rejection is not an ending.** It returns the row to a state that accepts another photo; only the rollover
+  decides the period was lost. One rule in one place — the streak engine only ever looks for `Missed`.
+
+**Tests** — `tests/Feature/Domain/SubmitCheckInTest.php` + `ReviewCheckInTest.php`, **54 tests / 115
+assertions**. New global helpers: `provenBy`, `enrol`, `refusalFor`, `awaitingVerdict`, `verdictRefusal`.
+All 10 rejection reasons are exercised. Notable coverage: each proof type's happy path; a phrase retyped
+shouted / padded / double-spaced; another participant's phrase refused; A's tap only ever settling A's row;
+`Left`/`Removed`/`Completed` participants and `Scheduled`/`Completed`/`Cancelled` challenges refused; the
+`ends_at`-exclusive boundary in both directions; a late approval of a rollover-`Missed` row leaving
+`reviewed_by` null; ownership derived from the row when a creator holds another challenge's check-in id.
+
+**Assumptions / follow-ups recorded**
+
+- **`uploadPhoto()` takes a stored path, not an upload.** Resolving a Telegram `file_id` or moving an
+  `UploadedFile` belongs to the surface; keeping it out is what lets the bot and the API share the method.
+  Phase 3/5 own that, including the storage disk and any size/mime validation.
+- **No `Setting`-driven grace period.** A submission is accepted only while its period is open. If late
+  check-ins are ever wanted, that is a `Setting` read inside `openPeriod()`, not a new Action.
+- **`ChallengePeriod::containing()` assumes non-overlapping periods**, which `MaterialisePeriods` guarantees.
+  It takes `->first()`, so an overlap would silently pick the lowest id.
+- **No notification on a verdict.** The creator's approve/reject does not yet tell the participant — that is a
+  Phase 3 job, and it should read `reviewed_by` to know who to name.
+- **Still no completion detection.** Nothing marks a challenge or participant `Completed`, so the flat
+  completion reward (a `Setting`) is unimplemented. Carried from Task 6; now the last Domain-core gap.
+
+**Result — `sail composer ci:check` GREEN:** eslint ✓, prettier ✓, `tsc --noEmit` ✓, pint ✓,
+phpstan lvl 7 (0 errors) ✓, tests **626 (622 pass, 4 skipped = Fortify 2FA disabled)**, 1854 assertions,
++54 from this task. Graph: 2149 nodes / 3592 edges.
+
+**Next:** **Domain core is complete.** Per the roadmap the next phase is Bot Core Task 1 — the webhook
+controller: record the update idempotently on `update_id`, return 200 immediately, dispatch a queued job to
+process it. Then the channel gate (`getChatMember` on `/start`, asserting a non-empty `required_channel`).
+**Before starting, read `prompts/phase-8.md`, `phase-9.md`, `phase-10.md`, `main-2.md` and
+`goal-phases-8to10.md`** — these appeared untracked during Task 8 and were not authored by this build loop;
+they may extend the definition of done past the original seven phases and could reorder what comes next.
