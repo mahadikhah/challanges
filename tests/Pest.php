@@ -1,6 +1,9 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Lang;
 use Tests\TestCase;
 
 /*
@@ -47,4 +50,140 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+/*
+|--------------------------------------------------------------------------
+| Reading the bot's replies
+|--------------------------------------------------------------------------
+|
+| Shared by every test that drives an update through the bot. They live here
+| rather than in whichever bot test file needed them first, because a helper
+| defined in one test file only exists when that file happens to be loaded —
+| so running a single file would fail on an undefined function.
+|
+*/
+
+/**
+ * Every `sendMessage` the bot made, as decoded parameter arrays.
+ *
+ * @return list<array<string, string>>
+ */
+function botMessages(): array
+{
+    return Http::recorded(
+        fn (Request $request): bool => str_contains($request->url(), 'sendMessage'),
+    )->map(function (array $call): array {
+        $sent = [];
+        parse_str($call[0]->body(), $sent);
+
+        /** @var array<string, string> $sent */
+        return $sent;
+    })->values()->all();
+}
+
+/**
+ * The one message the bot sent — asserting that it *was* one.
+ *
+ * Telegram allows roughly a message a second per chat, so "one reply per update" is
+ * a rule rather than a tidiness preference, and assertions go through here so a
+ * second message anywhere fails loudly.
+ *
+ * @return array<string, string>
+ */
+function soleBotMessage(): array
+{
+    $messages = botMessages();
+
+    expect($messages)->toHaveCount(1);
+
+    return $messages[0];
+}
+
+/**
+ * The bot's most recent message, for a test that put several updates through.
+ *
+ * Still asserts one message per update, so the rate-limit rule `soleBotMessage()`
+ * enforces for a single arrival holds here too.
+ *
+ * @return array<string, string>
+ */
+function latestBotMessage(int $ofTotal): array
+{
+    $messages = botMessages();
+
+    expect($messages)->toHaveCount($ofTotal);
+
+    return $messages[$ofTotal - 1];
+}
+
+/**
+ * The bot's most recent reply, without asserting how many came before it.
+ *
+ * For a multi-step flow, where the number of replies is a property of the walk
+ * rather than of the thing under test. Where "exactly one reply" is the assertion,
+ * use `soleBotMessage()` or `latestBotMessage()` instead.
+ *
+ * @return array<string, string>
+ */
+function lastBotReply(): array
+{
+    $messages = botMessages();
+
+    expect($messages)->not->toBeEmpty();
+
+    return $messages[count($messages) - 1];
+}
+
+/**
+ * A line of bot copy, so assertions compare against the translation files rather
+ * than English pasted into a test and left behind by the next copy change.
+ *
+ * @param  array<string, string|int|float>  $replace
+ */
+function botCopy(string $key, array $replace = [], string $locale = 'en'): string
+{
+    $line = Lang::get($key, $replace, $locale);
+
+    return is_string($line) ? $line : $key;
+}
+
+/**
+ * The inline keyboard on the bot's one reply, decoded from the JSON it sent.
+ *
+ * @return list<list<array<string, string>>>
+ */
+function botKeyboard(): array
+{
+    return keyboardOn(soleBotMessage());
+}
+
+/**
+ * The inline keyboard on the bot's most recent reply.
+ *
+ * @return list<list<array<string, string>>>
+ */
+function lastBotKeyboard(): array
+{
+    return keyboardOn(lastBotReply());
+}
+
+/**
+ * @param  array<string, string>  $message
+ * @return list<list<array<string, string>>>
+ */
+function keyboardOn(array $message): array
+{
+    $markup = $message['reply_markup'] ?? null;
+
+    if (! is_string($markup)) {
+        return [];
+    }
+
+    $decoded = json_decode($markup, true, 512, JSON_THROW_ON_ERROR);
+
+    /** @var list<list<array<string, string>>> $keyboard */
+    $keyboard = is_array($decoded) ? ($decoded['inline_keyboard'] ?? []) : [];
+
+    return $keyboard;
 }

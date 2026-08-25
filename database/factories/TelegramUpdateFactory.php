@@ -80,15 +80,45 @@ class TelegramUpdateFactory extends Factory
 
     public function callbackQuery(string $data, ?int $fromTelegramId = null): static
     {
-        return $this->state(fn (array $attributes): array => [
-            'payload' => [
-                'callback_query' => [
-                    'id' => (string) fake()->numberBetween(1000, 9999),
-                    'from' => ['id' => $fromTelegramId ?? fake()->numberBetween(1, 999_999)],
-                    'data' => $data,
+        return $this->callbackQueryFrom(
+            $fromTelegramId === null ? [] : ['id' => $fromTelegramId],
+            $data,
+        );
+    }
+
+    /**
+     * A tap from a sender described field by field.
+     *
+     * The sender matters more here than it looks: `ResolveTelegramUser` refreshes
+     * the profile columns from every `from` it sees, so a `callback_query` carrying
+     * only an id would blank the first name and client language a `message` had just
+     * recorded. Telegram always sends the full object, so the default does too.
+     *
+     * @param  array<string, mixed>  $from  merged over Telegram's `from` object
+     */
+    public function callbackQueryFrom(array $from, string $data): static
+    {
+        return $this->state(function (array $attributes) use ($from, $data): array {
+            $telegramId = is_int($from['id'] ?? null) ? $from['id'] : fake()->numberBetween(1, 999_999);
+
+            return [
+                'payload' => [
+                    'callback_query' => [
+                        'id' => (string) fake()->numberBetween(1000, 9999),
+                        'from' => array_replace([
+                            'id' => $telegramId,
+                            'is_bot' => false,
+                            'first_name' => fake()->firstName(),
+                        ], $from),
+                        'message' => [
+                            'message_id' => fake()->numberBetween(1, 9999),
+                            'chat' => ['id' => $telegramId, 'type' => 'private'],
+                        ],
+                        'data' => $data,
+                    ],
                 ],
-            ],
-        ]);
+            ];
+        });
     }
 
     public function preCheckoutQuery(string $invoicePayload, int $stars = 25): static

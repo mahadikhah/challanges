@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\Telegram\BotCommand;
 use App\Services\Telegram\BotMessenger;
 use App\Services\Telegram\CommandRouter;
+use App\Services\Telegram\ConversationRouter;
 use App\Services\Telegram\HandlesUpdate;
 use Illuminate\Support\Facades\Log;
 
@@ -25,19 +26,23 @@ use Illuminate\Support\Facades\Log;
  *    `ClaimInvite` pays an inviter only when `wasRecentlyCreated` is true on the
  *    instance that performed the INSERT — a second lookup downstream would report
  *    false and the inviter would silently go unpaid.
- * 3. **Route the command.** Parsing is `BotCommand`'s job and dispatch is
- *    `CommandRouter`'s; what is left here is deciding what to say when neither
- *    finds anything.
+ * 3. **Route the command, then the open flow.** Parsing is `BotCommand`'s job and
+ *    dispatch is `CommandRouter`'s; what is left here is deciding what to say when
+ *    neither finds anything.
  *
- * Free text is not an error. Once the create-challenge wizard lands it is how a
- * user answers the wizard's questions, and this fallback reply is what that task
- * replaces.
+ * Free text is not an error: it is how a user answers a wizard's question, which is
+ * what `ConversationRouter` is asked about. **Commands are routed first.** A user
+ * halfway through the create-challenge wizard who types `/cancel` means the command,
+ * not a challenge titled "/cancel", and the same goes for the `/start` that recovers
+ * a user who left the channel. The cost is that a title cannot begin with a slash,
+ * which is a fair trade for never being trapped inside a flow.
  */
 class MessageHandler implements HandlesUpdate
 {
     public function __construct(
         private readonly ResolveTelegramUser $resolveUser,
         private readonly CommandRouter $commands,
+        private readonly ConversationRouter $conversations,
         private readonly BotMessenger $messenger,
     ) {}
 
@@ -67,9 +72,15 @@ class MessageHandler implements HandlesUpdate
 
         $command = BotCommand::parse($this->text($update));
 
-        if ($command === null || ! $this->commands->route($user, $command)) {
-            $this->offerStart($user);
+        if ($command !== null && $this->commands->route($user, $command)) {
+            return;
         }
+
+        if ($this->conversations->route($user, $update)) {
+            return;
+        }
+
+        $this->offerStart($user);
     }
 
     /**

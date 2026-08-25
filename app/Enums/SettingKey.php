@@ -46,6 +46,7 @@ enum SettingKey: string
     case ChannelVerificationTtlMinutes = 'channel_verification_ttl_minutes';
     case MiniAppTokenTtlMinutes = 'miniapp_token_ttl_minutes';
     case InitDataMaxAgeSeconds = 'initdata_max_age_seconds';
+    case ConversationTtlMinutes = 'conversation_ttl_minutes';
 
     /**
      * The value shape this setting accepts.
@@ -108,6 +109,14 @@ enum SettingKey: string
 
             self::MiniAppTokenTtlMinutes => 60,
             self::InitDataMaxAgeSeconds => Config::integer('services.telegram.initdata_ttl', 3600),
+
+            /*
+            | How long a half-finished bot wizard survives. Long enough that a
+            | creator can go and look up a timezone mid-flow, short enough that
+            | tomorrow's `/create` starts clean rather than resuming a flow they
+            | have forgotten the shape of.
+            */
+            self::ConversationTtlMinutes => 60,
         };
     }
 }

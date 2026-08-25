@@ -26,8 +26,11 @@ return new class extends Migration
             | When it is due, in UTC, computed from the challenge's timezone. Fan-out
             | is staggered off this with `delay()` to respect Telegram's per-chat
             | rate limit.
+            |
+            | `dateTime` for the same reason the period boundary it derives from is:
+            | MySQL's TIMESTAMP stops at 2038-01-19 and a long timeline does not.
             */
-            $table->timestamp('scheduled_for');
+            $table->dateTime('scheduled_for');
 
             /*
             | Null means claimed but not yet confirmed sent. A row that stays null

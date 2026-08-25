@@ -2,13 +2,20 @@
 
 namespace App\Providers;
 
+use App\Services\Telegram\CallbackRouter;
+use App\Services\Telegram\Callbacks\WizardCallback;
 use App\Services\Telegram\CommandRouter;
+use App\Services\Telegram\Commands\CancelCommand;
+use App\Services\Telegram\Commands\CreateCommand;
 use App\Services\Telegram\Commands\StartCommand;
+use App\Services\Telegram\Handlers\CallbackQueryHandler;
 use App\Services\Telegram\Handlers\MessageHandler;
 use App\Services\Telegram\HandlesBotCommand;
+use App\Services\Telegram\HandlesCallback;
 use App\Services\Telegram\HandlesUpdate;
 use App\Services\Telegram\LaravelHttpClient;
 use App\Services\Telegram\UpdateRouter;
+use App\Services\Telegram\Wizards\CreateChallengeWizard;
 use Illuminate\Support\ServiceProvider;
 use Telegram\Bot\Api;
 use Telegram\Bot\Exceptions\TelegramSDKException;
@@ -54,6 +61,7 @@ class TelegramServiceProvider extends ServiceProvider
      */
     public const array UPDATE_HANDLERS = [
         'message' => MessageHandler::class,
+        'callback_query' => CallbackQueryHandler::class,
     ];
 
     /**
@@ -67,6 +75,21 @@ class TelegramServiceProvider extends ServiceProvider
      */
     public const array BOT_COMMANDS = [
         'start' => StartCommand::class,
+        'create' => CreateCommand::class,
+        'cancel' => CancelCommand::class,
+    ];
+
+    /**
+     * Which handler serves each inline button, keyed by its action word.
+     *
+     * `callback_data` is capped at 64 bytes, so an action word is short by
+     * necessity — hence the mapping, which is also what lets a handler be renamed
+     * without invalidating every button already sitting in a chat.
+     *
+     * @var array<string, class-string<HandlesCallback>>
+     */
+    public const array CALLBACK_HANDLERS = [
+        CreateChallengeWizard::ACTION => WizardCallback::class,
     ];
 
     public function register(): void
@@ -96,6 +119,11 @@ class TelegramServiceProvider extends ServiceProvider
         $this->app->singleton(
             CommandRouter::class,
             fn (): CommandRouter => new CommandRouter($this->app, self::BOT_COMMANDS),
+        );
+
+        $this->app->singleton(
+            CallbackRouter::class,
+            fn (): CallbackRouter => new CallbackRouter($this->app, self::CALLBACK_HANDLERS),
         );
     }
 }

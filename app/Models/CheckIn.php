@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\CheckInStatus;
+use App\Services\Localization;
 use Carbon\CarbonImmutable;
 use Database\Factories\CheckInFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -103,9 +104,9 @@ class CheckIn extends Model
     public static function normalisePhrase(string $phrase): string
     {
         $folded = str_replace(
-            ['ي', 'ك', '٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩', '۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'],
-            ['ی', 'ک', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
-            $phrase,
+            ['ي', 'ك'],
+            ['ی', 'ک'],
+            Localization::foldDigits($phrase),
         );
 
         // Collapse every run of whitespace, including the ZWNJ Farsi text carries.

@@ -11,6 +11,7 @@ use App\Models\Invite;
 use App\Models\User;
 use App\Services\Telegram\BotCommand;
 use App\Services\Telegram\BotMessenger;
+use App\Services\Telegram\ChannelGatePrompt;
 use App\Services\Telegram\HandlesBotCommand;
 use Illuminate\Support\Facades\Log;
 
@@ -49,6 +50,7 @@ class StartCommand implements HandlesBotCommand
         private readonly VerifyChannelMembership $gate,
         private readonly GrantFreeBaseline $baseline,
         private readonly BotMessenger $messenger,
+        private readonly ChannelGatePrompt $gatePrompt,
     ) {}
 
     public function handle(User $user, BotCommand $command): void
@@ -101,36 +103,14 @@ class StartCommand implements HandlesBotCommand
 
     /**
      * Block with a join button until membership is confirmed.
+     *
+     * The refusal itself is `ChannelGatePrompt`'s, shared with every other
+     * privileged command; the only thing `/start` adds is a word about the invite
+     * code they arrived with, which they should hear whether or not they got in.
      */
     private function askToJoin(User $user, Invite|InviteRejection|null $outcome): void
     {
-        $url = $this->gate->joinUrl();
-
-        if ($url === null) {
-            // A numeric `-100…` channel id has no public link, so there is no
-            // button to offer and the user has to be invited another way. Worth a
-            // warning: it is a configuration choice that quietly degrades the gate.
-            Log::warning('The required channel has no public link, so no join button can be offered.', [
-                'channel' => $this->gate->channel(),
-            ]);
-        }
-
-        $this->messenger->paragraphs(
-            $user,
-            [
-                $this->messenger->line(
-                    $user,
-                    $url === null ? 'bot.gate.blocked_without_link' : 'bot.gate.blocked',
-                    ['channel' => $this->gate->channel()],
-                ),
-                $this->inviteNote($user, $outcome),
-                $this->messenger->line($user, 'bot.gate.then_start_again'),
-            ],
-            $url === null ? null : [[[
-                'text' => $this->messenger->line($user, 'bot.gate.join_button'),
-                'url' => $url,
-            ]]],
-        );
+        $this->gatePrompt->send($user, [$this->inviteNote($user, $outcome)]);
     }
 
     /**

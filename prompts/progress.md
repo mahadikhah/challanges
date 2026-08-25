@@ -38,7 +38,9 @@ Status key: ✅ done · 🔄 in progress · ⬜ not started
   transport, `telegram:set-webhook` / `telegram:webhook-info`, `kind()` → handler)
 - ✅ **Bot Core Task 3 — channel gate + `/start` with invite attribution** (`getChatMember` fail-closed,
   join button, `ensure()` TTL cache, command router, one-message replies, per-recipient locale)
-- ⬜ Create-challenge wizard (`BotConversation`); join flow
+- ✅ **Bot Core Task 4 — create-challenge wizard** (`BotConversation` FSM, `callback_query` handler + router,
+  inline keyboards, `CreateChallenge` + announcement post)
+- ⬜ Join flow
 - ⬜ Check-in for all three proof types
 - ⬜ Reminders (scheduler + staggered queued jobs); locale selection
 
@@ -1515,3 +1517,182 @@ the model Domain Task 2 built for exactly this, because the SDK has no FSM. Five
 `ConsumeEntitlement` gets its first bot caller, and where `HandlesBotCommand`'s note about `ensure()` gets
 honoured for the first time. Free text stops being a fallback and becomes how a user answers a question, so
 `MessageHandler` grows a "does this user have an open conversation?" branch **before** command parsing.
+
+## Bot Core Task 4 — create-challenge wizard (done)
+
+The first multi-step conversation, and the first place a user writes to the domain from Telegram. The SDK has
+no FSM, which is why `BotConversation` exists; this is the task that finally uses it.
+
+**What landed**
+
+- `ConversationState` — backed enum, one case per question (`awaiting_title` → `awaiting_description` →
+  `awaiting_period_type` → `awaiting_custom_days` → `awaiting_timezone` → `awaiting_start_date` →
+  `awaiting_total_periods` → `awaiting_proof_type` → `awaiting_visibility`). The state *is* the question, so
+  "where are we" and "what did we ask" can never disagree.
+- `ChallengeDraft` — a typed reader/writer over `BotConversation::$payload`. The alternative was
+  `data_get($conversation->payload, 'period_type')` at fourteen call sites, which PHPStan can say nothing about
+  and a typo turns into a silently empty answer.
+- `CreateChallengeWizard` — owns the flow: `begin()`, `receiveText()`, `receiveChoice()`, `cancel()`. Every
+  step validates against the same `CreateChallenge::limits()` the action enforces, so a user is never accepted
+  into the next question only to be refused at the end.
+- `BotCallback` + `WizardCallback` + `HandlesCallback` + `CallbackRouter` + `CallbackQueryHandler` — the
+  `callback_query` half of the bot, mirroring Task 2's `BotCommand`/`CommandRouter` shape one update-kind over.
+  `UPDATE_HANDLERS` gains its second entry.
+- `ConversationRouter` — the "is this user mid-answer?" branch `MessageHandler` grows, consulted **before**
+  command parsing. Expiry is checked on read, so a lapsed conversation is not an error state.
+- `CreateChallenge` — the one place a `challenges` row is written, called by all three surfaces eventually.
+  Validates, opens a transaction, writes the row, materialises the timeline via `MaterialisePeriods`, spends a
+  create-slot via `ConsumeEntitlement`, and dispatches `AnnounceChallenge` for a public challenge.
+- `ChannelBroadcaster` + `AnnounceChallenge` — the announcement-channel post. `BotMessenger`'s sibling, and
+  separate from it because every decision that class makes is about a *recipient* (their chat id, their locale)
+  and a channel has neither.
+- `ChannelGatePrompt` — the join-button reply, extracted from `StartCommand` now that `/create` needs the same
+  block. `HandlesBotCommand`'s note about calling `ensure()` first is honoured for the first time.
+- `CreateCommand` + `CancelCommand`; `SettingKey::ConversationTtlMinutes` (default **60**);
+  `Localization::foldDigits()`; `HasTranslatedLabel::translationKey()`.
+
+**The ordering decision this task turns on**
+
+**The claim comes before the post.** `ChannelBroadcaster::announce()` stamps `announced_at` in a single
+conditional `UPDATE ... WHERE announced_at IS NULL`, and only then calls `sendMessage`. Posting first and
+stamping after would double-post on any failure between the two — and **a duplicate channel post cannot be
+recalled**, while a *missed* post is visible in `Challenge::awaitsAnnouncement()` and can be re-dispatched. So
+a failed post releases the claim and rethrows, and the release is itself guarded on `announced_at` still
+holding *our* timestamp, because by the time we go to release, another worker may have claimed and posted.
+`ChannelBroadcasterTest::it('does not release a claim that now belongs to somebody else')` is the guard.
+
+The same reasoning one level up: **`CallbackQueryHandler` acknowledges the query before running the handler.**
+Telegram spins a loading state on the tapped button until `answerCallbackQuery` arrives, and the query id
+expires. If the work throws, the update is retried — and by then the id is stale, so acknowledging afterwards
+would fail and leave the spinner running forever. The acknowledgement is also best-effort: it is cosmetic, so
+it must never be the reason an update is retried.
+
+**Two production bugs the tests caught**
+
+1. **Every wizard error message leaked its own placeholders.** Only `.prompt` lines were resolved with
+   `promptReplacements()`; `.error` and `.expected` were fetched bare. So a user over the title limit was told
+   "between 3 and :title_max characters" — in the one message whose whole job is to state the bound. Fixed with
+   a `say()` helper, so every line in the flow's namespace resolves through the same replacements rather than
+   each caller remembering to pass them.
+2. **MySQL's TIMESTAMP capped the timeline at 2038-01-19.** `challenges.starts_at`,
+   `challenge_periods.starts_at`/`ends_at` and `reminder_dispatches.scheduled_for` were all `timestamp()`. A
+   2099 start date died with `SQLSTATE[22007] Incorrect datetime value` — and this is not a contrived date:
+   `starts_at` is the one date a user picks freely, and a yearly challenge of any length walks past the ceiling
+   from any start. All four are `dateTime()` now (DATETIME reaches 9999 and, unlike TIMESTAMP, is not
+   re-interpreted through the session timezone, which matters for a platform whose correctness rests on storing
+   UTC). Event stamps — `announced_at`, `joined_at`, `rolled_over_at`, `consumed_at`, `expires_at`, `sent_at` —
+   stay TIMESTAMP: they only ever hold ~now, so the framework default is right there and the diff stays small.
+   `CreateChallengeTest::it('materialises a timeline that runs past 2038')` is the permanent guard; nothing else
+   in the app would notice if this regressed.
+
+A third, smaller one: `ChannelBroadcaster` used `syncChanges()` after the claim UPDATE, which records the
+change but never resyncs `$original` — so a successful post left the handed instance `isDirty()`. Now
+`syncOriginalAttribute('announced_at')`, chosen over `syncOriginal()` so other pending changes survive.
+
+**Decisions taken (recorded, not asked)**
+
+- **The creator does not auto-join their own challenge.** Creating and participating are separately priced
+  (`create_slot` vs `join_slot`), so auto-joining would spend a slot the user never agreed to spend. A creator
+  who wants to take part joins like anybody else.
+- **`proof_is_public` is not asked in the wizard.** Private is the default and the flow is already nine
+  questions; the toggle only means anything for `image_approval`, and it belongs where a creator can see what
+  they are publishing — the Mini App and the admin panel.
+- **Timezone comes from a curated eight-entry list**, not a full IANA picker. 400-odd zones cannot be an inline
+  keyboard, and the longest of these encodes to 39 of `callback_data`'s 64 bytes. A real searchable picker is
+  Mini App work.
+- **Start date is Gregorian `YYYY-MM-DD`**, with Today/Tomorrow buttons for the overwhelmingly common case.
+  Persian digits are folded and `/` and `.` accepted as separators, so a Farsi keyboard's `۱۴۰۵/۰۶/۰۳` parses.
+  **Jalali date entry is a follow-up**, not a nicety — a Farsi-speaking creator picking a date in a calendar
+  they do not use is a real usability gap, but it needs a calendar library decision rather than a parser tweak.
+- **Registered commands are routed before wizard text**, so a challenge title cannot begin with `/`. The trade
+  is deliberate: a user who mistypes a title loses one keystroke, whereas a user who cannot type `/cancel`
+  because the wizard swallowed it is trapped inside a flow.
+- **A lapsed conversation is replaced, not reported.** `/create` is `updateOrCreate` on the unique `user_id`,
+  so there is exactly one open flow per user and restarting is always safe.
+- **The announcement carries no join button yet** — a public challenge is joined through the bot, and that flow
+  lands next. A button that goes nowhere is worse than a post that says where to go.
+- **A channel post resolves in the platform's fallback locale**, never `app()->getLocale()`. A channel has a
+  mixed-language audience and no locale of its own, and a queue worker's ambient locale is whoever it served
+  last — so the alternative is a post whose language is chosen at random.
+
+**Tests — 5 files, 158 tests**
+
+- `CreateChallengeWizardTest` (73) — the whole flow through `dispatch_sync(ProcessTelegramUpdate)` with the
+  real routers and a real conversation row, because what is being tested is an interaction between five
+  collaborators. Every step's happy path and refusal, the six-case `PeriodType` dataset, `/cancel` at each
+  state, expiry, the gate blocking `/create`, and the replayed-`update_id` assertion §6 asks for.
+- `CreateChallengeTest` (34) — the action's floor, whichever surface called: every field recorded, UTC
+  conversion (Tehran midnight → `2099-05-31 20:30:00`), the freeze default vs an override, the `proof_type` ×
+  `proof_is_public` matrix, and the rollback that matters — **a refused slot writes nothing at all**, no
+  challenge and no periods, because a challenge with no slot spent is a free extra challenge and a spent slot
+  with no challenge is a slot stolen.
+- `CallbackQueryHandlerTest` (18) — acknowledge-before-work, the actor resolved from `from` and **never** from
+  `callback_data` (a crafted payload naming a victim's id is put through and ignored), a stale button answered
+  rather than dropped, a tap from a channel taken (unlike a message), and the acknowledgement-refused path.
+- `ChannelBroadcasterTest` (17) — claim/release, twice-to-one-post, the interleaved-claim release guard, the
+  fallback locale, and the two things it will not announce.
+- `BotCallbackTest` (16) — unit, no container. `callback_data` is the one string that has to survive a round
+  trip through a Telegram client and come back meaning the same thing, so encode and parse are pinned against
+  each other: the 64-**byte** limit refused rather than truncated (truncation is worse — a shortened payload
+  parses into a *different* intent), bytes not characters, and `wz::daily` read as a malformed button rather
+  than as a step named `''`.
+
+**Traps hit while writing these**
+
+- **`Http::fake()` appends and the first match wins** — third time this has bitten, and the first time it
+  produced *green tests that proved nothing*. Four acknowledgement-failure tests set a 400 inside the test
+  body, which the `beforeEach` catch-all silently shadowed; both assertions passed either way, so the failure
+  path was never once exercised. Fixed by installing the transport per test (`telegramTakesTaps()` /
+  `telegramRefusesAcknowledgement()`), never in `beforeEach`. **The rule for this repo: if a test needs a
+  specific response, no catch-all may exist for that endpoint.**
+- **`Http::preventStrayRequests()` throws a `Throwable`, and `acknowledge()` swallows `Throwable` by design** —
+  so a missing `answerCallbackQuery` fake logs instead of failing, and the omission is invisible.
+- **`expect()->toThrow(Throwable::class)` asserts on the message, not the class.** Pest treats an argument
+  failing `class_exists()` as a message, and an interface fails it — so the assertion quietly became "message
+  contains 'Throwable'". Name the concrete class (`TelegramSDKException`).
+- **`Challenge::periods()` carries its own `orderBy('index')`**, so an appended `orderByDesc('index')` is
+  ignored — the relation's term comes first. Read the last period with `->get()->last()`.
+- **A DATETIME column has no fractional seconds.** Comparing a microsecond-precision `now()` against what came
+  back fails on the truncation rather than on the behaviour; `startOfSecond()` first.
+- **A Pest helper defined in a test file only exists when that file is loaded.** The bot-reply readers moved
+  from `StartCommandTest` into `tests/Pest.php` (plus `lastBotReply()`, `lastBotKeyboard()`, `keyboardOn()`),
+  so any bot test file runs on its own.
+- **`CheckIn::normalisePhrase()` and the wizard folded digits twice, separately.** Hoisted to
+  `Localization::foldDigits()` — static and dependency-free so a model and a service can share one digit map
+  rather than a copy per caller that drifts.
+
+**Assumptions / follow-ups recorded**
+
+- **`bot.start.next_steps` is still a placeholder and is now overdue.** The wizard exists, so there is a real
+  command menu to describe and `setMyCommands` to call.
+- **No `/challenges` listing.** A creator can create but cannot see what they created from the bot.
+- **The eight timezones are not enough.** A user outside them has no way to name their own zone; they get the
+  nearest offset or UTC.
+- **Jalali start dates** (see decisions above).
+- Corrected from an earlier note: **the 4 skipped tests are Fortify feature-gated auth tests**
+  (`skipUnlessFortifyHas`), not the coin-concurrency tests — those run in the Sail container.
+- `prompts/` gained `phase-11.md`, `phase-12.md`, `phase-13.md`, `main-addendum-3.md`, `main-addendum-4.md`,
+  `goal-phases-11-12.md`, `goal-phase-13.md`, and renamed `main-2.md` → `main-addendum-2.md` and
+  `goal-phases-8to10.md` → `goal-phases-8-10.md`. **The roadmap now runs to thirteen phases.** Unread; to be
+  read when those phases come up. `prompts/phase-9.md` extends *this* wizard for `flow_type = timed_session`,
+  so there is no conflict with what landed here.
+- Carried unchanged: `.github/workflows/tests.yml` needs **both** a MySQL service *and* `pcntl`; nothing
+  sweeps `unprocessed()`; no rate limiting on the webhook path; `telegram:set-webhook` is not in a deploy step;
+  `entitlements` has no unique index; no release path for a consumed entitlement; nothing calls
+  `RollOverPeriod` on a schedule; no completion detection or flat completion reward yet; the inviter is not
+  notified when their invite credits; a numeric `-100…` `required_channel` degrades the gate to a link-less
+  prompt.
+
+**Result — `sail composer ci:check` GREEN:** eslint ✓, prettier ✓, `tsc --noEmit` ✓, pint ✓,
+phpstan lvl 7 (0 errors) ✓, tests **930 (926 pass, 4 skipped = Fortify 2FA disabled)**, 2517 assertions,
+0 risky, +159 against the 771 recorded last time (158 of them in the five files above).
+Graph: 2565 nodes / 4568 edges / 240 communities.
+
+**Next:** Bot Core Task 5 — the join flow, the other half of what `/create` just made possible. A public
+challenge is discovered in the announcement channel and an invite-only one through a link, so joining has two
+entry points into one action: `JoinChallenge` spends a `join_slot` via `ConsumeEntitlement`, writes a
+`ChallengeParticipant` with `joined_period_index` — the field Domain Task 6 built so a late joiner owes nothing
+for periods before they arrived — and seeds `freezes_total` from the challenge's `default_freezes`. This is
+where the announcement post finally gets its join button, where `challenge_participants`' unique
+`(challenge_id, user_id)` stops a double-join from costing two slots, and where a full challenge, a finished
+one and the creator's own challenge each need an answer rather than a slot spent.

@@ -11,9 +11,7 @@ use App\Services\CoinLedger;
 use App\Services\Settings;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Lang;
 
 uses(RefreshDatabase::class);
 
@@ -94,92 +92,11 @@ function arrivesAtBot(string $text = '/start', array $from = [], string $chatTyp
     return $update;
 }
 
-/**
- * Every `sendMessage` the bot made, as decoded parameter arrays.
- *
- * @return list<array<string, string>>
+/*
+ * `botMessages()`, `soleBotMessage()`, `latestBotMessage()`, `botCopy()` and
+ * `botKeyboard()` read the bot's replies back off the wire. They are shared by every
+ * bot test and live in `tests/Pest.php`.
  */
-function botMessages(): array
-{
-    return Http::recorded(
-        fn (Request $request): bool => str_contains($request->url(), 'sendMessage'),
-    )->map(function (array $call): array {
-        $sent = [];
-        parse_str($call[0]->body(), $sent);
-
-        /** @var array<string, string> $sent */
-        return $sent;
-    })->values()->all();
-}
-
-/**
- * The one message the bot sent — asserting that it *was* one.
- *
- * Telegram allows roughly a message a second per chat, so "one reply per update" is
- * a rule rather than a tidiness preference, and every assertion below goes through
- * here so a second message anywhere fails loudly.
- *
- * @return array<string, string>
- */
-function soleBotMessage(): array
-{
-    $messages = botMessages();
-
-    expect($messages)->toHaveCount(1);
-
-    return $messages[0];
-}
-
-/**
- * The bot's most recent message, for a test that put several updates through.
- *
- * Still asserts one message per update, so the rate-limit rule `soleBotMessage()`
- * enforces for a single arrival holds here too.
- *
- * @return array<string, string>
- */
-function latestBotMessage(int $ofTotal): array
-{
-    $messages = botMessages();
-
-    expect($messages)->toHaveCount($ofTotal);
-
-    return $messages[$ofTotal - 1];
-}
-
-/**
- * A line of bot copy, so assertions compare against the translation files rather
- * than English pasted into a test and left behind by the next copy change.
- *
- * @param  array<string, string|int|float>  $replace
- */
-function botCopy(string $key, array $replace = [], string $locale = 'en'): string
-{
-    $line = Lang::get($key, $replace, $locale);
-
-    return is_string($line) ? $line : $key;
-}
-
-/**
- * The inline keyboard on the bot's reply, decoded from the JSON it sent.
- *
- * @return list<list<array<string, string>>>
- */
-function botKeyboard(): array
-{
-    $markup = soleBotMessage()['reply_markup'] ?? null;
-
-    if (! is_string($markup)) {
-        return [];
-    }
-
-    $decoded = json_decode($markup, true, 512, JSON_THROW_ON_ERROR);
-
-    /** @var list<list<array<string, string>>> $keyboard */
-    $keyboard = is_array($decoded) ? ($decoded['inline_keyboard'] ?? []) : [];
-
-    return $keyboard;
-}
 
 describe('a first arrival', function () {
     it('registers, admits and greets them in one message', function () {

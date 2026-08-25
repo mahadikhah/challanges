@@ -13,7 +13,7 @@ return [
     'start' => [
         'welcome' => 'Welcome to :app, :name! Set yourself a challenge, bring your friends along, and keep the streak alive.',
         'welcome_back' => 'Welcome back, :name.',
-        'next_steps' => 'More is on the way — creating and joining challenges lands here shortly.',
+        'next_steps' => 'Send /create to set up a challenge. /cancel gets you out of anything half-finished.',
     ],
 
     'gate' => [
@@ -35,8 +35,113 @@ return [
         ],
     ],
 
+    'cancel' => [
+        'nothing_open' => 'There was nothing to cancel. Send /create to start a challenge.',
+    ],
+
+    /*
+    | The create-challenge wizard.
+    |
+    | The per-step keys are addressed as `bot.wizard.<conversation state>.prompt`,
+    | `.error` (the answer could not be read) and `.expected` (the answer arrived in
+    | the wrong form — typing at a step that wants a button, or a photo at a step
+    | that wants words). The state value is interpolated by the wizard, so a new
+    | step needs its three lines here and no other wiring.
+    */
+    'wizard' => [
+        'opening' => 'Let’s set up a challenge. Ten quick questions — send /cancel at any point to stop.',
+        'restarted' => 'Starting a new challenge from scratch. The previous draft has been dropped.',
+        'cancelled' => 'Dropped. Nothing was created.',
+        'stale_step' => 'That button belongs to an earlier question. Here is where we are now.',
+        'incomplete' => 'That draft is missing some answers, so it has been dropped. Send /create to start again.',
+        'error' => 'Something went wrong creating that challenge, and it has not been saved. Please try /create again.',
+
+        'no_slot' => 'You have used up your challenge-creation slots.',
+        'slot_price' => 'Another one costs :coins coins.',
+
+        'skip_button' => 'Skip',
+        'today_button' => 'Today',
+        'tomorrow_button' => 'Tomorrow',
+        'create_button' => 'Create it',
+        'cancel_button' => 'Cancel',
+        'no_description' => '(none)',
+
+        'summary' => "Here is your challenge:\n\nTitle: :title\nDescription: :description\nPeriod: :period\nCustom length: :custom_days days\nStarts: :start (:timezone)\nPeriods: :periods\nProof: :proof\nVisibility: :visibility\nFreezes each: :freezes",
+
+        'created' => '“:title” is ready.',
+        'created_timeline' => ':periods periods, starting :start in :timezone.',
+        'created_public' => 'It is public, so it is being posted to the announcement channel for others to join.',
+        'created_private' => 'It is invite-only, so nobody can join without a link from you.',
+
+        'awaiting_challenge_title' => [
+            'prompt' => 'What is the challenge called? Between 3 and :title_max characters.',
+            'error' => 'That title needs to be between 3 and :title_max characters.',
+            'expected' => 'Please send the title as a text message.',
+        ],
+
+        'awaiting_challenge_description' => [
+            'prompt' => 'Add a description, or tap Skip. Up to :description_max characters.',
+            'error' => 'That description is longer than :description_max characters.',
+            'expected' => 'Send a description as text, or tap Skip.',
+        ],
+
+        'awaiting_period_type' => [
+            'prompt' => 'How often does everyone check in?',
+            'error' => 'Please pick one of the periods offered.',
+            'expected' => 'Tap one of the buttons to pick a period.',
+        ],
+
+        'awaiting_custom_period_days' => [
+            'prompt' => 'How many days is one period? Up to :custom_period_days_max.',
+            'error' => 'Send a whole number of days between 1 and :custom_period_days_max.',
+            'expected' => 'Send the number of days as a text message.',
+        ],
+
+        'awaiting_timezone' => [
+            'prompt' => 'Which timezone should the periods follow? Everyone in the challenge shares it.',
+            'error' => 'Please pick one of the timezones offered.',
+            'expected' => 'Tap one of the buttons to pick a timezone.',
+        ],
+
+        'awaiting_start_date' => [
+            'prompt' => 'When does it start? Send a date as YYYY-MM-DD, read in :timezone, or use a button.',
+            'error' => 'That is not a date I can use. Send it as YYYY-MM-DD, today or later.',
+            'expected' => 'Send the start date as text, or tap Today or Tomorrow.',
+        ],
+
+        'awaiting_total_periods' => [
+            'prompt' => 'How many periods long is the challenge? Up to :total_periods_max.',
+            'error' => 'Send a whole number between 1 and :total_periods_max.',
+            'expected' => 'Send the number of periods as a text message.',
+        ],
+
+        'awaiting_proof_type' => [
+            'prompt' => 'How does somebody prove they did it?',
+            'error' => 'Please pick one of the proof types offered.',
+            'expected' => 'Tap one of the buttons to pick a proof type.',
+        ],
+
+        'awaiting_visibility' => [
+            'prompt' => 'Who can join? Public challenges are posted to the announcement channel.',
+            'error' => 'Please pick one of the options offered.',
+            'expected' => 'Tap one of the buttons to choose who can join.',
+        ],
+
+        'awaiting_create_confirmation' => [
+            'prompt' => 'Shall I create it?',
+            'expected' => 'Tap Create it to go ahead, or Cancel to drop it.',
+        ],
+    ],
+
+    'announce' => [
+        'headline' => 'New challenge: :title',
+        'details' => ':period · :periods periods · :proof',
+        'how_to_join' => 'Open the bot to join.',
+    ],
+
     'fallback' => [
-        'unknown' => 'I did not follow that. Send /start to begin.',
+        'unknown' => 'I did not follow that. Send /create to start a challenge, or /start to begin again.',
+        'stale_button' => 'That button is no longer live. Send /create to start a challenge.',
     ],
 
 ];

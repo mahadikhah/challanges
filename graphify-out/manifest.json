@@ -805,8 +805,8 @@
     "semantic_hash": ""
   },
   "tests/Pest.php": {
-    "mtime": 1787599299.3048468,
-    "ast_hash": "a216d5a3bf9a21222c30a30d99562d40",
+    "mtime": 1787635473.904629,
+    "ast_hash": "b83c4dcb99b2df924960def314dd1abe",
     "semantic_hash": ""
   },
   "tests/Unit/SanityTest.php": {
@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "prompts/progress.md": {
-    "mtime": 1787620580.469159,
-    "ast_hash": "14896b7473d3122b49552743e0812e0c",
+    "mtime": 1787624435.3112295,
+    "ast_hash": "29b3401fe575ab7ece24a142ae1ddfe1",
     "semantic_hash": ""
   },
   "prompts/task-01-setup.md": {
@@ -1130,8 +1130,8 @@
     "semantic_hash": ""
   },
   "app/Services/Localization.php": {
-    "mtime": 1787615057.9768207,
-    "ast_hash": "91761d2764aa38472aebcbeb37ae6b18",
+    "mtime": 1787627462.7290342,
+    "ast_hash": "b4d0f04231b2f15b9b75a1e280027aa0",
     "semantic_hash": ""
   },
   "config/localization.php": {
@@ -1185,8 +1185,8 @@
     "semantic_hash": ""
   },
   "app/Enums/SettingKey.php": {
-    "mtime": 1787622199.563201,
-    "ast_hash": "8851f78acc8481264e7cc00da038b92e",
+    "mtime": 1787626742.1453977,
+    "ast_hash": "529192b33654a652a486f512055fb910",
     "semantic_hash": ""
   },
   "app/Enums/SettingType.php": {
@@ -1235,8 +1235,8 @@
     "semantic_hash": ""
   },
   "app/Enums/Concerns/HasTranslatedLabel.php": {
-    "mtime": 1787603405.9262989,
-    "ast_hash": "4ef228cb604eba583d7783ba97662db1",
+    "mtime": 1787626660.3797321,
+    "ast_hash": "df74b38c1b7f374d8c2bb7385cd9f19c",
     "semantic_hash": ""
   },
   "app/Enums/ParticipantStatus.php": {
@@ -1270,8 +1270,8 @@
     "semantic_hash": ""
   },
   "app/Models/CheckIn.php": {
-    "mtime": 1787604643.5865276,
-    "ast_hash": "e5bc7502170f986d05009dd384284ccd",
+    "mtime": 1787628331.3981075,
+    "ast_hash": "416921d1ca299059980f333c29c6225a",
     "semantic_hash": ""
   },
   "database/factories/ChallengeFactory.php": {
@@ -1300,13 +1300,13 @@
     "semantic_hash": ""
   },
   "database/migrations/2026_08_24_203347_create_challenges_table.php": {
-    "mtime": 1787603659.9611259,
-    "ast_hash": "78cb18fb81333e969c5e57af5ae5ee17",
+    "mtime": 1787636753.3543782,
+    "ast_hash": "a4753fe627bb1999cc1c51c850b8d72d",
     "semantic_hash": ""
   },
   "database/migrations/2026_08_24_203350_create_challenge_periods_table.php": {
-    "mtime": 1787603686.4694283,
-    "ast_hash": "dff6541a3b8932806fdb9e32f7bb5c50",
+    "mtime": 1787636798.2186818,
+    "ast_hash": "52a1914b833fb1135bb1cf23226f3fb7",
     "semantic_hash": ""
   },
   "database/migrations/2026_08_24_203353_create_challenge_participants_table.php": {
@@ -1440,8 +1440,8 @@
     "semantic_hash": ""
   },
   "database/factories/TelegramUpdateFactory.php": {
-    "mtime": 1787622807.6046462,
-    "ast_hash": "921e78bb174a7a9aa1a0ba688731a920",
+    "mtime": 1787633481.0248075,
+    "ast_hash": "069432a162edfd1fccd84c399c7a6f59",
     "semantic_hash": ""
   },
   "database/migrations/2026_08_24_210231_create_coin_transactions_table.php": {
@@ -1475,8 +1475,8 @@
     "semantic_hash": ""
   },
   "database/migrations/2026_08_24_210244_create_reminder_dispatches_table.php": {
-    "mtime": 1787605709.9281588,
-    "ast_hash": "2a223196e9ed3dbcc279e041f33be6bc",
+    "mtime": 1787636834.5559578,
+    "ast_hash": "f0e4370e8223cd70a1ce0f4a5d94092f",
     "semantic_hash": ""
   },
   "tests/Feature/Domain/EconomySchemaTest.php": {
@@ -1634,16 +1634,6 @@
     "ast_hash": "4d192de4f2f0e4b3ef9026019d1284a8",
     "semantic_hash": ""
   },
-  "prompts/goal-phases-8to10.md": {
-    "mtime": 1787614060.8511398,
-    "ast_hash": "9063517dca7d1d05c9496f339505da83",
-    "semantic_hash": ""
-  },
-  "prompts/main-2.md": {
-    "mtime": 1787613905.3711452,
-    "ast_hash": "6ab05f7db858c93f8c1d9fe0c0d2c00b",
-    "semantic_hash": ""
-  },
   "prompts/phase-10.md": {
     "mtime": 1787614017.1977608,
     "ast_hash": "cc8eb1154d0db2a7a1007153d150176e",
@@ -1725,8 +1715,8 @@
     "semantic_hash": ""
   },
   "app/Providers/TelegramServiceProvider.php": {
-    "mtime": 1787622680.148474,
-    "ast_hash": "bcc6e4386db738720b6dee3a96006a09",
+    "mtime": 1787631810.398645,
+    "ast_hash": "49b98277462ccdf9803dd3068f56dff9",
     "semantic_hash": ""
   },
   "app/Services/Telegram/HandlesUpdate.php": {
@@ -1795,13 +1785,13 @@
     "semantic_hash": ""
   },
   "app/Services/Telegram/Commands/StartCommand.php": {
-    "mtime": 1787622538.45161,
-    "ast_hash": "8a51f0616c9fb3a11553c56c7e05d311",
+    "mtime": 1787629269.8436806,
+    "ast_hash": "3cf9e01c85b024c9fd1914da5b13124f",
     "semantic_hash": ""
   },
   "app/Services/Telegram/Handlers/MessageHandler.php": {
-    "mtime": 1787622479.2918673,
-    "ast_hash": "7483a40dc1f71481493d5e42a2273c2e",
+    "mtime": 1787630975.9129646,
+    "ast_hash": "db2476cd5166afe7b4ca844eb33e940d",
     "semantic_hash": ""
   },
   "app/Services/Telegram/HandlesBotCommand.php": {
@@ -1810,13 +1800,13 @@
     "semantic_hash": ""
   },
   "lang/en/bot.php": {
-    "mtime": 1787622555.041084,
-    "ast_hash": "8b7551e7a3e52ab05d2deaaf640af586",
+    "mtime": 1787631939.5113103,
+    "ast_hash": "7e6dfb078b78f66b64de7f936f3cd4a0",
     "semantic_hash": ""
   },
   "lang/fa/bot.php": {
-    "mtime": 1787622578.6807487,
-    "ast_hash": "6b1d11385d44fcb4c8c548c5ece026d5",
+    "mtime": 1787632011.4072666,
+    "ast_hash": "c23a2b85fd29b4aa6998d647d870d96e",
     "semantic_hash": ""
   },
   "tests/Feature/Bot/ChannelGateTest.php": {
@@ -1830,8 +1820,148 @@
     "semantic_hash": ""
   },
   "tests/Feature/Bot/StartCommandTest.php": {
-    "mtime": 1787624039.8194728,
-    "ast_hash": "37c8d87551d96a3086ea8bbd81add0ec",
+    "mtime": 1787635633.7201579,
+    "ast_hash": "d77e380c0c173a5324708c3dcddf007b",
+    "semantic_hash": ""
+  },
+  "app/Actions/Challenges/CreateChallenge.php": {
+    "mtime": 1787632024.1848674,
+    "ast_hash": "f5f80a4944feaf761dc2ae620d056493",
+    "semantic_hash": ""
+  },
+  "app/Jobs/Challenges/AnnounceChallenge.php": {
+    "mtime": 1787626859.5841205,
+    "ast_hash": "52f6ac5bdda5b1f9528efd71d4be411b",
+    "semantic_hash": ""
+  },
+  "app/Services/Telegram/BotCallback.php": {
+    "mtime": 1787632427.0336318,
+    "ast_hash": "7f9b2c43f016b7f766b893abb37fe622",
+    "semantic_hash": ""
+  },
+  "app/Services/Telegram/CallbackRouter.php": {
+    "mtime": 1787627266.892437,
+    "ast_hash": "f128cdff876d6fad14fae5c7f73f7651",
+    "semantic_hash": ""
+  },
+  "app/Services/Telegram/Callbacks/WizardCallback.php": {
+    "mtime": 1787630245.8184493,
+    "ast_hash": "71d92877ffa89bf5d9be8c3e547e0f4f",
+    "semantic_hash": ""
+  },
+  "app/Services/Telegram/ChannelBroadcaster.php": {
+    "mtime": 1787640953.6241503,
+    "ast_hash": "52fd6d55fa8d3d7e1f6b5f44213f0373",
+    "semantic_hash": ""
+  },
+  "app/Services/Telegram/ChannelGatePrompt.php": {
+    "mtime": 1787628773.0038054,
+    "ast_hash": "2e2a858d4eb19a6be57e0e1140031b93",
+    "semantic_hash": ""
+  },
+  "app/Services/Telegram/Commands/CancelCommand.php": {
+    "mtime": 1787631550.2845938,
+    "ast_hash": "0a9bbfd560a99642778f5d8f5b9eda75",
+    "semantic_hash": ""
+  },
+  "app/Services/Telegram/Commands/CreateCommand.php": {
+    "mtime": 1787631408.9842522,
+    "ast_hash": "509c266ae16f3833b84f24d5ac25d53a",
+    "semantic_hash": ""
+  },
+  "app/Services/Telegram/ConversationRouter.php": {
+    "mtime": 1787630310.9924815,
+    "ast_hash": "18329cb96bde942b3d6129f9c4ae70ea",
+    "semantic_hash": ""
+  },
+  "app/Services/Telegram/Handlers/CallbackQueryHandler.php": {
+    "mtime": 1787627290.2524972,
+    "ast_hash": "916f64638998e916bd21fb4417b039a9",
+    "semantic_hash": ""
+  },
+  "app/Services/Telegram/HandlesCallback.php": {
+    "mtime": 1787627246.6473877,
+    "ast_hash": "593427af2802328d9bee59c47ca906f6",
+    "semantic_hash": ""
+  },
+  "app/Services/Telegram/Wizards/ChallengeDraft.php": {
+    "mtime": 1787627323.9005895,
+    "ast_hash": "985ff969dcddca743ff2c4b1ea41df75",
+    "semantic_hash": ""
+  },
+  "app/Services/Telegram/Wizards/CreateChallengeWizard.php": {
+    "mtime": 1787637027.0647967,
+    "ast_hash": "d7739c4d5dc58381b25a009609b3604d",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Bot/CallbackQueryHandlerTest.php": {
+    "mtime": 1787638264.5230327,
+    "ast_hash": "513e8bb028f82e8b9385ff0d14aaab59",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Bot/ChannelBroadcasterTest.php": {
+    "mtime": 1787641243.662779,
+    "ast_hash": "d3f580dc4c3a8c82c3f91092d63262f7",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Bot/CreateChallengeWizardTest.php": {
+    "mtime": 1787636295.2306943,
+    "ast_hash": "7792d23c33e9052d305a1e5d44b54c69",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Domain/CreateChallengeTest.php": {
+    "mtime": 1787637886.74216,
+    "ast_hash": "f7012fdee1790b0805a4a0c59c3e899d",
+    "semantic_hash": ""
+  },
+  "tests/Unit/BotCallbackTest.php": {
+    "mtime": 1787637559.4839702,
+    "ast_hash": "c081b307b40316e78efea6198ca660f7",
+    "semantic_hash": ""
+  },
+  "prompts/goal-phase-13.md": {
+    "mtime": 1787637135.7700605,
+    "ast_hash": "c1bc4a6c493a7ff7e45b31fca94493bd",
+    "semantic_hash": ""
+  },
+  "prompts/goal-phases-11-12.md": {
+    "mtime": 1787635528.049194,
+    "ast_hash": "f7924732c582f4fb44fabf69f10a6b05",
+    "semantic_hash": ""
+  },
+  "prompts/goal-phases-8-10.md": {
+    "mtime": 1787614060.8511398,
+    "ast_hash": "9063517dca7d1d05c9496f339505da83",
+    "semantic_hash": ""
+  },
+  "prompts/main-addendum-2.md": {
+    "mtime": 1787613905.3711452,
+    "ast_hash": "6ab05f7db858c93f8c1d9fe0c0d2c00b",
+    "semantic_hash": ""
+  },
+  "prompts/main-addendum-3.md": {
+    "mtime": 1787635386.8340352,
+    "ast_hash": "b524e21d9b19149b65aeada875e262d0",
+    "semantic_hash": ""
+  },
+  "prompts/main-addendum-4.md": {
+    "mtime": 1787637024.5867696,
+    "ast_hash": "0307a0bd6c0615ccfa4cffd78266a117",
+    "semantic_hash": ""
+  },
+  "prompts/phase-11.md": {
+    "mtime": 1787635434.8164773,
+    "ast_hash": "0c477694949077d6462df350530967ea",
+    "semantic_hash": ""
+  },
+  "prompts/phase-12.md": {
+    "mtime": 1787635472.6775932,
+    "ast_hash": "e71153a2299586f7ca4061fae5dd75a7",
+    "semantic_hash": ""
+  },
+  "prompts/phase-13.md": {
+    "mtime": 1787637086.3814695,
+    "ast_hash": "14a2d22c53b73644818e3517e5ebd2e4",
     "semantic_hash": ""
   }
 }

@@ -23,7 +23,20 @@ trait HasTranslatedLabel
      */
     public function label(): string
     {
-        return __(self::translationGroup().'.'.$this->value);
+        return __($this->translationKey());
+    }
+
+    /**
+     * The catalogue key behind `label()`.
+     *
+     * Exposed because `label()` resolves in the *ambient* locale, and the bot
+     * cannot use that: a queue worker serves everybody, so `app()->getLocale()`
+     * is whoever was processed last. `BotMessenger::line($user, $case->
+     * translationKey())` resolves the same line per recipient instead.
+     */
+    public function translationKey(): string
+    {
+        return self::translationGroup().'.'.$this->value;
     }
 
     /**

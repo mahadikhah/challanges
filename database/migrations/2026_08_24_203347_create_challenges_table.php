@@ -38,8 +38,13 @@ return new class extends Migration
             | computed in `timezone` and only then converted, so the challenge's
             | own zone has to travel with it — the server's is irrelevant and the
             | creator may not live in it.
+            |
+            | `dateTime`, not `timestamp`: MySQL's TIMESTAMP stops at
+            | 2038-01-19, and this column is the one date a user picks freely.
+            | A yearly challenge of any length walks past that boundary too, so
+            | the whole timeline is DATETIME — see `challenge_periods`.
             */
-            $table->timestamp('starts_at');
+            $table->dateTime('starts_at');
             $table->unsignedSmallInteger('total_periods');
             $table->string('timezone', 64);
 

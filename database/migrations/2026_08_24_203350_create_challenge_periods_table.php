@@ -35,8 +35,14 @@ return new class extends Migration
             */
             $table->unsignedSmallInteger('index');
 
-            $table->timestamp('starts_at');
-            $table->timestamp('ends_at');
+            /*
+            | `dateTime`, not `timestamp`: a materialised timeline runs from the
+            | creator's start date for `total_periods` periods, so a yearly
+            | challenge started at any distance out lands past MySQL's TIMESTAMP
+            | ceiling of 2038-01-19. `rolled_over_at` stays a real event stamp.
+            */
+            $table->dateTime('starts_at');
+            $table->dateTime('ends_at');
 
             /*
             | Stamped once the period has been settled: every participant's

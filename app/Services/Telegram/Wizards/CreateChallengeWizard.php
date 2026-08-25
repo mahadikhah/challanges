@@ -1,0 +1,721 @@
+<?php
+
+namespace App\Services\Telegram\Wizards;
+
+use App\Actions\Challenges\CreateChallenge;
+use App\Actions\Entitlements\ConsumeEntitlement;
+use App\Actions\Telegram\VerifyChannelMembership;
+use App\Enums\ChallengeVisibility;
+use App\Enums\ConversationState;
+use App\Enums\EntitlementType;
+use App\Enums\PeriodType;
+use App\Enums\ProofType;
+use App\Enums\SettingKey;
+use App\Exceptions\NoEntitlementAvailableException;
+use App\Models\BotConversation;
+use App\Models\Challenge;
+use App\Models\User;
+use App\Services\Localization;
+use App\Services\Settings;
+use App\Services\Telegram\BotCallback;
+use App\Services\Telegram\BotMessenger;
+use App\Services\Telegram\ChannelGatePrompt;
+use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Log;
+use InvalidArgumentException;
+use LogicException;
+
+/**
+ * The create-challenge wizard: ten questions, one challenge.
+ *
+ * The Telegram SDK has no conversation support, so the flow's position lives in a
+ * `BotConversation` row — state plus the answers gathered so far plus an expiry.
+ * Everything about the design follows from that row being the only memory between
+ * two unrelated queue jobs.
+ *
+ * **The order of the questions is owned here, not by `ConversationState`.** Two
+ * deliberate departures from the enum's declaration order. Timezone is asked
+ * *before* the start date, because "starting on the 3rd" is not an instant until
+ * the zone is known and asking afterwards would mean re-interpreting an answer
+ * already given. The custom day count is asked only for `period_type = custom`,
+ * which is why the sequence is a function of the draft rather than a list.
+ *
+ * **A tapped button carries the step it was asked for.** Inline keyboards outlive
+ * the message they were sent with: nothing stops a user scrolling up and tapping
+ * "Daily" again three questions later. Comparing the button's step against the
+ * conversation's actual state turns that from a corruption into a no-op that
+ * re-asks the current question — which is also what a user who taps a button from
+ * a finished wizard needs to see.
+ *
+ * **The gate is checked twice, at `/create` and again at confirmation.** Not
+ * belt-and-braces: the questions take minutes, and CLAUDE.md requires
+ * authorization be re-validated at the point of the privileged act rather than
+ * once at the start of a flow.
+ */
+class CreateChallengeWizard
+{
+    /**
+     * The callback action word for every button this wizard sends.
+     *
+     * Two letters because `callback_data` is 64 bytes and a step name already
+     * costs up to 27 of them.
+     */
+    public const string ACTION = 'wz';
+
+    /**
+     * Button values that are answers to no particular question.
+     */
+    public const string SKIP = 'skip';
+
+    public const string CONFIRM = 'go';
+
+    public const string CANCEL = 'no';
+
+    public const string TODAY = 'today';
+
+    public const string TOMORROW = 'tomorrow';
+
+    /**
+     * The zones offered as buttons.
+     *
+     * A curated list rather than all 400-odd IANA identifiers, which no inline
+     * keyboard can show: a creator picks a zone once, and these cover the
+     * platform's languages plus the common diaspora. `CreateChallenge` accepts any
+     * valid identifier, so the Mini App can offer a full picker without changing
+     * anything here.
+     *
+     * @var list<string>
+     */
+    private const array TIMEZONES = [
+        'Asia/Tehran',
+        'UTC',
+        'Europe/London',
+        'Europe/Berlin',
+        'Europe/Istanbul',
+        'Asia/Dubai',
+        'America/New_York',
+        'America/Los_Angeles',
+    ];
+
+    public function __construct(
+        private readonly VerifyChannelMembership $gate,
+        private readonly ChannelGatePrompt $gatePrompt,
+        private readonly ConsumeEntitlement $entitlements,
+        private readonly CreateChallenge $createChallenge,
+        private readonly BotMessenger $messenger,
+        private readonly Settings $settings,
+    ) {}
+
+    /**
+     * Open a fresh flow, or refuse to.
+     *
+     * Refuses before the first question rather than after the tenth: a creator
+     * with no slot left should not answer ten questions to be told so. The
+     * authoritative check is still the one inside `CreateChallenge`'s
+     * transaction — this one is advisory, because a slot can be spent elsewhere
+     * while the wizard is open.
+     */
+    public function begin(User $user): void
+    {
+        if (! $this->gate->ensure($user)) {
+            $this->gatePrompt->send($user);
+
+            return;
+        }
+
+        if ($this->entitlements->available($user, EntitlementType::CreateSlot) < 1) {
+            $this->refuseForNoSlot($user);
+
+            return;
+        }
+
+        $restarting = $user->conversation()->live()->exists();
+
+        $conversation = BotConversation::query()->updateOrCreate(
+            ['user_id' => $user->getKey()],
+            [
+                'state' => ConversationState::AwaitingChallengeTitle,
+                'payload' => null,
+                'expires_at' => now()->addMinutes($this->settings->integer(SettingKey::ConversationTtlMinutes)),
+            ],
+        );
+
+        $this->ask($user, $conversation, $restarting
+            ? [$this->messenger->line($user, 'bot.wizard.restarted')]
+            : [$this->messenger->line($user, 'bot.wizard.opening')]);
+    }
+
+    /**
+     * Drop a flow at the user's request.
+     *
+     * @return bool whether there was one to drop
+     */
+    public function abandon(User $user): bool
+    {
+        // Any conversation, live or lapsed: leaving an expired row behind would
+        // make the *next* `/create` report that it is restarting something.
+        return $user->conversation()->delete() > 0;
+    }
+
+    /**
+     * Take a typed answer.
+     *
+     * A message with no text — a photo, a sticker — is not an error and not an
+     * answer: the question is asked again. Same for text arriving at a step that
+     * wants a button, which is what a user does when they miss the keyboard.
+     */
+    public function receiveText(User $user, BotConversation $conversation, ?string $text): void
+    {
+        $state = $this->assertOwnState($conversation);
+
+        if ($text === null || ! $state->expectsText()) {
+            $this->ask($user, $conversation, [$this->say($user, $conversation, "bot.wizard.{$state->value}.expected")]);
+
+            return;
+        }
+
+        $answers = $this->parseText($state, $text, ChallengeDraft::of($conversation));
+
+        if ($answers === null) {
+            $this->ask($user, $conversation, [$this->say($user, $conversation, "bot.wizard.{$state->value}.error")]);
+
+            return;
+        }
+
+        $this->advance($user, $conversation, $state, $answers);
+    }
+
+    /**
+     * Take a tapped answer.
+     */
+    public function receiveChoice(User $user, BotConversation $conversation, BotCallback $callback): void
+    {
+        $this->assertOwnState($conversation);
+
+        $asked = ConversationState::tryFrom((string) $callback->argument(0));
+        $value = $callback->argument(1);
+
+        if ($asked === null || $value === null) {
+            $this->ask($user, $conversation, [$this->messenger->line($user, 'bot.fallback.stale_button')]);
+
+            return;
+        }
+
+        if ($asked !== $conversation->state) {
+            // A button from further up the chat. Not corruption and not worth an
+            // error — show them where the flow actually is.
+            $this->ask($user, $conversation, [$this->messenger->line($user, 'bot.wizard.stale_step')]);
+
+            return;
+        }
+
+        if ($value === self::CANCEL) {
+            $this->abandon($user);
+            $this->messenger->send($user, $this->messenger->line($user, 'bot.wizard.cancelled'));
+
+            return;
+        }
+
+        if ($asked === ConversationState::AwaitingCreateConfirmation) {
+            if ($value === self::CONFIRM) {
+                $this->finish($user, $conversation);
+
+                return;
+            }
+
+            $this->ask($user, $conversation, [$this->messenger->line($user, 'bot.fallback.stale_button')]);
+
+            return;
+        }
+
+        $answers = $this->parseChoice($asked, $value, ChallengeDraft::of($conversation));
+
+        if ($answers === null) {
+            $this->ask($user, $conversation, [$this->say($user, $conversation, "bot.wizard.{$asked->value}.error")]);
+
+            return;
+        }
+
+        $this->advance($user, $conversation, $asked, $answers);
+    }
+
+    /**
+     * Record an accepted answer and move on.
+     *
+     * @param  array<string, mixed>  $answers
+     */
+    private function advance(
+        User $user,
+        BotConversation $conversation,
+        ConversationState $from,
+        array $answers,
+    ): void {
+        // The answer is merged before the next step is chosen, because the one
+        // branch in the flow is a function of the answer just given.
+        $conversation->advanceTo($from, $answers);
+
+        $conversation->advanceTo($this->nextAfter($from, ChallengeDraft::of($conversation)))->save();
+
+        $this->ask($user, $conversation);
+    }
+
+    /**
+     * The step after this one, given what has been answered.
+     *
+     * Reading it top to bottom is reading the flow, which is the point of keeping
+     * it in one place rather than as a `->next()` on each step.
+     */
+    private function nextAfter(ConversationState $state, ChallengeDraft $draft): ConversationState
+    {
+        return match ($state) {
+            ConversationState::AwaitingChallengeTitle => ConversationState::AwaitingChallengeDescription,
+            ConversationState::AwaitingChallengeDescription => ConversationState::AwaitingPeriodType,
+
+            // The only branch in the flow: a day count is meaningless for the
+            // five fixed period types.
+            ConversationState::AwaitingPeriodType => $draft->periodType()?->requiresCustomDays() === true
+                ? ConversationState::AwaitingCustomPeriodDays
+                : ConversationState::AwaitingTimezone,
+
+            ConversationState::AwaitingCustomPeriodDays => ConversationState::AwaitingTimezone,
+            ConversationState::AwaitingTimezone => ConversationState::AwaitingStartDate,
+            ConversationState::AwaitingStartDate => ConversationState::AwaitingTotalPeriods,
+            ConversationState::AwaitingTotalPeriods => ConversationState::AwaitingProofType,
+            ConversationState::AwaitingProofType => ConversationState::AwaitingVisibility,
+            ConversationState::AwaitingVisibility => ConversationState::AwaitingCreateConfirmation,
+
+            // Confirmation is answered by `finish()`, never by advancing, and the
+            // check-in steps belong to a different flow entirely. Reaching either
+            // is a wiring bug rather than bad input.
+            ConversationState::AwaitingCreateConfirmation,
+            ConversationState::AwaitingCheckInText,
+            ConversationState::AwaitingCheckInPhoto => throw new LogicException(
+                "The create-challenge wizard has no step after {$state->value}.",
+            ),
+        };
+    }
+
+    /**
+     * Ask the current question.
+     *
+     * @param  list<string|null>  $preamble  said before the question — an error, a
+     *                                       nudge, or nothing
+     */
+    private function ask(User $user, BotConversation $conversation, array $preamble = []): void
+    {
+        $state = $conversation->state;
+        $draft = ChallengeDraft::of($conversation);
+
+        $this->messenger->paragraphs(
+            $user,
+            [
+                ...$preamble,
+                ...($state === ConversationState::AwaitingCreateConfirmation ? $this->summary($user, $draft) : []),
+                $this->messenger->line($user, "bot.wizard.{$state->value}.prompt", $this->promptReplacements($draft)),
+            ],
+            $this->keyboard($user, $state, $draft),
+        );
+    }
+
+    /**
+     * A line of this flow's copy, with the flow's placeholders filled in.
+     *
+     * Every step's `error` and `expected` line quotes the same bound its `prompt`
+     * does — "between 3 and :title_max characters" is the whole point of the
+     * message — so they resolve through the same replacements rather than each
+     * caller remembering to pass them.
+     */
+    private function say(User $user, BotConversation $conversation, string $key): string
+    {
+        return $this->messenger->line(
+            $user,
+            $key,
+            $this->promptReplacements(ChallengeDraft::of($conversation)),
+        );
+    }
+
+    /**
+     * Values a prompt may interpolate. Absent answers read as an em dash rather
+     * than as `:timezone`, because a prompt is shown before its own answer exists.
+     *
+     * @return array<string, string|int|float>
+     */
+    private function promptReplacements(ChallengeDraft $draft): array
+    {
+        return [
+            'timezone' => $draft->timezone() ?? '—',
+            'title_max' => CreateChallenge::limits()['title_max'],
+            'description_max' => CreateChallenge::limits()['description_max'],
+            'total_periods_max' => CreateChallenge::limits()['total_periods_max'],
+            'custom_period_days_max' => CreateChallenge::limits()['custom_period_days_max'],
+        ];
+    }
+
+    /**
+     * The buttons for a step, or none when it only takes typing.
+     *
+     * @return list<list<array<string, string>>>|null
+     */
+    private function keyboard(User $user, ConversationState $state, ChallengeDraft $draft): ?array
+    {
+        $options = match ($state) {
+            ConversationState::AwaitingChallengeDescription => [
+                self::SKIP => $this->messenger->line($user, 'bot.wizard.skip_button'),
+            ],
+            ConversationState::AwaitingPeriodType => $this->enumOptions($user, PeriodType::cases()),
+            ConversationState::AwaitingTimezone => array_combine(self::TIMEZONES, self::TIMEZONES),
+            ConversationState::AwaitingStartDate => [
+                self::TODAY => $this->messenger->line($user, 'bot.wizard.today_button'),
+                self::TOMORROW => $this->messenger->line($user, 'bot.wizard.tomorrow_button'),
+            ],
+            ConversationState::AwaitingProofType => $this->enumOptions($user, ProofType::cases()),
+            ConversationState::AwaitingVisibility => $this->enumOptions($user, ChallengeVisibility::cases()),
+            ConversationState::AwaitingCreateConfirmation => [
+                self::CONFIRM => $this->messenger->line($user, 'bot.wizard.create_button'),
+                self::CANCEL => $this->messenger->line($user, 'bot.wizard.cancel_button'),
+            ],
+            default => [],
+        };
+
+        if ($options === []) {
+            return null;
+        }
+
+        // One per row for the long labels, two across otherwise. Proof types are
+        // sentences; period types and timezones are words.
+        $perRow = in_array($state, [
+            ConversationState::AwaitingProofType,
+            ConversationState::AwaitingVisibility,
+        ], true) ? 1 : 2;
+
+        return $this->rows($state, $options, $perRow);
+    }
+
+    /**
+     * Enum cases as `value => label`, translated for this recipient.
+     *
+     * `label()` is not usable here: it resolves in the ambient locale, which in a
+     * queue worker is whoever was processed last.
+     *
+     * @param  list<PeriodType|ProofType|ChallengeVisibility>  $cases
+     * @return array<string, string>
+     */
+    private function enumOptions(User $user, array $cases): array
+    {
+        $options = [];
+
+        foreach ($cases as $case) {
+            $options[$case->value] = $this->messenger->line($user, $case->translationKey());
+        }
+
+        return $options;
+    }
+
+    /**
+     * Lay options out as inline keyboard rows.
+     *
+     * @param  array<string, string>  $options  callback value => button label
+     * @param  positive-int  $perRow
+     * @return list<list<array<string, string>>>
+     */
+    private function rows(ConversationState $state, array $options, int $perRow): array
+    {
+        $rows = [];
+
+        foreach (array_chunk(array_keys($options), $perRow) as $chunk) {
+            $rows[] = array_map(fn (string $value): array => [
+                'text' => $options[$value],
+
+                // The step travels with the button so a tap can be checked against
+                // where the flow actually is.
+                'callback_data' => BotCallback::encode(self::ACTION, $state->value, $value),
+            ], $chunk);
+        }
+
+        return $rows;
+    }
+
+    /**
+     * The draft, read back before it becomes a challenge.
+     *
+     * @return list<string>
+     */
+    private function summary(User $user, ChallengeDraft $draft): array
+    {
+        $periodType = $draft->periodType();
+        $proofType = $draft->proofType();
+        $visibility = $draft->visibility();
+
+        return [$this->messenger->line($user, 'bot.wizard.summary', [
+            'title' => (string) $draft->title(),
+            'description' => $draft->description() ?? $this->messenger->line($user, 'bot.wizard.no_description'),
+            'period' => $periodType === null ? '—' : $this->messenger->line($user, $periodType->translationKey()),
+            'custom_days' => $draft->customPeriodDays() ?? '—',
+            'start' => (string) $draft->startDate(),
+            'timezone' => (string) $draft->timezone(),
+            'periods' => $draft->totalPeriods() ?? '—',
+            'proof' => $proofType === null ? '—' : $this->messenger->line($user, $proofType->translationKey()),
+            'visibility' => $visibility === null ? '—' : $this->messenger->line($user, $visibility->translationKey()),
+            'freezes' => $this->settings->integer(SettingKey::DefaultChallengeFreezes),
+        ])];
+    }
+
+    /**
+     * Read a typed answer, or null if it cannot be read.
+     *
+     * @return array<string, mixed>|null answers to merge into the draft
+     */
+    private function parseText(ConversationState $state, string $text, ChallengeDraft $draft): ?array
+    {
+        $text = trim($text);
+        $limits = CreateChallenge::limits();
+
+        return match ($state) {
+            ConversationState::AwaitingChallengeTitle => mb_strlen($text) >= 3
+                && mb_strlen($text) <= $limits['title_max']
+                    ? [ChallengeDraft::TITLE => $text]
+                    : null,
+
+            ConversationState::AwaitingChallengeDescription => mb_strlen($text) <= $limits['description_max']
+                ? [ChallengeDraft::DESCRIPTION => $text]
+                : null,
+
+            ConversationState::AwaitingCustomPeriodDays => ($days = $this->positiveInteger($text, $limits['custom_period_days_max'])) === null
+                ? null
+                : [ChallengeDraft::CUSTOM_PERIOD_DAYS => $days],
+
+            ConversationState::AwaitingTotalPeriods => ($periods = $this->positiveInteger($text, $limits['total_periods_max'])) === null
+                ? null
+                : [ChallengeDraft::TOTAL_PERIODS => $periods],
+
+            ConversationState::AwaitingStartDate => ($date = $this->readDate($text, $draft)) === null
+                ? null
+                : [ChallengeDraft::START_DATE => $date],
+
+            default => null,
+        };
+    }
+
+    /**
+     * Read a tapped answer, or null if it is not one of the offered values.
+     *
+     * Every value is checked against what was actually offered rather than
+     * trusted: `callback_data` is a string a client sent us.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function parseChoice(ConversationState $state, string $value, ChallengeDraft $draft): ?array
+    {
+        return match ($state) {
+            ConversationState::AwaitingChallengeDescription => $value === self::SKIP
+                ? [ChallengeDraft::DESCRIPTION => null]
+                : null,
+
+            ConversationState::AwaitingPeriodType => ($type = PeriodType::tryFrom($value)) === null
+                ? null
+                : [ChallengeDraft::PERIOD_TYPE => $type->value],
+
+            ConversationState::AwaitingTimezone => in_array($value, self::TIMEZONES, true)
+                ? [ChallengeDraft::TIMEZONE => $value]
+                : null,
+
+            ConversationState::AwaitingStartDate => match ($value) {
+                self::TODAY => [ChallengeDraft::START_DATE => $this->localToday($draft)->toDateString()],
+                self::TOMORROW => [ChallengeDraft::START_DATE => $this->localToday($draft)->addDay()->toDateString()],
+                default => null,
+            },
+
+            ConversationState::AwaitingProofType => ($proof = ProofType::tryFrom($value)) === null
+                ? null
+                : [ChallengeDraft::PROOF_TYPE => $proof->value],
+
+            ConversationState::AwaitingVisibility => ($visibility = ChallengeVisibility::tryFrom($value)) === null
+                ? null
+                : [ChallengeDraft::VISIBILITY => $visibility->value],
+
+            default => null,
+        };
+    }
+
+    /**
+     * Say that a create-slot is needed, and what one costs.
+     *
+     * Quoting the price is the point: "you have no slots left" with no way to get
+     * one is a dead end, and the price is a `Setting` rather than a constant so it
+     * has to be read at the moment of refusal.
+     */
+    private function refuseForNoSlot(User $user): void
+    {
+        $this->messenger->paragraphs($user, [
+            $this->messenger->line($user, 'bot.wizard.no_slot'),
+            $this->messenger->line($user, 'bot.wizard.slot_price', [
+                'coins' => $this->settings->integer(EntitlementType::CreateSlot->priceSetting()),
+            ]),
+        ]);
+    }
+
+    /**
+     * Turn the draft into a challenge, or explain why not.
+     */
+    private function finish(User $user, BotConversation $conversation): void
+    {
+        // The privileged act, so the gate is asked again here and not only at
+        // `/create` — the questions took minutes, and membership can lapse inside
+        // one flow. The conversation is kept: they can join and tap Create again.
+        if (! $this->gate->ensure($user)) {
+            $this->gatePrompt->send($user);
+
+            return;
+        }
+
+        $draft = ChallengeDraft::of($conversation);
+
+        if (! $draft->isComplete()) {
+            // Reachable when a deploy adds a question to a flow already in
+            // progress. Cheaper to restart than to work out which answer is
+            // missing and re-ask it out of order.
+            $this->abandon($user);
+            $this->messenger->send($user, $this->messenger->line($user, 'bot.wizard.incomplete'));
+
+            return;
+        }
+
+        try {
+            $challenge = $this->createChallenge->handle(
+                creator: $user,
+                title: (string) $draft->title(),
+                description: $draft->description(),
+                periodType: $draft->periodType() ?? PeriodType::Daily,
+                customPeriodDays: $draft->customPeriodDays(),
+                startsAt: $draft->startsAt(),
+                totalPeriods: $draft->totalPeriods() ?? 1,
+                timezone: (string) $draft->timezone(),
+                proofType: $draft->proofType() ?? ProofType::Button,
+                visibility: $draft->visibility() ?? ChallengeVisibility::InviteOnly,
+            );
+        } catch (NoEntitlementAvailableException) {
+            // They had a slot when the flow opened and spent it elsewhere since.
+            $this->abandon($user);
+            $this->refuseForNoSlot($user);
+
+            return;
+        } catch (InvalidArgumentException $refused) {
+            // The wizard validated every answer, so this is our bug rather than
+            // theirs. Told, logged, and the flow dropped so they are not stuck
+            // tapping a button that will keep failing.
+            Log::error('A wizard-built challenge was refused by CreateChallenge.', [
+                'user_id' => $user->getKey(),
+                'reason' => $refused->getMessage(),
+            ]);
+
+            $this->abandon($user);
+            $this->messenger->send($user, $this->messenger->line($user, 'bot.wizard.error'));
+
+            return;
+        }
+
+        // Deleted only once the challenge exists. A throw above leaves the flow
+        // intact for the queue's retry rather than losing ten answers.
+        $this->abandon($user);
+
+        $this->announceOutcome($user, $challenge);
+    }
+
+    /**
+     * Confirm the new challenge.
+     */
+    private function announceOutcome(User $user, Challenge $challenge): void
+    {
+        $this->messenger->paragraphs($user, [
+            $this->messenger->line($user, 'bot.wizard.created', ['title' => $challenge->title]),
+            $this->messenger->line($user, 'bot.wizard.created_timeline', [
+                'periods' => $challenge->total_periods,
+                'start' => $challenge->starts_at->setTimezone($challenge->timezone)->toDateString(),
+                'timezone' => $challenge->timezone,
+            ]),
+            $challenge->visibility->shouldAnnounce()
+                ? $this->messenger->line($user, 'bot.wizard.created_public')
+                : $this->messenger->line($user, 'bot.wizard.created_private'),
+        ]);
+    }
+
+    /**
+     * A date typed as `Y-m-d`, checked against the challenge's own calendar.
+     *
+     * Only an ISO date is accepted, not a localised one: the wizard serves Farsi
+     * and English, and "03/04" means two different days to them. Today and
+     * tomorrow are buttons for exactly that reason.
+     */
+    private function readDate(string $text, ChallengeDraft $draft): ?string
+    {
+        $text = str_replace(['/', '.'], '-', Localization::foldDigits($text));
+
+        if (preg_match('/^\d{4}-\d{1,2}-\d{1,2}$/', $text) !== 1) {
+            return null;
+        }
+
+        $timezone = $draft->timezone();
+
+        if ($timezone === null) {
+            // The timezone step runs first, so this is unreachable through the
+            // wizard; refusing rather than guessing UTC keeps it that way.
+            return null;
+        }
+
+        [$year, $month, $day] = array_map('intval', explode('-', $text));
+
+        // `checkdate` before constructing, because Carbon happily rolls 31 April
+        // over into 1 May rather than refusing it, and a creator who typed the
+        // wrong month should be told rather than silently moved a day.
+        if (! checkdate($month, $day, $year)) {
+            return null;
+        }
+
+        $date = CarbonImmutable::create($year, $month, $day, 0, 0, 0, $timezone);
+
+        // Yesterday would mean a period that closed before the challenge was
+        // created, and a participant already behind on a challenge nobody could
+        // have checked into.
+        return $date->lessThan($this->localToday($draft)) ? null : $date->toDateString();
+    }
+
+    /**
+     * Today, in the challenge's timezone rather than the server's.
+     */
+    private function localToday(ChallengeDraft $draft): CarbonImmutable
+    {
+        return CarbonImmutable::now($draft->timezone() ?? 'UTC')->startOfDay();
+    }
+
+    /**
+     * A count typed by a person: Persian digits folded, bounds enforced.
+     */
+    private function positiveInteger(string $text, int $max): ?int
+    {
+        $text = Localization::foldDigits($text);
+
+        if (! ctype_digit($text)) {
+            return null;
+        }
+
+        $value = (int) $text;
+
+        return $value >= 1 && $value <= $max ? $value : null;
+    }
+
+    /**
+     * Confirm the conversation belongs to this wizard.
+     *
+     * @throws LogicException when the router handed over a check-in conversation
+     */
+    private function assertOwnState(BotConversation $conversation): ConversationState
+    {
+        $state = $conversation->state;
+
+        if (! $state->isCreateChallengeStep()) {
+            throw new LogicException("{$state->value} is not a create-challenge step.");
+        }
+
+        return $state;
+    }
+}

@@ -92,6 +92,23 @@ class Localization
     }
 
     /**
+     * Rewrite Eastern Arabic and Persian digits as ASCII ones.
+     *
+     * A Farsi keyboard sends ۱۴ where a form expects 14, and no amount of
+     * `is_numeric` will agree with it. Static and dependency-free so that both a
+     * model (`CheckIn::normalisePhrase()`) and a service can fold the same way —
+     * one digit map, rather than a copy per caller that drifts.
+     */
+    public static function foldDigits(string $value): string
+    {
+        return str_replace(
+            ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩', '۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'],
+            ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+            $value,
+        );
+    }
+
+    /**
      * What a speaker of the language calls it.
      */
     public function nativeName(string $locale): string
