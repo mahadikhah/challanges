@@ -1140,3 +1140,97 @@ posts on top of Phase 3's bot core. So: Bot Core next, as planned; Phases 8–10
   `prompts/main-addendum-2.md` and `task-08-01`/`08-02`/`09-01`…`10-02`; the actual files are
   `prompts/main-2.md` and `prompts/phase-8.md`/`phase-9.md`/`phase-10.md`. Same content, different names —
   resolve by content, not by path.
+
+---
+
+# Phase 3 — Bot core
+
+## Bot Core Task 1 — webhook intake (done) — commit `807989c`
+
+**Built**
+
+- `app/Http/Requests/Telegram/WebhookRequest.php` — `authorize()` verifies both secrets, `rules()` requires an
+  integer `update_id`.
+- `app/Http/Controllers/Telegram/WebhookController.php` — invokable, two lines of body.
+- `app/Actions/Telegram/IngestTelegramUpdate.php` — `handle(int $updateId, array $payload): TelegramUpdate`.
+- `app/Jobs/Telegram/ProcessTelegramUpdate.php` — first job in the app; `app/Jobs/` is new but standard.
+- `routes/telegram.php` — placeholder closure replaced by the controller.
+- `config/services.php` + `.env` + `.env.example` — new `webhook_header_secret` / `TELEGRAM_WEBHOOK_HEADER_SECRET`.
+
+**Decisions**
+
+- **Two independent webhook secrets, both required.** A path segment *and* the
+  `X-Telegram-Bot-Api-Secret-Token` header, from two different config keys. The asymmetry that matters: a URL
+  ends up in reverse-proxy access logs, shell history and screenshots of a `setWebhook` call; a header does not.
+  That is precisely why Telegram added `secret_token` on top of "use a secret path", and reusing one value for
+  both would throw the benefit away — with two, a leaked URL alone still cannot forge an update. Compared with
+  `hash_equals`.
+- **Fail closed on an unset secret.** An empty `webhook_secret` or `webhook_header_secret` refuses everything.
+  The alternative — treating "not configured" as "no check" — is an open write endpoint that looks healthy.
+- **404 on a secret mismatch, not 403.** A probe should not be able to tell a real webhook path with a wrong
+  secret from a path that was never routed. `{token?}` is optional precisely so a call with no token reaches the
+  check and gets the same 404 rather than a routing error that confirms the URL shape. Which check failed is
+  logged (`check` => `unconfigured|path|header`) so an operator debugging a silent bot has the signal a caller
+  is denied.
+- **422 on a body with no integer `update_id`.** It is the idempotency key for the entire pipeline; a body
+  without one is not an update, and a Form Request is where CLAUDE.md puts input validation.
+- **An ingest failure is *not* swallowed into a 200.** This is the one place the "always return 200" rule is
+  wrong: a 200 tells Telegram the update arrived, and Telegram never redelivers what it believes was delivered,
+  so a database blip would lose the update permanently. Letting it surface as a 500 buys a redelivery, which is
+  the only mechanism that can recover it. Everything that could be slow is already in the queue, so a non-2xx
+  here can only mean "we genuinely do not have this yet".
+- **`wasRecentlyCreated` gates the dispatch.** `firstOrCreate` catches the unique-index violation a simultaneous
+  delivery causes and re-reads, so the losing delivery declines to queue a second job. One update, one job, with
+  the guarantee coming from the database rather than a lock.
+- **Not `ShouldBeUnique`.** It would add a cache-lock dependency for a weaker version of a guarantee the unique
+  index already gives. The job's own `processed_at` guard covers the rest.
+- **`processed_at` is stamped only after the work succeeds.** A throw leaves the row unprocessed and the queue
+  owns the retry (`tries = 3`, `backoff = [5, 30]`); a stamped row is a decision already made. The job refreshes
+  first, so a serialised copy from an earlier attempt cannot re-do settled work.
+- **An unhandled `kind()` is stamped, not left pending.** Telegram adds update kinds faster than we adopt them;
+  logging and stamping keeps `unprocessed()` meaningful as a triage queue instead of a landfill.
+
+**Tests** — `tests/Feature/Bot/TelegramWebhookTest.php` (25) + `tests/Feature/WebhookRouteTest.php` (1,
+rewritten in place to configure the new secrets — route wiring only, behaviour moved to the new file).
+**26 tests / 63 assertions.** New global helpers: `deliver`, `messageUpdate`. Coverage: 200 + queued + nothing
+processed inline; payload stored verbatim including unknown keys; six rejection shapes as a dataset (wrong path,
+no path, wrong header, missing header, empty header, secrets swapped) each asserting nothing recorded and
+nothing queued; both unconfigured-secret cases; the diagnostic log naming `path` vs `header`; 422 on a missing
+and on a non-integer `update_id`; three deliveries of one `update_id` → one row, one job; a differing
+redelivery keeping the first payload; an already-processed row not requeued; the 500-on-ingest-failure path via
+a container-bound throwing double; job idempotency, refresh-over-serialised-copy, and the unhandled-kind stamp.
+
+**Assumptions / follow-ups recorded**
+
+- **Nothing registers the webhook with Telegram yet.** `setWebhook` must be called with the path secret in the
+  URL *and* `secret_token` set to `TELEGRAM_WEBHOOK_HEADER_SECRET`, or the bot is silently dead (every update
+  404s). A `telegram:set-webhook` artisan command belongs in Task 2, together with the outbound-transport
+  decision below — deliberately deferred rather than half-built here, since Task 1 is inbound-only.
+- **Outbound transport is still undecided, and it is a real fork.** CLAUDE.md mandates `Http::fake()` for all
+  Bot API calls in tests, but `irazasyed/telegram-bot-sdk` uses its own Guzzle client, which `Http::fake()` does
+  **not** intercept. So either the SDK is configured with an injected client in tests, or platform code calls
+  the Bot API through a thin service over Laravel's `Http` client (CLAUDE.md's own stated fallback). Task 2 must
+  settle this **before** writing any send path; getting it wrong means either real network calls in tests or a
+  rewrite of every send site.
+- **A permanently failed job leaves the update unprocessed forever.** We answer 200, so Telegram will not
+  redeliver. `TelegramUpdate::unprocessed()` exists for exactly this, but nothing sweeps it — a scheduled
+  re-dispatch (bounded, with an attempt counter so a poison update cannot loop) is worth adding once the bot
+  does real work.
+- **No rate limiting on the webhook path.** A leaked URL *and* header would let someone flood the endpoint with
+  well-formed updates. Every one records a row and queues a job, so the blast radius is queue depth and disk.
+  A throttle keyed on IP is cheap and belongs here eventually; not added now because the correct limit depends
+  on real update volume.
+- **`update_id` is `int`.** Telegram documents it as a 32-bit-safe integer that resets when the bot's pending
+  queue is cleared, so it is unique per delivery stream rather than globally forever. Nothing here depends on
+  monotonicity — only on uniqueness within the retention window — but a bot token swap would restart the
+  sequence and could collide with retained rows. Not a concern until tokens rotate.
+
+**Result — `sail composer ci:check` GREEN:** eslint ✓, prettier ✓, `tsc --noEmit` ✓, pint ✓,
+phpstan lvl 7 (0 errors) ✓, tests **651 (647 pass, 4 skipped = Fortify 2FA disabled)**, 1915 assertions,
++25 from this task. Graph: 2173 nodes / 3638 edges.
+
+**Next:** Bot Core Task 2 — **settle the outbound transport question first** (see above), then the channel gate:
+`getChatMember` on `/start` against `services.telegram.required_channel`, blocking with a join button until
+confirmed, re-verified on privileged actions. It must assert a non-empty `required_channel` rather than treating
+an unset one as "no gate" — same fail-closed reasoning as the webhook secrets. That task also owns the update
+router (`kind()` → handler) that `ProcessTelegramUpdate` currently stands in for, and `telegram:set-webhook`.
