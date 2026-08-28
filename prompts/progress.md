@@ -2414,3 +2414,54 @@ prettier ✓, tsc ✓, tests **1143 (1139 pass, 4 skipped)**, 3562 assertions.
 
 **Next:** Phase 7 — Website: the marketing landing (Inertia, `routes/web.php`), then Phases 8–13
 per `prompts/phase-8.md` onward.
+
+---
+
+## Phase 7 — Website Task 1 + i18n hardening
+
+### Website Task 1 — the marketing landing ✅
+
+**What shipped** (`d79d77e`):
+- `/` replaces the starter-kit's Laravel-branded page with the platform's own landing: hero, the
+  three accountability features (streaks/freezes, proof types, one shared clock), the coin economy
+  (credited invites, completion rewards, Stars top-ups — digital goods only), and a numbered
+  how-it-works. Copy in a new `website` lang group (en + fa), registered in
+  `config/localization.php` client groups so it ships to the browser.
+- Bot CTA from `services.telegram.bot_username`, resolved **per request** via a closure route —
+  `Route::inertia` evaluates its props array at registration, which would freeze the link at
+  boot. Degrades to a "not configured yet" note when unset, so the page renders on a box that has
+  never spoken to Telegram. Dark/light + RTL throughout; `useAppearance`/`useTranslation` reused.
+- **Tests** — `tests/Feature/Website/LandingTest.php` (6): guest render with bot link, null link
+  when unconfigured, empty-string username treated as unconfigured, en+fa via Accept-Language
+  (locale, direction, `website.*` translations present), signed-in render.
+
+### Vazirmatn for Farsi, project-wide ✅ (`2bff474`)
+
+- Vazirmatn (OFL, license committed alongside) self-hosted through the Vite fonts pipeline using
+  the `local()` provider — the build box cannot reach Bunny, so `bunny('Vazirmatn')` failed at
+  build. Four static weights (400/500/600/700) as woff2 in `resources/fonts/`, `preload: false`:
+  the face only downloads when Persian glyphs render, so English sessions never fetch it.
+- Both frontends: Vazirmatn second in `--font-sans`, and a `:lang(fa)` override flips it first so
+  Persian never falls through to a Latin font's system-Arabic substitute while Latin runs inside a
+  Farsi page (ids, code) still read Instrument Sans. The Mini App shell now emits the same
+  `@fonts` directive as the Inertia shell.
+
+### RTL live switch + mirrored admin layout ✅ (`13d7faa`, user-reported)
+
+Two bugs, one cause: the Blade shell stamps `dir`/`lang` on `<html>` at load, but Inertia
+navigates without reloading the document — switching to Farsi translated the copy while the
+layout stayed LTR until refresh; and post-refresh the layout was broken because the starter kit
+positions the sidebar with physical classes.
+
+- **`useDocumentDirection`** mounted once around the whole app (`withApp` wrapper) — follows the
+  locale Inertia props and updates `document.documentElement.dir`/`lang`, so the layout mirrors
+  on the click.
+- **Sidebar mirrored** via its own side-awareness: `side={isRtl ? 'right' : 'left'}` flips the
+  panel, its border, the mobile sheet, and the collapsed user menu's popup side.
+- **Physical → logical classes** across `ui/sidebar.tsx` (inset margin, sub-menu border, menu
+  text), app-logo, sidebar-header, nav-user, user-info, user-menu-content.
+
+**Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓,
+prettier ✓, tsc ✓, tests **1149 (1145 pass, 4 skipped)**, 3656 assertions.
+
+**Next:** Phase 8 per `prompts/phase-8.md`.
