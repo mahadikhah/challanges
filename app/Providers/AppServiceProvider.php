@@ -2,13 +2,19 @@
 
 namespace App\Providers;
 
+use App\Listeners\Ai\RecordAiProviderFailover;
+use App\Services\Ai\AiTextClient;
+use App\Services\Ai\LaravelAiTextClient;
 use App\Services\Localization;
 use App\Services\Settings;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Laravel\Ai\Events\AgentFailedOver;
+use Laravel\Ai\Events\ProviderFailedOver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,6 +36,10 @@ class AppServiceProvider extends ServiceProvider
         */
         $this->app->singleton(Settings::class);
         $this->app->singleton(Localization::class);
+
+        // One prompt seam for the whole app; the account rotation around it
+        // stays in our consumer loop, not in this client.
+        $this->app->bind(AiTextClient::class, LaravelAiTextClient::class);
     }
 
     /**
@@ -38,6 +48,19 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+        $this->registerAiFailoverListeners();
+    }
+
+    /**
+     * Listeners resolve by EXACT class, not by parent: the provider-level and
+     * agent-level failover events both need explicit registration, or roughly
+     * half of real failures bench nothing — which looks exactly like "the
+     * cooldown doesn't work".
+     */
+    protected function registerAiFailoverListeners(): void
+    {
+        Event::listen(ProviderFailedOver::class, RecordAiProviderFailover::class);
+        Event::listen(AgentFailedOver::class, RecordAiProviderFailover::class);
     }
 
     /**

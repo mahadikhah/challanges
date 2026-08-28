@@ -80,8 +80,8 @@
     "semantic_hash": ""
   },
   "app/Providers/AppServiceProvider.php": {
-    "mtime": 1787602660.6995907,
-    "ast_hash": "8013abd69e2cc9cfb068564457306067",
+    "mtime": 1787950406.9816618,
+    "ast_hash": "0b62ae094f9c24825e7b1026b06e74bd",
     "semantic_hash": ""
   },
   "app/Providers/FortifyServiceProvider.php": {
@@ -110,8 +110,8 @@
     "semantic_hash": "c78a304d2e8f73ae0051a56276bfe9a4"
   },
   "composer.json": {
-    "mtime": 1787618309.6971166,
-    "ast_hash": "d0c27943fc37d708762cc9c2704b7a75",
+    "mtime": 1787949705.4037619,
+    "ast_hash": "c7fe201d1519b8c6b94349fdcb625d45",
     "semantic_hash": ""
   },
   "config/app.php": {
@@ -2712,6 +2712,291 @@
   "tests/Feature/Bot/TimedSessionBotTest.php": {
     "mtime": 1787949078.4722478,
     "ast_hash": "b6c10606d6c1c75fc7ad10e9ac652af8",
+    "semantic_hash": ""
+  },
+  "app/Actions/Ai/ExecuteAiProviderCallAction.php": {
+    "mtime": 1787950622.5281644,
+    "ast_hash": "eadc11210daf7fb2aab3b935c961670b",
+    "semantic_hash": ""
+  },
+  "app/Actions/Ai/RunAiProviderChainAction.php": {
+    "mtime": 1787950845.729757,
+    "ast_hash": "cd81adbe31c6aa66c97d65e541226c20",
+    "semantic_hash": ""
+  },
+  "app/Enums/AiCapabilityPurpose.php": {
+    "mtime": 1787949974.9534667,
+    "ast_hash": "fc5dc81c4fd321985cc3a5bb3c8257bc",
+    "semantic_hash": ""
+  },
+  "app/Enums/AiLimitPeriod.php": {
+    "mtime": 1787949975.665479,
+    "ast_hash": "ecd941bf452f35ec9806720fa72d3536",
+    "semantic_hash": ""
+  },
+  "app/Enums/AiLimitScope.php": {
+    "mtime": 1787949976.6924963,
+    "ast_hash": "79a5e63276655fbab77406583cfb989a",
+    "semantic_hash": ""
+  },
+  "app/Enums/AiReservationStatus.php": {
+    "mtime": 1787949985.2226417,
+    "ast_hash": "7624b5f13ffd7386cf605dd4c3cb7f89",
+    "semantic_hash": ""
+  },
+  "app/Enums/AiUsageOutcome.php": {
+    "mtime": 1787949986.1876583,
+    "ast_hash": "7d19fa8e9a1fc2b69e01238dfd8171e7",
+    "semantic_hash": ""
+  },
+  "app/Enums/AiUsageQuality.php": {
+    "mtime": 1787949986.224659,
+    "ast_hash": "b2b9144703602e393d15f659b59d667f",
+    "semantic_hash": ""
+  },
+  "app/Enums/AiUsageRecordStatus.php": {
+    "mtime": 1787949986.1476574,
+    "ast_hash": "2113f907c25795c9c68a36825445c4be",
+    "semantic_hash": ""
+  },
+  "app/Exceptions/AiProviderNotConfiguredException.php": {
+    "mtime": 1787950452.5444057,
+    "ast_hash": "038fd47ca8fd991fffc772e9023b9818",
+    "semantic_hash": ""
+  },
+  "app/Exceptions/AiUsageLimitExceededException.php": {
+    "mtime": 1787950459.2055142,
+    "ast_hash": "be1d7d01759be3731710bf99a42037d5",
+    "semantic_hash": ""
+  },
+  "app/Listeners/Ai/RecordAiProviderFailover.php": {
+    "mtime": 1787950394.6864607,
+    "ast_hash": "a505a4d19ec58df351a261f424ea91d9",
+    "semantic_hash": ""
+  },
+  "app/Models/AiCapability.php": {
+    "mtime": 1787952185.6090524,
+    "ast_hash": "fb34f21ee0633ee7cd57bcad4aff91fc",
+    "semantic_hash": ""
+  },
+  "app/Models/AiGlobalUsageLimit.php": {
+    "mtime": 1787950978.5395625,
+    "ast_hash": "12e35278d63639eb87ead34af7cb3df8",
+    "semantic_hash": ""
+  },
+  "app/Models/AiProviderAccount.php": {
+    "mtime": 1787952275.809906,
+    "ast_hash": "aa9d73909ae2ad855c95e91da57ed927",
+    "semantic_hash": ""
+  },
+  "app/Models/AiUsageRecord.php": {
+    "mtime": 1787952185.886052,
+    "ast_hash": "cd13e5465cd434f62b7c05eb96e58856",
+    "semantic_hash": ""
+  },
+  "app/Models/AiUsageReservation.php": {
+    "mtime": 1787952185.9450517,
+    "ast_hash": "1d2a2a5fc67422a2e446fc3615a0ffdc",
+    "semantic_hash": ""
+  },
+  "app/Services/Ai/Adapters/ArrayUsageAdapter.php": {
+    "mtime": 1787950545.3249142,
+    "ast_hash": "178aee71a791f6a96ed11984b65473a8",
+    "semantic_hash": ""
+  },
+  "app/Services/Ai/Adapters/LaravelAiResponseAdapter.php": {
+    "mtime": 1787950623.004172,
+    "ast_hash": "30560d5ac249357c90dd6b5ced710aeb",
+    "semantic_hash": ""
+  },
+  "app/Services/Ai/AiClientFactory.php": {
+    "mtime": 1787950347.4466865,
+    "ast_hash": "0afcd58d2716bf5a02c7b50889587ad8",
+    "semantic_hash": ""
+  },
+  "app/Services/Ai/AiDriverCatalog.php": {
+    "mtime": 1787950707.4495347,
+    "ast_hash": "5d8682abd2aa6f16adaf7cb7abfedabd",
+    "semantic_hash": ""
+  },
+  "app/Services/Ai/AiLimit.php": {
+    "mtime": 1787950433.5730963,
+    "ast_hash": "4e53b92b6195dcc0e3d19f585e648d5e",
+    "semantic_hash": ""
+  },
+  "app/Services/Ai/AiLimitDecision.php": {
+    "mtime": 1787950720.6737475,
+    "ast_hash": "be6f73550575dfe77e92684b83f37e9d",
+    "semantic_hash": ""
+  },
+  "app/Services/Ai/AiLimitWindow.php": {
+    "mtime": 1787950441.7932303,
+    "ast_hash": "c8e4d7169529edf819831eae77f0c9c0",
+    "semantic_hash": ""
+  },
+  "app/Services/Ai/AiOperationIdentity.php": {
+    "mtime": 1787950418.9438572,
+    "ast_hash": "d4f90abdbcbd568c6962cc575423d57b",
+    "semantic_hash": ""
+  },
+  "app/Services/Ai/AiProviderCallResult.php": {
+    "mtime": 1787950684.336162,
+    "ast_hash": "3937dabe70f7d7f8152c81b9c239b16e",
+    "semantic_hash": ""
+  },
+  "app/Services/Ai/AiProviderChain.php": {
+    "mtime": 1787950722.7847817,
+    "ast_hash": "c58c1d2a26c53f8e8d53c47be62ba83c",
+    "semantic_hash": ""
+  },
+  "app/Services/Ai/AiProviderConfig.php": {
+    "mtime": 1787950340.473572,
+    "ast_hash": "9bda9d16d0ebae6c84c43d34164f7b07",
+    "semantic_hash": ""
+  },
+  "app/Services/Ai/AiQuotaService.php": {
+    "mtime": 1787952278.182903,
+    "ast_hash": "4616871e70d55fa2ac3822735b7bb81d",
+    "semantic_hash": ""
+  },
+  "app/Services/Ai/AiTextClient.php": {
+    "mtime": 1787950348.6627066,
+    "ast_hash": "946e61005da7474aaa9149a811c77fe6",
+    "semantic_hash": ""
+  },
+  "app/Services/Ai/AiTextResult.php": {
+    "mtime": 1787950684.3831627,
+    "ast_hash": "aa6ba8f89a2cd51b2ea272f6ceb86256",
+    "semantic_hash": ""
+  },
+  "app/Services/Ai/AiUsage.php": {
+    "mtime": 1787950431.304059,
+    "ast_hash": "2a5a8e226f84f27ab42b8f107a4c9c44",
+    "semantic_hash": ""
+  },
+  "app/Services/Ai/AiUsageAdapter.php": {
+    "mtime": 1787950536.6657736,
+    "ast_hash": "07b5952e79ff117bbe048a5ab2398f82",
+    "semantic_hash": ""
+  },
+  "app/Services/Ai/AiUsageAdapterRegistry.php": {
+    "mtime": 1787950624.056189,
+    "ast_hash": "ebbbd64bf4cad1b2420beda83c7bde34",
+    "semantic_hash": ""
+  },
+  "app/Services/Ai/AiUsageCostCalculator.php": {
+    "mtime": 1787950684.274161,
+    "ast_hash": "124451c99216e12c6a34cc0514804246",
+    "semantic_hash": ""
+  },
+  "app/Services/Ai/AiUsageNormalizer.php": {
+    "mtime": 1787950817.9453113,
+    "ast_hash": "00f67f1eb6a040a15baeba15b9823270",
+    "semantic_hash": ""
+  },
+  "app/Services/Ai/AiUsageRecorder.php": {
+    "mtime": 1787950820.1193461,
+    "ast_hash": "05f9c8e3e4a06c24989330ae981a3b29",
+    "semantic_hash": ""
+  },
+  "app/Services/Ai/LaravelAiTextClient.php": {
+    "mtime": 1787950827.8454702,
+    "ast_hash": "6e38237f6ce7edf85d75445edbedebbf",
+    "semantic_hash": ""
+  },
+  "config/ai_usage.php": {
+    "mtime": 1787950418.8938565,
+    "ast_hash": "e590601bd385e0c4d38fd2d4ae476adc",
+    "semantic_hash": ""
+  },
+  "database/factories/AiCapabilityFactory.php": {
+    "mtime": 1787950053.7938044,
+    "ast_hash": "75382cee347c2a7464bd865dadbcb077",
+    "semantic_hash": ""
+  },
+  "database/factories/AiProviderAccountFactory.php": {
+    "mtime": 1787951881.6942484,
+    "ast_hash": "1a171115781ef0fa1f842d5820c618e3",
+    "semantic_hash": ""
+  },
+  "database/factories/AiUsageRecordFactory.php": {
+    "mtime": 1787950067.76404,
+    "ast_hash": "89043c66d2192d64ded1fb4305120e65",
+    "semantic_hash": ""
+  },
+  "database/factories/AiUsageReservationFactory.php": {
+    "mtime": 1787950067.8000407,
+    "ast_hash": "302e53d50156cc1e9f6ca925ff8fedb3",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_29_090001_create_ai_capabilities_table.php": {
+    "mtime": 1787950113.9628167,
+    "ast_hash": "2a34695dd97682353f620da8d7a3aa39",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_29_090002_create_ai_provider_accounts_table.php": {
+    "mtime": 1787950002.227931,
+    "ast_hash": "5d11ab89dc823885555d02b36db3370f",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_29_090003_create_ai_usage_records_table.php": {
+    "mtime": 1787950808.9681673,
+    "ast_hash": "e18efcbbfb0ce4b28b510e512114efd2",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_29_090004_create_ai_usage_reservations_table.php": {
+    "mtime": 1787950808.9681673,
+    "ast_hash": "6475e802f7eb119ce155e52849cb7e63",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_29_090005_create_ai_global_usage_limits_table.php": {
+    "mtime": 1787950622.4291627,
+    "ast_hash": "8de6af6676fb756ec7f609e662b3234a",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Ai/AiConsumerPipelineTest.php": {
+    "mtime": 1787952184.2580552,
+    "ast_hash": "92c04e2bc58ae2e76d42d9c54b1b3678",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Ai/AiProviderRotationTest.php": {
+    "mtime": 1787952184.5130546,
+    "ast_hash": "fc1d302b5d63af0e285f8108834c533b",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Ai/AiQuotaLedgerTest.php": {
+    "mtime": 1787952185.0850534,
+    "ast_hash": "04c068a6381833e4a2b98942afe899e5",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Ai/AiUsageSchemaTest.php": {
+    "mtime": 1787952185.2430532,
+    "ast_hash": "7d2a1fa7027896e0f7d6db0952c6371b",
+    "semantic_hash": ""
+  },
+  "prompts/goal-phases-14-15.md": {
+    "mtime": 1787951323.2779603,
+    "ast_hash": "bf1004cab9ceb6f9b7a17330ffcb56d5",
+    "semantic_hash": ""
+  },
+  "prompts/main-addendum-5.md": {
+    "mtime": 1787950213.7244802,
+    "ast_hash": "79245a73083d5124b86491919ec75197",
+    "semantic_hash": ""
+  },
+  "prompts/phase-14.md": {
+    "mtime": 1787950280.5935864,
+    "ast_hash": "d12b565ee0ec8fc27653a167a52524f3",
+    "semantic_hash": ""
+  },
+  "prompts/phase-15.md": {
+    "mtime": 1787950347.8566933,
+    "ast_hash": "fe3cd648536171e2cce7003fd4384248",
+    "semantic_hash": ""
+  },
+  "prompts/progress-phase-9.md": {
+    "mtime": 1787949287.149781,
+    "ast_hash": "7627017f5eb5e074731bc8fe53d173ea",
     "semantic_hash": ""
   }
 }
