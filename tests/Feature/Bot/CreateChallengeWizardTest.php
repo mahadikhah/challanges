@@ -6,6 +6,7 @@ use App\Enums\ChallengeStatus;
 use App\Enums\ChallengeVisibility;
 use App\Enums\ConversationState;
 use App\Enums\EntitlementType;
+use App\Enums\FlowType;
 use App\Enums\PeriodType;
 use App\Enums\ProofType;
 use App\Enums\SettingKey;
@@ -511,6 +512,14 @@ describe('a tapped answer', function () {
             ConversationState::AwaitingVisibility,
             ['public', 'invite_only'],
         ],
+        'flow types' => [
+            ConversationState::AwaitingFlowType,
+            ['simple', 'timed_session'],
+        ],
+        'step input types' => [
+            ConversationState::AwaitingStepInputType,
+            ['button', 'image', 'voice'],
+        ],
     ]);
 
     it('asks for a day count only when the period is a custom one', function (PeriodType $type, ConversationState $next) {
@@ -627,13 +636,17 @@ describe('the confirmation step', function () {
         flowSittingAt(ConversationState::AwaitingVisibility, completeDraft());
 
         wizardChooses(ChallengeVisibility::Public->value);
+        // Visibility no longer ends the wizard: the flow-type question follows,
+        // and its answer is what the summary's Flow line shows.
+        wizardChooses(FlowType::Simple->value);
 
-        expect(soleBotMessage()['text'])
+        expect(lastBotReply()['text'])
             ->toContain('Read every day')
             ->toContain('Asia/Tehran')
             ->toContain(botCopy(PeriodType::Daily->translationKey()))
             ->toContain(botCopy(ProofType::Button->translationKey()))
             ->toContain(botCopy(ChallengeVisibility::Public->translationKey()))
+            ->toContain(botCopy(FlowType::Simple->translationKey()))
             ->and(lastOfferedValues())->toBe([CreateChallengeWizard::CONFIRM, CreateChallengeWizard::CANCEL])
             ->and(Challenge::query()->count())->toBe(0);
     });
@@ -767,7 +780,7 @@ describe('the confirmation step', function () {
 });
 
 describe('the flow end to end', function () {
-    it('turns ten answers into one challenge', function () {
+    it('turns eleven answers into one challenge', function () {
         wizardTypes('/create');
         wizardTypes('Read every day');
         wizardTypes('Twenty pages, no excuses.');
@@ -778,6 +791,7 @@ describe('the flow end to end', function () {
         wizardTypes('12');
         wizardChooses(ProofType::TextAutogen->value);
         wizardChooses(ChallengeVisibility::InviteOnly->value);
+        wizardChooses(FlowType::Simple->value);
         wizardChooses(CreateChallengeWizard::CONFIRM);
 
         $challenge = Challenge::query()->sole();
@@ -795,9 +809,9 @@ describe('the flow end to end', function () {
             ->and($challenge->periods()->count())->toBe(12)
             ->and(liveFlow())->toBeNull();
 
-        // Eleven updates, eleven replies. One message per update is a rate-limit rule
+        // Twelve updates, twelve replies. One message per update is a rate-limit rule
         // rather than a tidiness preference.
-        expect(botMessages())->toHaveCount(11);
+        expect(botMessages())->toHaveCount(12);
     });
 
     it('creates one challenge however many times Telegram redelivers the confirming tap', function () {

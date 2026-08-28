@@ -101,6 +101,31 @@ class TelegramUpdateFactory extends Factory
         });
     }
 
+    /**
+     * A voice message from a sender described field by field.
+     *
+     * Voice carries no `text`; the step flow reads `file_id` for the download
+     * and `duration` for the step's cap — the duration Telegram itself
+     * measured, which is exactly why the factory takes it as a parameter
+     * rather than faking a constant.
+     *
+     * @param  array<string, mixed>  $from  merged over Telegram's `from` object
+     */
+    public function voiceFrom(array $from, int $duration = 30, string $fileId = 'AwVoice-file-id'): static
+    {
+        return $this->state(function (array $attributes) use ($from, $duration, $fileId): array {
+            $payload = $this->messagePayload('', null, $from);
+            unset($payload['message']['text']);
+            $payload['message']['voice'] = [
+                'duration' => $duration,
+                'mime_type' => 'audio/ogg',
+                'file_id' => $fileId,
+            ];
+
+            return ['payload' => $payload];
+        });
+    }
+
     public function callbackQuery(string $data, ?int $fromTelegramId = null): static
     {
         return $this->callbackQueryFrom(

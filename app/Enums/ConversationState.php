@@ -25,6 +25,12 @@ enum ConversationState: string
     case AwaitingTimezone = 'awaiting_timezone';
     case AwaitingProofType = 'awaiting_proof_type';
     case AwaitingVisibility = 'awaiting_visibility';
+    case AwaitingFlowType = 'awaiting_flow_type';
+    case AwaitingStepLoop = 'awaiting_step_loop';
+    case AwaitingStepInputType = 'awaiting_step_input_type';
+    case AwaitingStepWait = 'awaiting_step_wait';
+    case AwaitingStepVoiceLimit = 'awaiting_step_voice_limit';
+    case AwaitingStepLabel = 'awaiting_step_label';
     case AwaitingCreateConfirmation = 'awaiting_create_confirmation';
 
     case AwaitingCheckInText = 'awaiting_check_in_text';
@@ -73,6 +79,9 @@ enum ConversationState: string
             self::AwaitingCustomPeriodDays,
             self::AwaitingStartDate,
             self::AwaitingTotalPeriods,
+            self::AwaitingStepWait,
+            self::AwaitingStepVoiceLimit,
+            self::AwaitingStepLabel,
             self::AwaitingCheckInText => true,
             default => false,
         };

@@ -7,6 +7,7 @@ use App\Services\Telegram\Callbacks\CheckInCallback;
 use App\Services\Telegram\Callbacks\JoinCallback;
 use App\Services\Telegram\Callbacks\LanguageCallback;
 use App\Services\Telegram\Callbacks\ReviewCheckInCallback;
+use App\Services\Telegram\Callbacks\SessionStepCallback;
 use App\Services\Telegram\Callbacks\ShopCallback;
 use App\Services\Telegram\Callbacks\WizardCallback;
 use App\Services\Telegram\CommandRouter;
@@ -107,6 +108,7 @@ class TelegramServiceProvider extends ServiceProvider
         CreateChallengeWizard::ACTION => WizardCallback::class,
         JoinCallback::ACTION => JoinCallback::class,
         CheckInCallback::ACTION => CheckInCallback::class,
+        SessionStepCallback::ACTION => SessionStepCallback::class,
         ReviewCheckInCallback::ACTION => ReviewCheckInCallback::class,
         ShopCallback::ACTION => ShopCallback::class,
         LanguageCallback::ACTION => LanguageCallback::class,

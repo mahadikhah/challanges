@@ -3,8 +3,10 @@
 namespace App\Services\Telegram\Wizards;
 
 use App\Enums\ChallengeVisibility;
+use App\Enums\FlowType;
 use App\Enums\PeriodType;
 use App\Enums\ProofType;
+use App\Enums\StepInputType;
 use App\Models\BotConversation;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Arr;
@@ -44,6 +46,18 @@ readonly class ChallengeDraft
     public const string PROOF_TYPE = 'proof_type';
 
     public const string VISIBILITY = 'visibility';
+
+    public const string FLOW_TYPE = 'flow_type';
+
+    /**
+     * The finished step list of a timed-session design.
+     */
+    public const string STEPS = 'steps';
+
+    /**
+     * The half-answered step the loop is currently gathering.
+     */
+    public const string PENDING_STEP = 'pending_step';
 
     /**
      * @param  array<string, mixed>  $answers
@@ -124,6 +138,116 @@ readonly class ChallengeDraft
     }
 
     /**
+     * The check-in flow the creator chose, defaulting to `simple`.
+     *
+     * A default rather than an answer-shaped null: the flow-type question is
+     * younger than the wizard, and a conversation parked before it existed
+     * should not become unfinishable for that — the database column the draft
+     * feeds defaults the same way.
+     */
+    public function flowType(): FlowType
+    {
+        return FlowType::tryFrom((string) $this->text(self::FLOW_TYPE)) ?? FlowType::Simple;
+    }
+
+    /**
+     * Whether the draft carries a step design at all, pending or finished.
+     */
+    public function hasSteps(): bool
+    {
+        return $this->flowType() === FlowType::TimedSession
+            && ($this->steps() !== [] || $this->pendingStep() !== null);
+    }
+
+    /**
+     * The finished steps of the design, in order, malformed entries dropped.
+     *
+     * The same tolerance as every other accessor — a step list is gathered one
+     * question at a time and the row can outlive a deploy that changed the
+     * questions — but with one difference: entries are discarded rather than
+     * defaulted, because a half-shaped step is not a step someone designed.
+     *
+     * @return list<array{input_type: StepInputType, min_wait_seconds: int, voice_max_seconds?: int, label?: string|null}>
+     */
+    public function steps(): array
+    {
+        $list = Arr::get($this->answers, self::STEPS);
+
+        if (! is_array($list)) {
+            return [];
+        }
+
+        $steps = [];
+
+        foreach (array_values($list) as $step) {
+            if (! is_array($step)) {
+                continue;
+            }
+
+            $inputType = StepInputType::tryFrom((string) ($step['input_type'] ?? ''));
+
+            if ($inputType === null || ! isset($step['min_wait_seconds'])) {
+                continue;
+            }
+
+            $entry = [
+                'input_type' => $inputType,
+                'min_wait_seconds' => (int) $step['min_wait_seconds'],
+            ];
+
+            if (isset($step['voice_max_seconds'])) {
+                $entry['voice_max_seconds'] = (int) $step['voice_max_seconds'];
+            }
+
+            $label = $step['label'] ?? null;
+            $entry['label'] = is_string($label) && $label !== '' ? $label : null;
+
+            $steps[] = $entry;
+        }
+
+        return $steps;
+    }
+
+    /**
+     * The finished steps as they are stored: scalar arrays, nothing domain-typed.
+     *
+     * The wizard appends to this when a label answer folds the pending step
+     * in; the typed `steps()` view is a reading of it, not the storage itself.
+     *
+     * @return list<array<string, int|string|null>>
+     */
+    public function storedSteps(): array
+    {
+        $list = Arr::get($this->answers, self::STEPS);
+
+        if (! is_array($list)) {
+            return [];
+        }
+
+        $stored = [];
+
+        foreach (array_values($list) as $step) {
+            if (is_array($step)) {
+                $stored[] = $step;
+            }
+        }
+
+        return $stored;
+    }
+
+    /**
+     * The step the loop is mid-way through gathering, or null.
+     *
+     * @return array{input_type?: string, min_wait_seconds?: int, voice_max_seconds?: int}|null
+     */
+    public function pendingStep(): ?array
+    {
+        $pending = Arr::get($this->answers, self::PENDING_STEP);
+
+        return is_array($pending) && $pending !== [] ? $pending : null;
+    }
+
+    /**
      * Midnight on the chosen date, in the challenge's timezone, as UTC.
      *
      * A date rather than a time because that is what the wizard asks for, and
@@ -171,7 +295,8 @@ readonly class ChallengeDraft
             }
         }
 
-        return ! ($this->periodType()?->requiresCustomDays() === true && $this->customPeriodDays() === null);
+        return ! ($this->periodType()?->requiresCustomDays() === true && $this->customPeriodDays() === null)
+            && ! ($this->flowType() === FlowType::TimedSession && $this->steps() === []);
     }
 
     /**

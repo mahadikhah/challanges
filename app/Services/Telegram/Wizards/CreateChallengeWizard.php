@@ -3,14 +3,17 @@
 namespace App\Services\Telegram\Wizards;
 
 use App\Actions\Challenges\CreateChallenge;
+use App\Actions\Challenges\ValidateChallengeStepDesign;
 use App\Actions\Entitlements\ConsumeEntitlement;
 use App\Actions\Telegram\VerifyChannelMembership;
 use App\Enums\ChallengeVisibility;
 use App\Enums\ConversationState;
 use App\Enums\EntitlementType;
+use App\Enums\FlowType;
 use App\Enums\PeriodType;
 use App\Enums\ProofType;
 use App\Enums\SettingKey;
+use App\Enums\StepInputType;
 use App\Exceptions\NoEntitlementAvailableException;
 use App\Models\BotConversation;
 use App\Models\Challenge;
@@ -20,6 +23,7 @@ use App\Services\Settings;
 use App\Services\Telegram\BotCallback;
 use App\Services\Telegram\BotMessenger;
 use App\Services\Telegram\ChannelGatePrompt;
+use App\Services\Telegram\CompactDuration;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
@@ -76,6 +80,26 @@ class CreateChallengeWizard
     public const string TOMORROW = 'tomorrow';
 
     /**
+     * The step-loop's two answers: gather another step, or hand the design in.
+     */
+    public const string ADD_STEP = 'add';
+
+    public const string DONE_STEPS = 'done';
+
+    /**
+     * The bounds a step answer is held to. These are legibility floors, not
+     * economy: they keep one answer from being unusable by the design (a wait
+     * longer than a day, a voice cap longer than an hour), while the rule that
+     * actually matters — the waits summing to no more than one period — is the
+     * design validator's, checked when the creator says done.
+     */
+    private const int STEP_WAIT_MAX = 86_400;
+
+    private const int VOICE_LIMIT_MAX = 3_600;
+
+    private const int STEP_LABEL_MAX = 120;
+
+    /**
      * The zones offered as buttons.
      *
      * A curated list rather than all 400-odd IANA identifiers, which no inline
@@ -102,6 +126,7 @@ class CreateChallengeWizard
         private readonly ChannelGatePrompt $gatePrompt,
         private readonly ConsumeEntitlement $entitlements,
         private readonly CreateChallenge $createChallenge,
+        private readonly ValidateChallengeStepDesign $stepDesign,
         private readonly BotMessenger $messenger,
         private readonly Settings $settings,
     ) {}
@@ -216,6 +241,24 @@ class CreateChallengeWizard
             return;
         }
 
+        if ($asked === ConversationState::AwaitingStepLoop) {
+            // The loop's two answers each take a different next step, so neither
+            // can go through the one-question-one-successor `advance()`.
+            if ($value === self::ADD_STEP) {
+                $conversation->advanceTo(ConversationState::AwaitingStepInputType, [ChallengeDraft::PENDING_STEP => null])->save();
+
+                $this->ask($user, $conversation);
+
+                return;
+            }
+
+            if ($value === self::DONE_STEPS) {
+                $this->handInSteps($user, $conversation);
+
+                return;
+            }
+        }
+
         if ($asked === ConversationState::AwaitingCreateConfirmation) {
             if ($value === self::CONFIRM) {
                 $this->finish($user, $conversation);
@@ -282,11 +325,28 @@ class CreateChallengeWizard
             ConversationState::AwaitingStartDate => ConversationState::AwaitingTotalPeriods,
             ConversationState::AwaitingTotalPeriods => ConversationState::AwaitingProofType,
             ConversationState::AwaitingProofType => ConversationState::AwaitingVisibility,
-            ConversationState::AwaitingVisibility => ConversationState::AwaitingCreateConfirmation,
+            ConversationState::AwaitingVisibility => ConversationState::AwaitingFlowType,
 
-            // Confirmation is answered by `finish()`, never by advancing, and
-            // the check-in and chat-link steps belong to other flows entirely.
-            // Reaching any of them is a wiring bug rather than bad input.
+            // The second branch: a timed session opens the step loop, which
+            // closes on its own terms (see `handInSteps`), never by advancing.
+            ConversationState::AwaitingFlowType => $draft->flowType() === FlowType::TimedSession
+                ? ConversationState::AwaitingStepLoop
+                : ConversationState::AwaitingCreateConfirmation,
+
+            // The step loop's questions. The wait's successor depends on what
+            // the step being gathered wants; a voice step needs its cap first.
+            ConversationState::AwaitingStepInputType => ConversationState::AwaitingStepWait,
+            ConversationState::AwaitingStepWait => ($draft->pendingStep()['input_type'] ?? null) === StepInputType::Voice->value
+                ? ConversationState::AwaitingStepVoiceLimit
+                : ConversationState::AwaitingStepLabel,
+            ConversationState::AwaitingStepVoiceLimit => ConversationState::AwaitingStepLabel,
+            ConversationState::AwaitingStepLabel => ConversationState::AwaitingStepLoop,
+
+            // Confirmation and the loop's exit are answered by their own
+            // branches, never by advancing, and the check-in and chat-link
+            // steps belong to other flows entirely. Reaching any of them is a
+            // wiring bug rather than bad input.
+            ConversationState::AwaitingStepLoop,
             ConversationState::AwaitingCreateConfirmation,
             ConversationState::AwaitingCheckInText,
             ConversationState::AwaitingCheckInPhoto,
@@ -349,6 +409,9 @@ class CreateChallengeWizard
             'description_max' => CreateChallenge::limits()['description_max'],
             'total_periods_max' => CreateChallenge::limits()['total_periods_max'],
             'custom_period_days_max' => CreateChallenge::limits()['custom_period_days_max'],
+            'wait_max' => self::STEP_WAIT_MAX,
+            'voice_max' => self::VOICE_LIMIT_MAX,
+            'label_max' => self::STEP_LABEL_MAX,
         ];
     }
 
@@ -371,6 +434,15 @@ class CreateChallengeWizard
             ],
             ConversationState::AwaitingProofType => $this->enumOptions($user, ProofType::cases()),
             ConversationState::AwaitingVisibility => $this->enumOptions($user, ChallengeVisibility::cases()),
+            ConversationState::AwaitingFlowType => $this->enumOptions($user, FlowType::cases()),
+            ConversationState::AwaitingStepLoop => [
+                self::ADD_STEP => $this->messenger->line($user, 'bot.wizard.add_step_button'),
+                self::DONE_STEPS => $this->messenger->line($user, 'bot.wizard.done_steps_button'),
+            ],
+            ConversationState::AwaitingStepInputType => $this->enumOptions($user, StepInputType::cases()),
+            ConversationState::AwaitingStepLabel => [
+                self::SKIP => $this->messenger->line($user, 'bot.wizard.skip_button'),
+            ],
             ConversationState::AwaitingCreateConfirmation => [
                 self::CONFIRM => $this->messenger->line($user, 'bot.wizard.create_button'),
                 self::CANCEL => $this->messenger->line($user, 'bot.wizard.cancel_button'),
@@ -398,7 +470,7 @@ class CreateChallengeWizard
      * `label()` is not usable here: it resolves in the ambient locale, which in a
      * queue worker is whoever was processed last.
      *
-     * @param  list<PeriodType|ProofType|ChallengeVisibility>  $cases
+     * @param  list<PeriodType|ProofType|ChallengeVisibility|FlowType|StepInputType>  $cases
      * @return array<string, string>
      */
     private function enumOptions(User $user, array $cases): array
@@ -446,6 +518,20 @@ class CreateChallengeWizard
         $periodType = $draft->periodType();
         $proofType = $draft->proofType();
         $visibility = $draft->visibility();
+        $steps = $draft->steps();
+
+        $flowLine = $draft->flowType() === FlowType::TimedSession
+            ? $this->messenger->line($user, 'bot.wizard.summary_steps', [
+                'steps' => count($steps),
+                'minimum' => CompactDuration::format($this->stepDesign->minimumSeconds($steps)),
+                'period' => CompactDuration::format($this->stepDesign->periodSeconds(
+                    $periodType ?? PeriodType::Daily,
+                    $draft->customPeriodDays(),
+                    $draft->startsAt(),
+                    (string) $draft->timezone(),
+                )),
+            ])
+            : $this->messenger->line($user, $draft->flowType()->translationKey());
 
         return [$this->messenger->line($user, 'bot.wizard.summary', [
             'title' => (string) $draft->title(),
@@ -457,6 +543,7 @@ class CreateChallengeWizard
             'periods' => $draft->totalPeriods() ?? '—',
             'proof' => $proofType === null ? '—' : $this->messenger->line($user, $proofType->translationKey()),
             'visibility' => $visibility === null ? '—' : $this->messenger->line($user, $visibility->translationKey()),
+            'flow' => $flowLine,
             'freezes' => $this->settings->integer(SettingKey::DefaultChallengeFreezes),
         ])];
     }
@@ -492,6 +579,18 @@ class CreateChallengeWizard
             ConversationState::AwaitingStartDate => ($date = $this->readDate($text, $draft)) === null
                 ? null
                 : [ChallengeDraft::START_DATE => $date],
+
+            ConversationState::AwaitingStepWait => ($wait = $this->boundedInteger($text, 0, self::STEP_WAIT_MAX)) === null
+                ? null
+                : [ChallengeDraft::PENDING_STEP => $this->withPending($draft, ['min_wait_seconds' => $wait])],
+
+            ConversationState::AwaitingStepVoiceLimit => ($limit = $this->boundedInteger($text, 1, self::VOICE_LIMIT_MAX)) === null
+                ? null
+                : [ChallengeDraft::PENDING_STEP => $this->withPending($draft, ['voice_max_seconds' => $limit])],
+
+            ConversationState::AwaitingStepLabel => mb_strlen($text) <= self::STEP_LABEL_MAX
+                ? $this->completePendingStep($draft, $text)
+                : null,
 
             default => null,
         };
@@ -533,6 +632,18 @@ class CreateChallengeWizard
             ConversationState::AwaitingVisibility => ($visibility = ChallengeVisibility::tryFrom($value)) === null
                 ? null
                 : [ChallengeDraft::VISIBILITY => $visibility->value],
+
+            ConversationState::AwaitingFlowType => ($flow = FlowType::tryFrom($value)) === null
+                ? null
+                : [ChallengeDraft::FLOW_TYPE => $flow->value],
+
+            ConversationState::AwaitingStepInputType => ($input = StepInputType::tryFrom($value)) === null
+                ? null
+                : [ChallengeDraft::PENDING_STEP => ['input_type' => $input->value]],
+
+            ConversationState::AwaitingStepLabel => $value === self::SKIP
+                ? $this->completePendingStep($draft, null)
+                : null,
 
             default => null,
         };
@@ -593,6 +704,8 @@ class CreateChallengeWizard
                 timezone: (string) $draft->timezone(),
                 proofType: $draft->proofType() ?? ProofType::Button,
                 visibility: $draft->visibility() ?? ChallengeVisibility::InviteOnly,
+                flowType: $draft->flowType(),
+                steps: $draft->flowType() === FlowType::TimedSession ? $draft->steps() : null,
             );
         } catch (NoEntitlementAvailableException) {
             // They had a slot when the flow opened and spent it elsewhere since.
@@ -693,6 +806,18 @@ class CreateChallengeWizard
      */
     private function positiveInteger(string $text, int $max): ?int
     {
+        return $this->boundedInteger($text, 1, $max);
+    }
+
+    /**
+     * A whole number typed by a person, between two bounds, or null.
+     *
+     * The step loop's bounds start at zero where the design allows it — a
+     * zero-wait step is legal (it only means "no gate before this one") — so
+     * this is the general form and `positiveInteger` the common special case.
+     */
+    private function boundedInteger(string $text, int $min, int $max): ?int
+    {
         $text = Localization::foldDigits($text);
 
         if (! ctype_digit($text)) {
@@ -701,7 +826,98 @@ class CreateChallengeWizard
 
         $value = (int) $text;
 
-        return $value >= 1 && $value <= $max ? $value : null;
+        return $value >= $min && $value <= $max ? $value : null;
+    }
+
+    /**
+     * The pending step, with one more field answered.
+     *
+     * @param  array<string, int|string>  $answer
+     * @return array<string, int|string>
+     */
+    private function withPending(ChallengeDraft $draft, array $answer): array
+    {
+        return [...($draft->pendingStep() ?? []), ...$answer];
+    }
+
+    /**
+     * Fold the half-gathered step into the finished list, label attached.
+     *
+     * The label is the loop's last question by construction, so answering it is
+     * what finishes a step; the pending slot is emptied for the next lap.
+     *
+     * @return array<string, mixed> answers to merge into the draft
+     */
+    private function completePendingStep(ChallengeDraft $draft, ?string $label): array
+    {
+        return [
+            ChallengeDraft::STEPS => [
+                ...$draft->storedSteps(),
+                [...($draft->pendingStep() ?? []), 'label' => $label],
+            ],
+            ChallengeDraft::PENDING_STEP => null,
+        ];
+    }
+
+    /**
+     * Answer "done" in the step loop: check the design, then confirm.
+     *
+     * The whole design is validated here rather than question by question,
+     * because the one rule that matters — the waits summing to no more than one
+     * period — is a property of the *list*, not of any single answer. The
+     * numbers it fails by are already computed by the validator, so the refusal
+     * can quote them rather than say "no".
+     */
+    private function handInSteps(User $user, BotConversation $conversation): void
+    {
+        $draft = ChallengeDraft::of($conversation);
+        $periodType = $draft->periodType();
+        $timezone = $draft->timezone();
+
+        // The timeline questions come before the flow-type one, so a draft that
+        // cannot answer them is a conversation that outlived a deploy — the
+        // same verdict `finish()` gives an incomplete draft.
+        if ($periodType === null || $timezone === null || $draft->startDate() === null) {
+            $this->abandon($user);
+            $this->messenger->send($user, $this->messenger->line($user, 'bot.wizard.incomplete'));
+
+            return;
+        }
+
+        $steps = $draft->steps();
+
+        if ($steps === []) {
+            $this->ask($user, $conversation, [$this->say($user, $conversation, 'bot.wizard.awaiting_step_loop.error')]);
+
+            return;
+        }
+
+        try {
+            $this->stepDesign->handle($periodType, $draft->customPeriodDays(), $draft->startsAt(), $timezone, $steps);
+        } catch (InvalidArgumentException) {
+            $minimum = $this->stepDesign->minimumSeconds($steps);
+            $periodSeconds = $this->stepDesign->periodSeconds(
+                $periodType,
+                $draft->customPeriodDays(),
+                $draft->startsAt(),
+                $timezone,
+            );
+
+            // Only the overrun gets its own sentence; anything else means a
+            // step slipped past the per-question bounds, which is ours to fix.
+            $this->ask($user, $conversation, [$minimum > $periodSeconds
+                ? $this->messenger->line($user, 'bot.wizard.steps_too_long', [
+                    'minimum' => CompactDuration::format($minimum),
+                    'period' => CompactDuration::format($periodSeconds),
+                ])
+                : $this->say($user, $conversation, 'bot.wizard.awaiting_step_loop.error')]);
+
+            return;
+        }
+
+        $conversation->advanceTo(ConversationState::AwaitingCreateConfirmation)->save();
+
+        $this->ask($user, $conversation);
     }
 
     /**

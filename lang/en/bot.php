@@ -115,6 +115,34 @@ return [
     ],
 
     /*
+    | The timed-session surface: what a participant sees while a session's
+    | steps are under way. The confirmation line is deliberately absent — a
+    | completed session is a settled check-in and says so with
+    | `bot.checkin.confirmed` verbatim. `refused` lines are addressed by the
+    | value of a `SessionRejection` case, exactly as the check-in group's are.
+    */
+    'session' => [
+        'next_button' => 'Next',
+        'stale' => 'That step is no longer the one waiting. Send /checkin to see where the session is.',
+        'too_early' => ':seconds seconds left — the wait is part of this challenge.',
+        'voice_too_long' => 'That voice message is :seconds seconds long; this step accepts up to :max.',
+        'store_error' => 'That could not be received. Please send it again.',
+
+        'step_button' => 'Step :step of :total in “:title” — tap Next once :wait has passed since the step before it.',
+        'step_image' => 'Step :step of :total in “:title” — send a photo once :wait has passed since the step before it.',
+        'step_voice' => 'Step :step of :total in “:title” — send a voice message of up to :max seconds once :wait has passed since the step before it.',
+
+        'refused' => [
+            'not_a_timed_challenge' => '“:title” does not check in through a session.',
+            'not_a_participant' => 'You are not an active participant in “:title”.',
+            'no_open_period' => '“:title” has no period open right now.',
+            'already_settled' => 'That period is already settled.',
+            'submission_missing' => 'That step needs more than a tap.',
+            'unexpected_submission' => 'That step takes a tap, nothing else.',
+        ],
+    ],
+
+    /*
     | A challenge's own lifecycle, told to its participants by the bot. The
     | admin panel's cancellation fans these out as staggered queued sends.
     */
@@ -148,8 +176,13 @@ return [
         'create_button' => 'Create it',
         'cancel_button' => 'Cancel',
         'no_description' => '(none)',
+        'add_step_button' => 'Add a step',
+        'done_steps_button' => 'Done — check the design',
 
-        'summary' => "Here is your challenge:\n\nTitle: :title\nDescription: :description\nPeriod: :period\nCustom length: :custom_days days\nStarts: :start (:timezone)\nPeriods: :periods\nProof: :proof\nVisibility: :visibility\nFreezes each: :freezes",
+        'steps_too_long' => "Those steps can't work: their waits add up to at least :minimum, but one period of this challenge lasts only :period. Drop a step or shorten the waits.",
+
+        'summary' => "Here is your challenge:\n\nTitle: :title\nDescription: :description\nPeriod: :period\nCustom length: :custom_days days\nStarts: :start (:timezone)\nPeriods: :periods\nProof: :proof\nVisibility: :visibility\nFlow: :flow\nFreezes each: :freezes",
+        'summary_steps' => ':steps steps, at least :minimum of waiting per session (one period lasts :period)',
 
         'created' => '“:title” is ready.',
         'created_timeline' => ':periods periods, starting :start in :timezone.',
@@ -208,6 +241,46 @@ return [
             'prompt' => 'Who can join? Public challenges are posted to the announcement channel.',
             'error' => 'Please pick one of the options offered.',
             'expected' => 'Tap one of the buttons to choose who can join.',
+        ],
+
+        'awaiting_flow_type' => [
+            'prompt' => 'And how do participants check in? A timed session walks them through steps, each after a wait you set.',
+            'error' => 'Please pick one of the flows offered.',
+            'expected' => 'Tap one of the buttons to choose the flow.',
+        ],
+
+        /*
+         | The step loop. Its `error` line doubles as the loop's refusals: an
+         | unknown button, and a "done" with nothing designed yet.
+         */
+        'awaiting_step_loop' => [
+            'prompt' => 'Add a step to the session, or tap Done to check the design.',
+            'error' => 'Add at least one step before finishing.',
+            'expected' => 'Tap Add a step or Done.',
+        ],
+
+        'awaiting_step_input_type' => [
+            'prompt' => 'Step :step — what does the participant do?',
+            'error' => 'Please pick one of the input types offered.',
+            'expected' => 'Tap one of the buttons to choose what this step takes.',
+        ],
+
+        'awaiting_step_wait' => [
+            'prompt' => 'How long must they wait before this step answers? Seconds, 0 to :wait_max.',
+            'error' => 'Send a whole number of seconds between 0 and :wait_max.',
+            'expected' => 'Send the wait in seconds as a text message.',
+        ],
+
+        'awaiting_step_voice_limit' => [
+            'prompt' => 'What is the longest voice message this step accepts? Seconds, 1 to :voice_max.',
+            'error' => 'Send a whole number of seconds between 1 and :voice_max.',
+            'expected' => 'Send the limit in seconds as a text message.',
+        ],
+
+        'awaiting_step_label' => [
+            'prompt' => 'Give this step a name, or tap Skip. Up to :label_max characters.',
+            'error' => 'That name is longer than :label_max characters.',
+            'expected' => 'Send a name as text, or tap Skip.',
         ],
 
         'awaiting_create_confirmation' => [

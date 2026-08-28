@@ -55,7 +55,49 @@ class TelegramFileDownloader
             throw new LogicException('The photo array carries no size with a file_id.');
         }
 
-        $file = $this->telegram->getFile(['file_id' => $largest['file_id']]);
+        return $this->fetchAndStore($largest['file_id'], 'jpg');
+    }
+
+    /**
+     * Download a voice message off a Telegram message and store it.
+     *
+     * The *duration* is deliberately not this method's business: the surface
+     * reads it from Telegram's own `voice.duration` and hands it to the step
+     * action, which compares it against the step's cap — a duration we
+     * re-fetched here could only ever be the same number with more steps.
+     *
+     * @param  array<array-key, mixed>  $voice  Telegram's `message.voice`, as it arrived
+     *
+     * @throws LogicException when the voice object carries no usable `file_id`
+     * @throws TelegramSDKException when Telegram refuses the `getFile`
+     * @throws RuntimeException when the bytes cannot be fetched or written
+     */
+    public function downloadVoice(array $voice): string
+    {
+        $fileId = $voice['file_id'] ?? null;
+
+        if (! is_string($fileId) || $fileId === '') {
+            throw new LogicException('The voice object carries no file_id.');
+        }
+
+        // Telegram voice notes are Ogg Opus whatever the client labels them,
+        // so the extension is fixed rather than parsed out of `mime_type`.
+        return $this->fetchAndStore($fileId, 'ogg');
+    }
+
+    /**
+     * `getFile`, fetch the bytes, store them under the proof-storage convention.
+     *
+     * One directory per day keeps any single folder from growing without
+     * bound, and a random name rather than Telegram's keeps the stored path
+     * from leaking anything about the sender's session.
+     *
+     * @throws TelegramSDKException when Telegram refuses the `getFile`
+     * @throws RuntimeException when the bytes cannot be fetched or written
+     */
+    private function fetchAndStore(string $fileId, string $extension): string
+    {
+        $file = $this->telegram->getFile(['file_id' => $fileId]);
 
         $filePath = $file->get('file_path');
 
@@ -66,16 +108,13 @@ class TelegramFileDownloader
         $bytes = Http::get(self::FILE_URL.$this->telegram->getAccessToken().'/'.$filePath)->body();
 
         if ($bytes === '') {
-            throw new RuntimeException("The photo at {$filePath} could not be downloaded.");
+            throw new RuntimeException("The file at {$filePath} could not be downloaded.");
         }
 
-        // One directory per day keeps any single folder from growing without
-        // bound, and a random name rather than Telegram's keeps the stored path
-        // from leaking anything about the sender's session.
-        $path = 'check-in-proofs/'.now()->format('Y/m/d').'/'.bin2hex(random_bytes(20)).'.jpg';
+        $path = 'check-in-proofs/'.now()->format('Y/m/d').'/'.bin2hex(random_bytes(20)).'.'.$extension;
 
         if (! Storage::disk('local')->put($path, $bytes)) {
-            throw new RuntimeException("The photo could not be written to {$path}.");
+            throw new RuntimeException("The file could not be written to {$path}.");
         }
 
         return $path;

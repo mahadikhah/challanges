@@ -12,6 +12,7 @@ use App\Services\Telegram\BotMessenger;
 use App\Services\Telegram\CommandRouter;
 use App\Services\Telegram\ConversationRouter;
 use App\Services\Telegram\HandlesUpdate;
+use App\Services\Telegram\SessionStepFlow;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -46,6 +47,7 @@ class MessageHandler implements HandlesUpdate
         private readonly ResolveTelegramUser $resolveUser,
         private readonly CommandRouter $commands,
         private readonly ConversationRouter $conversations,
+        private readonly SessionStepFlow $sessions,
         private readonly CompleteStarsPayment $completePayment,
         private readonly CoinLedger $ledger,
         private readonly BotMessenger $messenger,
@@ -90,6 +92,14 @@ class MessageHandler implements HandlesUpdate
         }
 
         if ($this->conversations->route($user, $update)) {
+            return;
+        }
+
+        // A photo or voice message can also answer an open timed session, which
+        // keeps no conversation row of its own — the session row is the state.
+        // Asked only after the conversation router declines, so an explicit
+        // "send the phrase/photo" prompt always wins over an ambient session.
+        if ($this->sessions->receiveMedia($user, $update)) {
             return;
         }
 

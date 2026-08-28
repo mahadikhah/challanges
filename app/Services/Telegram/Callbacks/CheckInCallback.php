@@ -2,21 +2,26 @@
 
 namespace App\Services\Telegram\Callbacks;
 
+use App\Enums\FlowType;
 use App\Models\Challenge;
 use App\Models\User;
 use App\Services\Telegram\BotCallback;
 use App\Services\Telegram\BotMessenger;
 use App\Services\Telegram\CheckInFlow;
 use App\Services\Telegram\HandlesCallback;
+use App\Services\Telegram\SessionStepFlow;
 
 /**
- * Delivers a check-in button to the challenge it belongs to.
+ * Delivers a check-in button to the flow its challenge runs on.
  *
- * Like `JoinCallback`, the button carries only a join token: the actor comes from
- * `callback_query.from`, and the flow re-makes every decision — the gate, the
- * participant, the open period — inside `SubmitCheckIn` from our own rows. For a
- * `button` challenge this tap *is* the proof; for the other two proof types it
- * merely opens the conversation the proof arrives through.
+ * The button is the same one for every challenge — the participant should not
+ * have to know or care how a challenge checks in — so the dispatch on flow type
+ * happens here, behind the one action word `CheckInCallback` already owns.
+ *
+ * Like `JoinCallback`, the button carries only a join token: the actor comes
+ * from `callback_query.from`, and the receiving flow re-makes every decision
+ * inside the Task 2 actions from our own rows. The step order a session button
+ * carries is checked against the session's actual current step, never trusted.
  */
 class CheckInCallback implements HandlesCallback
 {
@@ -26,7 +31,8 @@ class CheckInCallback implements HandlesCallback
     public const ACTION = 'ci';
 
     public function __construct(
-        private readonly CheckInFlow $flow,
+        private readonly CheckInFlow $simple,
+        private readonly SessionStepFlow $sessions,
         private readonly BotMessenger $messenger,
     ) {}
 
@@ -50,6 +56,12 @@ class CheckInCallback implements HandlesCallback
             return;
         }
 
-        $this->flow->start($user, $challenge);
+        if ($challenge->flow_type === FlowType::TimedSession) {
+            $this->sessions->begin($user, $challenge);
+
+            return;
+        }
+
+        $this->simple->start($user, $challenge);
     }
 }
