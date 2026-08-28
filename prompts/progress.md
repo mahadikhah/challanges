@@ -40,7 +40,8 @@ Status key: ✅ done · 🔄 in progress · ⬜ not started
   join button, `ensure()` TTL cache, command router, one-message replies, per-recipient locale)
 - ✅ **Bot Core Task 4 — create-challenge wizard** (`BotConversation` FSM, `callback_query` handler + router,
   inline keyboards, `CreateChallenge` + announcement post)
-- ⬜ Join flow
+- ✅ **Bot Core Task 5 — join flow** (`JoinChallenge` action, `join_token` deep links, preview-then-confirm,
+  announcement-channel join button, `JoinRejection`)
 - ⬜ Check-in for all three proof types
 - ⬜ Reminders (scheduler + staggered queued jobs); locale selection
 
@@ -1696,3 +1697,96 @@ for periods before they arrived — and seeds `freezes_total` from the challenge
 where the announcement post finally gets its join button, where `challenge_participants`' unique
 `(challenge_id, user_id)` stops a double-join from costing two slots, and where a full challenge, a finished
 one and the creator's own challenge each need an answer rather than a slot spent.
+
+---
+
+## Bot Core Task 5 — the join flow (done)
+
+**What landed.** `JoinChallenge` (`app/Actions/Challenges/JoinChallenge.php`) — the one place a
+`challenge_participants` row is written, so the bot, the Mini App and the admin panel cannot disagree about
+what joining costs. It resolves `joined_period_index` from `ChallengePeriod::containing(now())` (0 when still
+`Scheduled`, refusal when the timeline is spent), then one `DB::transaction`: `CoinLedger::lockUser()` →
+existing-participant read → `ConsumeEntitlement(JoinSlot)` → create with `freezes_total` seeded from
+`default_freezes`. Plus `JoinRejection` + `ChallengeNotJoinableException` (mirroring
+`InviteRejection`/`InviteNotClaimableException`), `MintJoinToken` (~60 bits from the same unambiguous
+alphabet, unique `challenges.join_token` column), `Challenge::joinPayload()/joinLink()/fromJoinPayload()/
+isJoinPayload()`, the bot surface (`JoinChallengeFlow` preview-then-confirm, `JoinCallback` action `jn`,
+`StartCommand`'s join-payload branch, `ChannelBroadcaster`'s url join button), and lang lines in both locales.
+
+**Three decisions this task turns on.**
+
+1. **The user row is locked before the participant is read, not after.** The unique `(challenge_id, user_id)`
+   index stops the duplicate *row*; it cannot stop the duplicate *spend* — two concurrent joins could both
+   find no participant, both consume a slot, and one would fail on the index having already burned a slot the
+   user does not get back. `lockUser()` first serialises read-decide-write on that user. That ordering is also
+   why the existence check comes **before** the spend: `ConsumeEntitlement`'s own idempotency is keyed on a
+   spend already recorded against the challenge, and an admin-seeded participant has no such record — a
+   returning user would be billed for a participation they already had. Tested: "it charges nothing when an
+   admin put the participant there without a spend".
+2. **Joining twice is not an error.** A double-tapped button and a Telegram retry both arrive as two calls for
+   one intention, so the second call returns the existing participation (no exception, no second slot), and
+   `wasRecentlyCreated` on the returned model is how the caller says "you are already in". A terminal
+   participation (`Left`/`Removed`/`Completed`) is **refused, not reactivated**: `Removed` is a moderation
+   decision that must not be user-undoable, `Left` was their own, and reactivation would mean inventing
+   streak-restoration semantics. Rejoining is a creator/admin act — recorded below as a follow-up.
+3. **The channel post's button is a `url` deep link, not `callback_data`.** A bot cannot open a conversation
+   with a user who has never messaged it (403), and the audience a channel post addresses is exactly those
+   people — a `callback_query` reply would 403 for its intended tappers. `https://t.me/<bot>?start=j_<token>`
+   carries them into the bot first. Relatedly, **an invite-only challenge keyed on the sequential id would be
+   enumerable, not private** — hence `join_token`, minted for every challenge (public ones get shared by link
+   at least as often as found in the channel).
+
+**The join payload must not fall through to invite attribution.** A dead `j_…` link handed to `ClaimInvite`
+would be answered with "that invite link is no longer valid" — a message about the wrong thing. So
+`StartCommand` resolves the join payload first (`Challenge::isJoinPayload`), answers `bot.join.not_found` when
+it names nothing, and only otherwise runs invite attribution. The `j_` prefix cannot collide with an invite
+code: `IssueInviteCode`'s alphabet excludes `_`.
+
+**A preview, not a join on arrival.** Joining spends a slot and a deep link is opened by a tap; a link that
+joined on open would spend somebody's one free join by accident. `/start j_…` shows title/description/period/
+proof/freezes with a Join button; the tap re-verifies the gate (`ensure()`), then spends. `ensure()`'s TTL
+cache is a real test consideration: a membership verified at `/start` is *borrowed* for the tap, so the
+lapse test has to `travel()` past the TTL (or the cached "yes" answers and the outsider stub is never asked —
+`Http::fake()` appends, so a second stub would be shadowed anyway).
+
+**Tests — 2 files, 41 tests.** `tests/Feature/Domain/JoinChallengeTest.php` (22): what it writes, the
+slot spend and its refusals, joining-twice (including the admin-seeded no-spend case), creator-joins-own,
+closed/cancelled refusals carrying `JoinRejection`, ended-participation refusals spending nothing, and the
+timeline-exhausted window (rollover moves status on a schedule, so a challenge can look active with no period
+left — joining it would create a participant who can never check in once). The domain test helper runs the
+**real** `MaterialiseChallengePeriods`, so `joined_period_index` is honest about where "now" falls.
+`tests/Feature/Bot/JoinChallengeFlowTest.php` (19): the whole inbound path — preview content and button
+data, no-spend-on-arrival, dead-link answers, not-an-invite-code, gate blocking, provisioning parity with an
+ordinary `/start`, the tap joining/saying-already-in/charging-one-slot, actor-from-`from`-not-the-button,
+no-slot price quoting, gate lapse via `travel()`, double tap, closed/ended refusals, tokenless button →
+stale-button reply, and the preview's already-in and closed short-circuits. `ChannelBroadcasterTest` updated:
+the `how_to_join` text line is gone, replaced by a `channelPostButtons()` helper asserting the url button and
+its fallback-locale label.
+
+**Traps hit while writing these.** (a) `ChallengeFactory` writes no timeline — the action does — so a join
+helper that skips `MaterialiseChallengePeriods` sees "timeline exhausted" everywhere. (b) The free baseline
+granted on `/start` means "no slot left" tests must not route the user through `/start` first. (c)
+`Http::fake()` appends and first-match-wins, so an outsider stub installed after a member stub is shadowed —
+the lapse test needed a `Http::sequence()`. (d) `ensure()` honours its TTL: a fresh `channel_verified_at`
+answers the tap without asking Telegram, so the lapse needs `travel()`.
+
+**Assumptions / follow-ups recorded.** Rejoining a challenge after `Left`/`Removed` is a creator/admin act
+(not user-side) — no surface for it yet. `MintJoinToken` relies on the unique index as arbiter; a rare
+race rolls the whole create back rather than retrying the transaction. The bot username comes from
+`services.telegram.bot_username` — unset means `joinLink()` emits `https://t.me/?start=…`, which Telegram
+rejects; wiring a check (or falling back to the bot's `getMe` username) is a small follow-up. Carried
+unchanged: all standing follow-ups from Task 4, plus "the wizard's `created_private` line should now tell the
+creator their challenge's join link" — the link exists (`$challenge->joinLink()`), the copy just does not
+show it yet.
+
+**Result — `sail composer ci:check` GREEN:** eslint ✓, prettier ✓, `tsc --noEmit` ✓, pint ✓, phpstan lvl 7
+(0 errors) ✓, tests **972 (968 pass, 4 skipped = Fortify 2FA disabled)**, 2610 assertions, 0 risky, +42
+against the 930 recorded last time (41 of them in the two files above). Graph: 2613 nodes / 4740 edges /
+237 communities.
+
+**Next:** Bot Core Task 6 — check-in for all three proof types. `SubmitCheckIn` already exists from Domain
+Task 7 (`button` tap, `text_autogen` phrase match, `image_approval` photo with creator review), so the bot
+surface is what lands: a `/checkin` entry point (or a per-period prompt), the photo upload path through
+`getFile`, the creator's approve/reject buttons on pending image proofs, and the streak feedback on every
+successful check-in. All of it goes through the same `SubmitCheckIn` action the Mini App and admin panel
+will later call.
