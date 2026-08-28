@@ -2505,3 +2505,57 @@ tsc ✓, tests **1163 (1159 pass, 4 skipped)**, 3695 assertions.
 
 **Next:** Phase 8 Task 2 — event-driven posting (check-in announcements, daily + on-demand leaderboards)
 with privacy gating and staggered fan-out, per `prompts/phase-8.md`.
+
+### Task 2 — event-driven posting: announcements & leaderboards ✅
+
+**What shipped** (`234fe44`):
+- `challenge_chat_posts` + `ChallengeChatPost` + `ChatPostKind`: **two kinds of idempotency in one
+  table** via nullable unique halves — `chatposts_checkin_once` (chat, kind, period, participant) for
+  check-in posts, `chatposts_daily_once` (chat, kind, post_date) for leaderboards. MySQL ignores NULLs
+  in unique indexes, so each kind's index only bites on its own rows. Named indexes because the default
+  four-column name exceeds MySQL's 64-char identifier limit.
+- **Check-in announcements:** `CheckInSettled` event fired from `SettleCheckIn::settle()` (transition
+  semantics — only a settlement that lands on `approved`, i.e. `incrementsStreak()`) →
+  `AnnounceApprovedCheckIn` listener (auto-discovered in `app/Listeners`; **not** also provider-
+  registered — that double-fires) → one `PostCheckInAnnouncement` job per opted-in chat.
+- **`ChatBroadcaster`** — the linked-chat sibling of `ChannelBroadcaster`: `claim()` is a conditional
+  INSERT racing on the unique index (loser gets the constraint violation), so two copies of a job can
+  never both post; the sender **deletes its claimed row if the send throws**, releasing the key to the
+  queue's retry — a row always means "posted", never "attempted". `deliver()` gates on
+  `VerifyChallengeChat::ensureFresh()` (no Bot API spend inside the TTL; a verdict-of-no is a quiet
+  skip, an unobtainable verdict propagates for retry). Posts go out in the fallback locale, same choice
+  as the announcement channel — the audience is mixed-language.
+- **Privacy (§2.6, non-negotiable):** the announcement carries display name + period number + streak
+  only. An image is attached **only** when `share_proof_media` AND the challenge `sharesProofPublicly()`
+  AND `proof_type === image_approval` AND the proof file exists — enforced **inside the job**, so even a
+  hand-forced `share_proof_media` row on a private-proofs challenge cannot leak a proof (tested). A
+  vanished file degrades to the text announcement rather than swallowing the news.
+- **Daily leaderboard:** `ComposeLeaderboard` (top-N by `current_streak` desc, join-order tiebreak,
+  admin-capped) + `PostDailyLeaderboard` job + `challenges:leaderboards` command scheduled every minute
+  — the hour is checked **per challenge timezone inside the command** so the `LeaderboardHour` setting
+  applies at runtime without a schedule rebuild. One job per chat with `delay($position)` stagger,
+  never a synchronous send loop.
+- **On-demand `/leaderboard` in the linked chat:** `LinkedChatHandler` (non-private chats now routed
+  there from `MessageHandler` instead of logged-and-ignored). Telegram is the authority — `getChatMember`
+  on the *sender*, creator/administrator only; no user resolution, no conversation state, no
+  client-trusted ids. `RateLimiter::attempt` cooldown (`ChatCommandCooldownSeconds`, default 5 min) with
+  a "try again in N minutes" reply. Empty board → honest "no streaks yet" reply, nothing claimed.
+- **Settings added:** `LeaderboardHour` (9), `LeaderboardTopSize` (10), `ChatVerificationTtlHours` (24),
+  `ChatCommandCooldownSeconds` (300) — all appear in the registry-driven admin panel automatically.
+- **Tests** — `ChallengeChatPostingTest` (15, three describes): one job per eligible chat; no post for
+  missed/frozen; exactly-once under double dispatch (both kinds); photo attached only on the full
+  opt-in path; photo refused on forced flags; every opted-in chat posted; leaderboard ordering + cap +
+  zero-streak silence; demoted-bot deactivation posts nothing into the chat; on-demand command
+  non-admin refusal, cooldown answer with time remaining, admin dispatch, and silence for chatter.
+  Suite note: `phpunit.xml` sets `QUEUE_CONNECTION=sync`, so listener-dispatched jobs run *inside*
+  `approve()` — HTTP fakes must be installed before settlement, and `Queue::fake()` swallows
+  `dispatch_sync` entirely.
+- Assumptions recorded: leaderboard "daily" = the challenge-timezone date (the timeline the participants
+  live on), not UTC; the leaderboard hour is a per-platform setting applied per-challenge-timezone; the
+  on-demand command reuses the daily post's idempotency key for its date, so a manual ask after the
+  scheduled post is a quiet no-op (the board is already on the wall).
+
+**Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓,
+tsc ✓, tests **1182 (1178 pass, 4 skipped)**, 3731 assertions.
+
+**Next:** Phase 8 Task 3 per `prompts/phase-8.md`.
