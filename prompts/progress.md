@@ -2605,3 +2605,54 @@ tsc ✓, tests **1203 (1199 pass, 4 skipped)**, 3779 assertions.
 **Next:** Phase 9 Task 2 — session lifecycle Actions (`StartCheckInSession` / `AdvanceCheckInStep` /
 `CompleteCheckInSession` / `ExpireStaleCheckInSessions`), feeding completion into the existing
 `SettleCheckIn` unchanged.
+
+### Task 2 — session lifecycle Actions ✅
+
+**What shipped** (`f703060`):
+- `SessionRejection` (backed enum, 11 reasons) + `SessionRejectedException` — every refusal carries its
+  reason *and the numbers a surface needs to phrase it*: `remainingSeconds` on `TooEarly`,
+  `voiceSeconds`/`voiceCeiling` on `VoiceTooLong`. No `label()` by design: these are machine reasons a
+  surface turns into its own localised sentence, not display text.
+- `StartCheckInSession` — the timed-flow sibling of `OpenCheckIn`. Guards: timed challenge, period belongs
+  to it, period open, participant owes the period, check-in not already settled. **Lock first, then
+  look**: the participant row is taken `lockForUpdate`, so concurrent starts serialise and the loser
+  returns the winner's session; the `(participant, period, open)` unique index is the backstop for a
+  lock-skipping caller (`UniqueConstraintViolationException` caught → winner's row re-read).
+- `AdvanceCheckInStep` — three gates before the transaction (open, current step incl. cross-challenge
+  order collision, wait elapsed measured via `ChallengeStep::opensAt()` from session start **or the
+  previous step's submission**), then the same checks re-run under the session's write lock before the
+  submission row is written and the step advanced. Submission shape: nothing on a button step, a proof
+  path on image/voice, and on voice the duration Telegram reported (never a client count) must respect
+  the step cap — a refusal records **no** submission row.
+- `CompleteCheckInSession` — **an adapter, not a second engine.** Inside one transaction: mark the session
+  `completed`, `OpenCheckIn` the row, `SettleCheckIn::approve()`. `SettleCheckIn` itself is untouched —
+  participant lock, streak arithmetic, `CheckInSettled` event and linked-chat announcements therefore
+  apply to a session completion exactly as to a button tap (pinned by test: streak exactly 1). If the
+  rollover won the race and settled first, the adapter throws `alreadySettled` instead of double-crediting.
+- `ExpireStaleCheckInSessions` — open sessions in closed periods → `expired`, `current_step_order`
+  cleared. Wired as the **tail of `challenges:roll-over`**, deliberately after the settlement sweep.
+- **Tests** (19): `CheckInSessionFlowTest` (18) — exact-seconds-remaining refusal; wait measured from the
+  previous submission; wrong-step replay; over-cap voice leaves no row; media-on-button / bare-tap-on-image;
+  full three-step run settles `Approved`; double-start convergence; non-timed / closed-period /
+  already-settled refusals; sweep scope + command wiring. `CheckInSessionConcurrencyTest` (1) — the
+  `DatabaseTruncation` + `pcntl_fork` pattern from the coin ledger: **eight genuinely parallel starts
+  converge into exactly one open session**.
+
+**Task-mandated confirmation (phase-9.md):** "leaves the miss decision to the rollover, swept or not" —
+with an in-progress session and **no** sweep having run, `SettleCheckIn::close()` settles the period
+`frozen` (freeze consumed, streak 0) exactly as an un-submitted simple check-in would; running the sweep
+afterwards changes nothing. `RollOverPeriod`'s miss detection reads the `CheckIn` row, which an open
+session never touched — the sweep is honest bookkeeping, not correctness.
+
+- Assumptions recorded: starting a session on a period whose check-in is already settled is refused up
+  front (rather than letting the participant walk the steps into an "already settled" wall); a period from
+  another challenge is treated as a caller bug (`notAParticipant`) rather than a user-facing state; the
+  sweep loads its (small) row set at once rather than chunked — it runs once per rollover on a table that
+  only grows when sessions are abandoned.
+
+**Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓,
+tsc ✓, tests **1222 (1218 pass, 4 skipped)**, 3832 assertions.
+
+**Next:** Phase 9 Task 3 per `prompts/phase-9.md` — bot wizard step loop + step-by-step UI (Start button,
+step instructions, remaining-time answers), routing session photos/voice without colliding with the
+`image_approval` flow.
