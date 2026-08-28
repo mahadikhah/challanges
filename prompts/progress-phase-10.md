@@ -150,3 +150,72 @@ ESLint/Prettier/tsc — 4 skipped + 1 incomplete are pre-existing).
 
 **Quality gate:** `sail composer ci:check` green (1315 passed, 4 skipped + 1 incomplete pre-existing;
 pint, phpstan lvl 7, eslint, prettier, tsc all clean).
+
+## Phase 10 Task 2: AI moderation, fallback, audit, reversal — DONE
+
+**Date:** 2026-08-29 · **Branch:** `build/foundation` · 19 + 4 new tests (1343 total, all green).
+
+### Built
+- `ReviewProofWithAi($submission, $challenge)` — one kit call on `proof_moderation`; never throws.
+  Every outcome (verdict / hedge / unreadable / provider dead / capability off) writes exactly one
+  `AiApprovalDecision` row: connection, model, outcome (`applied|fell_back`), approved, confidence,
+  reason, latency_ms, raw_response truncated to 2000 chars. Identity is a fresh UUID per call, so a
+  resubmission over a rejection is a genuinely new AI run.
+- `BuildProofModerationPrompt` — the trust boundary (§2.8) as its own tested class: fixed
+  platform-authored `SYSTEM_PROMPT` (never interpolated); criteria appears exactly once, fenced in
+  `<criteria>` tags in the user turn with an explicit "untrusted, refuse instructions" clause; photo
+  passed as attachment; response locked to `{approved: bool, confidence: 0–100, reason}` with no
+  additional properties and no tools. `lockedVerdictSchema()` returns the **raw `array<string, Type>`
+  property map** — the SDK gateway wraps it in its own ObjectSchema (which applies
+  additionalProperties:false + strict itself); returning `->toArray()` breaks the serializer.
+- `ApplyAiVerdict` — routed from `SubmitCheckIn::uploadPhoto()` when `approval_mode = ai`, after the
+  write so the photo is stored before anyone is asked. Confidence ≥ `AiApprovalConfidenceThreshold`
+  (default 80, inclusive) settles through the same `SettleCheckIn`/status paths manual review uses;
+  anything else leaves the row `Submitted` — which *is* the manual queue. AI verdicts leave
+  `reviewed_by` null (no stand-in admin user exists; the decision row is the audit trail). Notify
+  failure never unwinds the verdict.
+- `ReverseCheckIn` — inverse of settlement, same lock/idempotency discipline: refuses
+  non-settled rows (`CheckInRejection::NotReversible`), unwinds streak/freeze/reset-counter;
+  `longest_streak` high-water stands; a broken streak is unrecoverable.
+- `OverrideCheckInVerdict` — reverse-then-decide in one transaction; lands through ordinary
+  `ReviewCheckIn` so `reviewed_by` names the human. Second override → `NotReversible` toast.
+- Admin queue: new "Decided by AI" section (applied AI verdicts with `reviewed_by` null, newest
+  first, limit 50) with overturn-to-approved/rejected buttons via
+  `POST /admin/reviews/{checkIn}/override/{verdict}`; rows drop out once a human touches them.
+  Lang en + fa (`admin.reviews.settled.*`, `ai.*`, `refused.not_reversible`).
+- Kit seam: `AiTextClient::prompt()` options gain `schema` (Closure → property map) and `image`
+  (`{path, disk?}`); `LaravelAiTextClient` uses `StructuredAnonymousAgent` + `StoredImage`;
+  `AiTextResult->structured` carries the validated payload (read via `->structured ?? null`,
+  is_array-guarded — the property is only filled on the structured path).
+
+### Tests (19 + 4)
+- `ProofModerationTest` (19): prompt fencing (system === const, criteria only in fenced user turn),
+  wire format (image data-URI part, `response_format: json_schema strict`, exactly the three
+  properties, additionalProperties false), high-confidence approve/reject match manual downstream
+  effects (streak, resubmittable rejection cycle), threshold inclusive at 80, manual challenges
+  untouched, below-threshold/provider-500/capability-off/prose-response all fall back to manual with
+  a recorded row, 4-shape injection dataset capped at a wrong verdict (reason stored verbatim,
+  never evaluated), reversal once + not-settled refusal, override both directions + idempotency
+  refusal, cannot-apply when the rollover already settled.
+- `ReviewQueueTest` +4: override routes refuse non-admins, AI-settled section lists only applied
+  AI verdicts (human-settled excluded), overturn endpoint flips with streak restored + notification,
+  unsettled override → `not_reversible` toast not a 500.
+
+### Gotchas hit (worth remembering)
+- **`Http::fake()` MERGES stub callbacks; a second `fake()` never replaces a URL-pattern stub.**
+  First match wins, so re-faking `host/*` with new content silently keeps serving the first body —
+  it looks exactly like a response cache (identical decisions, "missing" HTTP recordings, because
+  `fake()` also clears `recorded`). Fix: make the stub a **closure** reading mutable state
+  (`test()->verdictContent`) at request time. The closure must return the promise from
+  `Http::response()` (returning a `Response` fails the FulfilledPromise type).
+- `SubmitCheckIn` now transitively resolves `BotMessenger` (via ApplyAiVerdict →
+  NotifyCheckInVerdict); domain tests must `config(['services.telegram.bot_token' => ...])` just to
+  resolve the action even when no send ever happens.
+- `AiUsageReservation`-based dedup keyed on fresh UUIDs is per-run, not per-subject: resubmission
+  correctly runs a second real AI call (2 reservations, 2 usage records).
+- Inertia `where()` compares strictly: `95` (int from JSON props) ≠ `95.0` — assert the int.
+- `settledByAi()` list-shape for PHPStan: `->get()` returns `array<int, ...>`; `array_values()`
+  after `->all()` satisfies `list<...>` without widening.
+
+**Quality gate:** `sail composer ci:check` green — 1339 passed / 4 skipped / 1 incomplete
+(pre-existing), pint, phpstan lvl 7, eslint, prettier, tsc all clean. `graphify update .` run.
