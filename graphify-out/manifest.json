@@ -260,8 +260,8 @@
     "semantic_hash": "0d3a837ac67b8969159f68d3d4310faa"
   },
   "resources/js/components/app-sidebar.tsx": {
-    "mtime": 1787933529.9216352,
-    "ast_hash": "08673aea4f099807906d80b084287cb3",
+    "mtime": 1787939395.1018534,
+    "ast_hash": "58e3631b5a450aae758949ef8d27d56f",
     "semantic_hash": ""
   },
   "resources/js/components/appearance-tabs.tsx": {
@@ -620,8 +620,8 @@
     "semantic_hash": ""
   },
   "routes/console.php": {
-    "mtime": 1787927650.8674884,
-    "ast_hash": "0dc0c03492c599bdee01ca02f2005913",
+    "mtime": 1787939264.3592668,
+    "ast_hash": "0d368e015fb1764040b8af629ab10f29",
     "semantic_hash": ""
   },
   "routes/settings.php": {
@@ -775,8 +775,8 @@
     "semantic_hash": ""
   },
   "routes/admin.php": {
-    "mtime": 1787932487.5600889,
-    "ast_hash": "8d5fab8706cb80dc427ce230d43d6f3c",
+    "mtime": 1787939262.5792818,
+    "ast_hash": "99b094f27eb1976465bca1450c44026f",
     "semantic_hash": ""
   },
   "routes/api.php": {
@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "prompts/progress.md": {
-    "mtime": 1787931913.0801327,
-    "ast_hash": "a7dbc3639416999b4299b6848fdc242a",
+    "mtime": 1787933779.1410584,
+    "ast_hash": "7e578d1156023d6de3e2f1dffc1a80d2",
     "semantic_hash": ""
   },
   "prompts/task-01-setup.md": {
@@ -2265,18 +2265,18 @@
     "semantic_hash": ""
   },
   "lang/en/admin.php": {
-    "mtime": 1787932498.3982441,
-    "ast_hash": "5d48cf45d63427f75ab72c24082eaeec",
+    "mtime": 1787940180.2384512,
+    "ast_hash": "c4f1407d7f6bf71087f34f89519373d5",
     "semantic_hash": ""
   },
   "lang/fa/admin.php": {
-    "mtime": 1787932510.7824216,
-    "ast_hash": "252de835f70153d33606259f526f4766",
+    "mtime": 1787940180.5224636,
+    "ast_hash": "9a022255f613891e3e050e85d344e46e",
     "semantic_hash": ""
   },
   "resources/js/pages/Admin/Settings.tsx": {
-    "mtime": 1787931771.3303437,
-    "ast_hash": "bde9dc8820734af6286f3457766f06ed",
+    "mtime": 1787939948.6743405,
+    "ast_hash": "92004db97db3f45db398df3aa60bb4ac",
     "semantic_hash": ""
   },
   "tests/Feature/Admin/SettingsPanelTest.php": {
@@ -2300,8 +2300,8 @@
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/ReviewQueueController.php": {
-    "mtime": 1787932419.457109,
-    "ast_hash": "0fc457b85db59e9084e9784f28213cd4",
+    "mtime": 1787940180.0884447,
+    "ast_hash": "2c271f3575560e08da9be23baad6aa5d",
     "semantic_hash": ""
   },
   "app/Jobs/Telegram/SendBotMessage.php": {
@@ -2315,8 +2315,8 @@
     "semantic_hash": ""
   },
   "resources/js/pages/Admin/Challenges.tsx": {
-    "mtime": 1787933530.492643,
-    "ast_hash": "55ee357c5f142b9193c40049433d5325",
+    "mtime": 1787939858.734464,
+    "ast_hash": "8c3d547a7eafcb67f1391e6e4ee59147",
     "semantic_hash": ""
   },
   "resources/js/pages/Admin/Challenges/Show.tsx": {
@@ -2325,8 +2325,8 @@
     "semantic_hash": ""
   },
   "resources/js/pages/Admin/Reviews.tsx": {
-    "mtime": 1787933530.5336435,
-    "ast_hash": "0e1fd799c2e6b80d764a6cde81b12d81",
+    "mtime": 1787939948.634337,
+    "ast_hash": "a5c940ca4e532a0f42aa533110c45f12",
     "semantic_hash": ""
   },
   "tests/Feature/Admin/ChallengeModerationTest.php": {
@@ -2342,6 +2342,71 @@
   "tests/Feature/Domain/CancelChallengeTest.php": {
     "mtime": 1787933415.8260646,
     "ast_hash": "8f9cc07a71d20802fdd7862c56646c71",
+    "semantic_hash": ""
+  },
+  "app/Actions/Coins/AdjustUserCoins.php": {
+    "mtime": 1787939658.496292,
+    "ast_hash": "afee270fa488637aa38fc6eec1c45f9a",
+    "semantic_hash": ""
+  },
+  "app/Actions/Payments/SweepAbandonedStarPayments.php": {
+    "mtime": 1787939208.8776684,
+    "ast_hash": "4e6337e0a6be8e19c70bba53ff52d389",
+    "semantic_hash": ""
+  },
+  "app/Console/Commands/Payments/SweepAbandonedPaymentsCommand.php": {
+    "mtime": 1787939211.1966546,
+    "ast_hash": "8fa13e9bc828f206a212fc00fb009333",
+    "semantic_hash": ""
+  },
+  "app/Http/Controllers/Admin/InvitesController.php": {
+    "mtime": 1787939817.24937,
+    "ast_hash": "b7678e1d11d8f2ce484177926236216f",
+    "semantic_hash": ""
+  },
+  "app/Http/Controllers/Admin/PaymentsController.php": {
+    "mtime": 1787940143.428781,
+    "ast_hash": "8985b881b721a0b00507774659f386f4",
+    "semantic_hash": ""
+  },
+  "app/Http/Controllers/Admin/UsersController.php": {
+    "mtime": 1787939659.0654242,
+    "ast_hash": "f037938b943cddb86e4a6f5833f3354f",
+    "semantic_hash": ""
+  },
+  "app/Http/Requests/Admin/AdjustCoinsRequest.php": {
+    "mtime": 1787939220.7855947,
+    "ast_hash": "1010c5b9da493d1955282c30a76de9f1",
+    "semantic_hash": ""
+  },
+  "resources/js/pages/Admin/Invites.tsx": {
+    "mtime": 1787939885.7994194,
+    "ast_hash": "e9654efbf6237a611ff3246b2500aafe",
+    "semantic_hash": ""
+  },
+  "resources/js/pages/Admin/Payments.tsx": {
+    "mtime": 1787939916.8394954,
+    "ast_hash": "f7986d348d4579d4f31b5e24b1bd4ea8",
+    "semantic_hash": ""
+  },
+  "resources/js/pages/Admin/Users.tsx": {
+    "mtime": 1787939839.3631754,
+    "ast_hash": "e86e02dd1ef9f82741b260e0d4e25859",
+    "semantic_hash": ""
+  },
+  "resources/js/pages/Admin/Users/Show.tsx": {
+    "mtime": 1787939698.4119213,
+    "ast_hash": "ee768cb2592e7526cc7a0c9131d85be6",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Admin/PaymentsAndInvitesTest.php": {
+    "mtime": 1787940144.6758404,
+    "ast_hash": "ef550223e5e42e93512280663859e8e8",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Admin/UsersAndCoinsTest.php": {
+    "mtime": 1787939604.1523187,
+    "ast_hash": "30b98263988ea07884c3289e207584a7",
     "semantic_hash": ""
   }
 }

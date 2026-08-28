@@ -60,7 +60,7 @@ Status key: ✅ done · 🔄 in progress · ⬜ not started
 ## Phase 6 — Admin panel
 - ✅ Panel foundation: admin gate + settings/economy tuning UI
 - ✅ Challenge moderation (list/detail/cancel) + image-proof review queue
-- ⬜ User/coin adjustments, invite/payment audit views, Stars refund surface
+- ✅ User/coin adjustments, invite/payment audit views, Stars refund surface
 
 ## Phase 7 — Website
 - ⬜ Marketing landing (fuller mirror later)
@@ -2354,3 +2354,63 @@ compiles both entries.
 **Next:** Admin Task 3 — users, coins and audits: user lookup with balance, admin coin adjustments
 through `CoinLedger` (never a bare write), invite and Stars-payment audit views, and the Stars
 refund surface calling `refundStarPayment`.
+
+## Admin Task 3 — users, coin adjustments, audit views, Stars refunds
+
+**Commit:** (this commit)
+
+**What shipped**
+
+- **`App\Actions\Coins\AdjustUserCoins`** — the support-desk lever. `credit()`/`debit()` map onto
+  `AdminCredit`/`AdminDebit` (a caller cannot reach for any other reason) and hand off to
+  `CoinLedger::record()`, so the panel's coin writes get the same row lock, idempotency key and
+  sign-from-reason rule as every other coin mutation. The idempotency key is a fresh UUID per call:
+  Telegram flows replay the *same* update (key derived from Telegram's ids); an admin form
+  submission is a new human decision every time — there is nothing external to key on. The
+  reference morph points at the admin who acted: the ledger row names its own author, which is the
+  whole audit trail. Admin debits may overdraw (`AdminDebit::allowsOverdraft`) — a manual clawback
+  a balance could veto is one that cannot happen; the test pins this.
+- **Users surface** (`Admin\UsersController` + `Admin/Users.tsx` / `Admin/Users/Show.tsx`):
+  search by name / telegram username / first name, and — when the query is bare digits — by
+  Telegram id (the one thing support reliably has in hand). Balances come from
+  `CoinLedger::balanceFor()`, never a column. The detail page shows the statement (latest 20
+  entries: reason label, signed amount, running balance) **and the drift** between the cached
+  running total and `sum()` — a corrupt ledger is visible from the panel instead of discovered in
+  a dispute. Adjust form posts `{amount, direction}` through `AdjustCoinsRequest` (positive
+  integer, `credit|debit` — the request shape *is* the whole vocabulary).
+- **Payments audit + refund** (`Admin\PaymentsController` + `Admin/Payments.tsx`): newest-first
+  listing of every `StarPayment` with user, stars, coins, status, charge id and refundability;
+  confirm-then-refund posts to the shared `RefundStarsPayment` action (Telegram first, row second,
+  clawback through the ledger — the panel gets no private path). `LogicException` (unrefundable
+  row) and `TelegramSDKException` (no token / Telegram refused) both become toasts; the action's
+  ordering means the row stays paid and retryable.
+- **Invites audit** (`Admin\InvitesController` + `Admin/Invites.tsx`): read-only — whether a code
+  earned coins was settled by `ClaimInvite` at the invited user's first `/start`, so an audit that
+  could be hand-edited would be an audit nobody could trust. Shows inviter / invited / status /
+  credited_at.
+- **`SweepAbandonedStarPayments` action + `payments:sweep-abandoned` command** (daily schedule) —
+  pending payments older than 24h become `Failed`. Pending rows never credited a coin, so the
+  sweep moves nothing anyone owes; it exists so the audit stays a list of purchases rather than a
+  landfill of abandoned carts. The window is an operational constant, deliberately not a
+  `Setting` (not a rate or price).
+- **Token-less read resilience** (fix for a live report): the Bot API binding throws at
+  construction when `TELEGRAM_BOT_TOKEN` is unset, and the review/payments controllers
+  constructor-injected actions that transitively hold `Api` — so *browsing* those pages 500'd on a
+  box without a token. Both controllers now method-inject their actions: read routes never resolve
+  the Telegram client. The review verdict also split its try/catch: the verdict lands even when
+  the participant notification cannot be sent (`notify_failed` toast distinguishes the two).
+  Pinned by `reads the audit pages without a bot token being set`.
+- Sidebar gains Users / Star payments / Invites; en+fa copy for all of it; Wayfinder regenerated.
+
+**Tests** — `tests/Feature/Admin/UsersAndCoinsTest.php` (10) + `PaymentsAndInvitesTest.php` (9):
+route gates, listing order/search (id/username/name), statement shape with drift, credit writes
+through the ledger with the admin as reference, debit, overdraft-allowed clawback, validation
+(zero/negative/missing amount, unknown direction), payments listing shape, refund through the
+shared action (one wire call, balance clawed to 0), unrefundable toast, token-less reads, invite
+states, sweep window boundary (23h stays, 25h+ goes, paid untouched).
+
+**Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓,
+prettier ✓, tsc ✓, tests **1143 (1139 pass, 4 skipped)**, 3562 assertions.
+
+**Next:** Phase 7 — Website: the marketing landing (Inertia, `routes/web.php`), then Phases 8–13
+per `prompts/phase-8.md` onward.
