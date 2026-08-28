@@ -212,6 +212,22 @@ return [
         'join_button' => 'پیوستن',
     ],
 
+    /*
+    | متن یادآوری‌ها، یک خط برای هر مقدارِ `ReminderKind`. «:moment» همان مرزی است
+    | که جمله دربارهٔ آن است (شروع یا پایان)، از قبل به وقت خودِ چالش نمایش داده
+    | شده و وقت آن جداگانه با «:timezone» می‌آید.
+    */
+    'reminder' => [
+        'challenge_starting' => '«:title» از :moment (:timezone) شروع می‌شود — :total دوره. هر دوره /checkin را بفرست تا زنجیره‌ات زنده بماند.',
+        'period_opened' => 'دورهٔ :index از :total در «:title» باز است. وقتی کار را انجام دادی /checkin را بفرست.',
+        'period_ending' => 'دورهٔ :index از :total در «:title» در :moment (:timezone) بسته می‌شود. اگر هنوز ثبت نکرده‌ای همین حالا /checkin را بفرست.',
+    ],
+
+    'language' => [
+        'prompt' => 'به کدام زبان صحبت کنم؟',
+        'set' => 'انجام شد — از این به بعد :language.',
+    ],
+
     'fallback' => [
         'unknown' => 'متوجه نشدم. برای ساختن چالش /create را بفرست، یا برای شروع دوباره /start.',
         'stale_button' => 'این دکمه دیگر فعال نیست. برای ساختن چالش /create را بفرست.',

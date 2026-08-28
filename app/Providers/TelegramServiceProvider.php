@@ -5,12 +5,14 @@ namespace App\Providers;
 use App\Services\Telegram\CallbackRouter;
 use App\Services\Telegram\Callbacks\CheckInCallback;
 use App\Services\Telegram\Callbacks\JoinCallback;
+use App\Services\Telegram\Callbacks\LanguageCallback;
 use App\Services\Telegram\Callbacks\ReviewCheckInCallback;
 use App\Services\Telegram\Callbacks\WizardCallback;
 use App\Services\Telegram\CommandRouter;
 use App\Services\Telegram\Commands\CancelCommand;
 use App\Services\Telegram\Commands\CheckInCommand;
 use App\Services\Telegram\Commands\CreateCommand;
+use App\Services\Telegram\Commands\LanguageCommand;
 use App\Services\Telegram\Commands\StartCommand;
 use App\Services\Telegram\Handlers\CallbackQueryHandler;
 use App\Services\Telegram\Handlers\MessageHandler;
@@ -81,6 +83,7 @@ class TelegramServiceProvider extends ServiceProvider
         'start' => StartCommand::class,
         'create' => CreateCommand::class,
         'checkin' => CheckInCommand::class,
+        'language' => LanguageCommand::class,
         'cancel' => CancelCommand::class,
     ];
 
@@ -98,6 +101,7 @@ class TelegramServiceProvider extends ServiceProvider
         JoinCallback::ACTION => JoinCallback::class,
         CheckInCallback::ACTION => CheckInCallback::class,
         ReviewCheckInCallback::ACTION => ReviewCheckInCallback::class,
+        LanguageCallback::ACTION => LanguageCallback::class,
     ];
 
     public function register(): void

@@ -48,6 +48,11 @@ enum SettingKey: string
     case InitDataMaxAgeSeconds = 'initdata_max_age_seconds';
     case ConversationTtlMinutes = 'conversation_ttl_minutes';
 
+    /*
+    | Reminders.
+    */
+    case ReminderEndingLeadHours = 'reminder_ending_lead_hours';
+
     /**
      * The value shape this setting accepts.
      */
@@ -117,6 +122,14 @@ enum SettingKey: string
             | have forgotten the shape of.
             */
             self::ConversationTtlMinutes => 60,
+
+            /*
+            | How long before a period's close the "period ending" nudge fires.
+            | Three hours suits a daily rhythm — enough time to act, late enough
+            | not to nag. A lead longer than the period itself is clamped to the
+            | period's start rather than firing before it opens.
+            */
+            self::ReminderEndingLeadHours => 3,
         };
     }
 }

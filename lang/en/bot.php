@@ -214,6 +214,22 @@ return [
         'join_button' => 'Join',
     ],
 
+    /*
+    | Reminder copy, one line per `ReminderKind` value. `:moment` is the boundary
+    | the sentence is about (a start or a close), already rendered in the
+    | challenge's own timezone, which is passed separately as `:timezone`.
+    */
+    'reminder' => [
+        'challenge_starting' => '“:title” starts :moment (:timezone) — :total periods. Send /checkin every period to keep your streak.',
+        'period_opened' => 'Period :index of :total in “:title” is open. Send /checkin when you have done the thing.',
+        'period_ending' => 'Period :index of :total in “:title” closes at :moment (:timezone). Send /checkin now if you have not yet.',
+    ],
+
+    'language' => [
+        'prompt' => 'Which language should I speak?',
+        'set' => 'Done — from now on, :language.',
+    ],
+
     'fallback' => [
         'unknown' => 'I did not follow that. Send /create to start a challenge, or /start to begin again.',
         'stale_button' => 'That button is no longer live. Send /create to start a challenge.',

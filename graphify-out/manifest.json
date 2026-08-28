@@ -620,9 +620,9 @@
     "semantic_hash": ""
   },
   "routes/console.php": {
-    "mtime": 1787315451.0,
-    "ast_hash": "3c6ce2e6d16444282b24a9aa63885563",
-    "semantic_hash": "3c6ce2e6d16444282b24a9aa63885563"
+    "mtime": 1787924696.5267234,
+    "ast_hash": "920473dfc94f2b8e3d7aee7ac9a066b3",
+    "semantic_hash": ""
   },
   "routes/settings.php": {
     "mtime": 1787590265.3743107,
@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "prompts/progress.md": {
-    "mtime": 1787922728.9506607,
-    "ast_hash": "f93e97545d423985514fc913b866f61b",
+    "mtime": 1787924288.479797,
+    "ast_hash": "415da4f3ec38b8179d379c8ba76673de",
     "semantic_hash": ""
   },
   "prompts/task-01-setup.md": {
@@ -1185,8 +1185,8 @@
     "semantic_hash": ""
   },
   "app/Enums/SettingKey.php": {
-    "mtime": 1787626742.1453977,
-    "ast_hash": "529192b33654a652a486f512055fb910",
+    "mtime": 1787924554.094992,
+    "ast_hash": "4c14033df7e56b922e853b314029a204",
     "semantic_hash": ""
   },
   "app/Enums/SettingType.php": {
@@ -1715,8 +1715,8 @@
     "semantic_hash": ""
   },
   "app/Providers/TelegramServiceProvider.php": {
-    "mtime": 1787923645.5009465,
-    "ast_hash": "43a9cae7b74daf8ecbfc3aabec2318dc",
+    "mtime": 1787924723.557283,
+    "ast_hash": "a1f950fcc2598f7549cd56c50c5b2dc6",
     "semantic_hash": ""
   },
   "app/Services/Telegram/HandlesUpdate.php": {
@@ -1800,13 +1800,13 @@
     "semantic_hash": ""
   },
   "lang/en/bot.php": {
-    "mtime": 1787923670.596871,
-    "ast_hash": "554b01f84deb9576049c684768c64743",
+    "mtime": 1787924737.8850698,
+    "ast_hash": "1298c6aff66294a9e19d76b9ad066d9d",
     "semantic_hash": ""
   },
   "lang/fa/bot.php": {
-    "mtime": 1787923686.0554414,
-    "ast_hash": "8e99509c5dc9565eb22de252fca3d6f1",
+    "mtime": 1787924752.8248625,
+    "ast_hash": "d439fc21820b36cf2427f35296786ac5",
     "semantic_hash": ""
   },
   "tests/Feature/Bot/ChannelGateTest.php": {
@@ -2032,6 +2032,56 @@
   "tests/Feature/Bot/CheckInFlowTest.php": {
     "mtime": 1787924038.8363702,
     "ast_hash": "a0b3a91572a02ca3bce017366d52f24b",
+    "semantic_hash": ""
+  },
+  "app/Actions/Reminders/DispatchDueReminders.php": {
+    "mtime": 1787924613.7834144,
+    "ast_hash": "8605932fa4c2426ad22e7a86be2b7afb",
+    "semantic_hash": ""
+  },
+  "app/Actions/Reminders/ScheduleChallengeReminders.php": {
+    "mtime": 1787925279.7353897,
+    "ast_hash": "386f724b061c00d0c88f2d20e4ce8592",
+    "semantic_hash": ""
+  },
+  "app/Console/Commands/Challenges/RollOverDuePeriodsCommand.php": {
+    "mtime": 1787925398.5784914,
+    "ast_hash": "63d3ab0dc4e8529a59af4b6b21eb33e0",
+    "semantic_hash": ""
+  },
+  "app/Console/Commands/Challenges/SendRemindersCommand.php": {
+    "mtime": 1787924681.7479866,
+    "ast_hash": "f1d395b1042c09e19673c9d4c5e5baf8",
+    "semantic_hash": ""
+  },
+  "app/Jobs/Telegram/SendReminder.php": {
+    "mtime": 1787925361.1011128,
+    "ast_hash": "90a96b19700ea9e8778c1d85241f19b5",
+    "semantic_hash": ""
+  },
+  "app/Services/Telegram/Callbacks/LanguageCallback.php": {
+    "mtime": 1787924708.8835156,
+    "ast_hash": "c6ce50dd39911b511b14bcb49fed9201",
+    "semantic_hash": ""
+  },
+  "app/Services/Telegram/Commands/LanguageCommand.php": {
+    "mtime": 1787924714.987417,
+    "ast_hash": "e15139635af06fa22b9c50f0f3c86657",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Bot/ChallengeRolloverCommandTest.php": {
+    "mtime": 1787925322.9797566,
+    "ast_hash": "b0ff27fb1d425dc71f119d2fc692d26b",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Bot/LanguageCommandTest.php": {
+    "mtime": 1787925233.519046,
+    "ast_hash": "a189ddaf45b365df727f5e21fe79696a",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Bot/ReminderSweepTest.php": {
+    "mtime": 1787925360.7441094,
+    "ast_hash": "1627733851a1e4df33c229288ce51cd6",
     "semantic_hash": ""
   }
 }
