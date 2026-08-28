@@ -619,9 +619,11 @@ describe('economy enum behaviour', function () {
     it('splits the wizard steps from the check-in steps with no state left over', function () {
         $wizard = array_filter(ConversationState::cases(), fn (ConversationState $s) => $s->isCreateChallengeStep());
         $checkIn = array_filter(ConversationState::cases(), fn (ConversationState $s) => $s->isCheckInStep());
+        $chatLink = array_filter(ConversationState::cases(), fn (ConversationState $s) => $s->isChatLinkStep());
 
-        expect(count($wizard) + count($checkIn))->toBe(count(ConversationState::cases()))
-            ->and($checkIn)->toHaveCount(2);
+        expect(count($wizard) + count($checkIn) + count($chatLink))->toBe(count(ConversationState::cases()))
+            ->and($checkIn)->toHaveCount(2)
+            ->and($chatLink)->toHaveCount(1);
     });
 });
 

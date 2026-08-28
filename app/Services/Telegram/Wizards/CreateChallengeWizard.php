@@ -284,12 +284,13 @@ class CreateChallengeWizard
             ConversationState::AwaitingProofType => ConversationState::AwaitingVisibility,
             ConversationState::AwaitingVisibility => ConversationState::AwaitingCreateConfirmation,
 
-            // Confirmation is answered by `finish()`, never by advancing, and the
-            // check-in steps belong to a different flow entirely. Reaching either
-            // is a wiring bug rather than bad input.
+            // Confirmation is answered by `finish()`, never by advancing, and
+            // the check-in and chat-link steps belong to other flows entirely.
+            // Reaching any of them is a wiring bug rather than bad input.
             ConversationState::AwaitingCreateConfirmation,
             ConversationState::AwaitingCheckInText,
-            ConversationState::AwaitingCheckInPhoto => throw new LogicException(
+            ConversationState::AwaitingCheckInPhoto,
+            ConversationState::AwaitingChatForward => throw new LogicException(
                 "The create-challenge wizard has no step after {$state->value}.",
             ),
         };

@@ -34,6 +34,7 @@ class ConversationRouter
     public function __construct(
         private readonly CreateChallengeWizard $wizard,
         private readonly CheckInFlow $checkIns,
+        private readonly LinkChatFlow $chatLinks,
     ) {}
 
     /**
@@ -49,6 +50,17 @@ class ConversationRouter
 
         if ($conversation->state->isCreateChallengeStep()) {
             $this->wizard->receiveText($user, $conversation, $this->text($update));
+
+            return true;
+        }
+
+        if ($conversation->state->isChatLinkStep()) {
+            // The whole message, not its text: what makes a forwarded message
+            // an answer here is the *forward* — `forward_from_chat` — which a
+            // photo carries as readily as a sentence.
+            $message = $update->value('message');
+
+            $this->chatLinks->receiveForward($user, $conversation, is_array($message) ? $message : []);
 
             return true;
         }

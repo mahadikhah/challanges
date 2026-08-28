@@ -30,6 +30,8 @@ enum ConversationState: string
     case AwaitingCheckInText = 'awaiting_check_in_text';
     case AwaitingCheckInPhoto = 'awaiting_check_in_photo';
 
+    case AwaitingChatForward = 'awaiting_chat_forward';
+
     /**
      * Whether this state belongs to the create-challenge wizard.
      *
@@ -38,7 +40,7 @@ enum ConversationState: string
      */
     public function isCreateChallengeStep(): bool
     {
-        return ! $this->isCheckInStep();
+        return ! $this->isCheckInStep() && ! $this->isChatLinkStep();
     }
 
     /**
@@ -50,6 +52,14 @@ enum ConversationState: string
             self::AwaitingCheckInText, self::AwaitingCheckInPhoto => true,
             default => false,
         };
+    }
+
+    /**
+     * Whether this state is waiting on the chat-link flow's forwarded message.
+     */
+    public function isChatLinkStep(): bool
+    {
+        return $this === self::AwaitingChatForward;
     }
 
     /**
@@ -70,6 +80,11 @@ enum ConversationState: string
 
     /**
      * Whether a photo is the expected next input.
+     *
+     * The chat-link step is absent by design: a forwarded message can carry
+     * anything — text, a photo, a sticker — and the flow judges the *forward*,
+     * not the content, so its router branch reads the whole update instead of
+     * asking this predicate.
      */
     public function expectsPhoto(): bool
     {

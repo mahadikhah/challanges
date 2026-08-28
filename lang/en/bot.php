@@ -258,6 +258,35 @@ return [
         'set' => 'Done — from now on, :language.',
     ],
 
+    /*
+    | Linking a channel or group as a challenge's "home" chat. The `prompt_*`
+    | lines are the one instruction the flow ever asks; everything else is a
+    | verdict. The two `refused` verdicts name which admin check failed,
+    | because their fixes differ: re-add the bot, or re-admin yourself.
+    */
+    'chatlink' => [
+        'prompt_title' => 'Linking a chat to “:title”.',
+        'prompt_add_bot' => 'First, add this bot as an administrator to your channel or group.',
+        'prompt_forward' => 'Then forward any message from that chat to me here, and I will link it.',
+        'prompt_cancel' => 'Send /cancel to give up.',
+        'no_challenge' => 'Send this as /chatlink followed by your challenge’s join link payload, e.g. /chatlink j_abc123.',
+        'challenge_gone' => 'That challenge is no longer available.',
+        'not_forwarded' => 'That was not a message forwarded from a channel or group. Forward one from the chat you want to link.',
+        'wrong_type' => 'That chat is neither a channel nor a group, so it cannot be linked.',
+        'unreachable' => 'Telegram could not be reached to check the chat. Send the forward again in a moment.',
+        'linked' => '“:title” is linked to “:challenge” and ready to receive posts.',
+        'refused' => [
+            'not_the_creator' => 'Only the creator of a challenge can link a chat to it.',
+            'bot_not_admin' => 'I am not an administrator of “:title” yet (or cannot post there). Add me as an admin and forward another message.',
+            'creator_not_admin' => 'You are not an administrator of “:title”. Only a chat admin can link it.',
+            'proofs_not_public' => 'This challenge’s proofs are private, so they cannot be shared into a chat.',
+        ],
+        'revoked' => [
+            'bot_not_admin' => '“:title” was unlinked from “:challenge”: I am no longer an administrator there. Re-add me to link it again.',
+            'creator_not_admin' => '“:title” was unlinked from “:challenge”: you are no longer an administrator there.',
+        ],
+    ],
+
     'fallback' => [
         'unknown' => 'I did not follow that. Send /create to start a challenge, or /start to begin again.',
         'stale_button' => 'That button is no longer live. Send /create to start a challenge.',

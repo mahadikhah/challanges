@@ -11,6 +11,7 @@ use App\Services\Telegram\Callbacks\ShopCallback;
 use App\Services\Telegram\Callbacks\WizardCallback;
 use App\Services\Telegram\CommandRouter;
 use App\Services\Telegram\Commands\CancelCommand;
+use App\Services\Telegram\Commands\ChatLinkCommand;
 use App\Services\Telegram\Commands\CheckInCommand;
 use App\Services\Telegram\Commands\CreateCommand;
 use App\Services\Telegram\Commands\LanguageCommand;
@@ -87,6 +88,7 @@ class TelegramServiceProvider extends ServiceProvider
         'start' => StartCommand::class,
         'create' => CreateCommand::class,
         'checkin' => CheckInCommand::class,
+        'chatlink' => ChatLinkCommand::class,
         'shop' => ShopCommand::class,
         'language' => LanguageCommand::class,
         'cancel' => CancelCommand::class,
