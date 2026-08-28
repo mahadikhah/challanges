@@ -53,7 +53,7 @@ Status key: ✅ done · 🔄 in progress · ⬜ not started
 - ✅ Refund path (`refundStarPayment`) — **Phase 4 complete**
 
 ## Phase 5 — Mini App
-- ⬜ `POST /api/v1/miniapp/auth` (initData → Sanctum token)
+- ✅ `POST /api/v1/miniapp/auth` (initData → Sanctum token) + minimal `/me`
 - ⬜ `/api/v1/miniapp/*` surface
 - ⬜ Gameish React SPA (details, status, freezes, progress; themeParams/BackButton/MainButton)
 
@@ -2048,3 +2048,65 @@ as-key argument order, `hash_equals`, `auth_date` window) and issuing a
 short-lived Sanctum bearer token, then the `/api/v1/miniapp/*` surface and the
 React SPA behind it — including the §6 tampered-hash and stale-`auth_date`
 rejection tests.
+
+### Mini App Task 1 — initData authentication ✅
+The Mini App's identity exchange: `POST /api/v1/miniapp/auth` swaps a signed
+`Telegram.WebApp.initData` for a short-lived Sanctum bearer token, and a minimal
+`GET /api/v1/miniapp/me` proves the token round-trips and gives the SPA its
+boot shape (user + coin balance).
+
+**The pieces.** `InitDataVerifier` implements the exact HMAC chain CLAUDE.md
+pins down — `secret_key = HMAC_SHA256(<bot_token>, "WebAppData")` with the
+token as the *message*, data-check-string over every field except `hash` and
+`signature`, sorted alphabetically, `key=value` joined with `\n`, compared with
+`hash_equals` (lowercased first, since `hash_equals` is byte-exact and a client
+round-trip could uppercase the hex). `AuthenticateMiniAppUser` resolves the
+user through the *same* `ResolveTelegramUser` action the bot uses (initData's
+decoded `user` object is the same shape as an update's `from`), then mints a
+Sanctum token with the `miniapp` ability and an `expires_at` from the
+`MiniAppTokenTtlMinutes` setting. `VerifiedInitData` carries the decoded user
+plus the other fields, where a deep link's `start_param` will surface later.
+
+**Decisions:**
+- *One refusal message, every reason.* Tampered vs malformed vs stale differ
+  only in the `Log::warning` — the HTTP response never says which, so a
+  forger can't learn how close their forgery was.
+- *Tokens are minted per exchange, not deduplicated.* Each Mini App open
+  brings a fresh initData and gets a fresh token; the previous one ages out.
+  `sanctum:prune-expired` is scheduled daily to keep the table from growing
+  one app-open at a time.
+- *auth_date window ≠ token lifetime.* `InitDataMaxAgeSeconds` governs only
+  the exchange; after that the Sanctum token's own `expires_at` governs
+  (Sanctum's guard checks it natively — no global `SANCTUM_TOKEN_EXPIRATION`
+  needed, which would have leaked into every token the app ever issues).
+- *The channel gate is not at auth.* Authenticating is not a privileged act;
+  the gate belongs to the Mini App surface that can show a join-prompt UX.
+  Recorded as an open question for the surface task, alongside what the Mini
+  App does for a user whose gate is closed.
+- *Mini App auth creates the user row* (same action as `/start`). Invite
+  attribution is unaffected in practice — invite links open the bot
+  (`?start=`), not the Mini App — but the interaction is real and deliberate.
+- *Sanctum middleware aliases registered manually* in `bootstrap/app.php`:
+  this Sanctum version ships `CheckForAnyAbility`/`CheckAbilities` without
+  registering the `ability`/`abilities` aliases itself.
+- *`/me` re-resolves the actor from the bearer token alone* — the pattern
+  every later `/api/v1/miniapp/*` endpoint follows per CLAUDE.md's
+  "never trust a client-supplied id" rule.
+
+**§6 — two more verification targets closed, automated.** A tampered hash
+(`strrev` of a real one), a payload re-signed over different contents, a
+correctly-signed-but-foreign-bot-token payload, and a stale `auth_date` (one
+second past the window) are each rejected with 401 and *no user or token rows
+created*; the window's exact edge is accepted; both TTLs honour admin-tuned
+settings. Remaining §6: the live-token webhook replay (manual, needs a real
+bot) and the real-device Mini App launch.
+
+**Result — `sail composer ci:check` GREEN:** eslint ✓, prettier ✓, `tsc
+--noEmit` ✓, pint ✓, phpstan lvl 7 (0 errors) ✓, tests **1059 (1055 pass,
+4 skipped = Fortify 2FA disabled)**, 2896 assertions, +21 in
+`tests/Feature/MiniApp/MiniAppAuthTest.php`. Graph: 2782 nodes / 5361 edges.
+
+**Next:** the `/api/v1/miniapp/*` surface — challenges the user is in,
+per-challenge status (streak, freezes used/remaining, current period
+progress), driven by Eloquent API Resources over the existing domain Actions
+and queries, all behind `auth:sanctum` + `ability:miniapp`.
