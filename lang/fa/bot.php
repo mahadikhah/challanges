@@ -35,6 +35,31 @@ return [
         ],
     ],
 
+    /*
+    | گفتگوی پیوستن. خط‌های `refused` با مقدار هر حالتِ `JoinRejection` خوانده
+    | می‌شوند، درست مثل خط‌های دعوت با `InviteRejection`.
+    */
+    'join' => [
+        'not_found' => 'آن لینک پیوستن دیگر معتبر نیست.',
+
+        'preview_headline' => 'چالش: :title',
+        'preview_details' => ':period · :periods دوره · :proof',
+        'preview_freezes' => 'انجماد هر نفر: :freezes',
+        'join_button' => 'پیوستن',
+
+        'joined' => 'به «:title» پیوستی. هر دوره ثبت کن تا زنجیره‌ات زنده بماند.',
+        'already_in' => 'تو از قبل در «:title» هستی.',
+
+        'no_slot' => 'سهمیهٔ پیوستن چالش‌هایت تمام شده است.',
+        'slot_price' => 'پیوستن به یکی دیگر :coins سکه هزینه دارد.',
+
+        'refused' => [
+            'challenge_closed' => '«:title» دیگر برای پیوستن باز نیست.',
+            'timeline_exhausted' => 'دوره‌های «:title» تمام شده‌اند، پس چیزی برای پیوستن نمانده است.',
+            'participation_ended' => 'تو قبلاً در این چالش بوده‌ای و پیوستن دوباره با سازندهٔ آن است.',
+        ],
+    ],
+
     'cancel' => [
         'nothing_open' => 'چیزی برای لغو کردن نبود. برای ساختن چالش /create را بفرست.',
     ],
@@ -134,7 +159,7 @@ return [
     'announce' => [
         'headline' => 'چالش تازه: :title',
         'details' => ':period · :periods دوره · :proof',
-        'how_to_join' => 'برای پیوستن، ربات را باز کن.',
+        'join_button' => 'پیوستن',
     ],
 
     'fallback' => [

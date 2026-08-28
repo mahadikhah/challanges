@@ -77,6 +77,21 @@ function channelPosts(): array
 }
 
 /**
+ * The buttons on the last channel post, decoded out of its `reply_markup`.
+ *
+ * @return list<array<string, string>>
+ */
+function channelPostButtons(int $post = 0): array
+{
+    $markup = channelPosts()[$post]['reply_markup'] ?? '';
+
+    /** @var array{inline_keyboard: list<list<array<string, string>>>}|null $decoded */
+    $decoded = json_decode((string) $markup, true);
+
+    return array_merge(...array_map('array_values', $decoded['inline_keyboard'] ?? [[]]));
+}
+
+/**
  * A public challenge that has not been announced yet.
  */
 function announceable(): Challenge
@@ -136,8 +151,22 @@ describe('posting a public challenge', function () {
                 'period' => botCopy(PeriodType::Weekly->translationKey()),
                 'periods' => 12,
                 'proof' => botCopy(ProofType::ImageApproval->translationKey()),
-            ]))
-            ->toContain(botCopy('bot.announce.how_to_join'));
+            ]));
+    });
+
+    it('carries a join button that deep-links the bot onto the challenge', function () {
+        channelAcceptsPosts();
+        $challenge = announceable();
+
+        $this->broadcaster->announce($challenge);
+
+        // A `url` button, not `callback_data`: a bot cannot write to somebody who
+        // has never opened a private chat with it, and a channel post addresses
+        // exactly that audience. The link has to carry them into the bot first.
+        $button = channelPostButtons()[0];
+
+        expect($button['text'])->toBe(botCopy('bot.announce.join_button'))
+            ->and($button['url'])->toBe($challenge->refresh()->joinLink());
     });
 
     it('leaves no blank paragraph where a description was skipped', function () {
@@ -163,7 +192,8 @@ describe('posting a public challenge', function () {
 
         expect(channelPosts()[0]['text'])
             ->toContain(botCopy('bot.announce.headline', ['title' => 'Read every day'], 'en'))
-            ->not->toContain(botCopy('bot.announce.how_to_join', [], 'fa'));
+            ->and(channelPostButtons()[0]['text'])->toBe(botCopy('bot.announce.join_button', [], 'en'))
+            ->not()->toBe(botCopy('bot.announce.join_button', [], 'fa'));
     });
 });
 

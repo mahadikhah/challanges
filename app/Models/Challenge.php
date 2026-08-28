@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $creator_id
  * @property string $title
  * @property string|null $description
+ * @property string $join_token
  * @property PeriodType $period_type
  * @property int|null $custom_period_days
  * @property CarbonImmutable $starts_at
@@ -45,6 +46,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'creator_id',
     'title',
     'description',
+    'join_token',
     'period_type',
     'custom_period_days',
     'starts_at',
@@ -61,6 +63,11 @@ class Challenge extends Model
 {
     /** @use HasFactory<ChallengeFactory> */
     use HasFactory;
+
+    /**
+     * What marks a `?start=` payload as a challenge join rather than an invite code.
+     */
+    public const JOIN_PAYLOAD_PREFIX = 'j_';
 
     /**
      * @return BelongsTo<User, $this>
@@ -106,6 +113,72 @@ class Challenge extends Model
     public function awaitsAnnouncement(): bool
     {
         return $this->visibility->shouldAnnounce() && $this->announced_at === null;
+    }
+
+    /**
+     * The `?start=` payload that carries this challenge to the bot.
+     *
+     * Prefixed so `/start` can tell it from an invite code without a database
+     * lookup per guess. That works because the two alphabets are disjoint on one
+     * character: `MintJoinToken` and `IssueInviteCode` both exclude `_`, so no
+     * invite code can ever begin `j_`.
+     */
+    public function joinPayload(): string
+    {
+        return self::JOIN_PAYLOAD_PREFIX.$this->join_token;
+    }
+
+    /**
+     * The deep link that opens the bot on this challenge's join preview.
+     *
+     * `?start=` rather than `?startapp=`: joining is a bot conversation — it can
+     * refuse for want of a slot, and it has to be able to offer the channel gate —
+     * and a Mini App cannot be relied on to have been opened at all.
+     */
+    public function joinLink(): string
+    {
+        $username = ltrim(config()->string('services.telegram.bot_username'), '@');
+
+        return "https://t.me/{$username}?start={$this->joinPayload()}";
+    }
+
+    /**
+     * Whether a `?start=` payload is shaped like a challenge join.
+     *
+     * Distinct from `fromJoinPayload`, which asks whether the payload names a
+     * challenge that exists: a dead link is still a join link, and the bot owes
+     * "that link is no longer valid" rather than falling through to invite-code
+     * attribution and a message about the wrong thing entirely.
+     */
+    public static function isJoinPayload(?string $payload): bool
+    {
+        $payload = strtolower(trim((string) $payload));
+
+        return str_starts_with($payload, self::JOIN_PAYLOAD_PREFIX);
+    }
+
+    /**
+     * The challenge a `?start=` payload names, or null when it names none.
+     *
+     * Deliberately not filtered by joinability: a closed challenge has to come back
+     * so the bot can say it is closed. "This link is not valid" and "that challenge
+     * has finished" are different things to hear.
+     */
+    public static function fromJoinPayload(?string $payload): ?self
+    {
+        $payload = strtolower(trim((string) $payload));
+
+        if (! str_starts_with($payload, self::JOIN_PAYLOAD_PREFIX)) {
+            return null;
+        }
+
+        $token = substr($payload, strlen(self::JOIN_PAYLOAD_PREFIX));
+
+        if ($token === '') {
+            return null;
+        }
+
+        return self::query()->where('join_token', $token)->first();
     }
 
     /**

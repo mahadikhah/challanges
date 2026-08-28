@@ -67,6 +67,7 @@ class CreateChallenge
     public function __construct(
         private readonly ConsumeEntitlement $entitlements,
         private readonly MaterialiseChallengePeriods $periods,
+        private readonly MintJoinToken $joinTokens,
         private readonly Settings $settings,
     ) {}
 
@@ -122,6 +123,12 @@ class CreateChallenge
                 'creator_id' => $creator->getKey(),
                 'title' => $title,
                 'description' => $description === '' ? null : $description,
+
+                // Every challenge gets one, public ones included: the token is how
+                // a challenge is addressed in a link, and a public challenge is
+                // shared by link at least as often as it is found in the channel.
+                'join_token' => $this->joinTokens->handle(),
+
                 'period_type' => $periodType,
                 'custom_period_days' => $periodType->requiresCustomDays() ? $customPeriodDays : null,
                 'starts_at' => $startsAt,

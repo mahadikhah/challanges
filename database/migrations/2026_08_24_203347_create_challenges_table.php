@@ -28,6 +28,18 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
 
+            /*
+            | The unguessable half of a join link, minted with the challenge and
+            | fixed for its life.
+            |
+            | Not the id, and the difference is the whole point of `invite_only`: a
+            | link reading `?start=j_417` would be unlisted rather than private,
+            | because anybody could walk the integers into every closed challenge
+            | on the platform. Unique because the token *is* the lookup key —
+            | `MintJoinToken` pre-checks, but this index is the arbiter.
+            */
+            $table->string('join_token', 32)->unique();
+
             $table->string('period_type', 32);
 
             // Only meaningful for `period_type = custom`; N days per period.

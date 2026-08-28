@@ -7,12 +7,14 @@ use App\Actions\Invites\ClaimInvite;
 use App\Actions\Telegram\VerifyChannelMembership;
 use App\Enums\InviteRejection;
 use App\Exceptions\InviteNotClaimableException;
+use App\Models\Challenge;
 use App\Models\Invite;
 use App\Models\User;
 use App\Services\Telegram\BotCommand;
 use App\Services\Telegram\BotMessenger;
 use App\Services\Telegram\ChannelGatePrompt;
 use App\Services\Telegram\HandlesBotCommand;
+use App\Services\Telegram\JoinChallengeFlow;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -51,6 +53,7 @@ class StartCommand implements HandlesBotCommand
         private readonly GrantFreeBaseline $baseline,
         private readonly BotMessenger $messenger,
         private readonly ChannelGatePrompt $gatePrompt,
+        private readonly JoinChallengeFlow $joinFlow,
     ) {}
 
     public function handle(User $user, BotCommand $command): void
@@ -59,7 +62,14 @@ class StartCommand implements HandlesBotCommand
         // arrival from a returning user even if a later save clears the flag.
         $isFirstArrival = $user->wasRecentlyCreated;
 
-        $outcome = $this->attribute($user, $command->argument);
+        // A join payload is not an invite code, and the two must not be confused:
+        // handing one to `ClaimInvite` would answer a dead challenge link with a
+        // message about invite links. Join payloads are resolved here, invite
+        // codes further down.
+        $joinArrival = Challenge::isJoinPayload($command->argument);
+        $joinTarget = $joinArrival ? Challenge::fromJoinPayload($command->argument) : null;
+
+        $outcome = $joinArrival ? null : $this->attribute($user, $command->argument);
 
         if (! $this->gate->handle($user)) {
             $this->askToJoin($user, $outcome);
@@ -68,6 +78,14 @@ class StartCommand implements HandlesBotCommand
         }
 
         $this->baseline->handle($user);
+
+        if ($joinArrival) {
+            $joinTarget !== null
+                ? $this->joinFlow->preview($user, $joinTarget)
+                : $this->messenger->send($user, $this->messenger->line($user, 'bot.join.not_found'));
+
+            return;
+        }
 
         $this->welcome($user, $isFirstArrival, $outcome);
     }

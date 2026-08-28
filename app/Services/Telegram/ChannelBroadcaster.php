@@ -67,6 +67,21 @@ class ChannelBroadcaster
             $this->telegram->sendMessage([
                 'chat_id' => $this->gate->channel(),
                 'text' => $this->post($challenge),
+
+                // The button is a URL deep link, deliberately, and not
+                // `callback_data`. A bot cannot open a conversation with a user
+                // who has never messaged it — a `callback_query` reply would 403
+                // for exactly the audience a channel post exists to reach — so
+                // the link has to carry them into the bot first. `?start=` then
+                // delivers the join token to `/start`, which knows what to do
+                // with it.
+                'reply_markup' => json_encode(
+                    ['inline_keyboard' => [[[
+                        'text' => $this->line('bot.announce.join_button', [], $this->localization->fallback()),
+                        'url' => $challenge->joinLink(),
+                    ]]]],
+                    JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE,
+                ),
             ]);
         } catch (Throwable $failure) {
             // Release, so the retry is not silently swallowed by our own claim.
@@ -98,9 +113,12 @@ class ChannelBroadcaster
     /**
      * What the channel sees.
      *
-     * No join button yet: a public challenge is joined through the bot, and that
-     * flow lands with the join task. A button that goes nowhere is worse than a
-     * post that says where to go.
+     * The join button is a `url` deep link rather than a `callback_data` one, and
+     * that is not a styling choice: a bot cannot write to somebody who has never
+     * opened a private chat with it, and the audience a channel post addresses is
+     * precisely people who have not. `callback_data` here would leave a button
+     * that 403s for exactly its intended tappers. The link lands on `/start` with
+     * the challenge's join token in the payload.
      */
     private function post(Challenge $challenge): string
     {
@@ -114,7 +132,6 @@ class ChannelBroadcaster
                 'periods' => $challenge->total_periods,
                 'proof' => $this->line($challenge->proof_type->translationKey(), [], $locale),
             ], $locale),
-            $this->line('bot.announce.how_to_join', [], $locale),
         ];
 
         return implode("\n\n", array_filter(

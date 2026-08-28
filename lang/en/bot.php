@@ -35,6 +35,31 @@ return [
         ],
     ],
 
+    /*
+    | The join conversation. `refused` lines are addressed by the value of a
+    | `JoinRejection` case, exactly as the invite ones are by `InviteRejection`.
+    */
+    'join' => [
+        'not_found' => 'That join link is no longer valid.',
+
+        'preview_headline' => 'Challenge: :title',
+        'preview_details' => ':period · :periods periods · :proof',
+        'preview_freezes' => 'Freezes each: :freezes',
+        'join_button' => 'Join',
+
+        'joined' => 'You’re in “:title”. Check in every period to keep the streak alive.',
+        'already_in' => 'You are already in “:title”.',
+
+        'no_slot' => 'You have used up your challenge-joining slots.',
+        'slot_price' => 'Joining another costs :coins coins.',
+
+        'refused' => [
+            'challenge_closed' => '“:title” is no longer open to join.',
+            'timeline_exhausted' => '“:title” has run out of periods, so there is nothing left to join.',
+            'participation_ended' => 'You already took part in this one, and rejoining is up to its creator.',
+        ],
+    ],
+
     'cancel' => [
         'nothing_open' => 'There was nothing to cancel. Send /create to start a challenge.',
     ],
@@ -136,7 +161,7 @@ return [
     'announce' => [
         'headline' => 'New challenge: :title',
         'details' => ':period · :periods periods · :proof',
-        'how_to_join' => 'Open the bot to join.',
+        'join_button' => 'Join',
     ],
 
     'fallback' => [

@@ -31,6 +31,11 @@ class ChallengeFactory extends Factory
             'creator_id' => User::factory()->telegram(),
             'title' => fake()->words(3, true),
             'description' => fake()->sentence(),
+
+            // Unique per row rather than a fixed string: the column is unique, so a
+            // constant would make the second challenge in any test fail on the index.
+            'join_token' => fake()->unique()->regexify('[a-z2-9]{12}'),
+
             'period_type' => PeriodType::Daily,
             'custom_period_days' => null,
             'starts_at' => now()->addDay()->startOfDay(),
@@ -130,6 +135,16 @@ class ChallengeFactory extends Factory
     {
         return $this->state(fn (array $attributes): array => [
             'default_freezes' => $freezes,
+        ]);
+    }
+
+    /**
+     * Pin the join token, for a test that has to build the deep link by hand.
+     */
+    public function withJoinToken(string $token): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'join_token' => $token,
         ]);
     }
 }

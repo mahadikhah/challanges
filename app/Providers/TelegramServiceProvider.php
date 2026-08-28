@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Services\Telegram\CallbackRouter;
+use App\Services\Telegram\Callbacks\JoinCallback;
 use App\Services\Telegram\Callbacks\WizardCallback;
 use App\Services\Telegram\CommandRouter;
 use App\Services\Telegram\Commands\CancelCommand;
@@ -90,6 +91,7 @@ class TelegramServiceProvider extends ServiceProvider
      */
     public const array CALLBACK_HANDLERS = [
         CreateChallengeWizard::ACTION => WizardCallback::class,
+        JoinCallback::ACTION => JoinCallback::class,
     ];
 
     public function register(): void
