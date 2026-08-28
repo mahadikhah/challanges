@@ -115,6 +115,14 @@ return [
     ],
 
     /*
+    | A challenge's own lifecycle, told to its participants by the bot. The
+    | admin panel's cancellation fans these out as staggered queued sends.
+    */
+    'challenge' => [
+        'cancelled' => '“:title” has been cancelled, so there are no more check-ins to send. Your streak so far stands.',
+    ],
+
+    /*
     | The create-challenge wizard.
     |
     | The per-step keys are addressed as `bot.wizard.<conversation state>.prompt`,

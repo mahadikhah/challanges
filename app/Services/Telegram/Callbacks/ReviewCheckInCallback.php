@@ -11,6 +11,7 @@ use App\Services\Telegram\BotCallback;
 use App\Services\Telegram\BotMessenger;
 use App\Services\Telegram\ChannelGatePrompt;
 use App\Services\Telegram\HandlesCallback;
+use App\Services\Telegram\NotifyCheckInVerdict;
 
 /**
  * The creator's verdict on a submitted photo.
@@ -41,6 +42,7 @@ class ReviewCheckInCallback implements HandlesCallback
         private readonly VerifyChannelMembership $gate,
         private readonly ChannelGatePrompt $gatePrompt,
         private readonly BotMessenger $messenger,
+        private readonly NotifyCheckInVerdict $notify,
     ) {}
 
     public function handle(User $user, BotCallback $callback): void
@@ -90,36 +92,10 @@ class ReviewCheckInCallback implements HandlesCallback
             ? 'bot.checkin.review_rejected_ack'
             : 'bot.checkin.review_approved_ack'));
 
-        $this->tellParticipant($settled, $verdict === self::REJECT);
-    }
-
-    /**
-     * Deliver the verdict to whoever submitted the photo.
-     */
-    private function tellParticipant(CheckIn $checkIn, bool $rejected): void
-    {
-        $participant = $checkIn->participant;
-        $participantUser = $participant->user;
-
-        if ($rejected) {
-            $this->messenger->send($participantUser, $this->messenger->line(
-                $participantUser,
-                'bot.checkin.review_rejected',
-                ['title' => $participant->challenge->title],
-            ));
-
-            return;
-        }
-
-        $this->messenger->send($participantUser, $this->messenger->line(
-            $participantUser,
-            'bot.checkin.review_approved',
-            [
-                'title' => $participant->challenge->title,
-                // Refreshed: the settlement just moved the streak on the locked
-                // row, and the relation here may predate it.
-                'streak' => $participant->refresh()->current_streak,
-            ],
-        ));
+        // The participant hears the verdict through the same delivery both
+        // surfaces share — the panel's review queue sends these too.
+        $verdict === self::REJECT
+            ? $this->notify->rejected($settled)
+            : $this->notify->approved($settled);
     }
 }

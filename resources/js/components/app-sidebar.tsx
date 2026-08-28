@@ -1,5 +1,12 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid, Wrench } from 'lucide-react';
+import {
+    BookOpen,
+    FolderGit2,
+    Image,
+    LayoutGrid,
+    Trophy,
+    Wrench,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -15,6 +22,8 @@ import {
 } from '@/components/ui/sidebar';
 import { useTranslation } from '@/hooks/use-translation';
 import { dashboard } from '@/routes';
+import { index as adminChallenges } from '@/routes/admin/challenges';
+import { index as adminReviews } from '@/routes/admin/reviews';
 import { index as adminSettings } from '@/routes/admin/settings';
 import type { NavItem } from '@/types';
 
@@ -43,14 +52,26 @@ export function AppSidebar() {
         },
     ];
 
-    // The admin link is offered, not relied on — the panel re-checks
+    // The admin links are offered, not relied on — the panel re-checks
     // `is_admin` server-side on every request.
     if (auth.user.is_admin) {
-        mainNavItems.push({
-            title: t('admin.settings.title'),
-            href: adminSettings.url(),
-            icon: Wrench,
-        });
+        mainNavItems.push(
+            {
+                title: t('admin.challenges.title'),
+                href: adminChallenges.url(),
+                icon: Trophy,
+            },
+            {
+                title: t('admin.reviews.title'),
+                href: adminReviews.url(),
+                icon: Image,
+            },
+            {
+                title: t('admin.settings.title'),
+                href: adminSettings.url(),
+                icon: Wrench,
+            },
+        );
     }
 
     return (

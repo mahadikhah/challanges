@@ -45,4 +45,64 @@ return [
         'remove_package' => 'Remove',
     ],
 
+    'reviews' => [
+        'title' => 'Proof review',
+        'description' => 'Photos waiting on a verdict. Approving settles the period and moves the streak; rejecting lets the participant send another until the period closes.',
+
+        'challenge' => 'Challenge',
+        'participant' => 'Participant',
+        'period' => 'Period',
+        'submitted_at' => 'Submitted',
+        'proof' => 'Proof',
+        'view_proof' => 'Open full size',
+        'approve' => 'Approve',
+        'reject' => 'Reject',
+        'empty' => 'Nothing is waiting on a verdict.',
+
+        'approved' => 'Proof approved — the streak moved.',
+        'rejected' => 'Proof rejected — the participant may send another.',
+
+        'refused' => [
+            'already_settled' => 'That period has already closed and been settled.',
+            'not_awaiting_review' => 'That check-in no longer has a photo waiting on a verdict.',
+            'not_the_reviewer' => 'Only the creator of that challenge or an admin can review it.',
+        ],
+    ],
+
+    'challenges' => [
+        'title' => 'Challenges',
+        'description' => 'Every challenge on the platform, newest first.',
+        'search' => 'Search by title…',
+        'filter' => [
+            'all' => 'All statuses',
+        ],
+
+        'challenge' => 'Challenge',
+        'creator' => 'Creator',
+        'participants' => 'Participants',
+        'periods' => 'Periods',
+        'starts_at' => 'Starts',
+        'status' => 'Status',
+        'proof' => 'Proof',
+        'cadence' => 'Cadence',
+        'timezone' => 'Timezone',
+        'visibility' => 'Visibility',
+        'description_label' => 'Description',
+        'default_freezes' => 'Freezes each',
+        'announced_at' => 'Announced',
+        'empty' => 'No challenges match.',
+        'next_page' => 'Older',
+        'view' => 'Open',
+
+        'streak' => 'Streak',
+        'best' => 'Best',
+        'freezes' => 'Freezes used',
+        'joined_at' => 'Joined',
+
+        'cancel' => 'Cancel challenge',
+        'cancel_confirm' => 'Cancel this challenge? Its timeline stops and every active participant is notified. This cannot be undone.',
+        'cancelled' => 'Challenge cancelled — participants are being notified.',
+        'cancel_refused' => 'That challenge can no longer be cancelled.',
+    ],
+
 ];
