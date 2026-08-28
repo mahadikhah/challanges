@@ -61,12 +61,31 @@ return [
 
         'approved' => 'Proof approved — the streak moved.',
         'rejected' => 'Proof rejected — the participant may send another.',
+        'overridden' => 'The decision was overturned — the streak now matches the new verdict.',
         'notify_failed' => 'The verdict was recorded, but the participant could not be told — the bot token is not set or Telegram refused. Send it again from the bot when possible.',
+
+        'ai' => [
+            'approve' => 'AI would approve',
+            'reject' => 'AI would reject',
+            'no_answer' => 'The AI reviewer could not answer',
+            'confidence' => ':confidence% confident',
+            'fell_back' => 'referred to you',
+        ],
+
+        'settled' => [
+            'title' => 'Decided by AI',
+            'description' => 'Verdicts the AI took on its own, newest first. Overturning reverses the settlement first — the streak follows the new verdict, and the participant is told.',
+            'approved' => 'approved',
+            'rejected' => 'rejected',
+            'overturn_approve' => 'Overturn to approved',
+            'overturn_reject' => 'Overturn to rejected',
+        ],
 
         'refused' => [
             'already_settled' => 'That period has already closed and been settled.',
             'not_awaiting_review' => 'That check-in no longer has a photo waiting on a verdict.',
             'not_the_reviewer' => 'Only the creator of that challenge or an admin can review it.',
+            'not_reversible' => 'That decision is not currently in force — there is nothing to overturn.',
         ],
     ],
 

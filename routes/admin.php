@@ -39,6 +39,7 @@ Route::middleware(['auth', EnsureUserIsAdmin::class])->group(function (): void {
     Route::get('/reviews/{checkIn}/proof', [ReviewQueueController::class, 'proof'])->name('reviews.proof');
     Route::post('/reviews/{checkIn}/approve', [ReviewQueueController::class, 'approve'])->name('reviews.approve');
     Route::post('/reviews/{checkIn}/reject', [ReviewQueueController::class, 'reject'])->name('reviews.reject');
+    Route::post('/reviews/{checkIn}/override/{verdict}', [ReviewQueueController::class, 'override'])->name('reviews.override');
 
     Route::get('/users', [UsersController::class, 'index'])->name('users.index');
     Route::get('/users/{user}', [UsersController::class, 'show'])->name('users.show');

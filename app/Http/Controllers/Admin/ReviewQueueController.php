@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\CheckIns\OverrideCheckInVerdict;
 use App\Actions\CheckIns\ReviewCheckIn;
+use App\Enums\AiDecisionOutcome;
 use App\Enums\CheckInStatus;
 use App\Exceptions\CheckInRejectedException;
 use App\Http\Controllers\Controller;
 use App\Models\CheckIn;
 use App\Models\User;
 use App\Services\Telegram\NotifyCheckInVerdict;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -44,22 +47,90 @@ class ReviewQueueController extends Controller
     {
         $queue = CheckIn::query()
             ->where('status', CheckInStatus::Submitted)
-            ->with(['participant.user', 'participant.challenge', 'period'])
+            ->with(['participant.user', 'participant.challenge', 'period', 'aiDecision'])
             ->orderBy('submitted_at')
             ->limit(100)
             ->get()
-            ->map(fn (CheckIn $checkIn): array => [
-                'id' => $checkIn->getKey(),
-                'challenge' => $checkIn->participant->challenge->title,
-                'participant' => $this->participantName($checkIn),
-                'period' => $checkIn->period->index + 1,
-                'total_periods' => $checkIn->participant->challenge->total_periods,
-                'submitted_at' => optional($checkIn->submitted_at)->toIso8601String(),
-                'proof_url' => route('admin.reviews.proof', $checkIn->getKey()),
-            ])
+            ->map(fn (CheckIn $checkIn): array => $this->row($checkIn))
             ->all();
 
-        return Inertia::render('Admin/Reviews', ['reviews' => $queue]);
+        return Inertia::render('Admin/Reviews', [
+            'reviews' => $queue,
+            'settled' => $this->settledByAi(),
+        ]);
+    }
+
+    /**
+     * Decisions the AI took on its own, newest first — the override surface.
+     *
+     * A row leaves this list the moment a human touches it (`reviewed_by` is
+     * set) or the participant resubmits over a rejection (the row returns to
+     * `Submitted` and back to the pending queue above).
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function settledByAi(): array
+    {
+        $rows = CheckIn::query()
+            ->whereIn('status', [CheckInStatus::Approved, CheckInStatus::Rejected])
+            ->whereNull('reviewed_by')
+            ->whereHas('aiDecision', fn (Builder $query): Builder => $query->where(
+                'outcome',
+                AiDecisionOutcome::Applied->value,
+            ))
+            ->with(['participant.user', 'participant.challenge', 'period', 'aiDecision'])
+            ->orderByDesc('updated_at')
+            ->limit(50)
+            ->get()
+            ->map(fn (CheckIn $checkIn): array => $this->row($checkIn))
+            ->all();
+
+        return array_values($rows);
+    }
+
+    /**
+     * One queue card's payload, shared by the pending and AI-settled lists.
+     *
+     * @return array<string, mixed>
+     */
+    private function row(CheckIn $checkIn): array
+    {
+        return [
+            'id' => $checkIn->getKey(),
+            'challenge' => $checkIn->participant->challenge->title,
+            'participant' => $this->participantName($checkIn),
+            'period' => $checkIn->period->index + 1,
+            'total_periods' => $checkIn->participant->challenge->total_periods,
+            'submitted_at' => optional($checkIn->submitted_at)->toIso8601String(),
+            'proof_url' => route('admin.reviews.proof', $checkIn->getKey()),
+            'ai_decision' => $this->aiDecision($checkIn),
+            'status' => $checkIn->status->value,
+        ];
+    }
+
+    /**
+     * The latest AI call on this submission, if any, for the queue card.
+     *
+     * Display data only: the decision and its reason are shown to the admin,
+     * and nothing else in the panel reads them.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function aiDecision(CheckIn $checkIn): ?array
+    {
+        $decision = $checkIn->aiDecision;
+
+        if ($decision === null) {
+            return null;
+        }
+
+        return [
+            'approved' => $decision->approved,
+            'confidence' => $decision->confidence,
+            'reason' => $decision->reason,
+            'model' => $decision->model,
+            'fell_back' => $decision->outcome === AiDecisionOutcome::FellBack,
+        ];
     }
 
     /**
@@ -92,6 +163,53 @@ class ReviewQueueController extends Controller
         NotifyCheckInVerdict $notify,
     ): RedirectResponse {
         return $this->verdict($request, $checkIn, $review, $notify, approved: false);
+    }
+
+    /**
+     * Flip a decision that already took — an AI verdict a human disagrees with.
+     *
+     * Reverses the settlement (restoring the streak arithmetic) and lands the
+     * admin's verdict through the ordinary review path, so the override is
+     * two auditable steps rather than an opaque status rewrite.
+     */
+    public function override(
+        Request $request,
+        CheckIn $checkIn,
+        string $verdict,
+        OverrideCheckInVerdict $override,
+        NotifyCheckInVerdict $notify,
+    ): RedirectResponse {
+        $approved = $verdict === 'approve';
+        $admin = $this->theAdmin($request);
+
+        try {
+            $settled = $override->handle($admin, $checkIn, $approved);
+        } catch (CheckInRejectedException $refused) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => __("admin.reviews.refused.{$refused->reason->value}"),
+            ]);
+
+            return back();
+        }
+
+        try {
+            $approved ? $notify->approved($settled) : $notify->rejected($settled);
+        } catch (TelegramSDKException) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => __('admin.reviews.notify_failed'),
+            ]);
+
+            return back();
+        }
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => __('admin.reviews.overridden'),
+        ]);
+
+        return back();
     }
 
     /**

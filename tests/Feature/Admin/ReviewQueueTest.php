@@ -1,10 +1,12 @@
 <?php
 
 use App\Actions\Challenges\MaterialiseChallengePeriods;
+use App\Enums\AiDecisionOutcome;
 use App\Enums\ChallengeStatus;
 use App\Enums\CheckInStatus;
 use App\Enums\ParticipantStatus;
 use App\Enums\ProofType;
+use App\Models\AiApprovalDecision;
 use App\Models\Challenge;
 use App\Models\ChallengeParticipant;
 use App\Models\ChallengePeriod;
@@ -84,6 +86,8 @@ it('refuses a non-admin on every review route', function (string $method, string
     'list' => ['get', '/admin/reviews'],
     'approve' => ['post', '/admin/reviews/1/approve'],
     'reject' => ['post', '/admin/reviews/1/reject'],
+    'override approve' => ['post', '/admin/reviews/1/override/approve'],
+    'override reject' => ['post', '/admin/reviews/1/override/reject'],
 ]);
 
 it('lists submitted photos with their challenge, participant and proof url', function (): void {
@@ -210,4 +214,88 @@ it('leaves cancelled challenges out of the queue when their photos have already 
 
     expect($challenge->refresh()->status)->toBe(ChallengeStatus::Cancelled)
         ->and(ParticipantStatus::Active)->toBe(ParticipantStatus::Active);
+});
+
+/*
+ * The AI-settled list: what the override surface shows, and what the
+ * override endpoint does.
+ */
+
+/**
+ * A photo the AI has already approved, with the decision row that says so.
+ *
+ * @return array{0: ChallengeParticipant, 1: CheckIn}
+ */
+function anAiApprovedProof(): array
+{
+    [$challenge, $participant, $checkIn] = aQueuedProof();
+
+    $checkIn->update(['status' => CheckInStatus::Approved]);
+    $participant->update(['current_streak' => 1]);
+
+    AiApprovalDecision::query()->create([
+        'check_in_id' => $checkIn->getKey(),
+        'connection' => 'ai_proof_moderation_1',
+        'model' => 'vision-model',
+        'outcome' => AiDecisionOutcome::Applied,
+        'approved' => true,
+        'confidence' => 95.0,
+        'reason' => 'The runner is outdoors, mid-stride.',
+    ]);
+
+    return [$participant, $checkIn];
+}
+
+it('lists AI-settled photos under settled, and drops them once a human overrides', function (): void {
+    Queue::fake();
+    [, $checkIn] = anAiApprovedProof();
+
+    // Settled by a human instead: not the override surface's business.
+    $human = User::factory()->create();
+    $manuallyApproved = CheckIn::factory()->approved()->create(['reviewed_by' => $human->getKey()]);
+
+    $this->actingAs(anAdminPanelReviewer())->get('/admin/reviews')->assertOk()->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->has('settled', 1)
+            ->where('settled.0.id', $checkIn->getKey())
+            ->where('settled.0.status', CheckInStatus::Approved->value)
+            ->where('settled.0.ai_decision.approved', true)
+            ->where('settled.0.ai_decision.confidence', 95)
+    );
+
+    expect($manuallyApproved->getKey())->toBeInt();
+});
+
+it('overturns an AI-approved photo to rejected over the override endpoint', function (): void {
+    Queue::fake();
+    [$participant, $checkIn] = anAiApprovedProof();
+
+    $this->actingAs(anAdminPanelReviewer())
+        ->from('/admin/reviews')
+        ->post("/admin/reviews/{$checkIn->getKey()}/override/reject")
+        ->assertRedirect('/admin/reviews');
+
+    // The settlement was reversed and the human's verdict landed in its
+    // place: streak back to zero, and this time a reviewer is named.
+    expect($checkIn->refresh()->status)->toBe(CheckInStatus::Rejected)
+        ->and($checkIn->reviewed_by)->not->toBeNull()
+        ->and($participant->refresh()->current_streak)->toBe(0);
+
+    Http::assertSent(fn ($request): bool => str_contains($request->url(), 'sendMessage'));
+});
+
+it('answers an override of a row that is not settled with a toast, not a 500', function (): void {
+    Queue::fake();
+    [, , $checkIn] = aQueuedProof(); // still Submitted — nothing to overturn
+
+    $this->actingAs(anAdminPanelReviewer())
+        ->from('/admin/reviews')
+        ->post("/admin/reviews/{$checkIn->getKey()}/override/approve")
+        ->assertRedirect('/admin/reviews')
+        ->assertSessionHas(SessionKey::FLASH_DATA, [
+            'toast' => [
+                'type' => 'error',
+                'message' => __('admin.reviews.refused.not_reversible'),
+            ],
+        ]);
 });

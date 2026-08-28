@@ -127,4 +127,13 @@ class CheckInRejectedException extends RuntimeException
             "Check-in {$checkIn->id} is {$checkIn->status->value} and is not awaiting review.",
         );
     }
+
+    public static function notReversible(CheckIn $checkIn): self
+    {
+        return new self(
+            CheckInRejection::NotReversible,
+            $checkIn,
+            "Check-in {$checkIn->id} is {$checkIn->status->value} and cannot be reversed.",
+        );
+    }
 }

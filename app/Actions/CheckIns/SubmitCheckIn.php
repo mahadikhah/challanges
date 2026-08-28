@@ -2,6 +2,7 @@
 
 namespace App\Actions\CheckIns;
 
+use App\Actions\Ai\ApplyAiVerdict;
 use App\Enums\CheckInStatus;
 use App\Enums\ProofType;
 use App\Exceptions\CheckInRejectedException;
@@ -46,6 +47,7 @@ class SubmitCheckIn
         private readonly OpenCheckIn $open,
         private readonly IssueCheckInPhrase $phrases,
         private readonly SettleCheckIn $settle,
+        private readonly ApplyAiVerdict $aiVerdict,
     ) {}
 
     /**
@@ -132,7 +134,14 @@ class SubmitCheckIn
             'reviewed_at' => null,
         ]);
 
-        return $checkIn;
+        // An `approval_mode = ai` challenge reviews itself here: the router
+        // asks the model and either settles through the ordinary path or
+        // leaves the row in this same `Submitted` state for the manual
+        // queue. Called after the write so the photo is stored before anyone
+        // — model or human — is asked to look at it.
+        $this->aiVerdict->handle($checkIn);
+
+        return $checkIn->refresh();
     }
 
     /**

@@ -18,6 +18,11 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
+    // SubmitCheckIn carries the AI-verdict router, which holds the bot
+    // messenger. Manual-mode flows never send, but the client binding still
+    // needs a token to exist for the action to resolve.
+    config(['services.telegram.bot_token' => '123456:TEST-TOKEN']);
+
     $this->submit = app(SubmitCheckIn::class);
 });
 

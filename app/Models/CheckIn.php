@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * One participant's obligation for one period, and how it turned out.
@@ -35,6 +36,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read ChallengeParticipant $participant
  * @property-read ChallengePeriod $period
  * @property-read User|null $reviewer
+ * @property-read AiApprovalDecision|null $aiDecision
  */
 #[Fillable([
     'challenge_participant_id',
@@ -74,6 +76,19 @@ class CheckIn extends Model
     public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    /**
+     * The most recent AI moderation call on this submission, if any.
+     *
+     * OfMany picks the latest row, so a resubmission after a fallback or a
+     * rejection shows the call that currently matters, not the first one.
+     *
+     * @return HasOne<AiApprovalDecision, $this>
+     */
+    public function aiDecision(): HasOne
+    {
+        return $this->hasOne(AiApprovalDecision::class)->latestOfMany();
     }
 
     /**

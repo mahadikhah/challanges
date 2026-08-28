@@ -84,4 +84,11 @@ enum CheckInRejection: string
      * has already been decided.
      */
     case NotAwaitingReview = 'not_awaiting_review';
+
+    /**
+     * The settlement cannot be undone: the row was never settled, or it has
+     * already been reversed. An override can only flip a decision that is
+     * currently in force.
+     */
+    case NotReversible = 'not_reversible';
 }

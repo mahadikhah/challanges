@@ -3,6 +3,8 @@
 namespace App\Services\Ai;
 
 use Laravel\Ai\AnonymousAgent;
+use Laravel\Ai\Files\StoredImage;
+use Laravel\Ai\StructuredAnonymousAgent;
 
 /**
  * The `laravel/ai` implementation of the client seam.
@@ -23,13 +25,31 @@ class LaravelAiTextClient implements AiTextClient
     {
         $startedAt = hrtime(true);
 
-        $response = (new AnonymousAgent(
-            instructions: (string) ($options['system'] ?? ''),
-            messages: [],
-            tools: [],
-        ))->prompt(
+        $attachments = (array) ($options['attachments'] ?? []);
+
+        if (isset($options['image'])) {
+            $attachments[] = new StoredImage(
+                (string) $options['image']['path'],
+                $options['image']['disk'] ?? null,
+            );
+        }
+
+        $agent = isset($options['schema'])
+            ? new StructuredAnonymousAgent(
+                instructions: (string) ($options['system'] ?? ''),
+                messages: [],
+                tools: [],
+                schema: $options['schema'],
+            )
+            : new AnonymousAgent(
+                instructions: (string) ($options['system'] ?? ''),
+                messages: [],
+                tools: [],
+            );
+
+        $response = $agent->prompt(
             $prompt,
-            attachments: (array) ($options['attachments'] ?? []),
+            attachments: $attachments,
             provider: $connection,
             model: $model,
             timeout: isset($options['timeout']) ? (int) $options['timeout'] : null,
@@ -41,6 +61,23 @@ class LaravelAiTextClient implements AiTextClient
             model: $response->meta->model ?? $model,
             response: $response,
             durationMs: (int) round((hrtime(true) - $startedAt) / 1e6),
+            structured: $this->structuredPayload($response),
         );
+    }
+
+    /**
+     * The validated structured output, when the caller forced one.
+     *
+     * The agent response class is shared across the plain and structured
+     * paths, and `structured` is a typed property only the latter fills — so
+     * it is read defensively rather than assumed.
+     *
+     * @return array<string, mixed>
+     */
+    private function structuredPayload(mixed $response): array
+    {
+        $structured = $response->structured ?? null;
+
+        return is_array($structured) ? $structured : [];
     }
 }

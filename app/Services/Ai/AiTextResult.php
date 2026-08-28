@@ -11,6 +11,9 @@ namespace App\Services\Ai;
  */
 final readonly class AiTextResult
 {
+    /**
+     * @param  array<string, mixed>  $structured  the validated structured output when the prompt forced one, empty otherwise
+     */
     public function __construct(
         public string $text,
         public string $connection,
@@ -18,6 +21,7 @@ final readonly class AiTextResult
         /** The SDK response object, for the usage adapters to read. */
         public mixed $response,
         public int $durationMs = 0,
+        public readonly array $structured = [],
     ) {}
 
     public function responseConnection(): string
