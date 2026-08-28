@@ -55,7 +55,7 @@ Status key: ✅ done · 🔄 in progress · ⬜ not started
 ## Phase 5 — Mini App
 - ✅ `POST /api/v1/miniapp/auth` (initData → Sanctum token) + minimal `/me`
 - ✅ `/api/v1/miniapp/*` surface (challenges list + per-challenge status JSON)
-- ⬜ Gameish React SPA (details, status, freezes, progress; themeParams/BackButton/MainButton)
+- ✅ Gameish React SPA (details, status, freezes, progress; themeParams/BackButton/MainButton)
 
 ## Phase 6 — Admin panel
 - ⬜ Settings/economy tuning, challenge moderation, image-proof review, user/coin adjustments, audit views
@@ -2157,3 +2157,61 @@ the SPA has to stitch. +10 tests in
 `resources/js/miniapp/` consuming this surface through a typed API client,
 wiring Telegram `themeParams`/`BackButton`/`MainButton`, and settling where
 the channel gate lives in the Mini App UX.
+
+### Mini App Task 3 — the React SPA and its one-tap check-in ✅
+
+The Mini App is real: `resources/js/miniapp/` is now the gameish dashboard
+(boot → list ↔ detail), and `POST /api/v1/miniapp/challenges/{id}/check-in`
+is the one endpoint it can act through. +10 tests
+(`tests/Feature/MiniApp/MiniAppCheckInTest.php`, +2 in
+`tests/Feature/LocalizationTest.php`); the SPA itself has no JS test
+framework (per CLAUDE.md, none is being introduced), so the PHP side tests
+everything the SPA depends on: the check-in wiring, the gate, the refusal
+reasons, and that the `miniapp` catalogue actually ships to the client.
+
+**Decisions:**
+- *One write endpoint, one proof type.* `button` challenges check in from the
+  Mini App via `SubmitCheckIn::tap` — the same action the bot calls, which is
+  the CLAUDE.md architecture proving itself. Phrase and photo proofs keep
+  their bot path for now; recorded as follow-ups.
+- *The channel gate lives at the write endpoint, not at auth.* Answering the
+  open question from Task 1: authenticating is not privileged, submitting
+  proof is. A stale gate is re-verified against Telegram; a blocked user gets
+  a 403 with the join link (or an honest "there is no link" for a numeric
+  channel id).
+- *Refusals are machine-readable; the sentence is the SPA's.* The endpoint
+  returns `{reason}` and 422/403; the SPA translates from its own catalogue.
+  A reason with no sentence degrades to the generic one, never a raw key.
+- *The token lives in memory only* — module-private in `api.ts`, one fetch
+  wrapper, no interceptors. Each app open re-exchanges initData, which is the
+  server's designed per-exchange minting.
+- *No `@telegram-apps/sdk` dependency*: the used slice of the platform script
+  is typed locally in `telegram.ts` (with `null` for "opened in a plain
+  browser", which every caller must degrade for). Adding a client library for
+  six calls is not worth a dependency on a mobile network.
+- *Own stylesheet, not the admin's `app.css`*: the Mini App's colours come
+  from `themeParams` (mapped onto `--tg-*` CSS vars by `theme.ts`, with
+  Telegram's light defaults as the in-CSS fallback), which the admin bundle's
+  dark/light cookie system can never serve. Tailwind sources are pinned to
+  the miniapp directory so each bundle carries only its own classes.
+- *MainButton shows only while it can work* — period owed *and* proof is a
+  tap; other proof types get a "check in via the bot" hint instead of a
+  button that could not succeed. BackButton (version-gated ≥ 6.1) leaves a
+  detail for the list.
+- *Detail receives the whole `ChallengeView`, never an id* — no refetch on
+  first paint, and the check-in response replaces the whole state.
+- *Deep-link `start_param` is ignored* for now: resolving a join code needs a
+  join endpoint the API does not have. Follow-up.
+
+**Follow-ups added:** Mini App phrase check-in (needs `expected_phrase`
+exposed to the participant's own view), photo upload (needs a file surface),
+deep-link start_param → join flow, Jalali dates for `fa` (existing).
+
+**Result — `sail composer ci:check` GREEN:** eslint ✓, prettier ✓, `tsc
+--noEmit` ✓, pint ✓, phpstan lvl 7 (0 errors) ✓, tests **1079 (1075 pass,
+4 skipped)**, 2988 assertions; `vite build` compiles both entries.
+
+**Next:** Phase 6 — the admin panel (Inertia + React + TS): settings/economy
+tuning, challenge moderation, image-proof review queue, user and coin
+adjustments, invite/payment audit views, and the refund surface calling
+`RefundStarsPayment`.
