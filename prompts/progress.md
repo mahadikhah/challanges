@@ -49,8 +49,8 @@ Status key: ✅ done · 🔄 in progress · ⬜ not started
   **Bot core complete**
 
 ## Phase 4 — Stars payments
-- ⬜ `createInvoiceLink` (XTR, empty provider_token) → pre_checkout → successful_payment → credit
-- ⬜ Refund path (`refundStarPayment`)
+- ✅ `createInvoiceLink` (XTR, empty provider_token) → pre_checkout → successful_payment → credit
+- ✅ Refund path (`refundStarPayment`) — **Phase 4 complete**
 
 ## Phase 5 — Mini App
 - ⬜ `POST /api/v1/miniapp/auth` (initData → Sanctum token)
@@ -1970,3 +1970,81 @@ the real `ProcessTelegramUpdate` with `Http::fake()`d Bot API. Graph: 2716 nodes
 empty `provider_token`, the `pre_checkout_query` answered promptly, and the
 `successful_payment` credit keyed on `telegram_payment_charge_id` through
 `CoinLedger` — the third §6 idempotency verification.
+
+### Payments Task 1 — Stars purchase and refund ✅
+Both Phase-4 checklist items landed together: the purchase flow and the refund
+path share the same row and the same ledger, so splitting them would have left
+the refund action tested only against hand-built state.
+
+**The flow.** `/shop` (gated) lists the admin-tuned `StarsPackages` setting,
+one button row per package carrying a *package index* — never a price.
+`CreateStarsInvoice` reads the setting itself at tap time, writes the Pending
+`StarPayment` row *before* calling `createInvoiceLink` (XTR, empty-string
+`provider_token`, one price line, title/description resolved in the payer's
+locale), and replies with the link as a URL button. `pre_checkout_query`
+(own update kind, own handler) is answered against the row's own `stars_amount`
+— a decline mutates nothing, because a stale or malformed query is not a
+judgement on the invoice. `successful_payment` rides inside a `message` with no
+text, so `MessageHandler` intercepts it after user resolution and before command
+parsing; `CompleteStarsPayment` validates amounts against the row (we priced it,
+not the client), flips Pending→Paid and credits through `CoinLedger` in one
+transaction. `RefundStarsPayment` is Telegram-first: the raw
+`refundStarPayment` post, then Refunded, then the clawback debit — a Telegram
+refusal leaves the row Paid and the whole refund retryable.
+
+**Decisions:**
+- *Three layers of charge-id idempotency* (documented on `CompleteStarsPayment`):
+  the row found by `invoice_payload` **scoped to the user** under `lockForUpdate`
+  (a learned payload cannot credit the wrong payer), the status transition +
+  credit in one transaction, and the unique charge-id index + ledger key
+  `star_payment:credit:<charge_id>`. The refund key is deliberately distinct
+  (`star_payment:refund:<charge_id>`), so a refund and a replay of the credit
+  can never collide.
+- *Prices are read server-side at invoice time.* The button carries an index;
+  the action re-reads the setting, so a stale keyboard cannot buy at a stale
+  price — and an admin reprice between list and tap is honoured, tested.
+- *Refunds may overdraw.* `StarsRefund.allowsOverdraft()` is true by design: a
+  user who bought, spent, and was refunded has had both goods and money; a
+  negative balance is the ledger saying so until cleared.
+- *Invoice copy belongs to the action.* `createInvoiceLink`'s title/description
+  (what Telegram itself shows in the payment sheet) resolve from `bot.shop.*`
+  in the payer's locale inside `CreateStarsInvoice`, so every surface that ever
+  sells coins words the sheet identically. The title is Telegram-capped at 32
+  chars, so it stays terse.
+- *No wrapper for `refundStarPayment` in SDK 3.16* — it travels as a raw
+  `$api->post('refundStarPayment', [...])` over the same fakeable
+  `LaravelHttpClient` transport, so tests still see it on the wire.
+- *Abandoned Pending rows are not swept yet* (noted on `StarPaymentStatus`);
+  they are carts, and a sweep-to-Failed command is an admin-phase nicety.
+
+**§6 verification — now automated.** Three deliveries of the same
+`successful_payment` (fresh `update_id`s each time, so the webhook's own
+dedup never sees the second or third) carrying one `telegram_payment_charge_id`
+→ exactly one `CoinTransaction`, balance 110, drift 0. Remaining §6 items:
+the live-token webhook replay (manual, needs a real bot) and the Mini App
+initData rejections (Phase 5).
+
+**Traps met.** `Http::recorded()`'s callback filter *preserves original keys* —
+a `createInvoiceLink` that is not the first recorded request is not at offset 0,
+hence `->values()` before indexing (the shared `botMessages()` helper has always
+done this; the new local helpers had to learn it too). `Http::fake()` registers
+per test, not per `beforeEach`: the gate-blocked test registers its own
+`getChatMember → left` stub as the first matching pattern, which is the only
+order that wins. The bot's `/shop` listing is `paragraphs()` — prompt plus one
+blank-line-separated line per package — so the assertion is `toContain` on the
+prompt, not `toBe` on the whole message.
+
+**Result — `sail composer ci:check` GREEN:** eslint ✓, prettier ✓, `tsc --noEmit`
+✓, pint ✓, phpstan lvl 7 (0 errors) ✓, tests **1038 (1034 pass, 4 skipped =
+Fortify 2FA disabled)**, 2847 assertions, +26 on the suite across
+`tests/Feature/Payments/StarsPurchaseTest.php` (18) and
+`tests/Feature/Payments/RefundStarsPaymentTest.php` (8) — all driven through the
+real `ProcessTelegramUpdate`/actions with `Http::fake()`d Bot API, never a real
+Telegram endpoint. Graph: 2760 nodes / 5339 edges / 251 communities.
+
+**Next:** Phase 5 — Mini App. `POST /api/v1/miniapp/auth` verifying
+`Telegram.WebApp.initData` (HMAC-SHA256 with the token-as-message/"WebAppData"-
+as-key argument order, `hash_equals`, `auth_date` window) and issuing a
+short-lived Sanctum bearer token, then the `/api/v1/miniapp/*` surface and the
+React SPA behind it — including the §6 tampered-hash and stale-`auth_date`
+rejection tests.
