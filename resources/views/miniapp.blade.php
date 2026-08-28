@@ -14,6 +14,10 @@
              are embedded here — same payload shape the Inertia surfaces share. --}}
         <script id="localization" type="application/json">@json($localization)</script>
 
+        {{-- The @font-face rules (Instrument Sans, Vazirmatn) — the same fonts
+             the Inertia shell loads, so Farsi reads identically inside Telegram. --}}
+        @fonts
+
         @viteReactRefresh
         @vite('resources/js/miniapp/main.tsx')
     </head>

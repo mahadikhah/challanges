@@ -33,6 +33,8 @@ body {
     background-color: var(--tg-bg);
     color: var(--tg-text);
     font-family:
+        'Instrument Sans',
+        'Vazirmatn',
         ui-sans-serif,
         system-ui,
         -apple-system,
@@ -40,4 +42,18 @@ body {
         Roboto,
         sans-serif;
     -webkit-tap-highlight-color: transparent;
+}
+
+/* Farsi reads in Vazirmatn, Latin keeps Instrument Sans — mirrored from the
+   Inertia shell's app.css so both surfaces render Farsi identically. */
+:lang(fa) {
+    font-family:
+        'Vazirmatn',
+        'Instrument Sans',
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        'Segoe UI',
+        Roboto,
+        sans-serif;
 }
