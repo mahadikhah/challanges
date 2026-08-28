@@ -86,7 +86,7 @@ it('returns the stars and claws the coins back', function () {
         // The wire: Telegram gets the payer's id and the charge of its own
         // money back — nothing else identifies a refund.
         ->and(theRefundRequest())->toBe([
-            'user_id' => (string) $payment->user->telegram_id,
+            'user_id' => (string) $payment->user->platform_user_id,
             'telegram_payment_charge_id' => 'charge-refund',
         ])
 

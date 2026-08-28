@@ -5,10 +5,10 @@ namespace App\Actions\Telegram;
 use App\Enums\ChatMemberStatus;
 use App\Enums\SettingKey;
 use App\Exceptions\ChannelGateException;
+use App\Messaging\Contracts\MessengerException;
+use App\Messaging\Contracts\MessengerPlatform;
 use App\Models\User;
 use App\Services\Settings;
-use Telegram\Bot\Api;
-use Telegram\Bot\Exceptions\TelegramSDKException;
 
 /**
  * The access gate: is this user in the announcement channel?
@@ -39,7 +39,7 @@ use Telegram\Bot\Exceptions\TelegramSDKException;
 class VerifyChannelMembership
 {
     public function __construct(
-        private readonly Api $telegram,
+        private readonly MessengerPlatform $platform,
         private readonly Settings $settings,
     ) {}
 
@@ -47,28 +47,24 @@ class VerifyChannelMembership
      * Ask Telegram now, record the answer, and return it.
      *
      * @throws ChannelGateException when no channel is configured, or the user has
-     *                              no Telegram identity to look up
-     * @throws TelegramSDKException when Telegram cannot be asked, or refuses
+     *                              no messenger identity to look up
+     * @throws MessengerException when the platform cannot be asked, or refuses
      */
     public function handle(User $user): bool
     {
         $channel = $this->channel();
-        $telegramId = $user->telegram_id;
+        $platformUserId = $user->platform_user_id;
 
-        if ($telegramId === null) {
+        if ($platformUserId === null) {
             throw ChannelGateException::notATelegramUser($user);
         }
 
-        $member = $this->telegram->getChatMember([
-            'chat_id' => $channel,
-            'user_id' => $telegramId,
-        ]);
+        // The snapshot keeps the platform's own status token, judged by the
+        // enum; absent booleans stay `null` rather than becoming false.
+        $member = $this->platform->getChatMember($channel, $platformUserId);
 
-        // Read through the collection rather than the SDK's magic `__get`, which
-        // returns mixed and snake-cases behind the scenes; the shape Telegram
-        // documents is `status` plus, for a restriction, `is_member`.
-        $isMember = ChatMemberStatus::fromTelegram($member->get('status'))
-            ->grantsAccess($this->flag($member->get('is_member')));
+        $isMember = ChatMemberStatus::fromTelegram($member->status)
+            ->grantsAccess($member->isMember);
 
         // Not fillable on the model — this is privilege state, and mass
         // assignment must never be able to reach it from a request payload.
@@ -84,7 +80,7 @@ class VerifyChannelMembership
      * the cache off and makes this identical to `handle()`.
      *
      * @throws ChannelGateException
-     * @throws TelegramSDKException
+     * @throws MessengerException
      */
     public function ensure(User $user): bool
     {
@@ -142,13 +138,5 @@ class VerifyChannelMembership
     private function freshnessMinutes(): int
     {
         return max(0, $this->settings->integer(SettingKey::ChannelVerificationTtlMinutes));
-    }
-
-    /**
-     * Telegram's optional booleans arrive as absent, not as false.
-     */
-    private function flag(mixed $value): ?bool
-    {
-        return is_bool($value) ? $value : null;
     }
 }

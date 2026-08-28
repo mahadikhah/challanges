@@ -14,7 +14,7 @@ import { index } from '@/routes/admin/users';
 type UserRow = {
     id: number;
     name: string;
-    telegram_id: number | null;
+    platform_user_id: number | null;
     telegram_username: string | null;
     is_admin: boolean;
     balance: number;
@@ -84,7 +84,7 @@ export default function Users({
                                             {t('admin.users.user')}
                                         </th>
                                         <th className="px-3 py-2 text-start font-medium">
-                                            {t('admin.users.telegram_id')}
+                                            {t('admin.users.platform_user_id')}
                                         </th>
                                         <th className="px-3 py-2 text-start font-medium">
                                             {t('admin.users.username')}
@@ -123,7 +123,7 @@ export default function Users({
                                                 dir="ltr"
                                                 className="px-3 py-2 text-muted-foreground"
                                             >
-                                                {user.telegram_id ?? '—'}
+                                                {user.platform_user_id ?? '—'}
                                             </td>
 
                                             <td

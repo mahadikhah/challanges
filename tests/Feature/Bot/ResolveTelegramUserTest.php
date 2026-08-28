@@ -41,7 +41,7 @@ describe('a first arrival', function () {
             'language_code' => 'fa-IR',
         ]);
 
-        expect($user->telegram_id)->toBe(777_000_1)
+        expect($user->platform_user_id)->toBe(777_000_1)
             ->and($user->first_name)->toBe('Sara')
             ->and($user->name)->toBe('Sara Karimi')
             ->and($user->telegram_username)->toBe('sara_k')

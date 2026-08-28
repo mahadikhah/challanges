@@ -131,7 +131,7 @@ return [
         'search' => 'Search by name, username or Telegram id…',
 
         'user' => 'User',
-        'telegram_id' => 'Telegram id',
+        'platform_user_id' => 'Messenger id',
         'username' => 'Username',
         'balance' => 'Balance',
         'coins' => 'coins',

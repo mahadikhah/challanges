@@ -33,7 +33,7 @@ function aTelegramMember(int $coins = 0, ?int $telegramId = null, ?string $usern
     $user = User::factory()->telegram()->create([
         'first_name' => 'Sahar',
         'telegram_username' => $username ?? fake()->unique()->userName(),
-        'telegram_id' => $telegramId ?? fake()->unique()->randomNumber(9, true),
+        'platform_user_id' => $telegramId ?? fake()->unique()->randomNumber(9, true),
     ]);
 
     if ($coins > 0) {
@@ -70,7 +70,7 @@ it('lists users newest first with their ledger balance', function (): void {
             ->where('users.1.id', $newer->getKey())
             ->where('users.1.name', 'Sahar')
             ->where('users.1.balance', 70)
-            ->where('users.1.telegram_id', $newer->telegram_id)
+            ->where('users.1.platform_user_id', $newer->platform_user_id)
             ->where('users.1.telegram_username', $newer->telegram_username)
             ->where('users.1.is_admin', false)
             ->where('users.2.id', $older->getKey())
@@ -105,7 +105,7 @@ it('shows one user with their balance, drift, and statement', function (): void 
             fn (AssertableInertia $page) => $page
                 ->component('Admin/Users/Show')
                 ->where('user.name', 'Sahar')
-                ->where('user.telegram_id', 555000111)
+                ->where('user.platform_user_id', 555000111)
                 ->where('balance', 150)
                 ->where('drift', 0)
                 ->has('transactions', 2)

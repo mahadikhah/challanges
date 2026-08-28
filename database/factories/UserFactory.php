@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\MessagingPlatform;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -69,7 +70,8 @@ class UserFactory extends Factory
             $firstName = fake()->firstName();
 
             return [
-                'telegram_id' => $telegramId ?? fake()->unique()->numberBetween(100_000_000, 9_999_999_999),
+                'platform' => MessagingPlatform::Telegram,
+                'platform_user_id' => $telegramId ?? fake()->unique()->numberBetween(100_000_000, 9_999_999_999),
                 'telegram_username' => fake()->unique()->userName(),
                 'name' => $firstName,
                 'first_name' => $firstName,

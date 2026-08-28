@@ -2,6 +2,7 @@
 
 namespace App\Actions\Telegram;
 
+use App\Enums\MessagingPlatform;
 use App\Models\User;
 use App\Services\Localization;
 use InvalidArgumentException;
@@ -57,7 +58,7 @@ class ResolveTelegramUser
         $profile = $this->profile($from, $telegramId);
 
         $user = User::query()->firstOrCreate(
-            ['telegram_id' => $telegramId],
+            ['platform' => MessagingPlatform::Telegram, 'platform_user_id' => $telegramId],
             [...$profile, 'locale' => $this->localization->best($profile['language_code'])],
         );
 

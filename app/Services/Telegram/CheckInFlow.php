@@ -413,7 +413,7 @@ class CheckInFlow
     {
         $creator = $challenge->creator;
 
-        if ($creator->telegram_id === null) {
+        if ($creator->platform_user_id === null) {
             // An email-only admin created this (an import, say). BotMessenger
             // cannot reach them and must not try — the queue is already on the
             // photo, so this is a log line rather than a lost review.

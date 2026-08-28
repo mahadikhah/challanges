@@ -150,7 +150,7 @@ it('never mints a reminder for a period a late joiner did not owe', function () 
     $this->travelTo($start->subHour());
     Artisan::call('challenges:reminders');
 
-    $latecomer = User::query()->where('telegram_id', 900_100_3)->sole();
+    $latecomer = User::query()->where('platform_user_id', 900_100_3)->sole();
 
     expect(ReminderDispatch::query()
         ->whereHas('participant', fn ($query) => $query->where('user_id', $latecomer->getKey()))

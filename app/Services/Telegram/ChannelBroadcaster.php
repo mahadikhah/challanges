@@ -3,13 +3,13 @@
 namespace App\Services\Telegram;
 
 use App\Actions\Telegram\VerifyChannelMembership;
+use App\Messaging\Contracts\MessengerException;
+use App\Messaging\Contracts\MessengerPlatform;
 use App\Models\Challenge;
 use App\Services\Localization;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Log;
-use Telegram\Bot\Api;
-use Telegram\Bot\Exceptions\TelegramSDKException;
 use Throwable;
 
 /**
@@ -24,7 +24,7 @@ use Throwable;
 class ChannelBroadcaster
 {
     public function __construct(
-        private readonly Api $telegram,
+        private readonly MessengerPlatform $platform,
         private readonly VerifyChannelMembership $gate,
         private readonly Localization $localization,
     ) {}
@@ -41,7 +41,7 @@ class ChannelBroadcaster
      *
      * @return bool whether this call is the one that posted
      *
-     * @throws TelegramSDKException when Telegram refuses the post
+     * @throws MessengerException when the platform refuses the post
      */
     public function announce(Challenge $challenge): bool
     {
@@ -64,9 +64,9 @@ class ChannelBroadcaster
         }
 
         try {
-            $this->telegram->sendMessage([
-                'chat_id' => $this->gate->channel(),
-                'text' => $this->post($challenge),
+            $this->platform->sendMessage(
+                $this->gate->channel(),
+                $this->post($challenge),
 
                 // The button is a URL deep link, deliberately, and not
                 // `callback_data`. A bot cannot open a conversation with a user
@@ -75,14 +75,11 @@ class ChannelBroadcaster
                 // the link has to carry them into the bot first. `?start=` then
                 // delivers the join token to `/start`, which knows what to do
                 // with it.
-                'reply_markup' => json_encode(
-                    ['inline_keyboard' => [[[
-                        'text' => $this->line('bot.announce.join_button', [], $this->localization->fallback()),
-                        'url' => $challenge->joinLink(),
-                    ]]]],
-                    JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE,
-                ),
-            ]);
+                [[[
+                    'text' => $this->line('bot.announce.join_button', [], $this->localization->fallback()),
+                    'url' => $challenge->joinLink(),
+                ]]],
+            );
         } catch (Throwable $failure) {
             // Release, so the retry is not silently swallowed by our own claim.
             // Guarded by `announced_at` still holding *our* timestamp: if another

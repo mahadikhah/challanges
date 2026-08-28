@@ -5,6 +5,9 @@ namespace App\Services\Telegram;
 use App\Actions\Challenges\VerifyChallengeChat;
 use App\Enums\ChatLinkVerification;
 use App\Enums\SettingKey;
+use App\Messaging\Contracts\MessengerException;
+use App\Messaging\Contracts\MessengerPlatform;
+use App\Messaging\DTO\SentMessage;
 use App\Models\ChallengeChat;
 use App\Services\Localization;
 use App\Services\Settings;
@@ -12,9 +15,6 @@ use Closure;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Storage;
-use Telegram\Bot\Api;
-use Telegram\Bot\Exceptions\TelegramSDKException;
-use Telegram\Bot\FileUpload\InputFile;
 
 /**
  * Talks to a linked chat rather than to one user.
@@ -35,7 +35,7 @@ use Telegram\Bot\FileUpload\InputFile;
 class ChatBroadcaster
 {
     public function __construct(
-        private readonly Api $telegram,
+        private readonly MessengerPlatform $platform,
         private readonly VerifyChallengeChat $verifier,
         private readonly Localization $localization,
         private readonly Settings $settings,
@@ -74,11 +74,10 @@ class ChatBroadcaster
      */
     public function sendLines(ChallengeChat $chat, array $lines): bool
     {
-        return $this->deliver($chat, fn (): array => [
-            'method' => 'sendMessage',
-            'chat_id' => $chat->telegram_chat_id,
-            'text' => $this->text($lines),
-        ]);
+        return $this->deliver(
+            $chat,
+            fn (): SentMessage => $this->platform->sendMessage($chat->telegram_chat_id, $this->text($lines)),
+        );
     }
 
     /**
@@ -99,15 +98,14 @@ class ChatBroadcaster
             return $this->sendLines($chat, $lines);
         }
 
-        return $this->deliver($chat, fn (): array => [
-            'method' => 'sendPhoto',
-            'chat_id' => $chat->telegram_chat_id,
+        return $this->deliver($chat, fn (): SentMessage => $this->platform->sendPhoto(
+            $chat->telegram_chat_id,
             // From contents rather than a path: the proof bytes are on our
-            // disk, not at a URL Telegram can fetch, and the SDK's
-            // path-flavoured factory would look for a file named after them.
-            'photo' => InputFile::createFromContents($bytes, 'proof.jpg'),
-            'caption' => $this->text($lines),
-        ]);
+            // disk, not at a URL the platform can fetch.
+            $bytes,
+            'proof.jpg',
+            [$this->text($lines)],
+        ));
     }
 
     /**
@@ -134,18 +132,18 @@ class ChatBroadcaster
     }
 
     /**
-     * Ask Telegram to send, gated on the chat still being ours to post to.
+     * Ask the platform to send, gated on the chat still being ours to post to.
      *
      * A verdict of no from the lazy re-check is a quiet skip — the row is
      * deactivated and the creator told by `VerifyChallengeChat` itself, which
      * is the "notify once, don't retry-loop" contract. A verdict we could not
      * *obtain* propagates, so the job retries and asks again properly.
      *
-     * @param  Closure(): array<string, mixed>  $params
+     * @param  Closure(): SentMessage  $send
      *
-     * @throws TelegramSDKException when Telegram cannot be asked or refuses
+     * @throws MessengerException when the platform cannot be asked or refuses
      */
-    private function deliver(ChallengeChat $chat, Closure $params): bool
+    private function deliver(ChallengeChat $chat, Closure $send): bool
     {
         $outcome = $this->verifier->ensureFresh(
             $chat,
@@ -156,12 +154,7 @@ class ChatBroadcaster
             return false;
         }
 
-        $payload = $params();
-
-        $method = (string) $payload['method'];
-        unset($payload['method']);
-
-        $this->telegram->{$method}($payload);
+        $send();
 
         return true;
     }

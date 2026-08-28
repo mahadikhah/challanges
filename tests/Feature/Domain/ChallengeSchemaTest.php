@@ -22,7 +22,7 @@ describe('users carry a Telegram identity', function () {
         // Telegram ids passed 2^32 years ago; a plain integer column would wrap.
         $user = User::factory()->telegram(7_123_456_789)->create();
 
-        expect($user->fresh()?->telegram_id)->toBe(7_123_456_789);
+        expect($user->fresh()?->platform_user_id)->toBe(7_123_456_789);
     });
 
     it('lets a bot user exist with no credentials at all', function () {

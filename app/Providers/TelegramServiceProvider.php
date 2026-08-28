@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Messaging\Contracts\MessengerPlatform as MessengerPlatformContract;
+use App\Messaging\Telegram\TelegramMessengerPlatform;
 use App\Services\Telegram\CallbackRouter;
 use App\Services\Telegram\Callbacks\CheckInCallback;
 use App\Services\Telegram\Callbacks\JoinCallback;
@@ -132,6 +134,11 @@ class TelegramServiceProvider extends ServiceProvider
                 httpClientHandler: $this->app->make(LaravelHttpClient::class),
             );
         });
+
+        $this->app->singleton(
+            MessengerPlatformContract::class,
+            TelegramMessengerPlatform::class,
+        );
 
         $this->app->singleton(
             UpdateRouter::class,

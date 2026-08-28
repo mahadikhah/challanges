@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\MessagingPlatform;
 use Carbon\CarbonImmutable;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Translation\HasLocalePreference;
@@ -22,12 +23,14 @@ use Laravel\Sanctum\HasApiTokens;
 /**
  * There are two disjoint kinds of user in this one table, and the difference
  * matters everywhere: an **admin** signs in with email + password through
- * Fortify and may have no Telegram account, while a **bot user** is identified
- * only by `telegram_id` and has no credentials at all. Never treat one auth path
+ * Fortify and may have no messenger account, while a **bot user** is identified
+ * only by their `platform` + `platform_user_id` pair and has no credentials at
+ * all. Never treat one auth path
  * as a fallback for the other.
  *
  * @property int $id
- * @property int|null $telegram_id
+ * @property MessagingPlatform|null $platform
+ * @property int|null $platform_user_id
  * @property string|null $telegram_username
  * @property string $name
  * @property string|null $first_name
@@ -62,7 +65,8 @@ use Laravel\Sanctum\HasApiTokens;
 | by accident — grant them explicitly, from code that meant to.
 */
 #[Fillable([
-    'telegram_id',
+    'platform',
+    'platform_user_id',
     'telegram_username',
     'name',
     'first_name',
@@ -189,11 +193,11 @@ class User extends Authenticatable implements HasLocalePreference
     }
 
     /**
-     * Whether this user reached us through Telegram rather than a login form.
+     * Whether this user reached us through a messenger rather than a login form.
      */
     public function isTelegramUser(): bool
     {
-        return $this->telegram_id !== null;
+        return $this->platform === MessagingPlatform::Telegram;
     }
 
     /**
@@ -222,7 +226,7 @@ class User extends Authenticatable implements HasLocalePreference
     #[Scope]
     protected function telegram(Builder $query): void
     {
-        $query->whereNotNull('telegram_id');
+        $query->where('platform', MessagingPlatform::Telegram->value);
     }
 
     /**
@@ -233,7 +237,8 @@ class User extends Authenticatable implements HasLocalePreference
     protected function casts(): array
     {
         return [
-            'telegram_id' => 'integer',
+            'platform' => MessagingPlatform::class,
+            'platform_user_id' => 'integer',
             'email_verified_at' => 'datetime',
             'channel_verified_at' => 'datetime',
             'password' => 'hashed',

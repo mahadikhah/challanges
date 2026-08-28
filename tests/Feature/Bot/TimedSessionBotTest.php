@@ -75,7 +75,7 @@ describe('the step loop', function () {
             ->create(['first_name' => 'Sara']);
 
         Entitlement::factory()->createSlot()->create([
-            'user_id' => User::query()->where('telegram_id', SESSION_TELEGRAM_ID)->sole()->getKey(),
+            'user_id' => User::query()->where('platform_user_id', SESSION_TELEGRAM_ID)->sole()->getKey(),
         ]);
     });
 
@@ -135,7 +135,7 @@ describe('the step loop', function () {
                 'proof_type' => 'button',
                 'visibility' => 'invite_only',
             ])
-            ->create(['user_id' => User::query()->where('telegram_id', SESSION_TELEGRAM_ID)->sole()->getKey()]);
+            ->create(['user_id' => User::query()->where('platform_user_id', SESSION_TELEGRAM_ID)->sole()->getKey()]);
 
         sessionChooses(FlowType::TimedSession->value);
         sessionChooses(CreateChallengeWizard::DONE_STEPS);

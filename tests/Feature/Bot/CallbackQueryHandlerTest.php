@@ -165,7 +165,7 @@ describe('a tap', function () {
 
         tapArrives(BotCallback::encode('demo'), ['username' => 'sara', 'language_code' => 'fa']);
 
-        $user = User::query()->where('telegram_id', 777_200_1)->sole();
+        $user = User::query()->where('platform_user_id', 777_200_1)->sole();
 
         // A tap can be somebody's very first interaction — a button on a channel
         // post — so the handler resolves a user rather than assuming one exists.
@@ -186,7 +186,7 @@ describe('a tap', function () {
         tapArrives(BotCallback::encode('demo', (string) $victim->getKey()));
 
         expect(RecordingCallbackHandler::$taken[0]['user'])
-            ->toBe((int) User::query()->where('telegram_id', 777_200_1)->sole()->getKey());
+            ->toBe((int) User::query()->where('platform_user_id', 777_200_1)->sole()->getKey());
     });
 
     it('is acknowledged before the handler runs', function () {

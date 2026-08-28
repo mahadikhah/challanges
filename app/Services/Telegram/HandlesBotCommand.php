@@ -8,7 +8,7 @@ use App\Models\User;
  * Acts on one slash command from one user.
  *
  * The user is resolved server-side before a handler is reached — from
- * `telegram_id` on our own row, never from anything the payload asserts about
+ * `platform_user_id` on our own row, never from anything the payload asserts about
  * who is speaking — and is the *same instance* the arrival created or found, so
  * `wasRecentlyCreated` still means "first ever `/start`" by the time it gets
  * here. See `ResolveTelegramUser`.

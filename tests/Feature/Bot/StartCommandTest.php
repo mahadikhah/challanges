@@ -104,7 +104,7 @@ describe('a first arrival', function () {
 
         arrivesAtBot('/start');
 
-        $user = User::query()->where('telegram_id', 777_000_3)->sole();
+        $user = User::query()->where('platform_user_id', 777_000_3)->sole();
 
         expect($user->hasVerifiedChannel())->toBeTrue()
             ->and(soleBotMessage()['text'])->toContain(botCopy('bot.start.welcome', [
@@ -128,7 +128,7 @@ describe('a first arrival', function () {
 
         arrivesAtBot('/start');
 
-        $user = User::query()->where('telegram_id', 777_000_3)->sole();
+        $user = User::query()->where('platform_user_id', 777_000_3)->sole();
         $granted = fn (EntitlementType $type): int => Entitlement::query()
             ->where('user_id', $user->getKey())
             ->where('type', $type)
@@ -144,7 +144,7 @@ describe('a first arrival', function () {
         arrivesAtBot('/start');
         arrivesAtBot('/start');
 
-        $user = User::query()->where('telegram_id', 777_000_3)->sole();
+        $user = User::query()->where('platform_user_id', 777_000_3)->sole();
 
         expect(Entitlement::query()->where('user_id', $user->getKey())->count())
             ->toBe($this->settings->integer(SettingKey::FreeCreateSlots) + $this->settings->integer(SettingKey::FreeJoinSlots));
@@ -190,7 +190,7 @@ describe('the channel gate', function () {
 
         arrivesAtBot('/start');
 
-        $user = User::query()->where('telegram_id', 777_000_3)->sole();
+        $user = User::query()->where('platform_user_id', 777_000_3)->sole();
 
         // The row has to exist — that is how the invite above them got paid — but
         // membership and the free allowance both wait until they have joined.
@@ -216,7 +216,7 @@ describe('the channel gate', function () {
         arrivesAtBot('/start');
         arrivesAtBot('/start');
 
-        expect(User::query()->where('telegram_id', 777_000_3)->sole()->hasVerifiedChannel())->toBeTrue()
+        expect(User::query()->where('platform_user_id', 777_000_3)->sole()->hasVerifiedChannel())->toBeTrue()
             ->and(latestBotMessage(2)['text'])->toContain(botCopy('bot.start.welcome_back', ['name' => 'Sara']));
     });
 
@@ -240,7 +240,7 @@ describe('invite attribution', function () {
 
         arrivesAtBot("/start {$invite->code}");
 
-        $invitee = User::query()->where('telegram_id', 777_000_3)->sole();
+        $invitee = User::query()->where('platform_user_id', 777_000_3)->sole();
 
         expect($invite->refresh()->wasPaid())->toBeTrue()
             ->and($invite->invited_user_id)->toBe($invitee->getKey())
@@ -289,7 +289,7 @@ describe('invite attribution', function () {
 
         arrivesAtBot('/start no-such-code');
 
-        $user = User::query()->where('telegram_id', 777_000_3)->sole();
+        $user = User::query()->where('platform_user_id', 777_000_3)->sole();
 
         expect($user->hasVerifiedChannel())->toBeTrue()
             ->and($user->referred_by_user_id)->toBeNull()
@@ -456,7 +456,7 @@ describe('the recipient’s language', function () {
         telegramAnswers('member');
 
         arrivesAtBot('/start', ['language_code' => 'en']);
-        User::query()->where('telegram_id', 777_000_3)->update(['locale' => 'fa']);
+        User::query()->where('platform_user_id', 777_000_3)->update(['locale' => 'fa']);
 
         arrivesAtBot('/start', ['language_code' => 'en']);
 

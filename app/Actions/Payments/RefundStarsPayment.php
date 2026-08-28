@@ -4,11 +4,11 @@ namespace App\Actions\Payments;
 
 use App\Enums\CoinTransactionReason;
 use App\Enums\StarPaymentStatus;
+use App\Messaging\Contracts\MessengerPlatform;
 use App\Models\StarPayment;
 use App\Services\CoinLedger;
 use Illuminate\Support\Facades\DB;
 use LogicException;
-use Telegram\Bot\Api;
 
 /**
  * Return the Stars, claw back the coins.
@@ -28,7 +28,7 @@ use Telegram\Bot\Api;
 class RefundStarsPayment
 {
     public function __construct(
-        private readonly Api $telegram,
+        private readonly MessengerPlatform $platform,
         private readonly CoinLedger $ledger,
     ) {}
 
@@ -48,20 +48,18 @@ class RefundStarsPayment
                 );
             }
 
-            $telegramId = $row->user->telegram_id;
+            $platformUserId = $row->user->platform_user_id;
 
-            if ($telegramId === null) {
+            if ($platformUserId === null) {
                 throw new LogicException(
-                    "Star payment {$row->getKey()} belongs to a user with no telegram_id to refund."
+                    "Star payment {$row->getKey()} belongs to a user with no platform id to refund."
                 );
             }
 
-            // The SDK (3.16) has no wrapper for this method, so it travels as a
-            // raw post — over the same fakeable transport as every other call.
-            $this->telegram->post('refundStarPayment', [
-                'user_id' => $telegramId,
-                'telegram_payment_charge_id' => $row->telegram_payment_charge_id,
-            ]);
+            // Telegram first, database second — deliberately. If the call fails
+            // the row stays `Paid` and the whole thing is retryable; the other
+            // order would leave a refund Telegram never performed.
+            $this->platform->refundPayment($row->telegram_payment_charge_id, $platformUserId);
 
             $row->forceFill([
                 'status' => StarPaymentStatus::Refunded,

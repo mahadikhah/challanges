@@ -3,14 +3,13 @@
 namespace App\Actions\Challenges;
 
 use App\Enums\ChatLinkVerification;
-use App\Enums\ChatMemberStatus;
+use App\Messaging\Contracts\MessengerException;
+use App\Messaging\Contracts\MessengerPlatform;
+use App\Messaging\DTO\ChatMemberSnapshot;
 use App\Models\ChallengeChat;
 use App\Services\Telegram\BotIdentity;
 use App\Services\Telegram\BotMessenger;
 use Illuminate\Support\Facades\Log;
-use Telegram\Bot\Api;
-use Telegram\Bot\Exceptions\TelegramSDKException;
-use Telegram\Bot\Objects\ChatMember;
 
 /**
  * The two admin checks a linked chat has to pass — and keeps having to pass.
@@ -33,7 +32,7 @@ use Telegram\Bot\Objects\ChatMember;
 class VerifyChallengeChat
 {
     public function __construct(
-        private readonly Api $telegram,
+        private readonly MessengerPlatform $platform,
         private readonly BotIdentity $identity,
         private readonly BotMessenger $messenger,
     ) {}
@@ -41,8 +40,8 @@ class VerifyChallengeChat
     /**
      * Ask both questions now and record the answers on the row.
      *
-     * @throws TelegramSDKException when Telegram cannot be asked — no verdict
-     *                              was obtained, so none is recorded
+     * @throws MessengerException when the platform cannot be asked — no verdict
+     *                            was obtained, so none is recorded
      */
     public function handle(ChallengeChat $chat): ChatLinkVerification
     {
@@ -60,12 +59,12 @@ class VerifyChallengeChat
             return ChatLinkVerification::BotNotAdmin;
         }
 
-        // An email-only creator can never satisfy an admin check on Telegram's
-        // side; read as a plain "no" rather than special-cased, because the
-        // remedy (that person opens the bot) is the same.
-        $creatorTelegramId = $creator->telegram_id;
-        $creatorIsAdmin = $creatorTelegramId !== null
-            && $this->isAdminOf($chat->telegram_chat_id, $creatorTelegramId, requiresPostPrivilege: false);
+        // An email-only creator can never satisfy an admin check on the
+        // platform's side; read as a plain "no" rather than special-cased,
+        // because the remedy (that person opens the bot) is the same.
+        $creatorPlatformId = $creator->platform_user_id;
+        $creatorIsAdmin = $creatorPlatformId !== null
+            && $this->isAdminOf($chat->telegram_chat_id, $creatorPlatformId, requiresPostPrivilege: false);
 
         if (! $creatorIsAdmin) {
             $chat->forceFill([
@@ -95,7 +94,7 @@ class VerifyChallengeChat
      *
      * @param  int  $ttlHours  how long a verification stays fresh
      *
-     * @throws TelegramSDKException when Telegram cannot be asked
+     * @throws MessengerException when Telegram cannot be asked
      */
     public function ensureFresh(ChallengeChat $chat, int $ttlHours): ChatLinkVerification
     {
@@ -120,57 +119,46 @@ class VerifyChallengeChat
      * Whether the bot is an admin of the chat, with posting rights where the
      * chat's kind demands them.
      *
-     * @throws TelegramSDKException
+     * @throws MessengerException
      */
     private function botMayPost(ChallengeChat $chat, int $botId): bool
     {
         $member = $this->getChatMember($chat->telegram_chat_id, $botId);
 
-        $status = ChatMemberStatus::fromTelegram($member->get('status'));
-
-        if (! in_array($status, [ChatMemberStatus::Creator, ChatMemberStatus::Administrator], true)) {
+        if (! $member->isAdmin()) {
             return false;
         }
 
         // A channel admin can still be barred from posting — `getChatMember`
         // reports `can_post_messages` for channels only, which is why the
         // group branch asks nothing extra.
-        if ($chat->chat_type->requiresPostPrivilege() && $member->get('can_post_messages') !== true) {
-            return false;
-        }
-
-        return true;
+        return ! $chat->chat_type->requiresPostPrivilege() || $member->canPostMessages === true;
     }
 
     /**
      * Whether a human is an admin of the chat.
      *
-     * @throws TelegramSDKException
+     * @throws MessengerException
      */
-    private function isAdminOf(int $chatId, int $telegramId, bool $requiresPostPrivilege): bool
+    private function isAdminOf(int $chatId, int $platformUserId, bool $requiresPostPrivilege): bool
     {
-        $member = $this->getChatMember($chatId, $telegramId);
+        $member = $this->getChatMember($chatId, $platformUserId);
 
-        $status = ChatMemberStatus::fromTelegram($member->get('status'));
-
-        if (! in_array($status, [ChatMemberStatus::Creator, ChatMemberStatus::Administrator], true)) {
+        if (! $member->isAdmin()) {
             return false;
         }
 
-        return ! $requiresPostPrivilege || $member->get('can_post_messages') === true;
+        return ! $requiresPostPrivilege || $member->canPostMessages === true;
     }
 
     /**
      * One `getChatMember`, kept here so both checks read identically.
      *
-     * @throws TelegramSDKException
+     * @throws MessengerException
      */
-    private function getChatMember(int $chatId, int $userId): ChatMember
+    private function getChatMember(int $chatId, int $userId): ChatMemberSnapshot
     {
-        return $this->telegram->getChatMember([
-            'chat_id' => $chatId,
-            'user_id' => $userId,
-        ]);
+        return $this->platform->getChatMember($chatId, $userId);
     }
 
     /**
@@ -185,7 +173,7 @@ class VerifyChallengeChat
     {
         $creator = $chat->challenge->creator;
 
-        if ($creator->telegram_id === null) {
+        if ($creator->platform_user_id === null) {
             Log::info('A linked chat failed re-verification against a creator the bot cannot message.', [
                 'challenge_chat_id' => $chat->getKey(),
                 'creator_id' => $creator->getKey(),

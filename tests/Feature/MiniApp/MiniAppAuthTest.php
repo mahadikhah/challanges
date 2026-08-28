@@ -153,7 +153,7 @@ describe('the token exchange', function () {
         $user = User::query()->sole();
 
         expect($user)
-            ->telegram_id->toBe(777_000_5)
+            ->platform_user_id->toBe(777_000_5)
             ->first_name->toBe('Sara')
             ->telegram_username->toBe('sarahmad')
             ->and($response->json('user'))->toBe([

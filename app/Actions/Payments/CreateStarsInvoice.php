@@ -4,14 +4,14 @@ namespace App\Actions\Payments;
 
 use App\Enums\SettingKey;
 use App\Enums\StarPaymentStatus;
+use App\Messaging\Contracts\MessengerException;
+use App\Messaging\Contracts\MessengerPlatform;
 use App\Models\StarPayment;
 use App\Models\User;
 use App\Services\Settings;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
-use Telegram\Bot\Api;
-use Telegram\Bot\Exceptions\TelegramSDKException;
 
 /**
  * Begin a Stars purchase: price it, record it, and ask Telegram for the link.
@@ -35,7 +35,7 @@ class CreateStarsInvoice
 {
     public function __construct(
         private readonly Settings $settings,
-        private readonly Api $telegram,
+        private readonly MessengerPlatform $platform,
     ) {}
 
     /**
@@ -43,7 +43,7 @@ class CreateStarsInvoice
      * @return StarsInvoice the recorded purchase and Telegram's link to it
      *
      * @throws InvalidArgumentException when no such package exists
-     * @throws TelegramSDKException when Telegram refuses the invoice
+     * @throws MessengerException when the platform refuses the invoice
      */
     public function handle(User $user, int $packageIndex, string $locale): StarsInvoice
     {
@@ -63,28 +63,23 @@ class CreateStarsInvoice
 
         $title = $this->line('bot.shop.invoice_title', ['coins' => $payment->coin_amount], $locale);
 
-        $link = $this->telegram->createInvoiceLink([
-            'title' => $title,
-            'description' => $this->line('bot.shop.invoice_description', [
+        $link = $this->platform->createInvoiceLink(
+            $title,
+            $this->line('bot.shop.invoice_description', [
                 'app' => $this->line('common.app_name', [], $locale),
             ], $locale),
 
             // Bot-defined, opaque to the user, and what ties a later
             // `successful_payment` back to this row.
-            'payload' => $payment->invoice_payload,
+            $payment->invoice_payload,
 
             // CLAUDE.md, verified against core.telegram.org: XTR is the Stars
-            // currency tag, and the provider token is an *empty string* for
-            // Stars — not null, not omitted.
-            'currency' => 'XTR',
-            'provider_token' => '',
+            // currency tag.
+            'XTR',
 
             // Exactly one price line is required for Stars invoices.
-            'prices' => [[
-                'label' => $title,
-                'amount' => $payment->stars_amount,
-            ]],
-        ]);
+            [['label' => $title, 'amount' => $payment->stars_amount]],
+        );
 
         return new StarsInvoice($payment, $link);
     }

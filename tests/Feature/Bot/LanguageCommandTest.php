@@ -74,7 +74,7 @@ it('sets the locale from a tap and confirms it in the language just chosen', fun
 
     tapsLanguageButton('lg:fa');
 
-    $user = User::query()->where('telegram_id', 777_000_3)->sole();
+    $user = User::query()->where('platform_user_id', 777_000_3)->sole();
 
     expect($user->locale)->toBe('fa')
         ->and(latestBotMessage(2)['text'])->toBe(botCopy('bot.language.set', ['language' => 'فارسی'], 'fa'));
@@ -84,7 +84,7 @@ it('switches back the other way', function () {
     asksForLanguages(['language_code' => 'fa']);
     tapsLanguageButton('lg:en');
 
-    $user = User::query()->where('telegram_id', 777_000_3)->sole();
+    $user = User::query()->where('platform_user_id', 777_000_3)->sole();
 
     expect($user->locale)->toBe('en')
         ->and(latestBotMessage(2)['text'])->toBe(botCopy('bot.language.set', ['language' => 'English']));
@@ -95,7 +95,7 @@ it('refuses a crafted callback naming a locale the platform cannot serve', funct
 
     tapsLanguageButton('lg:fr');
 
-    $user = User::query()->where('telegram_id', 777_000_3)->sole();
+    $user = User::query()->where('platform_user_id', 777_000_3)->sole();
 
     // The refusal is phrased as a stale button, exactly like every other payload
     // that names something we do not have.
@@ -108,7 +108,7 @@ it('refuses a button with no locale on it at all', function () {
 
     tapsLanguageButton('lg:');
 
-    $user = User::query()->where('telegram_id', 777_000_3)->sole();
+    $user = User::query()->where('platform_user_id', 777_000_3)->sole();
 
     expect($user->locale)->toBe('en')
         ->and(latestBotMessage(2)['text'])->toBe(botCopy('bot.fallback.stale_button'));

@@ -14,7 +14,7 @@ use Carbon\CarbonImmutable;
  * bearer token.
  *
  * The identity is established **server-side from the signature** — the token in
- * the bot's own hands — and the user row is resolved by `telegram_id` from that
+ * the bot's own hands — and the user row is resolved by `platform_user_id` from that
  * payload, never from anything the client claims about who it is. Every
  * `/api/v1/miniapp/*` request after this re-resolves the actor from the bearer
  * token the same way; a client-supplied id is never consulted.

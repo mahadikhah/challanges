@@ -3,9 +3,10 @@
 namespace App\Services\Telegram\Handlers;
 
 use App\Actions\Challenges\ComposeLeaderboard;
-use App\Enums\ChatMemberStatus;
 use App\Enums\SettingKey;
 use App\Jobs\Telegram\PostDailyLeaderboard;
+use App\Messaging\Contracts\MessengerException;
+use App\Messaging\Contracts\MessengerPlatform;
 use App\Models\ChallengeChat;
 use App\Models\TelegramUpdate;
 use App\Services\Localization;
@@ -14,8 +15,6 @@ use App\Services\Telegram\BotCommand;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
-use Telegram\Bot\Api;
-use Telegram\Bot\Exceptions\TelegramSDKException;
 
 /**
  * Commands typed inside a linked challenge chat.
@@ -41,7 +40,7 @@ use Telegram\Bot\Exceptions\TelegramSDKException;
 class LinkedChatHandler
 {
     public function __construct(
-        private readonly Api $telegram,
+        private readonly MessengerPlatform $platform,
         private readonly Settings $settings,
         private readonly Localization $localization,
         private readonly ComposeLeaderboard $boards,
@@ -97,17 +96,10 @@ class LinkedChatHandler
             return;
         }
 
-        // The one question this surface ever asks Telegram about a person:
+        // The one question this surface ever asks the platform about a person:
         // are they an administrator of the chat they just typed in. The
         // answer authorizes the reply; nothing else is done with the id.
-        $member = $this->telegram->getChatMember([
-            'chat_id' => $chat->telegram_chat_id,
-            'user_id' => $senderId,
-        ]);
-
-        $status = ChatMemberStatus::fromTelegram($member->get('status'));
-
-        if (! in_array($status, [ChatMemberStatus::Creator, ChatMemberStatus::Administrator], true)) {
+        if (! $this->platform->getChatMember($chat->telegram_chat_id, $senderId)->isAdmin()) {
             $this->reply($chat, 'bot.chatpost.leaderboard.not_admin');
 
             return;
@@ -162,11 +154,8 @@ class LinkedChatHandler
         $line = Lang::get($key, $replace, $this->localization->fallback());
 
         try {
-            $this->telegram->sendMessage([
-                'chat_id' => $chat->telegram_chat_id,
-                'text' => is_string($line) ? $line : $key,
-            ]);
-        } catch (TelegramSDKException $unsendable) {
+            $this->platform->sendMessage($chat->telegram_chat_id, is_string($line) ? $line : $key);
+        } catch (MessengerException $unsendable) {
             Log::info('A linked-chat reply could not be sent.', [
                 'challenge_chat_id' => $chat->getKey(),
                 'key' => $key,

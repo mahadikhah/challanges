@@ -46,7 +46,7 @@ class UsersController extends Controller
                     ->orWhere('telegram_username', 'like', "%{$search}%")
                     // A bare number reads as a Telegram id — the one thing
                     // support reliably has in hand when a user writes in.
-                    ->when(ctype_digit($search), fn ($q) => $q->orWhere('telegram_id', (int) $search)),
+                    ->when(ctype_digit($search), fn ($q) => $q->orWhere('platform_user_id', (int) $search)),
             ))
             // Deterministic newest-first, including for rows created within
             // the same second.
@@ -83,7 +83,7 @@ class UsersController extends Controller
             'user' => [
                 'id' => $user->getKey(),
                 'name' => $user->first_name ?? $user->name,
-                'telegram_id' => $user->telegram_id,
+                'platform_user_id' => $user->platform_user_id,
                 'telegram_username' => $user->telegram_username,
                 'locale' => $user->locale,
                 'is_admin' => $user->is_admin,
@@ -134,7 +134,7 @@ class UsersController extends Controller
             $rows[] = [
                 'id' => $user->getKey(),
                 'name' => $user->first_name ?? $user->name,
-                'telegram_id' => $user->telegram_id,
+                'platform_user_id' => $user->platform_user_id,
                 'telegram_username' => $user->telegram_username,
                 'is_admin' => $user->is_admin,
                 'balance' => $this->ledger->balanceFor($user),

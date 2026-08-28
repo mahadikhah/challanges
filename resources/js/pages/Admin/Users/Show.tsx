@@ -17,7 +17,7 @@ type LabeledEnum = { value: string; label: string };
 type UserView = {
     id: number;
     name: string;
-    telegram_id: number | null;
+    platform_user_id: number | null;
     telegram_username: string | null;
     locale: string | null;
     is_admin: boolean;
@@ -100,13 +100,13 @@ export default function UserShow({
 
                             <CardContent className="space-y-2 text-sm">
                                 <Row
-                                    label={t('admin.users.telegram_id')}
+                                    label={t('admin.users.platform_user_id')}
                                     value={
-                                        user.telegram_id === null
+                                        user.platform_user_id === null
                                             ? '—'
-                                            : String(user.telegram_id)
+                                            : String(user.platform_user_id)
                                     }
-                                    ltr={user.telegram_id !== null}
+                                    ltr={user.platform_user_id !== null}
                                 />
                                 <Row
                                     label={t('admin.users.username')}

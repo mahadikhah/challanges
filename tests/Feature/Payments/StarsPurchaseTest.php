@@ -70,7 +70,7 @@ function telegramServesTheShop(string $membership = 'member'): void
  */
 function thePayer(): User
 {
-    return User::query()->where('telegram_id', 777_000_3)->first()
+    return User::query()->where('platform_user_id', 777_000_3)->first()
         ?? User::factory()->telegram(777_000_3)->preferring('en')->create();
 }
 

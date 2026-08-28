@@ -33,12 +33,12 @@ class ChannelGateException extends RuntimeException
      * Asked to gate somebody with no Telegram identity.
      *
      * A programming error rather than a misconfiguration: an admin who signs in
-     * by email has no `telegram_id`, so there is nobody to look up in the channel.
+     * by email has no messenger identity, so there is nobody to look up in the channel.
      * The gate belongs to the bot and Mini App surfaces; the admin panel must not
      * route through it.
      */
     public static function notATelegramUser(User $user): self
     {
-        return new self("User {$user->getKey()} has no telegram_id, so channel membership cannot be verified.");
+        return new self("User {$user->getKey()} has no platform identity, so channel membership cannot be verified.");
     }
 }

@@ -55,7 +55,7 @@ class SendBotMessage implements ShouldQueue
     {
         $user = User::query()->find($this->userId);
 
-        if ($user === null || $user->telegram_id === null) {
+        if ($user === null || $user->platform_user_id === null) {
             // Deleted, or a web-only user the bot could never reach. Either way
             // there is no chat to deliver into.
             return;

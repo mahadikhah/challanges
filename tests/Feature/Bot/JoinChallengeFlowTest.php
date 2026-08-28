@@ -119,7 +119,7 @@ function tapsJoin(string $token, array $from = []): void
  */
 function theJoiner(): User
 {
-    return User::query()->where('telegram_id', 777_300_1)->sole();
+    return User::query()->where('platform_user_id', 777_300_1)->sole();
 }
 
 describe('arriving through a join link', function () {
@@ -246,7 +246,7 @@ describe('tapping join', function () {
 
         tapsJoin($challenge->join_token, ['id' => 777_400_9]);
 
-        expect(User::query()->where('telegram_id', 777_300_1)->exists())->toBeFalse()
+        expect(User::query()->where('platform_user_id', 777_300_1)->exists())->toBeFalse()
             ->and(ChallengeParticipant::query()->where('user_id', $stranger->getKey())->exists())->toBeTrue();
     });
 

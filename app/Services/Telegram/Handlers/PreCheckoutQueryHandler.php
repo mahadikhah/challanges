@@ -3,6 +3,7 @@
 namespace App\Services\Telegram\Handlers;
 
 use App\Actions\Telegram\ResolveTelegramUser;
+use App\Messaging\Contracts\MessengerPlatform;
 use App\Models\StarPayment;
 use App\Models\TelegramUpdate;
 use App\Models\User;
@@ -11,7 +12,6 @@ use App\Services\Telegram\BotMessenger;
 use App\Services\Telegram\HandlesUpdate;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Log;
-use Telegram\Bot\Api;
 
 /**
  * The checkpoint before the money moves: Telegram's `pre_checkout_query`.
@@ -40,7 +40,7 @@ class PreCheckoutQueryHandler implements HandlesUpdate
         private readonly ResolveTelegramUser $resolveUser,
         private readonly BotMessenger $messenger,
         private readonly Localization $localization,
-        private readonly Api $telegram,
+        private readonly MessengerPlatform $platform,
     ) {}
 
     public function handle(TelegramUpdate $update): void
@@ -86,10 +86,7 @@ class PreCheckoutQueryHandler implements HandlesUpdate
             && $totalAmount === $payment->stars_amount;
 
         if ($acceptable) {
-            $this->telegram->answerPreCheckoutQuery([
-                'pre_checkout_query_id' => $queryId,
-                'ok' => true,
-            ]);
+            $this->platform->answerPreCheckoutQuery($queryId, ok: true);
 
             return;
         }
@@ -115,10 +112,10 @@ class PreCheckoutQueryHandler implements HandlesUpdate
 
         $line = Lang::get('bot.shop.pre_checkout_error', [], $locale);
 
-        $this->telegram->answerPreCheckoutQuery([
-            'pre_checkout_query_id' => $queryId,
-            'ok' => false,
-            'error_message' => is_string($line) ? $line : 'bot.shop.pre_checkout_error',
-        ]);
+        $this->platform->answerPreCheckoutQuery(
+            $queryId,
+            ok: false,
+            errorMessage: is_string($line) ? $line : 'bot.shop.pre_checkout_error',
+        );
     }
 }
