@@ -7,15 +7,18 @@ use App\Services\Telegram\Callbacks\CheckInCallback;
 use App\Services\Telegram\Callbacks\JoinCallback;
 use App\Services\Telegram\Callbacks\LanguageCallback;
 use App\Services\Telegram\Callbacks\ReviewCheckInCallback;
+use App\Services\Telegram\Callbacks\ShopCallback;
 use App\Services\Telegram\Callbacks\WizardCallback;
 use App\Services\Telegram\CommandRouter;
 use App\Services\Telegram\Commands\CancelCommand;
 use App\Services\Telegram\Commands\CheckInCommand;
 use App\Services\Telegram\Commands\CreateCommand;
 use App\Services\Telegram\Commands\LanguageCommand;
+use App\Services\Telegram\Commands\ShopCommand;
 use App\Services\Telegram\Commands\StartCommand;
 use App\Services\Telegram\Handlers\CallbackQueryHandler;
 use App\Services\Telegram\Handlers\MessageHandler;
+use App\Services\Telegram\Handlers\PreCheckoutQueryHandler;
 use App\Services\Telegram\HandlesBotCommand;
 use App\Services\Telegram\HandlesCallback;
 use App\Services\Telegram\HandlesUpdate;
@@ -68,6 +71,7 @@ class TelegramServiceProvider extends ServiceProvider
     public const array UPDATE_HANDLERS = [
         'message' => MessageHandler::class,
         'callback_query' => CallbackQueryHandler::class,
+        'pre_checkout_query' => PreCheckoutQueryHandler::class,
     ];
 
     /**
@@ -83,6 +87,7 @@ class TelegramServiceProvider extends ServiceProvider
         'start' => StartCommand::class,
         'create' => CreateCommand::class,
         'checkin' => CheckInCommand::class,
+        'shop' => ShopCommand::class,
         'language' => LanguageCommand::class,
         'cancel' => CancelCommand::class,
     ];
@@ -101,6 +106,7 @@ class TelegramServiceProvider extends ServiceProvider
         JoinCallback::ACTION => JoinCallback::class,
         CheckInCallback::ACTION => CheckInCallback::class,
         ReviewCheckInCallback::ACTION => ReviewCheckInCallback::class,
+        ShopCallback::ACTION => ShopCallback::class,
         LanguageCallback::ACTION => LanguageCallback::class,
     ];
 

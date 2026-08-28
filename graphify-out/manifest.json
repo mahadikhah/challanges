@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "prompts/progress.md": {
-    "mtime": 1787924288.479797,
-    "ast_hash": "415da4f3ec38b8179d379c8ba76673de",
+    "mtime": 1787925547.525234,
+    "ast_hash": "401e000ac8774de0b5fabdc5dad6f6a6",
     "semantic_hash": ""
   },
   "prompts/task-01-setup.md": {
@@ -1440,8 +1440,8 @@
     "semantic_hash": ""
   },
   "database/factories/TelegramUpdateFactory.php": {
-    "mtime": 1787923653.4882405,
-    "ast_hash": "a6666ae94e0deac2eeb492b84ea6f6b2",
+    "mtime": 1787926390.6112013,
+    "ast_hash": "4f62143f37ba9424be3896318382ce22",
     "semantic_hash": ""
   },
   "database/migrations/2026_08_24_210231_create_coin_transactions_table.php": {
@@ -1715,8 +1715,8 @@
     "semantic_hash": ""
   },
   "app/Providers/TelegramServiceProvider.php": {
-    "mtime": 1787924723.557283,
-    "ast_hash": "a1f950fcc2598f7549cd56c50c5b2dc6",
+    "mtime": 1787926353.9799197,
+    "ast_hash": "a1402944078a0953988cd60f5ce7d9b9",
     "semantic_hash": ""
   },
   "app/Services/Telegram/HandlesUpdate.php": {
@@ -1790,8 +1790,8 @@
     "semantic_hash": ""
   },
   "app/Services/Telegram/Handlers/MessageHandler.php": {
-    "mtime": 1787630975.9129646,
-    "ast_hash": "db2476cd5166afe7b4ca844eb33e940d",
+    "mtime": 1787926255.9273193,
+    "ast_hash": "332290ba23fffc5861adeac49e60ecfa",
     "semantic_hash": ""
   },
   "app/Services/Telegram/HandlesBotCommand.php": {
@@ -1800,13 +1800,13 @@
     "semantic_hash": ""
   },
   "lang/en/bot.php": {
-    "mtime": 1787924737.8850698,
-    "ast_hash": "1298c6aff66294a9e19d76b9ad066d9d",
+    "mtime": 1787926362.8002312,
+    "ast_hash": "1888a72cdb2f75bfe434f236203b765b",
     "semantic_hash": ""
   },
   "lang/fa/bot.php": {
-    "mtime": 1787924752.8248625,
-    "ast_hash": "d439fc21820b36cf2427f35296786ac5",
+    "mtime": 1787926372.620576,
+    "ast_hash": "2778c677fe586d1547dab87c2f64afaa",
     "semantic_hash": ""
   },
   "tests/Feature/Bot/ChannelGateTest.php": {
@@ -2082,6 +2082,51 @@
   "tests/Feature/Bot/ReminderSweepTest.php": {
     "mtime": 1787925360.7441094,
     "ast_hash": "1627733851a1e4df33c229288ce51cd6",
+    "semantic_hash": ""
+  },
+  "app/Actions/Payments/CompleteStarsPayment.php": {
+    "mtime": 1787927067.5960703,
+    "ast_hash": "f677fa18618bf9ec49a762d6174d164b",
+    "semantic_hash": ""
+  },
+  "app/Actions/Payments/CreateStarsInvoice.php": {
+    "mtime": 1787926379.9568317,
+    "ast_hash": "493fdec6d3b2b09d10c9f9a9ad350fa1",
+    "semantic_hash": ""
+  },
+  "app/Actions/Payments/RefundStarsPayment.php": {
+    "mtime": 1787926114.5586078,
+    "ast_hash": "f1056495402f90ede70f9717007060c8",
+    "semantic_hash": ""
+  },
+  "app/Actions/Payments/StarsInvoice.php": {
+    "mtime": 1787926081.8911839,
+    "ast_hash": "87ec1e63d9aa791e3851f9b5075d0f35",
+    "semantic_hash": ""
+  },
+  "app/Services/Telegram/Callbacks/ShopCallback.php": {
+    "mtime": 1787926160.6945481,
+    "ast_hash": "c6650c0ae0f62da5073f23a705a68e6d",
+    "semantic_hash": ""
+  },
+  "app/Services/Telegram/Commands/ShopCommand.php": {
+    "mtime": 1787926125.3820703,
+    "ast_hash": "0c3a4f2aa75912d655a7ddf508e4a67c",
+    "semantic_hash": ""
+  },
+  "app/Services/Telegram/Handlers/PreCheckoutQueryHandler.php": {
+    "mtime": 1787926222.5490308,
+    "ast_hash": "215188e85281133fb43003d6eb02be0a",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Payments/RefundStarsPaymentTest.php": {
+    "mtime": 1787927047.99356,
+    "ast_hash": "319cdcdc1eab7dc22a3eff5114720232",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Payments/StarsPurchaseTest.php": {
+    "mtime": 1787927046.8465302,
+    "ast_hash": "ebbdda278c2974af3711a4b4bc4995a1",
     "semantic_hash": ""
   }
 }

@@ -2,9 +2,11 @@
 
 namespace App\Services\Telegram\Handlers;
 
+use App\Actions\Payments\CompleteStarsPayment;
 use App\Actions\Telegram\ResolveTelegramUser;
 use App\Models\TelegramUpdate;
 use App\Models\User;
+use App\Services\CoinLedger;
 use App\Services\Telegram\BotCommand;
 use App\Services\Telegram\BotMessenger;
 use App\Services\Telegram\CommandRouter;
@@ -43,6 +45,8 @@ class MessageHandler implements HandlesUpdate
         private readonly ResolveTelegramUser $resolveUser,
         private readonly CommandRouter $commands,
         private readonly ConversationRouter $conversations,
+        private readonly CompleteStarsPayment $completePayment,
+        private readonly CoinLedger $ledger,
         private readonly BotMessenger $messenger,
     ) {}
 
@@ -70,6 +74,13 @@ class MessageHandler implements HandlesUpdate
         /** @var array<string, mixed> $from */
         $user = $this->resolveUser->handle($from);
 
+        // A payment confirmation before anything else: it arrives as a message
+        // with no text, so without this it would fall through to "I did not
+        // follow that" — a poor reply to money having just moved.
+        if ($this->settlePayment($user, $update)) {
+            return;
+        }
+
         $command = BotCommand::parse($this->text($update));
 
         if ($command !== null && $this->commands->route($user, $command)) {
@@ -81,6 +92,47 @@ class MessageHandler implements HandlesUpdate
         }
 
         $this->offerStart($user);
+    }
+
+    /**
+     * Credit a completed Stars purchase, if this message carries one.
+     *
+     * Returns whether it did, so the caller knows the message was answered. The
+     * reply rides after the credit inside the same job: if sending it fails,
+     * the update stays unprocessed and is retried, where `CompleteStarsPayment`
+     * finds the row already paid and credits nothing twice — the reply is the
+     * only thing the retry can still do.
+     */
+    private function settlePayment(User $user, TelegramUpdate $update): bool
+    {
+        $successfulPayment = $update->value('message.successful_payment');
+
+        if (! is_array($successfulPayment)) {
+            return false;
+        }
+
+        $payment = $this->completePayment->handle($user, $successfulPayment);
+
+        if ($payment === null || ! $payment->isPaid()) {
+            // Money arrived that matches no invoice we issued. The row is
+            // logged inside the action; what is left is to tell the payer, and
+            // to make sure the failure is visible to somebody watching.
+            Log::error('A successful_payment could not be credited to any invoice.', [
+                'user_id' => $user->getKey(),
+                'update_id' => $update->update_id,
+            ]);
+
+            $this->messenger->send($user, $this->messenger->line($user, 'bot.shop.not_credited'));
+
+            return true;
+        }
+
+        $this->messenger->send($user, $this->messenger->line($user, 'bot.shop.credited', [
+            'coins' => $payment->coin_amount,
+            'balance' => $this->ledger->balanceFor($user),
+        ]));
+
+        return true;
     }
 
     /**

@@ -144,19 +144,57 @@ class TelegramUpdateFactory extends Factory
         });
     }
 
-    public function preCheckoutQuery(string $invoicePayload, int $stars = 25): static
+    public function preCheckoutQuery(string $invoicePayload, int $stars = 25, ?int $fromTelegramId = null): static
     {
         return $this->state(fn (array $attributes): array => [
             'payload' => [
                 'pre_checkout_query' => [
                     'id' => (string) fake()->numberBetween(1000, 9999),
-                    'from' => ['id' => fake()->numberBetween(1, 999_999)],
+                    'from' => [
+                        'id' => $fromTelegramId ?? fake()->numberBetween(1, 999_999),
+                        'is_bot' => false,
+                        'first_name' => fake()->firstName(),
+                    ],
                     'currency' => 'XTR',
                     'total_amount' => $stars,
                     'invoice_payload' => $invoicePayload,
                 ],
             ],
         ]);
+    }
+
+    /**
+     * A completed payment, as Telegram delivers it: a message with no text and
+     * a `successful_payment` object riding where the text would be.
+     *
+     * @param  array<string, mixed>  $from  merged over the default sender
+     */
+    public function successfulPaymentFrom(array $from, string $invoicePayload, string $chargeId, int $stars): static
+    {
+        return $this->state(function (array $attributes) use ($from, $invoicePayload, $chargeId, $stars): array {
+            $telegramId = is_int($from['id'] ?? null) ? $from['id'] : fake()->numberBetween(1, 999_999);
+
+            return [
+                'payload' => [
+                    'message' => [
+                        'message_id' => fake()->numberBetween(1, 9999),
+                        'from' => array_replace([
+                            'id' => $telegramId,
+                            'is_bot' => false,
+                            'first_name' => fake()->firstName(),
+                        ], $from),
+                        'chat' => ['id' => $telegramId, 'type' => 'private'],
+                        'date' => 1_760_000_000,
+                        'successful_payment' => [
+                            'currency' => 'XTR',
+                            'total_amount' => $stars,
+                            'invoice_payload' => $invoicePayload,
+                            'telegram_payment_charge_id' => $chargeId,
+                        ],
+                    ],
+                ],
+            ];
+        });
     }
 
     /**

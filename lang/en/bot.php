@@ -225,6 +225,26 @@ return [
         'period_ending' => 'Period :index of :total in “:title” closes at :moment (:timezone). Send /checkin now if you have not yet.',
     ],
 
+    /*
+    | The coin shop. `package` is one shelf of it, `pay_prompt`/`pay_button` the
+    | message that carries Telegram's invoice link, and `invoice_title` /
+    | `invoice_description` what Telegram itself shows in the payment sheet —
+    | the title is capped at 32 characters by Telegram, so it stays terse.
+    */
+    'shop' => [
+        'prompt' => 'Coins pay for extra challenge slots and freezes. Top up with Telegram Stars:',
+        'package' => ':stars Stars → :coins coins',
+        'button' => 'Buy :coins coins',
+        'no_packages' => 'Top-ups are unavailable right now. Please try again later.',
+        'pay_prompt' => 'Tap the button to pay :stars Stars for :coins coins.',
+        'pay_button' => 'Pay :stars Stars',
+        'credited' => 'Paid — :coins coins added. Balance: :balance',
+        'not_credited' => 'Your payment arrived, but it could not be matched to a top-up. It has been logged and somebody will look at it.',
+        'invoice_title' => ':coins coins',
+        'invoice_description' => 'Top up your coin balance in :app.',
+        'pre_checkout_error' => 'This top-up could not be completed. Please try again from /shop.',
+    ],
+
     'language' => [
         'prompt' => 'Which language should I speak?',
         'set' => 'Done — from now on, :language.',
