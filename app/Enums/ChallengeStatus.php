@@ -3,6 +3,7 @@
 namespace App\Enums;
 
 use App\Enums\Concerns\HasTranslatedLabel;
+use App\Enums\Contracts\HasTranslatedLabel as HasTranslatedLabelContract;
 
 /**
  * Where a challenge is in its own lifecycle.
@@ -13,7 +14,7 @@ use App\Enums\Concerns\HasTranslatedLabel;
  * "rows in this table are real challenges" true, which every listing,
  * announcement and reminder query depends on.
  */
-enum ChallengeStatus: string
+enum ChallengeStatus: string implements HasTranslatedLabelContract
 {
     use HasTranslatedLabel;
 

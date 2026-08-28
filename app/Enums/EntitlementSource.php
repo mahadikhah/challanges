@@ -3,6 +3,7 @@
 namespace App\Enums;
 
 use App\Enums\Concerns\HasTranslatedLabel;
+use App\Enums\Contracts\HasTranslatedLabel as HasTranslatedLabelContract;
 
 /**
  * Where an entitlement came from.
@@ -10,7 +11,7 @@ use App\Enums\Concerns\HasTranslatedLabel;
  * Kept distinct from the type so support can answer "why does this user have
  * three create-slots?" from the row alone, without reading the coin ledger.
  */
-enum EntitlementSource: string
+enum EntitlementSource: string implements HasTranslatedLabelContract
 {
     use HasTranslatedLabel;
 

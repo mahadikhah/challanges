@@ -3,6 +3,7 @@
 namespace App\Enums;
 
 use App\Enums\Concerns\HasTranslatedLabel;
+use App\Enums\Contracts\HasTranslatedLabel as HasTranslatedLabelContract;
 
 /**
  * The life of one Telegram Stars purchase.
@@ -10,7 +11,7 @@ use App\Enums\Concerns\HasTranslatedLabel;
  * `Pending` exists because an invoice link is created before the user decides.
  * Most pending rows are simply abandoned carts, not failures.
  */
-enum StarPaymentStatus: string
+enum StarPaymentStatus: string implements HasTranslatedLabelContract
 {
     use HasTranslatedLabel;
 

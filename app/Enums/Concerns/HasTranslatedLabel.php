@@ -2,6 +2,7 @@
 
 namespace App\Enums\Concerns;
 
+use App\Enums\Contracts\HasTranslatedLabel as HasTranslatedLabelContract;
 use Illuminate\Support\Str;
 
 /**
@@ -14,7 +15,10 @@ use Illuminate\Support\Str;
  * place a key can come from, and a new case needs no wiring beyond its line
  * in the catalogue.
  *
- * @phpstan-require-implements \BackedEnum
+ * Implement `Contracts\HasTranslatedLabel` alongside `use`-ing this trait —
+ * the interface is what makes the label contract usable as a type.
+ *
+ * @phpstan-require-implements \BackedEnum&HasTranslatedLabelContract
  */
 trait HasTranslatedLabel
 {

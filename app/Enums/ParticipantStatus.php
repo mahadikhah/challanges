@@ -3,6 +3,7 @@
 namespace App\Enums;
 
 use App\Enums\Concerns\HasTranslatedLabel;
+use App\Enums\Contracts\HasTranslatedLabel as HasTranslatedLabelContract;
 
 /**
  * A participant's standing within one challenge.
@@ -13,7 +14,7 @@ use App\Enums\Concerns\HasTranslatedLabel;
  * for one bad day is the wrong trade. `Removed` exists for moderation, not for
  * repeated misses.
  */
-enum ParticipantStatus: string
+enum ParticipantStatus: string implements HasTranslatedLabelContract
 {
     use HasTranslatedLabel;
 

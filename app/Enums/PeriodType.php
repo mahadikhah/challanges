@@ -3,6 +3,7 @@
 namespace App\Enums;
 
 use App\Enums\Concerns\HasTranslatedLabel;
+use App\Enums\Contracts\HasTranslatedLabel as HasTranslatedLabelContract;
 
 /**
  * How often a challenge demands a check-in.
@@ -13,7 +14,7 @@ use App\Enums\Concerns\HasTranslatedLabel;
  * carries what is intrinsic to the type — its name, and whether it needs a
  * companion day count.
  */
-enum PeriodType: string
+enum PeriodType: string implements HasTranslatedLabelContract
 {
     use HasTranslatedLabel;
 

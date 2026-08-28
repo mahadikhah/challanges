@@ -3,6 +3,7 @@
 namespace App\Enums;
 
 use App\Enums\Concerns\HasTranslatedLabel;
+use App\Enums\Contracts\HasTranslatedLabel as HasTranslatedLabelContract;
 
 /**
  * The life of one invite code.
@@ -12,7 +13,7 @@ use App\Enums\Concerns\HasTranslatedLabel;
  * paying the inviter. Collapsing the two would make "used but unpaid"
  * indistinguishable from "never used", and the inviter would rightly ask why.
  */
-enum InviteStatus: string
+enum InviteStatus: string implements HasTranslatedLabelContract
 {
     use HasTranslatedLabel;
 

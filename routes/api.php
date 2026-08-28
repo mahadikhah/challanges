@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\MiniApp\AuthController;
+use App\Http\Controllers\MiniApp\ChallengeController;
 use App\Http\Controllers\MiniApp\MeController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,8 +27,10 @@ Route::prefix('v1')->name('miniapp.')->group(function (): void {
     Route::prefix('miniapp')->group(function (): void {
         Route::post('/auth', [AuthController::class, 'store'])->name('auth');
 
-        Route::get('/me', MeController::class)
-            ->middleware(['auth:sanctum', 'ability:miniapp'])
-            ->name('me');
+        Route::middleware(['auth:sanctum', 'ability:miniapp'])->group(function (): void {
+            Route::get('/me', MeController::class)->name('me');
+            Route::get('/challenges', [ChallengeController::class, 'index'])->name('challenges.index');
+            Route::get('/challenges/{challenge}', [ChallengeController::class, 'show'])->name('challenges.show');
+        });
     });
 });

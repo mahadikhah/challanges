@@ -3,6 +3,7 @@
 namespace App\Enums;
 
 use App\Enums\Concerns\HasTranslatedLabel;
+use App\Enums\Contracts\HasTranslatedLabel as HasTranslatedLabelContract;
 
 /**
  * The state of one participant's obligation for one period.
@@ -20,7 +21,7 @@ use App\Enums\Concerns\HasTranslatedLabel;
  * decides whether the period was actually lost. That keeps one rule in one
  * place: the streak engine only ever has to look for `Missed`.
  */
-enum CheckInStatus: string
+enum CheckInStatus: string implements HasTranslatedLabelContract
 {
     use HasTranslatedLabel;
 

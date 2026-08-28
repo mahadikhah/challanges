@@ -3,13 +3,14 @@
 namespace App\Enums;
 
 use App\Enums\Concerns\HasTranslatedLabel;
+use App\Enums\Contracts\HasTranslatedLabel as HasTranslatedLabelContract;
 
 /**
  * What a participant must do to prove a period's check-in.
  *
  * Chosen once by the creator, for the whole challenge.
  */
-enum ProofType: string
+enum ProofType: string implements HasTranslatedLabelContract
 {
     use HasTranslatedLabel;
 

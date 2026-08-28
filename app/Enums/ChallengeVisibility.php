@@ -3,6 +3,7 @@
 namespace App\Enums;
 
 use App\Enums\Concerns\HasTranslatedLabel;
+use App\Enums\Contracts\HasTranslatedLabel as HasTranslatedLabelContract;
 
 /**
  * Who can discover a challenge.
@@ -10,7 +11,7 @@ use App\Enums\Concerns\HasTranslatedLabel;
  * Public challenges are auto-posted to the announcement channel; invite-only
  * ones are reachable solely through their creator's link.
  */
-enum ChallengeVisibility: string
+enum ChallengeVisibility: string implements HasTranslatedLabelContract
 {
     use HasTranslatedLabel;
 

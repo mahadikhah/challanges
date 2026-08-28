@@ -3,6 +3,7 @@
 namespace App\Enums;
 
 use App\Enums\Concerns\HasTranslatedLabel;
+use App\Enums\Contracts\HasTranslatedLabel as HasTranslatedLabelContract;
 
 /**
  * Why a coin ledger entry exists.
@@ -12,7 +13,7 @@ use App\Enums\Concerns\HasTranslatedLabel;
  * can never be a credit. `CoinLedger` asserts that, which is why admin
  * adjustments are split into two cases instead of one signed "adjustment".
  */
-enum CoinTransactionReason: string
+enum CoinTransactionReason: string implements HasTranslatedLabelContract
 {
     use HasTranslatedLabel;
 

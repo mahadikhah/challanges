@@ -3,6 +3,7 @@
 namespace App\Enums;
 
 use App\Enums\Concerns\HasTranslatedLabel;
+use App\Enums\Contracts\HasTranslatedLabel as HasTranslatedLabelContract;
 
 /**
  * What an entitlement lets its owner do.
@@ -10,7 +11,7 @@ use App\Enums\Concerns\HasTranslatedLabel;
  * Slots are the unit of access in the economy: creating and joining are metered
  * separately, so spending coins on one never silently consumes the other.
  */
-enum EntitlementType: string
+enum EntitlementType: string implements HasTranslatedLabelContract
 {
     use HasTranslatedLabel;
 
