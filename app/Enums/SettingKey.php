@@ -53,6 +53,16 @@ enum SettingKey: string
     */
     case ReminderEndingLeadHours = 'reminder_ending_lead_hours';
 
+    /*
+    | Posting into linked chats (§2.6): when the daily leaderboard fires, how
+    | big it is, how long a chat's admin checks stay trusted between posts, and
+    | how often a chat may ask for the board on demand.
+    */
+    case LeaderboardHour = 'leaderboard_hour';
+    case LeaderboardTopSize = 'leaderboard_top_size';
+    case ChatVerificationTtlHours = 'chat_verification_ttl_hours';
+    case ChatCommandCooldownSeconds = 'chat_command_cooldown_seconds';
+
     /**
      * The value shape this setting accepts.
      */
@@ -130,6 +140,31 @@ enum SettingKey: string
             | period's start rather than firing before it opens.
             */
             self::ReminderEndingLeadHours => 3,
+
+            /*
+            | Linked-chat posting. The board goes out at nine — late enough that
+            | a daily challenge's evening check-ins are in, early enough to be
+            | read. The hour is interpreted in the challenge's own timezone, the
+            | day it names is the one the participants live in.
+            */
+            self::LeaderboardHour => 9,
+
+            // Top N streaks shown. Ten fits one Telegram message comfortably.
+            self::LeaderboardTopSize => 10,
+
+            /*
+            | How long a linked chat's dual-admin verification is trusted
+            | before a post re-checks it. A day: cheap enough that a revoked
+            | admin surfaces within a day's posts, dear enough that a check-in
+            | announcement does not spend two `getChatMember` calls every time.
+            */
+            self::ChatVerificationTtlHours => 24,
+
+            /*
+            | How often a chat may ask for the board on demand. Five minutes is
+            | a nudge, not a notification channel.
+            */
+            self::ChatCommandCooldownSeconds => 300,
         };
     }
 }

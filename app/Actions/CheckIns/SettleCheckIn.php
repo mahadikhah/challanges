@@ -3,6 +3,7 @@
 namespace App\Actions\CheckIns;
 
 use App\Enums\CheckInStatus;
+use App\Events\CheckInSettled;
 use App\Models\ChallengeParticipant;
 use App\Models\CheckIn;
 use Closure;
@@ -87,6 +88,12 @@ class SettleCheckIn
 
             $checkIn->update(['status' => $status]);
             $this->advance($participant, $status);
+
+            // Announce the transition itself, not the call: the event fires
+            // only on the one update that moved the row into a settled status,
+            // which is the same transaction that moved the streak — so a
+            // listener can never see the one without the other.
+            CheckInSettled::dispatch($checkIn);
 
             return $checkIn;
         });

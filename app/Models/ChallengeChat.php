@@ -8,9 +8,11 @@ use Database\Factories\ChallengeChatFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * A creator-owned channel or group registered as a challenge's broadcast
@@ -36,6 +38,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  * @property-read Challenge $challenge
+ * @property-read Collection<int, ChallengeChatPost> $posts
  */
 #[Fillable([
     'challenge_id',
@@ -60,6 +63,16 @@ class ChallengeChat extends Model
     public function challenge(): BelongsTo
     {
         return $this->belongsTo(Challenge::class);
+    }
+
+    /**
+     * What has already gone out — the idempotency ledger for posts.
+     *
+     * @return HasMany<ChallengeChatPost, $this>
+     */
+    public function posts(): HasMany
+    {
+        return $this->hasMany(ChallengeChatPost::class, 'challenge_chat_id');
     }
 
     /**

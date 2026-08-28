@@ -292,4 +292,22 @@ return [
         'stale_button' => 'That button is no longer live. Send /create to start a challenge.',
     ],
 
+    /*
+    | What goes out into a linked chat. These lines are read by a mixed-language
+    | audience, so they render in the platform's fallback locale — the same
+    | choice the announcement channel makes. The check-in line carries only a
+    | name, a period number and a streak: anything else about the participant
+    | is not the chat's business.
+    */
+    'chatpost' => [
+        'checkin' => ':name checked in for period :period of :total — streak: :streak 🔥',
+        'leaderboard' => [
+            'headline' => 'Top streaks in “:title”',
+            'row' => ':rank. :name — :streak in a row',
+            'not_admin' => 'Only administrators of this chat can ask for the leaderboard.',
+            'cooldown' => 'The leaderboard was just posted. Try again in :minutes minute(s).',
+            'empty' => 'Nobody is on the board yet — check in to get there first.',
+        ],
+    ],
+
 ];

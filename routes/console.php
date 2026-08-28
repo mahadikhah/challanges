@@ -26,6 +26,10 @@ Schedule::command('challenges:roll-over')->everyMinute();
 // staggered one send a second.
 Schedule::command('challenges:reminders')->everyMinute();
 
+// Post the daily leaderboard into each opted-in linked chat, in the
+// challenge's own timezone's leaderboard hour, staggered like reminders.
+Schedule::command('challenges:leaderboards')->everyMinute();
+
 // Mini App bearer tokens are short-lived; this keeps `personal_access_tokens`
 // from growing one app-open at a time. Retains tokens expired less than 24h,
 // so debugging yesterday's session is still possible.

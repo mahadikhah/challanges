@@ -19,11 +19,12 @@ use Illuminate\Support\Facades\Log;
  *
  * Three jobs, in this order, and the order is the point:
  *
- * 1. **Refuse anything that is not a private chat.** The bot is an admin of the
- *    announcement channel and may be added to groups, so `message` updates arrive
- *    from places that are not a conversation with one identifiable user. Replying
- *    into a group, or worse resolving a "user" from a channel post, is how private
- *    state leaks.
+ * 1. **Split by surface first.** A private chat is a conversation with one
+ *    identifiable user; anything else may be a linked challenge chat, which is
+ *    a different surface with its own (tiny) command set, handed to
+ *    `LinkedChatHandler` rather than resolved as a user here. Replying into a
+ *    group as if it were a DM, or worse resolving a "user" from a channel
+ *    post, is how private state leaks.
  * 2. **Resolve the user exactly once, here.** Not in each command handler, because
  *    `ClaimInvite` pays an inviter only when `wasRecentlyCreated` is true on the
  *    instance that performed the INSERT — a second lookup downstream would report
@@ -48,15 +49,16 @@ class MessageHandler implements HandlesUpdate
         private readonly CompleteStarsPayment $completePayment,
         private readonly CoinLedger $ledger,
         private readonly BotMessenger $messenger,
+        private readonly LinkedChatHandler $inChats,
     ) {}
 
     public function handle(TelegramUpdate $update): void
     {
         if ($update->value('message.chat.type') !== 'private') {
-            Log::info('Ignoring a Telegram message from outside a private chat.', [
-                'update_id' => $update->update_id,
-                'chat_type' => $update->value('message.chat.type'),
-            ]);
+            // Not a refusal but a different surface: a message inside a linked
+            // chat is the group's to command, and the group handler decides
+            // whether it is one of ours before anything is resolved or sent.
+            $this->inChats->handle($update);
 
             return;
         }
