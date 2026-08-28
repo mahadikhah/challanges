@@ -2559,3 +2559,49 @@ with privacy gating and staggered fan-out, per `prompts/phase-8.md`.
 tsc ✓, tests **1182 (1178 pass, 4 skipped)**, 3731 assertions.
 
 **Next:** Phase 8 Task 3 per `prompts/phase-8.md`.
+
+---
+
+## Phase 9 — Timed & stepped challenges
+
+### Task 1 — schema & design-time validation ✅
+
+**What shipped** (`06340e7`):
+- `flow_type` on `challenges` (`simple | timed_session`, default `simple`) — orthogonal to `proof_type`,
+  which stays meaningful in both flows; existing challenges untouched.
+- `ChallengeStep`: `step_order` unique per challenge (1-based; position is the order), `input_type`
+  (`button | image | voice`), `min_wait_seconds` (unsigned), `voice_max_seconds` (nullable, required iff
+  voice), creator `label`. Immutable in practice — a design cannot be edited once participants exist.
+- `CheckInSession`: **one open session per (participant, period) enforced at the schema level** via a
+  *stored generated column* `open` (`CASE WHEN status = 'in_progress' THEN 1 ELSE NULL END`) riding the
+  unique index — MySQL has no partial unique indexes, and NULL columns are ignored by unique indexes, so
+  the constraint relaxes itself the moment a session leaves `in_progress`. Derived, not maintained, so it
+  cannot drift. Plus `(period, status)` index for the Task 2 expiry sweep.
+- `CheckInStepSubmission`: `proof_path` **mirrors `check_ins.proof_path` exactly** — same name, same
+  nullable-storage-path shape, same `local` disk. One proof-storage convention platform-wide, per the
+  task's "do not invent a second storage convention".
+- `ValidateChallengeStepDesign`: sums `min_wait_seconds` and rejects a design whose *minimum possible*
+  duration overruns one period, naming the excess in seconds. **The period's length is computed by the
+  existing `MaterialiseChallengePeriods::boundaries()`** on an unsaved one-period `Challenge` carrying the
+  configuration under validation — seasonal quarter-lengths, custom day counts and DST no-overflow stay
+  defined in exactly one place, and the validator can never disagree with the timeline it validates for.
+  Voice cap validated in both directions (required on voice, forbidden elsewhere); negative waits refused.
+- Wired into `CreateChallenge` (signature: `... $defaultFreezes, FlowType $flowType = Simple, ?array
+  $steps = null`), so the bot wizard, Mini App and admin panel all inherit it — **assumption recorded:**
+  the task said "wire into the challenge-creation Form Request", but challenge creation has no HTTP Form
+  Request (the bot wizard calls the Action directly, and there is no admin/Mini App creation endpoint
+  yet); the Action is the one place every surface already passes through, which is a strictly stronger
+  position. Step rows persist inside the creation transaction, all-or-nothing with the slot and timeline.
+- **Tests** — `ChallengeStepDesignTest` (21): accept/reject datasets over **all six period types** with
+  durations derived from the materialiser itself (no hardcoded seconds-per-period anywhere); excess named
+  in the message; voice-cap both directions ×{button, image}; empty step list; negative wait; step rows
+  persisted with order + voice cap; overrunning design creates nothing and spends no slot; simple
+  challenges unchanged; one-open-session constraint (second open session violates the index, next period
+  allowed, same period allowed after expiry).
+
+**Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓,
+tsc ✓, tests **1203 (1199 pass, 4 skipped)**, 3779 assertions.
+
+**Next:** Phase 9 Task 2 — session lifecycle Actions (`StartCheckInSession` / `AdvanceCheckInStep` /
+`CompleteCheckInSession` / `ExpireStaleCheckInSessions`), feeding completion into the existing
+`SettleCheckIn` unchanged.
