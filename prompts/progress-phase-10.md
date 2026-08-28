@@ -100,3 +100,53 @@ ESLint/Prettier/tsc — 4 skipped + 1 incomplete are pre-existing).
 - Operations should call `RunAiProviderChainAction` with an `AiOperationIdentity` created
   once per run and serialized across queue retries; estimates come from
   `config('ai_usage.estimates.<operation>')` — add new operations there.
+
+## Phase 10 Task 1: `approval_mode` + criteria generation & screening — DONE
+
+**Commit:** feat(challenges): approval_mode + AI criteria suggestion and injection screening
+
+### What landed
+- `ApprovalMode` enum (`manual`/`ai`, HasTranslatedLabel, en+fa labels) + `challenges.approval_mode`
+  (default `manual`) and `challenges.approval_criteria` (text, nullable). `Challenge` gained
+  `#[Fillable]` entries + casts + `@property` PHPDoc (Laravel 13 attribute fillable — forgetting the
+  attribute silently drops the column on create).
+- `SuggestApprovalCriteria($title, $description)`: one kit call (`criteria_generation` capability),
+  platform-authored system prompt, title/description fenced as `<challenge>` data, clamped to 500
+  chars, returns null (never throws) when no provider answers.
+- `ScreenApprovalCriteria($text, $creator, ?$challenge)`: one cheap kit call
+  (`criteria_screening`) asking ONLY whether the text attempts to redirect an AI reviewer / claim
+  system authority / instruct ignoring rules. Strict `PASS` / `FLAG: reason` parsing; anything
+  unparseable is `Unscreened` (fail-closed without accusing). Always writes an
+  `approval_criteria_screenings` row (verdict Clean/Flagged/Unscreened + submitted_text + reason).
+- Wizard wiring: `AwaitingApprovalMode` → (ai) suggestion generated inline →
+  `AwaitingApprovalCriteriaConfirm` (Use this / Write my own) → typed path via
+  `AwaitingApprovalCriteria` with screening. Flagged/Unscreened → mode reset to manual in the draft,
+  criteria dropped, distinct fallback copy (en+fa). No-suggestion → typed path directly. Summary
+  shows the criteria for AI-reviewed challenges; `finish()` passes mode+criteria to CreateChallenge.
+- `CreateChallenge`: ai mode requires non-empty criteria (InvalidArgumentException otherwise);
+  mode/criteria degrade to manual/null for non-`image_approval` proof types; 500-char cap;
+  `limits()['approval_criteria_max']` surfaced to prompts.
+- `SettingKey::AiApprovalConfidenceThreshold` (default 80) — read by Task 2.
+- Lang: 3 wizard states × prompt/error/expected + 5 criteria lines + summary line, en + fa.
+
+### Tests (27 new)
+- `tests/Feature/Ai/ApprovalCriteriaTest.php` (19): suggestion clamp + fenced-data prompt shape,
+  no-provider null, clean/flagged/unscreened verdicts, 6-dataset injection catalogue, unusual-but-
+  honest criteria passes, unparseable answer, provider-500 fail-closed, CreateChallenge invariants
+  (ai-without-criteria refused, 501-char cap, non-photo degrade).
+- `tests/Feature/Bot/CreateChallengeWizardTest.php` +8: approval branch only for photo proof,
+  accept-suggestion-stored-without-screening, decline→typed→clean stored, flagged → manual fallback
+  + admin log row, provider-down → manual fallback + unscreened row, no-suggestion path, over-cap
+  re-ask, summary line.
+
+### Gotchas hit (worth remembering)
+- Promoted constructor property holding an invokable action must be called as `($this->chain)(...)`
+  — `$this->chain(...)` is "undefined method" at runtime, silently swallowed by the screening
+  catch-block as Unscreened.
+- Kit tests must reuse the seeded capability rows (unique key) — `update(['is_active' => true])`,
+  not `factory()->create()`.
+- `Http::fake()` patterns must be top-level string keys; nesting arrays under a host key silently
+  fails to match → StrayRequestException.
+
+**Quality gate:** `sail composer ci:check` green (1315 passed, 4 skipped + 1 incomplete pre-existing;
+pint, phpstan lvl 7, eslint, prettier, tsc all clean).
