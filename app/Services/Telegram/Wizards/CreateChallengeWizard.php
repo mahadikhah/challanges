@@ -2,10 +2,14 @@
 
 namespace App\Services\Telegram\Wizards;
 
+use App\Actions\Ai\ScreenApprovalCriteria;
+use App\Actions\Ai\SuggestApprovalCriteria;
 use App\Actions\Challenges\CreateChallenge;
 use App\Actions\Challenges\ValidateChallengeStepDesign;
 use App\Actions\Entitlements\ConsumeEntitlement;
 use App\Actions\Telegram\VerifyChannelMembership;
+use App\Enums\ApprovalCriteriaVerdict;
+use App\Enums\ApprovalMode;
 use App\Enums\ChallengeVisibility;
 use App\Enums\ConversationState;
 use App\Enums\EntitlementType;
@@ -127,6 +131,8 @@ class CreateChallengeWizard
         private readonly ConsumeEntitlement $entitlements,
         private readonly CreateChallenge $createChallenge,
         private readonly ValidateChallengeStepDesign $stepDesign,
+        private readonly SuggestApprovalCriteria $suggestCriteria,
+        private readonly ScreenApprovalCriteria $screenCriteria,
         private readonly BotMessenger $messenger,
         private readonly Settings $settings,
     ) {}
@@ -199,8 +205,16 @@ class CreateChallengeWizard
             return;
         }
 
-        $answers = $this->parseText($state, $text, ChallengeDraft::of($conversation));
+        // A typed criteria is screened before it is stored, and the verdict
+        // decides what the flow carries forward — its own branch for the same
+        // reason the step loop has one: two different destinations.
+        if ($state === ConversationState::AwaitingApprovalCriteria) {
+            $this->receiveTypedCriteria($user, $conversation, $text);
 
+            return;
+        }
+
+        $answers = $this->parseText($state, $text, ChallengeDraft::of($conversation));
         if ($answers === null) {
             $this->ask($user, $conversation, [$this->say($user, $conversation, "bot.wizard.{$state->value}.error")]);
 
@@ -241,8 +255,32 @@ class CreateChallengeWizard
             return;
         }
 
-        if ($asked === ConversationState::AwaitingStepLoop) {
-            // The loop's two answers each take a different next step, so neither
+        if ($asked === ConversationState::AwaitingApprovalMode) {
+            // Choosing AI review generates the suggestion right away, so the
+            // next thing the creator sees is either the suggestion to confirm
+            // or the write-your-own question — never a dead "ok".
+            if (($mode = ApprovalMode::tryFrom($value)) !== null) {
+                $this->chooseApprovalMode($user, $conversation, $mode);
+            } else {
+                $this->ask($user, $conversation, [$this->say($user, $conversation, 'bot.wizard.awaiting_approval_mode.error')]);
+            }
+
+            return;
+        }
+
+        if ($asked === ConversationState::AwaitingApprovalCriteriaConfirm) {
+            if ($value === self::CONFIRM || $value === self::SKIP) {
+                $this->answerCriteriaChoice($user, $conversation, $value);
+
+                return;
+            }
+
+            $this->ask($user, $conversation, [$this->messenger->line($user, 'bot.fallback.stale_button')]);
+
+            return;
+        }
+
+        if ($asked === ConversationState::AwaitingStepLoop) {            // The loop's two answers each take a different next step, so neither
             // can go through the one-question-one-successor `advance()`.
             if ($value === self::ADD_STEP) {
                 $conversation->advanceTo(ConversationState::AwaitingStepInputType, [ChallengeDraft::PENDING_STEP => null])->save();
@@ -324,7 +362,19 @@ class CreateChallengeWizard
             ConversationState::AwaitingTimezone => ConversationState::AwaitingStartDate,
             ConversationState::AwaitingStartDate => ConversationState::AwaitingTotalPeriods,
             ConversationState::AwaitingTotalPeriods => ConversationState::AwaitingProofType,
-            ConversationState::AwaitingProofType => ConversationState::AwaitingVisibility,
+
+            // The third branch: only a photo-proof challenge is asked who
+            // reviews it. AI review then needs criteria, gathered on its own
+            // two-step path (`criteriaFlow` owns the transition in).
+            ConversationState::AwaitingProofType => $draft->proofType() === ProofType::ImageApproval
+                ? ConversationState::AwaitingApprovalMode
+                : ConversationState::AwaitingVisibility,
+
+            ConversationState::AwaitingApprovalMode => $draft->approvalMode() === ApprovalMode::Ai
+                ? ConversationState::AwaitingApprovalCriteria
+                : ConversationState::AwaitingVisibility,
+            ConversationState::AwaitingApprovalCriteria,
+            ConversationState::AwaitingApprovalCriteriaConfirm => ConversationState::AwaitingVisibility,
             ConversationState::AwaitingVisibility => ConversationState::AwaitingFlowType,
 
             // The second branch: a timed session opens the step loop, which
@@ -405,10 +455,12 @@ class CreateChallengeWizard
     {
         return [
             'timezone' => $draft->timezone() ?? '—',
+            'criteria' => $draft->approvalCriteria() ?? '—',
             'title_max' => CreateChallenge::limits()['title_max'],
             'description_max' => CreateChallenge::limits()['description_max'],
             'total_periods_max' => CreateChallenge::limits()['total_periods_max'],
             'custom_period_days_max' => CreateChallenge::limits()['custom_period_days_max'],
+            'criteria_max' => CreateChallenge::limits()['approval_criteria_max'],
             'wait_max' => self::STEP_WAIT_MAX,
             'voice_max' => self::VOICE_LIMIT_MAX,
             'label_max' => self::STEP_LABEL_MAX,
@@ -433,6 +485,11 @@ class CreateChallengeWizard
                 self::TOMORROW => $this->messenger->line($user, 'bot.wizard.tomorrow_button'),
             ],
             ConversationState::AwaitingProofType => $this->enumOptions($user, ProofType::cases()),
+            ConversationState::AwaitingApprovalMode => $this->enumOptions($user, ApprovalMode::cases()),
+            ConversationState::AwaitingApprovalCriteriaConfirm => [
+                self::CONFIRM => $this->messenger->line($user, 'bot.wizard.criteria_accept_button'),
+                self::SKIP => $this->messenger->line($user, 'bot.wizard.criteria_edit_button'),
+            ],
             ConversationState::AwaitingVisibility => $this->enumOptions($user, ChallengeVisibility::cases()),
             ConversationState::AwaitingFlowType => $this->enumOptions($user, FlowType::cases()),
             ConversationState::AwaitingStepLoop => [
@@ -458,6 +515,7 @@ class CreateChallengeWizard
         // sentences; period types and timezones are words.
         $perRow = in_array($state, [
             ConversationState::AwaitingProofType,
+            ConversationState::AwaitingApprovalMode,
             ConversationState::AwaitingVisibility,
         ], true) ? 1 : 2;
 
@@ -470,7 +528,7 @@ class CreateChallengeWizard
      * `label()` is not usable here: it resolves in the ambient locale, which in a
      * queue worker is whoever was processed last.
      *
-     * @param  list<PeriodType|ProofType|ChallengeVisibility|FlowType|StepInputType>  $cases
+     * @param  list<PeriodType|ProofType|ChallengeVisibility|FlowType|StepInputType|ApprovalMode>  $cases
      * @return array<string, string>
      */
     private function enumOptions(User $user, array $cases): array
@@ -533,6 +591,15 @@ class CreateChallengeWizard
             ])
             : $this->messenger->line($user, $draft->flowType()->translationKey());
 
+        // Only AI review is worth a line of its own: the criteria is what the
+        // participants' proofs will be judged against, and the confirmation is
+        // the last place a creator can catch a suggestion they meant to edit.
+        $approvalLine = $draft->approvalMode() === ApprovalMode::Ai && $draft->approvalCriteria() !== null
+            ? [$this->messenger->line($user, 'bot.wizard.summary_approval', [
+                'criteria' => (string) $draft->approvalCriteria(),
+            ])]
+            : [];
+
         return [$this->messenger->line($user, 'bot.wizard.summary', [
             'title' => (string) $draft->title(),
             'description' => $draft->description() ?? $this->messenger->line($user, 'bot.wizard.no_description'),
@@ -545,7 +612,7 @@ class CreateChallengeWizard
             'visibility' => $visibility === null ? '—' : $this->messenger->line($user, $visibility->translationKey()),
             'flow' => $flowLine,
             'freezes' => $this->settings->integer(SettingKey::DefaultChallengeFreezes),
-        ])];
+        ]), ...$approvalLine];
     }
 
     /**
@@ -629,6 +696,10 @@ class CreateChallengeWizard
                 ? null
                 : [ChallengeDraft::PROOF_TYPE => $proof->value],
 
+            // `parseText`, not here: a typed criteria is the normal path and
+            // the confirm step's two buttons are handled in `receiveChoice`.
+            ConversationState::AwaitingApprovalCriteriaConfirm => null,
+
             ConversationState::AwaitingVisibility => ($visibility = ChallengeVisibility::tryFrom($value)) === null
                 ? null
                 : [ChallengeDraft::VISIBILITY => $visibility->value],
@@ -706,6 +777,8 @@ class CreateChallengeWizard
                 visibility: $draft->visibility() ?? ChallengeVisibility::InviteOnly,
                 flowType: $draft->flowType(),
                 steps: $draft->flowType() === FlowType::TimedSession ? $draft->steps() : null,
+                approvalMode: $draft->approvalMode(),
+                approvalCriteria: $draft->approvalCriteria(),
             );
         } catch (NoEntitlementAvailableException) {
             // They had a slot when the flow opened and spent it elsewhere since.
@@ -918,6 +991,126 @@ class CreateChallengeWizard
         $conversation->advanceTo(ConversationState::AwaitingCreateConfirmation)->save();
 
         $this->ask($user, $conversation);
+    }
+
+    /**
+     * Record who reviews the proofs, and open the criteria path AI review needs.
+     *
+     * Manual review is a one-answer step. AI review is not: it needs criteria,
+     * and the recommended source is a suggestion generated from the challenge's
+     * own title — asked for here so the suggestion is on screen before the
+     * creator is asked to do anything with it.
+     */
+    private function chooseApprovalMode(User $user, BotConversation $conversation, ApprovalMode $mode): void
+    {
+        if ($mode === ApprovalMode::Manual) {
+            $this->advance($user, $conversation, ConversationState::AwaitingApprovalMode, [
+                ChallengeDraft::APPROVAL_MODE => ApprovalMode::Manual->value,
+                ChallengeDraft::APPROVAL_CRITERIA => null,
+                ChallengeDraft::CRITERIA_FROM_SUGGESTION => null,
+            ]);
+
+            return;
+        }
+
+        $draft = ChallengeDraft::of($conversation);
+
+        // Generated inside the conversation's job, not queued on its own: the
+        // suggestion is what the very next message shows, and a queued call
+        // would leave the flow parked on a prompt that has nothing to show.
+        $suggestion = $this->suggestCriteria->suggest((string) $draft->title(), $draft->description());
+
+        if ($suggestion === null) {
+            // No provider answered. AI review is unavailable *now*; the
+            // creator still gets their challenge, with a typed criteria if the
+            // screening capability is up, and manual review if it is not.
+            $conversation->advanceTo(ConversationState::AwaitingApprovalMode, [
+                ChallengeDraft::APPROVAL_MODE => ApprovalMode::Ai->value,
+            ])->advanceTo(ConversationState::AwaitingApprovalCriteria)->save();
+
+            $this->ask($user, $conversation, [$this->messenger->line($user, 'bot.wizard.criteria_no_suggestion')]);
+
+            return;
+        }
+
+        $conversation->advanceTo(ConversationState::AwaitingApprovalMode, [
+            ChallengeDraft::APPROVAL_MODE => ApprovalMode::Ai->value,
+            ChallengeDraft::APPROVAL_CRITERIA => $suggestion,
+            ChallengeDraft::CRITERIA_FROM_SUGGESTION => '1',
+        ])->advanceTo(ConversationState::AwaitingApprovalCriteriaConfirm)->save();
+
+        $this->ask($user, $conversation);
+    }
+
+    /**
+     * Accept the suggested criteria, or move to typing one's own.
+     *
+     * The suggestion rides in the draft from the moment it is generated, so
+     * accepting is just leaving it there — and the draft is what survives a
+     * deploy between the two taps, not the keyboard the buttons came on.
+     */
+    private function answerCriteriaChoice(User $user, BotConversation $conversation, string $value): void
+    {
+        if ($value === self::CONFIRM) {
+            $conversation->advanceTo(ConversationState::AwaitingApprovalCriteriaConfirm)
+                ->advanceTo(ConversationState::AwaitingVisibility)->save();
+
+            $this->ask($user, $conversation);
+
+            return;
+        }
+
+        $conversation->advanceTo(ConversationState::AwaitingApprovalCriteriaConfirm, [
+            ChallengeDraft::APPROVAL_CRITERIA => null,
+            ChallengeDraft::CRITERIA_FROM_SUGGESTION => null,
+        ])->advanceTo(ConversationState::AwaitingApprovalCriteria)->save();
+
+        $this->ask($user, $conversation);
+    }
+
+    /**
+     * Screen a typed criteria and carry the verdict.
+     *
+     * The one place creator-written text can enter `approval_criteria`. A
+     * clean verdict stores it; anything else falls back to manual review with
+     * the attempt logged for an admin — never stored, never silently dropped.
+     */
+    private function receiveTypedCriteria(User $user, BotConversation $conversation, string $text): void
+    {
+        $text = trim($text);
+        $max = CreateChallenge::limits()['approval_criteria_max'];
+
+        if ($text === '' || mb_strlen($text) > $max) {
+            $this->ask($user, $conversation, [$this->say($user, $conversation, 'bot.wizard.awaiting_approval_criteria.error')]);
+
+            return;
+        }
+
+        $screening = $this->screenCriteria->screen($text, $user);
+
+        if ($screening->verdict === ApprovalCriteriaVerdict::Clean) {
+            $conversation->advanceTo(ConversationState::AwaitingApprovalCriteria, [
+                ChallengeDraft::APPROVAL_CRITERIA => $text,
+                ChallengeDraft::CRITERIA_FROM_SUGGESTION => null,
+            ])->advanceTo(ConversationState::AwaitingVisibility)->save();
+
+            $this->ask($user, $conversation);
+
+            return;
+        }
+
+        // Flagged, or the filter could not be reached. Either way the text is
+        // not stored and the challenge is created with a human reviewer; the
+        // screening row is the admin's record of what was attempted.
+        $conversation->advanceTo(ConversationState::AwaitingApprovalCriteria, [
+            ChallengeDraft::APPROVAL_MODE => ApprovalMode::Manual->value,
+            ChallengeDraft::APPROVAL_CRITERIA => null,
+            ChallengeDraft::CRITERIA_FROM_SUGGESTION => null,
+        ])->advanceTo(ConversationState::AwaitingVisibility)->save();
+
+        $this->ask($user, $conversation, [$this->messenger->line($user, $screening->verdict === ApprovalCriteriaVerdict::Flagged
+            ? 'bot.wizard.criteria_flagged'
+            : 'bot.wizard.criteria_unscreened')]);
     }
 
     /**

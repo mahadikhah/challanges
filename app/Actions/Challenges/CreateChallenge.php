@@ -3,6 +3,7 @@
 namespace App\Actions\Challenges;
 
 use App\Actions\Entitlements\ConsumeEntitlement;
+use App\Enums\ApprovalMode;
 use App\Enums\ChallengeStatus;
 use App\Enums\ChallengeVisibility;
 use App\Enums\EntitlementType;
@@ -66,6 +67,12 @@ class CreateChallenge
 
     private const CUSTOM_PERIOD_DAYS_MAX = 365;
 
+    /**
+     * Descriptive criteria for an AI reviewer, not an essay. Shared with the
+     * AI suggestion clamp so the model cannot talk its way past the bound.
+     */
+    public const APPROVAL_CRITERIA_MAX = 500;
+
     public function __construct(
         private readonly ConsumeEntitlement $entitlements,
         private readonly MaterialiseChallengePeriods $periods,
@@ -85,6 +92,8 @@ class CreateChallenge
      * @param  int|null  $defaultFreezes  null takes the admin-configured default
      * @param  list<array{input_type: StepInputType, min_wait_seconds: int, voice_max_seconds?: int|null, label?: string|null}>|null  $steps
      *                                                                                                                                        the timed-session step list; required when `$flowType` is `timed_session`, ignored otherwise
+     * @param  ApprovalMode|null  $approvalMode  null keeps `manual`; `ai` additionally requires a non-empty `$approvalCriteria`
+     * @param  string|null  $approvalCriteria  pre-screened criteria; never re-screened here — the floor is that it exists, not that it is trustworthy
      *
      * @throws InvalidArgumentException when the challenge could not be a coherent challenge
      * @throws NoEntitlementAvailableException when the creator holds no create-slot
@@ -104,11 +113,32 @@ class CreateChallenge
         ?int $defaultFreezes = null,
         FlowType $flowType = FlowType::Simple,
         ?array $steps = null,
+        ?ApprovalMode $approvalMode = null,
+        ?string $approvalCriteria = null,
     ): Challenge {
         $title = trim($title);
         $description = $description === null ? null : trim($description);
+        $approvalCriteria = $approvalCriteria === null ? null : trim($approvalCriteria);
 
         $this->assertCoherent($title, $description, $periodType, $customPeriodDays, $totalPeriods, $timezone);
+
+        // AI review is an attribute of `image_approval` only: a tap or a typed
+        // phrase has no photo to look at, and criteria next to them is prose
+        // with nothing to constrain. The mode degrades to manual rather than
+        // refusing, because a caller that asked for AI review on a button
+        // challenge has built a working challenge with a stray parameter.
+        $approvalMode = $proofType === ProofType::ImageApproval ? $approvalMode : null;
+        $approvalCriteria = $approvalMode === ApprovalMode::Ai ? $approvalCriteria : null;
+
+        if ($approvalMode === ApprovalMode::Ai && ($approvalCriteria === null || $approvalCriteria === '')) {
+            throw new InvalidArgumentException('An AI-reviewed challenge needs approval criteria.');
+        }
+
+        if ($approvalCriteria !== null && mb_strlen($approvalCriteria) > self::APPROVAL_CRITERIA_MAX) {
+            throw new InvalidArgumentException(
+                'Approval criteria may not exceed '.self::APPROVAL_CRITERIA_MAX.' characters.',
+            );
+        }
 
         // A timed session is a way to arrive at a check-in, so its design must
         // be provably completable inside one period before anything is spent
@@ -134,7 +164,9 @@ class CreateChallenge
             $proofIsPublic,
             $defaultFreezes,
             $flowType,
-            $steps
+            $steps,
+            $approvalMode,
+            $approvalCriteria
         ): Challenge {
             $challenge = Challenge::query()->create([
                 'creator_id' => $creator->getKey(),
@@ -153,6 +185,8 @@ class CreateChallenge
                 'timezone' => $timezone,
                 'visibility' => $visibility,
                 'proof_type' => $proofType,
+                'approval_mode' => $approvalMode ?? ApprovalMode::Manual,
+                'approval_criteria' => $approvalCriteria,
                 'flow_type' => $flowType,
 
                 // Two gates, and the type's is not negotiable: publishing an
@@ -254,7 +288,7 @@ class CreateChallenge
     /**
      * The bounds a surface should validate against before it asks the user twice.
      *
-     * @return array{title_max: int, description_max: int, total_periods_max: int, custom_period_days_max: int}
+     * @return array{title_max: int, description_max: int, total_periods_max: int, custom_period_days_max: int, approval_criteria_max: int}
      */
     public static function limits(): array
     {
@@ -263,6 +297,7 @@ class CreateChallenge
             'description_max' => self::DESCRIPTION_MAX,
             'total_periods_max' => self::TOTAL_PERIODS_MAX,
             'custom_period_days_max' => self::CUSTOM_PERIOD_DAYS_MAX,
+            'approval_criteria_max' => self::APPROVAL_CRITERIA_MAX,
         ];
     }
 }

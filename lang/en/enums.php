@@ -33,6 +33,11 @@ return [
         'image_approval' => 'Photo, approved by the creator',
     ],
 
+    'approval_mode' => [
+        'manual' => 'I review the photos myself',
+        'ai' => 'Let AI review the photos',
+    ],
+
     'challenge_status' => [
         'scheduled' => 'Scheduled',
         'active' => 'Active',

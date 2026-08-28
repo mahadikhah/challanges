@@ -2,6 +2,7 @@
 
 namespace App\Services\Telegram\Wizards;
 
+use App\Enums\ApprovalMode;
 use App\Enums\ChallengeVisibility;
 use App\Enums\FlowType;
 use App\Enums\PeriodType;
@@ -44,6 +45,16 @@ readonly class ChallengeDraft
     public const string TOTAL_PERIODS = 'total_periods';
 
     public const string PROOF_TYPE = 'proof_type';
+
+    public const string APPROVAL_MODE = 'approval_mode';
+
+    public const string APPROVAL_CRITERIA = 'approval_criteria';
+
+    /**
+     * Whether the stored criteria came from the AI suggestion unedited —
+     * skipped screening per §2.8, so the answer must survive the round-trip.
+     */
+    public const string CRITERIA_FROM_SUGGESTION = 'criteria_from_suggestion';
 
     public const string VISIBILITY = 'visibility';
 
@@ -128,6 +139,33 @@ readonly class ChallengeDraft
         $value = $this->text(self::PROOF_TYPE);
 
         return $value === null ? null : ProofType::tryFrom($value);
+    }
+
+    /**
+     * The approval mode, meaningful only for `image_approval` drafts.
+     *
+     * A default rather than an answer-shaped null, mirroring `flowType()`: a
+     * conversation parked before this question existed must stay finishable,
+     * and `manual` is what the database column defaults to anyway.
+     */
+    public function approvalMode(): ApprovalMode
+    {
+        $value = $this->text(self::APPROVAL_MODE);
+
+        return $value === null ? ApprovalMode::Manual : (ApprovalMode::tryFrom($value) ?? ApprovalMode::Manual);
+    }
+
+    public function approvalCriteria(): ?string
+    {
+        return $this->text(self::APPROVAL_CRITERIA);
+    }
+
+    /**
+     * Whether the stored criteria is the AI suggestion, accepted unedited.
+     */
+    public function criteriaIsFromSuggestion(): bool
+    {
+        return $this->text(self::CRITERIA_FROM_SUGGESTION) === '1';
     }
 
     public function visibility(): ?ChallengeVisibility
@@ -296,7 +334,8 @@ readonly class ChallengeDraft
         }
 
         return ! ($this->periodType()?->requiresCustomDays() === true && $this->customPeriodDays() === null)
-            && ! ($this->flowType() === FlowType::TimedSession && $this->steps() === []);
+            && ! ($this->flowType() === FlowType::TimedSession && $this->steps() === [])
+            && ! ($this->approvalMode() === ApprovalMode::Ai && $this->approvalCriteria() === null);
     }
 
     /**

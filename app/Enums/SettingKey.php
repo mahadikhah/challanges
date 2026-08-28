@@ -63,6 +63,12 @@ enum SettingKey: string
     case ChatVerificationTtlHours = 'chat_verification_ttl_hours';
     case ChatCommandCooldownSeconds = 'chat_command_cooldown_seconds';
 
+    /*
+    | AI-assisted approval (§2.8). Provider/model choice lives on the provider
+    | accounts themselves; this is the decision threshold Task 2 reads.
+    */
+    case AiApprovalConfidenceThreshold = 'ai_approval_confidence_threshold';
+
     /**
      * The value shape this setting accepts.
      */
@@ -165,6 +171,14 @@ enum SettingKey: string
             | a nudge, not a notification channel.
             */
             self::ChatCommandCooldownSeconds => 300,
+
+            /*
+            | AI approval confidence, as a percentage. An AI-reviewed decision
+            | at or above this applies immediately; anything lower routes to
+            | the manual queue. Eighty: wrong-but-confident decisions are the
+            | failure mode that erodes trust fastest, so the bar sits high.
+            */
+            self::AiApprovalConfidenceThreshold => 80,
         };
     }
 }

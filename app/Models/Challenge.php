@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ApprovalMode;
 use App\Enums\ChallengeStatus;
 use App\Enums\ChallengeVisibility;
 use App\Enums\FlowType;
@@ -33,6 +34,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $timezone
  * @property ChallengeVisibility $visibility
  * @property ProofType $proof_type
+ * @property ApprovalMode $approval_mode
+ * @property string|null $approval_criteria
  * @property FlowType $flow_type
  * @property bool $proof_is_public
  * @property int $default_freezes
@@ -56,6 +59,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'timezone',
     'visibility',
     'proof_type',
+    'approval_mode',
+    'approval_criteria',
     'flow_type',
     'proof_is_public',
     'default_freezes',
@@ -234,6 +239,7 @@ class Challenge extends Model
             'total_periods' => 'integer',
             'visibility' => ChallengeVisibility::class,
             'proof_type' => ProofType::class,
+            'approval_mode' => ApprovalMode::class,
             'flow_type' => FlowType::class,
             'proof_is_public' => 'boolean',
             'default_freezes' => 'integer',

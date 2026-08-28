@@ -33,6 +33,11 @@ return [
         'image_approval' => 'عکس، با تأیید سازنده',
     ],
 
+    'approval_mode' => [
+        'manual' => 'خودم عکس‌ها را بررسی می‌کنم',
+        'ai' => 'هوش مصنوعی عکس‌ها را بررسی کند',
+    ],
+
     'challenge_status' => [
         'scheduled' => 'زمان‌بندی‌شده',
         'active' => 'در جریان',

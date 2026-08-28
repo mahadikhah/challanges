@@ -179,10 +179,17 @@ return [
         'add_step_button' => 'Add a step',
         'done_steps_button' => 'Done — check the design',
 
+        'criteria_accept_button' => 'Use this',
+        'criteria_edit_button' => 'Write my own',
+        'criteria_no_suggestion' => 'I could not draft criteria right now, so please write your own — what should a valid check-in photo show?',
+        'criteria_flagged' => 'Those criteria could not be accepted, so the challenge will use manual review instead. You can edit them and try again, or continue.',
+        'criteria_unscreened' => 'I could not check those criteria just now, so the challenge will use manual review instead. You can try again in a moment, or continue.',
+
         'steps_too_long' => "Those steps can't work: their waits add up to at least :minimum, but one period of this challenge lasts only :period. Drop a step or shorten the waits.",
 
         'summary' => "Here is your challenge:\n\nTitle: :title\nDescription: :description\nPeriod: :period\nCustom length: :custom_days days\nStarts: :start (:timezone)\nPeriods: :periods\nProof: :proof\nVisibility: :visibility\nFlow: :flow\nFreezes each: :freezes",
         'summary_steps' => ':steps steps, at least :minimum of waiting per session (one period lasts :period)',
+        'summary_approval' => 'Reviewed by AI against: “:criteria”',
 
         'created' => '“:title” is ready.',
         'created_timeline' => ':periods periods, starting :start in :timezone.',
@@ -235,6 +242,24 @@ return [
             'prompt' => 'How does somebody prove they did it?',
             'error' => 'Please pick one of the proof types offered.',
             'expected' => 'Tap one of the buttons to pick a proof type.',
+        ],
+
+        'awaiting_approval_mode' => [
+            'prompt' => 'Who reviews the check-in photos?',
+            'error' => 'Please pick one of the options offered.',
+            'expected' => 'Tap one of the buttons to choose who reviews the photos.',
+        ],
+
+        'awaiting_approval_criteria' => [
+            'prompt' => 'What should a valid check-in photo show? One sentence, up to :criteria_max characters. The AI reviewer will judge every photo against it.',
+            'error' => 'That needs to be one sentence of at most :criteria_max characters.',
+            'expected' => 'Send the criteria as a text message.',
+        ],
+
+        'awaiting_approval_criteria_confirm' => [
+            'prompt' => "Here is a suggestion based on your challenge:\n\n“:criteria”\n\nUse it as written, or write your own.",
+            'error' => 'Please use the buttons on this question.',
+            'expected' => 'Tap Use this, or Write my own.',
         ],
 
         'awaiting_visibility' => [
