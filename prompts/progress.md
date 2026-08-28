@@ -54,7 +54,7 @@ Status key: ✅ done · 🔄 in progress · ⬜ not started
 
 ## Phase 5 — Mini App
 - ✅ `POST /api/v1/miniapp/auth` (initData → Sanctum token) + minimal `/me`
-- ⬜ `/api/v1/miniapp/*` surface
+- ✅ `/api/v1/miniapp/*` surface (challenges list + per-challenge status JSON)
 - ⬜ Gameish React SPA (details, status, freezes, progress; themeParams/BackButton/MainButton)
 
 ## Phase 6 — Admin panel
@@ -2110,3 +2110,50 @@ bot) and the real-device Mini App launch.
 per-challenge status (streak, freezes used/remaining, current period
 progress), driven by Eloquent API Resources over the existing domain Actions
 and queries, all behind `auth:sanctum` + `ability:miniapp`.
+
+### Mini App Task 2 — challenges/status JSON surface ✅
+
+`GET /api/v1/miniapp/challenges` lists the participations the token's user is
+in, and `GET /api/v1/miniapp/challenges/{id}` shows one challenge's full
+picture — the shared timeline, their streak and freezes, the period open
+right now with whether they still owe it a check-in, and the history of
+settled periods since they joined. `ChallengeResource` wraps the
+`ChallengeParticipant` (eager-loading `challenge.periods` + `checkIns`), so
+"the challenge" and "how I am doing in it" are one shape, not two endpoints
+the SPA has to stitch. +10 tests in
+`tests/Feature/MiniApp/ChallengesSurfaceTest.php`.
+
+**Decisions:**
+- *The list is participations, not challenges.* Creating does not enrol, so a
+  challenge the user runs but never joined is not on their dashboard — the
+  creator's surface is the admin panel / review queue, later.
+- *Every enum ships as `{value, label}`* via `HasTranslatedLabel`, resolved in
+  the ambient locale `SetLocale` picked (the token user's stored preference
+  first, then `Accept-Language`, then fallback) — the SPA never hardcodes a
+  label. Tested in both languages.
+- *`owes_check_in` is owed AND still actionable:* `owesPeriod()` (status +
+  `index >= joined_period_index`) *and* the check-in row, if any, still
+  `allowsSubmission()` — an approved or under-review period is not owed; a
+  rejected one is (resubmission allowed while open).
+- *History starts at `joined_period_index`* — the late-joiner rule, one
+  place. A period closed but not yet swept by rollover shows `pending`
+  (momentary, the sweep runs every minute; the SPA's grid still needs the
+  slot).
+- *404 uniformity:* `show` resolves the participant from the token's user and
+  the route id together; somebody else's challenge is indistinguishable from
+  a nonexistent one — no id enumeration.
+- *`HasTranslatedLabel` became a real interface*
+  (`App\Enums\Contracts\HasTranslatedLabel`), implemented by all twelve
+  label-bearing enums, with the trait keeping the implementation. Reason:
+  only classes and interfaces can appear in native type positions, and the
+  resource's `enum()` needed `BackedEnum&HasTranslatedLabel` as an actual
+  parameter type. Cost: a one-line `implements` + import per enum.
+
+**Result — `sail composer ci:check` GREEN:** eslint ✓, prettier ✓, `tsc
+--noEmit` ✓, pint ✓, phpstan lvl 7 (0 errors) ✓, tests **1069 (1065 pass,
+4 skipped)**, 2922 assertions. Graph: 2824 nodes / 5490 edges.
+
+**Next:** the Mini App SPA itself — the React app in
+`resources/js/miniapp/` consuming this surface through a typed API client,
+wiring Telegram `themeParams`/`BackButton`/`MainButton`, and settling where
+the channel gate lives in the Mini App UX.
