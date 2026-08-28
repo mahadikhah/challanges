@@ -29,46 +29,47 @@ export default function Reviews({ reviews }: { reviews: ReviewRow[] }) {
             <Head title={t('admin.reviews.title')} />
 
             <h1 className="sr-only">{t('admin.reviews.title')}</h1>
+            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+                <div className="space-y-6">
+                    <Heading
+                        variant="small"
+                        title={t('admin.reviews.title')}
+                        description={t('admin.reviews.description')}
+                    />
 
-            <div className="space-y-6">
-                <Heading
-                    variant="small"
-                    title={t('admin.reviews.title')}
-                    description={t('admin.reviews.description')}
-                />
+                    {reviews.length === 0 && (
+                        <p className="text-sm text-muted-foreground">
+                            {t('admin.reviews.empty')}
+                        </p>
+                    )}
 
-                {reviews.length === 0 && (
-                    <p className="text-sm text-muted-foreground">
-                        {t('admin.reviews.empty')}
-                    </p>
-                )}
-
-                <div className="grid gap-4 lg:grid-cols-2">
-                    {reviews.map((review) => (
-                        <ReviewCard
-                            key={review.id}
-                            review={review}
-                            locale={locale}
-                            onApprove={() => {
-                                router.post(
-                                    approve.url(review.id),
-                                    {},
-                                    {
-                                        preserveScroll: true,
-                                    },
-                                );
-                            }}
-                            onReject={() => {
-                                router.post(
-                                    reject.url(review.id),
-                                    {},
-                                    {
-                                        preserveScroll: true,
-                                    },
-                                );
-                            }}
-                        />
-                    ))}
+                    <div className="grid gap-4 lg:grid-cols-2">
+                        {reviews.map((review) => (
+                            <ReviewCard
+                                key={review.id}
+                                review={review}
+                                locale={locale}
+                                onApprove={() => {
+                                    router.post(
+                                        approve.url(review.id),
+                                        {},
+                                        {
+                                            preserveScroll: true,
+                                        },
+                                    );
+                                }}
+                                onReject={() => {
+                                    router.post(
+                                        reject.url(review.id),
+                                        {},
+                                        {
+                                            preserveScroll: true,
+                                        },
+                                    );
+                                }}
+                            />
+                        ))}
+                    </div>
                 </div>
             </div>
         </>

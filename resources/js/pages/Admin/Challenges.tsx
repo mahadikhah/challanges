@@ -68,163 +68,177 @@ export default function Challenges({
 
             <h1 className="sr-only">{t('admin.challenges.title')}</h1>
 
-            <div className="space-y-6">
-                <Heading
-                    variant="small"
-                    title={t('admin.challenges.title')}
-                    description={t('admin.challenges.description')}
-                />
+            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+                <div className="space-y-6">
+                    <Heading
+                        variant="small"
+                        title={t('admin.challenges.title')}
+                        description={t('admin.challenges.description')}
+                    />
 
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                        <Button
-                            type="button"
-                            variant={
-                                filters.status === null ? 'default' : 'outline'
-                            }
-                            size="sm"
-                            onClick={() => filterBy(null)}
-                        >
-                            {t('admin.challenges.filter.all')}
-                        </Button>
-
-                        {STATUS_FILTERS.map((status) => (
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex flex-wrap items-center gap-2">
                             <Button
-                                key={status}
                                 type="button"
                                 variant={
-                                    filters.status === status
+                                    filters.status === null
                                         ? 'default'
                                         : 'outline'
                                 }
                                 size="sm"
-                                onClick={() => filterBy(status)}
+                                onClick={() => filterBy(null)}
                             >
-                                {t(`enums.challenge_status.${status}`)}
+                                {t('admin.challenges.filter.all')}
                             </Button>
-                        ))}
+
+                            {STATUS_FILTERS.map((status) => (
+                                <Button
+                                    key={status}
+                                    type="button"
+                                    variant={
+                                        filters.status === status
+                                            ? 'default'
+                                            : 'outline'
+                                    }
+                                    size="sm"
+                                    onClick={() => filterBy(status)}
+                                >
+                                    {t(`enums.challenge_status.${status}`)}
+                                </Button>
+                            ))}
+                        </div>
+
+                        <form
+                            onSubmit={(event) => {
+                                event.preventDefault();
+                                searchFor(search);
+                            }}
+                            className="flex items-center gap-2"
+                        >
+                            <Input
+                                value={search}
+                                onChange={(event) =>
+                                    setSearch(event.target.value)
+                                }
+                                placeholder={t('admin.challenges.search')}
+                                className="h-9 w-48"
+                            />
+
+                            <Button type="submit" size="sm" variant="outline">
+                                <Search />
+                            </Button>
+                        </form>
                     </div>
 
-                    <form
-                        onSubmit={(event) => {
-                            event.preventDefault();
-                            searchFor(search);
-                        }}
-                        className="flex items-center gap-2"
-                    >
-                        <Input
-                            value={search}
-                            onChange={(event) => setSearch(event.target.value)}
-                            placeholder={t('admin.challenges.search')}
-                            className="h-9 w-48"
-                        />
-
-                        <Button type="submit" size="sm" variant="outline">
-                            <Search />
-                        </Button>
-                    </form>
-                </div>
-
-                {challenges.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">
-                        {t('admin.challenges.empty')}
-                    </p>
-                ) : (
-                    <div className="overflow-x-auto rounded-md border">
-                        <table className="w-full text-sm">
-                            <thead className="bg-muted/50">
-                                <tr>
-                                    <th className="px-3 py-2 text-start font-medium">
-                                        {t('admin.challenges.challenge')}
-                                    </th>
-                                    <th className="px-3 py-2 text-start font-medium">
-                                        {t('admin.challenges.status')}
-                                    </th>
-                                    <th className="px-3 py-2 text-start font-medium">
-                                        {t('admin.challenges.creator')}
-                                    </th>
-                                    <th className="px-3 py-2 text-center font-medium">
-                                        {t('admin.challenges.participants')}
-                                    </th>
-                                    <th className="px-3 py-2 text-center font-medium">
-                                        {t('admin.challenges.periods')}
-                                    </th>
-                                    <th className="px-3 py-2 text-start font-medium">
-                                        {t('admin.challenges.starts_at')}
-                                    </th>
-                                    <th className="w-12" />
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                {challenges.map((challenge) => (
-                                    <tr
-                                        key={challenge.id}
-                                        className="cursor-pointer border-t hover:bg-muted/30"
-                                        onClick={() =>
-                                            router.get(
-                                                `/admin/challenges/${challenge.id}`,
-                                            )
-                                        }
-                                    >
-                                        <td className="px-3 py-2 font-medium">
-                                            {challenge.title}
-                                            <span className="block text-xs text-muted-foreground">
-                                                {challenge.period_type.label} ·{' '}
-                                                {challenge.proof_type.label}
-                                            </span>
-                                        </td>
-
-                                        <td className="px-3 py-2">
-                                            <Badge variant="secondary">
-                                                {challenge.status.label}
-                                            </Badge>
-                                        </td>
-
-                                        <td className="px-3 py-2">
-                                            {challenge.creator}
-                                        </td>
-
-                                        <td className="px-3 py-2 text-center">
-                                            {challenge.participants_count}
-                                        </td>
-
-                                        <td className="px-3 py-2 text-center">
-                                            {challenge.total_periods}
-                                        </td>
-
-                                        <td
-                                            dir="ltr"
-                                            className="px-3 py-2 whitespace-nowrap"
-                                        >
-                                            {formatWhen(
-                                                challenge.starts_at,
-                                                locale,
-                                            )}
-                                        </td>
-
-                                        <td className="px-3 py-2">
-                                            <ChevronRight className="ms-auto size-4 text-muted-foreground rtl:rotate-180" />
-                                        </td>
+                    {challenges.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">
+                            {t('admin.challenges.empty')}
+                        </p>
+                    ) : (
+                        <div className="overflow-x-auto rounded-md border">
+                            <table className="w-full text-sm">
+                                <thead className="bg-muted/50">
+                                    <tr>
+                                        <th className="px-3 py-2 text-start font-medium">
+                                            {t('admin.challenges.challenge')}
+                                        </th>
+                                        <th className="px-3 py-2 text-start font-medium">
+                                            {t('admin.challenges.status')}
+                                        </th>
+                                        <th className="px-3 py-2 text-start font-medium">
+                                            {t('admin.challenges.creator')}
+                                        </th>
+                                        <th className="px-3 py-2 text-center font-medium">
+                                            {t('admin.challenges.participants')}
+                                        </th>
+                                        <th className="px-3 py-2 text-center font-medium">
+                                            {t('admin.challenges.periods')}
+                                        </th>
+                                        <th className="px-3 py-2 text-start font-medium">
+                                            {t('admin.challenges.starts_at')}
+                                        </th>
+                                        <th className="w-12" />
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+                                </thead>
 
-                {nextPageUrl !== null && (
-                    <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                            router.get(nextPageUrl, {}, { preserveState: true })
-                        }
-                    >
-                        {t('admin.challenges.next_page')}
-                    </Button>
-                )}
+                                <tbody>
+                                    {challenges.map((challenge) => (
+                                        <tr
+                                            key={challenge.id}
+                                            className="cursor-pointer border-t hover:bg-muted/30"
+                                            onClick={() =>
+                                                router.get(
+                                                    `/admin/challenges/${challenge.id}`,
+                                                )
+                                            }
+                                        >
+                                            <td className="px-3 py-2 font-medium">
+                                                {challenge.title}
+                                                <span className="block text-xs text-muted-foreground">
+                                                    {
+                                                        challenge.period_type
+                                                            .label
+                                                    }{' '}
+                                                    ·{' '}
+                                                    {challenge.proof_type.label}
+                                                </span>
+                                            </td>
+
+                                            <td className="px-3 py-2">
+                                                <Badge variant="secondary">
+                                                    {challenge.status.label}
+                                                </Badge>
+                                            </td>
+
+                                            <td className="px-3 py-2">
+                                                {challenge.creator}
+                                            </td>
+
+                                            <td className="px-3 py-2 text-center">
+                                                {challenge.participants_count}
+                                            </td>
+
+                                            <td className="px-3 py-2 text-center">
+                                                {challenge.total_periods}
+                                            </td>
+
+                                            <td
+                                                dir="ltr"
+                                                className="px-3 py-2 whitespace-nowrap"
+                                            >
+                                                {formatWhen(
+                                                    challenge.starts_at,
+                                                    locale,
+                                                )}
+                                            </td>
+
+                                            <td className="px-3 py-2">
+                                                <ChevronRight className="ms-auto size-4 text-muted-foreground rtl:rotate-180" />
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+
+                    {nextPageUrl !== null && (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                                router.get(
+                                    nextPageUrl,
+                                    {},
+                                    { preserveState: true },
+                                )
+                            }
+                        >
+                            {t('admin.challenges.next_page')}
+                        </Button>
+                    )}
+                </div>
             </div>
         </>
     );

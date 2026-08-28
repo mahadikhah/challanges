@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Telegram\Bot\Exceptions\TelegramSDKException;
 
 /**
  * The image-proof review queue.
@@ -30,14 +31,15 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
  * The photos themselves are served from a gated route rather than linked from
  * the disk: proofs are private by default, and an admin URL is the only door
  * they should ever have.
+ *
+ * `ReviewCheckIn` and `NotifyCheckInVerdict` are method-injected, not
+ * constructor-injected: both eventually hold the Bot API client, whose binding
+ * refuses to build without `TELEGRAM_BOT_TOKEN`. Reading the queue has nothing
+ * to do with Telegram, so a browse of this page must not need a token — only
+ * the routes that can actually send do.
  */
 class ReviewQueueController extends Controller
 {
-    public function __construct(
-        private readonly ReviewCheckIn $review,
-        private readonly NotifyCheckInVerdict $notify,
-    ) {}
-
     public function index(): InertiaResponse
     {
         $queue = CheckIn::query()
@@ -74,14 +76,22 @@ class ReviewQueueController extends Controller
         return response()->file(Storage::disk('local')->path($path));
     }
 
-    public function approve(Request $request, CheckIn $checkIn): RedirectResponse
-    {
-        return $this->verdict($request, $checkIn, approved: true);
+    public function approve(
+        Request $request,
+        CheckIn $checkIn,
+        ReviewCheckIn $review,
+        NotifyCheckInVerdict $notify,
+    ): RedirectResponse {
+        return $this->verdict($request, $checkIn, $review, $notify, approved: true);
     }
 
-    public function reject(Request $request, CheckIn $checkIn): RedirectResponse
-    {
-        return $this->verdict($request, $checkIn, approved: false);
+    public function reject(
+        Request $request,
+        CheckIn $checkIn,
+        ReviewCheckIn $review,
+        NotifyCheckInVerdict $notify,
+    ): RedirectResponse {
+        return $this->verdict($request, $checkIn, $review, $notify, approved: false);
     }
 
     /**
@@ -92,27 +102,47 @@ class ReviewQueueController extends Controller
      * admin gets the reason as a toast, the same way the bot's creator gets it
      * as a reply.
      */
-    private function verdict(Request $request, CheckIn $checkIn, bool $approved): RedirectResponse
-    {
+    private function verdict(
+        Request $request,
+        CheckIn $checkIn,
+        ReviewCheckIn $review,
+        NotifyCheckInVerdict $notify,
+        bool $approved,
+    ): RedirectResponse {
         $admin = $this->theAdmin($request);
 
         try {
             $settled = $approved
-                ? $this->review->approve($admin, $checkIn)
-                : $this->review->reject($admin, $checkIn);
-
-            $approved ? $this->notify->approved($settled) : $this->notify->rejected($settled);
-
-            Inertia::flash('toast', [
-                'type' => 'success',
-                'message' => __('admin.reviews.'.($approved ? 'approved' : 'rejected')),
-            ]);
+                ? $review->approve($admin, $checkIn)
+                : $review->reject($admin, $checkIn);
         } catch (CheckInRejectedException $refused) {
             Inertia::flash('toast', [
                 'type' => 'error',
                 'message' => __("admin.reviews.refused.{$refused->reason->value}"),
             ]);
+
+            return back();
         }
+
+        // The verdict has landed; telling the participant is the remaining
+        // step. If that cannot happen — no bot token on this box, Telegram
+        // down — the admin needs to know the notification, not the verdict,
+        // is what failed.
+        try {
+            $approved ? $notify->approved($settled) : $notify->rejected($settled);
+        } catch (TelegramSDKException) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => __('admin.reviews.notify_failed'),
+            ]);
+
+            return back();
+        }
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => __('admin.reviews.'.($approved ? 'approved' : 'rejected')),
+        ]);
 
         return back();
     }

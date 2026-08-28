@@ -30,3 +30,7 @@ Schedule::command('challenges:reminders')->everyMinute();
 // from growing one app-open at a time. Retains tokens expired less than 24h,
 // so debugging yesterday's session is still possible.
 Schedule::command('sanctum:prune-expired')->daily();
+
+// Close out invoice links nobody paid, so the payments audit stays a list of
+// purchases rather than a landfill of abandoned carts.
+Schedule::command('payments:sweep-abandoned')->daily();

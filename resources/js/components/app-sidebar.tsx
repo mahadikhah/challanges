@@ -1,10 +1,13 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
     BookOpen,
+    Coins,
     FolderGit2,
     Image,
     LayoutGrid,
+    Mail,
     Trophy,
+    Users,
     Wrench,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
@@ -23,8 +26,11 @@ import {
 import { useTranslation } from '@/hooks/use-translation';
 import { dashboard } from '@/routes';
 import { index as adminChallenges } from '@/routes/admin/challenges';
+import { index as adminInvites } from '@/routes/admin/invites';
+import { index as adminPayments } from '@/routes/admin/payments';
 import { index as adminReviews } from '@/routes/admin/reviews';
 import { index as adminSettings } from '@/routes/admin/settings';
+import { index as adminUsers } from '@/routes/admin/users';
 import type { NavItem } from '@/types';
 
 const footerNavItems: NavItem[] = [
@@ -57,6 +63,11 @@ export function AppSidebar() {
     if (auth.user.is_admin) {
         mainNavItems.push(
             {
+                title: t('admin.users.title'),
+                href: adminUsers.url(),
+                icon: Users,
+            },
+            {
                 title: t('admin.challenges.title'),
                 href: adminChallenges.url(),
                 icon: Trophy,
@@ -65,6 +76,16 @@ export function AppSidebar() {
                 title: t('admin.reviews.title'),
                 href: adminReviews.url(),
                 icon: Image,
+            },
+            {
+                title: t('admin.payments.title'),
+                href: adminPayments.url(),
+                icon: Coins,
+            },
+            {
+                title: t('admin.invites.title'),
+                href: adminInvites.url(),
+                icon: Mail,
             },
             {
                 title: t('admin.settings.title'),

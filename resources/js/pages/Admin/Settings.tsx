@@ -37,35 +37,39 @@ export default function Settings({ settings }: { settings: SettingRow[] }) {
 
     return (
         <>
-            <Head title={t('admin.settings.title')} />
+            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+                <Head title={t('admin.settings.title')} />
 
-            <h1 className="sr-only">{t('admin.settings.title')}</h1>
+                <h1 className="sr-only">{t('admin.settings.title')}</h1>
 
-            <div className="space-y-8">
-                <Heading
-                    variant="small"
-                    title={t('admin.settings.title')}
-                    description={t('admin.settings.description')}
-                />
+                <div className="space-y-8">
+                    <Heading
+                        variant="small"
+                        title={t('admin.settings.title')}
+                        description={t('admin.settings.description')}
+                    />
 
-                {GROUPS.map((group) => (
-                    <section key={group} className="space-y-3">
-                        <h2 className="text-lg font-medium tracking-tight">
-                            {t(`admin.settings.groups.${group}`)}
-                        </h2>
+                    {GROUPS.map((group) => (
+                        <section key={group} className="space-y-3">
+                            <h2 className="text-lg font-medium tracking-tight">
+                                {t(`admin.settings.groups.${group}`)}
+                            </h2>
 
-                        <div className="space-y-3">
-                            {settings
-                                .filter((setting) => setting.group === group)
-                                .map((setting) => (
-                                    <SettingCard
-                                        key={setting.key}
-                                        setting={setting}
-                                    />
-                                ))}
-                        </div>
-                    </section>
-                ))}
+                            <div className="space-y-3">
+                                {settings
+                                    .filter(
+                                        (setting) => setting.group === group,
+                                    )
+                                    .map((setting) => (
+                                        <SettingCard
+                                            key={setting.key}
+                                            setting={setting}
+                                        />
+                                    ))}
+                            </div>
+                        </section>
+                    ))}
+                </div>
             </div>
         </>
     );

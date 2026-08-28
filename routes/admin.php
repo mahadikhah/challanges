@@ -1,8 +1,11 @@
 <?php
 
 use App\Http\Controllers\Admin\ChallengesController;
+use App\Http\Controllers\Admin\InvitesController;
+use App\Http\Controllers\Admin\PaymentsController;
 use App\Http\Controllers\Admin\ReviewQueueController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\UsersController;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use Illuminate\Support\Facades\Route;
 
@@ -36,4 +39,13 @@ Route::middleware(['auth', EnsureUserIsAdmin::class])->group(function (): void {
     Route::get('/reviews/{checkIn}/proof', [ReviewQueueController::class, 'proof'])->name('reviews.proof');
     Route::post('/reviews/{checkIn}/approve', [ReviewQueueController::class, 'approve'])->name('reviews.approve');
     Route::post('/reviews/{checkIn}/reject', [ReviewQueueController::class, 'reject'])->name('reviews.reject');
+
+    Route::get('/users', [UsersController::class, 'index'])->name('users.index');
+    Route::get('/users/{user}', [UsersController::class, 'show'])->name('users.show');
+    Route::post('/users/{user}/coins', [UsersController::class, 'coins'])->name('users.coins');
+
+    Route::get('/payments', [PaymentsController::class, 'index'])->name('payments.index');
+    Route::post('/payments/{payment}/refund', [PaymentsController::class, 'refund'])->name('payments.refund');
+
+    Route::get('/invites', [InvitesController::class, 'index'])->name('invites.index');
 });

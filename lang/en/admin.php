@@ -61,6 +61,7 @@ return [
 
         'approved' => 'Proof approved — the streak moved.',
         'rejected' => 'Proof rejected — the participant may send another.',
+        'notify_failed' => 'The verdict was recorded, but the participant could not be told — the bot token is not set or Telegram refused. Send it again from the bot when possible.',
 
         'refused' => [
             'already_settled' => 'That period has already closed and been settled.',
@@ -103,6 +104,79 @@ return [
         'cancel_confirm' => 'Cancel this challenge? Its timeline stops and every active participant is notified. This cannot be undone.',
         'cancelled' => 'Challenge cancelled — participants are being notified.',
         'cancel_refused' => 'That challenge can no longer be cancelled.',
+    ],
+
+    'users' => [
+        'title' => 'Users',
+        'description' => 'Every account on the platform, with the coin balance the ledger reports.',
+        'search' => 'Search by name, username or Telegram id…',
+
+        'user' => 'User',
+        'telegram_id' => 'Telegram id',
+        'username' => 'Username',
+        'balance' => 'Balance',
+        'coins' => 'coins',
+        'admin' => 'Admin',
+        'joined_at' => 'Joined',
+        'locale' => 'Language',
+        'profile' => 'Profile',
+        'empty' => 'No users match.',
+        'next_page' => 'Older',
+        'view' => 'Open',
+
+        'ledger' => 'Coin ledger',
+        'ledger_empty' => 'No coins have ever moved for this user.',
+        'when' => 'When',
+        'reason' => 'Reason',
+        'amount' => 'Amount',
+        'balance_after' => 'Balance after',
+        'drift' => 'The cached balance disagrees with the ledger entries by',
+        'drift_coins' => 'coins. Investigate before adjusting.',
+
+        'adjust' => 'Adjust coins',
+        'amount_label' => 'Amount (coins)',
+        'credit' => 'Add coins',
+        'debit' => 'Remove coins',
+        'adjusted' => 'Balance adjusted.',
+        'refused_insufficient' => 'The balance will not cover that removal.',
+        'invalid_amount' => 'Enter a whole number of coins greater than zero.',
+        'invalid_direction' => 'That is not a direction coins can move in.',
+    ],
+
+    'payments' => [
+        'title' => 'Star payments',
+        'description' => 'Every Telegram Stars purchase, with the refund lever.',
+
+        'user' => 'User',
+        'stars' => 'Stars',
+        'coins' => 'Coins',
+        'status' => 'Status',
+        'charge' => 'Charge id',
+        'paid_at' => 'Paid',
+        'refunded_at' => 'Refunded',
+        'created_at' => 'Created',
+        'empty' => 'No payments yet.',
+        'next_page' => 'Older',
+
+        'refund' => 'Refund',
+        'refund_confirm' => 'Refund this purchase? The Stars go back to the user and the coins are clawed back — the balance may go negative. This cannot be undone.',
+        'refunded' => 'Stars returned and coins clawed back.',
+        'refund_refused' => 'That payment can no longer be refunded.',
+        'refund_failed' => 'The refund did not go through — Telegram refused it, or the bot token is not set. The payment is unchanged and can be retried.',
+    ],
+
+    'invites' => [
+        'title' => 'Invites',
+        'description' => 'Every invite code, and whether it earned its inviter coins.',
+
+        'code' => 'Code',
+        'inviter' => 'Inviter',
+        'invited' => 'Invited',
+        'status' => 'Status',
+        'credited_at' => 'Credited',
+        'created_at' => 'Created',
+        'empty' => 'No invites yet.',
+        'next_page' => 'Older',
     ],
 
 ];
