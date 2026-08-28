@@ -2465,3 +2465,43 @@ positions the sidebar with physical classes.
 prettier ✓, tsc ✓, tests **1149 (1145 pass, 4 skipped)**, 3656 assertions.
 
 **Next:** Phase 8 per `prompts/phase-8.md`.
+
+---
+
+## Phase 8 — Creator chats
+
+### Task 1 — chat registration & dual-admin verification ✅
+
+**What shipped** (`9fd926b`):
+- `challenge_chats` + `ChallengeChat` (unique on challenge+chat): `chat_type` (channel|group, supergroup
+  folded into group — the posting rules are the same), both verification stamps, `is_active`, and the three
+  broadcast/privacy toggles, all default-off. A failed re-check deactivates rather than deletes, so the
+  creator can see what they lost.
+- Discovery via the standard `forward_from_chat` pattern (§2.6) — `TelegramChatType::fromForwardedChat`
+  refuses anything not a channel/group. No surface ever accepts a typed chat id.
+- `VerifyChallengeChat`: `getChatMember(bot)` must be admin (+`can_post_messages` for channels) AND
+  `getChatMember(creator)` must be admin. Failure → deactivate + one creator notification naming which
+  check failed (distinguishable messages, per the task); Telegram-unreachable still throws for a real
+  retry. `ensureFresh($chat, ttlHours)` is the posting jobs' future entry point — no Bot API spend inside
+  the TTL.
+- `BotIdentity` memoises `getMe` per process (the bot's id is in no config; one ask per worker, not per
+  verification).
+- `/chatlink j_<token>` → `LinkChatFlow` (`AwaitingChatForward` state; conversation router passes the whole
+  message since the *forward* is the answer, not its content). Ownership checked both at flow-open and
+  again in `RegisterChallengeChat` at the act.
+- `UpdateChallengeChatSettings` enforces §2.6 at the action layer: `share_proof_media` rejected on a
+  challenge that doesn't `sharesProofPublicly()`, plus a creator-ownership check.
+- **Tests** — `ChallengeChatLinkTest` (14): full inbound-path happy path; bot-not-admin vs
+  creator-not-admin distinguishable; channel-admin-without-post-rights rejected; non-creator refused
+  before any chat-related Telegram call (asserted via `assertNotSent`); non-forward / wrong-type re-ask
+  keeps the conversation open; re-verification deactivates a revoked chat + notifies; fresh chat costs no
+  API budget; privacy guard both ways; re-link reuses the row stripped to unverified.
+- Assumption recorded: no creator "management menu" surface exists yet, so the task's entry point ships as
+  `/chatlink` taking the challenge's join payload (`j_…`) — the same unguessable handle the join link
+  already carries. Trivial to attach to a menu when one exists.
+
+**Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓,
+tsc ✓, tests **1163 (1159 pass, 4 skipped)**, 3695 assertions.
+
+**Next:** Phase 8 Task 2 — event-driven posting (check-in announcements, daily + on-demand leaderboards)
+with privacy gating and staggered fan-out, per `prompts/phase-8.md`.
