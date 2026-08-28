@@ -48,7 +48,7 @@ const footerNavItems: NavItem[] = [
 
 export function AppSidebar() {
     const { auth } = usePage().props;
-    const { t } = useTranslation();
+    const { t, isRtl } = useTranslation();
 
     const mainNavItems: NavItem[] = [
         {
@@ -96,7 +96,14 @@ export function AppSidebar() {
     }
 
     return (
-        <Sidebar collapsible="icon" variant="inset">
+        // The sidebar component is side-aware: handing it the start side of
+        // the active direction mirrors the panel, its border, its mobile
+        // sheet and the trigger chevron in one move.
+        <Sidebar
+            collapsible="icon"
+            variant="inset"
+            side={isRtl ? 'right' : 'left'}
+        >
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
