@@ -44,7 +44,9 @@ Status key: ✅ done · 🔄 in progress · ⬜ not started
   announcement-channel join button, `JoinRejection`)
 - ✅ **Bot Core Task 6 — check-in for all three proof types** (`/checkin` listing, `CheckInFlow`,
   `TelegramFileDownloader` via `getFile`, creator approve/reject callbacks, `ConversationRouter` check-in states)
-- ⬜ Reminders (scheduler + staggered queued jobs); locale selection
+- ✅ **Bot Core Task 7 — reminders + locale selection** (`challenges:roll-over` owns the lifecycle flips,
+  `challenges:reminders` mints and dispatches, staggered `SendReminder` job, `/language` + `lg:` buttons) —
+  **Bot core complete**
 
 ## Phase 4 — Stars payments
 - ⬜ `createInvoiceLink` (XTR, empty provider_token) → pre_checkout → successful_payment → credit
@@ -1874,3 +1876,97 @@ nodes / 4981 edges / 231 communities.
 fans reminder jobs out staggered (`ReminderDispatch` unique on participant+period+kind),
 plus the `/language` locale selection. Nothing currently calls `RollOverPeriod` on a
 schedule, so challenges never close their periods — that is the heart of the next task.
+
+## Bot Core Task 7 — reminders + locale selection (done)
+
+**Scope.** The two things the bot must do with no user present: keep every challenge's
+clock (`challenges:roll-over` — the only caller of `RollOverPeriod`, plus the
+Scheduled→Active→Completed lifecycle flips) and remind people of their obligations
+(`challenges:reminders` + the staggered `SendReminder` job). Plus `/language`, the one
+command that changes *who the bot is for a user* rather than what it does for them.
+
+**What landed.**
+- `app/Actions/Reminders/ScheduleChallengeReminders.php` — the first of three
+  separable decisions: *what should exist*. Mints `ReminderDispatch` rows for every
+  period that opens or closes within a 24h horizon (bulk `insertOrIgnore`; the unique
+  `(participant, period, kind)` index is the arbiter). Kinds: `ChallengeStarting`
+  (period 0's opener — never also a "period 1 open", which would be one message said
+  twice), `PeriodOpened` (index ≥ 1), `PeriodEnding` (a configurable lead before the
+  close, clamped to the period's own start). Only participants who owe the period
+  (`active()` and `joined_period_index <= index`) get rows — late joiners are never
+  reminded of periods that were never theirs.
+- `app/Actions/Reminders/DispatchDueReminders.php` — the second decision: *what goes
+  out now*. One batch of 30 due rows, each handed to `SendReminder` with a
+  `delay(position seconds)` stagger. Batch × stagger (30s) < one cron tick (60s), so
+  the batch drains before the next sweep could re-dispatch in-flight rows.
+- `app/Jobs/Telegram/SendReminder.php` — the send, and the third decision: *is it
+  still true?* `lockForUpdate` on the row, re-checks `sent_at` (the idempotency
+  token, stamped only after a successful send), suppresses when the period has since
+  been swept or the check-in has been settled, composes the copy in the challenge's
+  own timezone, and stamps.
+- `app/Console/Commands/Challenges/RollOverDuePeriodsCommand.php` (`challenges:roll-over`)
+  — activates started challenges, sweeps ended periods (chunked, `PeriodNotEndedException`
+  tolerated: the clock may move between query and settle), completes timelines whose
+  periods are all swept. Completion reward deliberately NOT paid here — a coin
+  movement, deferred to the payments phase per the recorded plan.
+- `app/Console/Commands/Challenges/SendRemindersCommand.php` (`challenges:reminders`)
+  — schedules for every non-terminal challenge with a near-future period, then
+  dispatches what is due.
+- `routes/console.php` — both commands every minute; docblock records the shared-host
+  contract (`schedule:run` + `queue:work --stop-when-empty --max-time=55` each minute).
+- `LanguageCommand` (`/language`) + `LanguageCallback` (`lg:<code>`): one row of
+  buttons labelled with each locale's own name for itself, a tap validated against
+  the `Localization` allowlist (a crafted payload cannot pick a locale we cannot
+  serve), confirmation sent *after* the change so it is the first message in the new
+  language. `SettingKey::ReminderEndingLeadHours` (default 3, admin-tunable) added to
+  the registry. Lang: `bot.reminder.*` (one line per `ReminderKind`) and
+  `bot.language.*` in en + fa.
+
+**Decisions.**
+- *Three idempotency domains, three owners.* Existence (the unique index), dispatch
+  (rows re-dispatch harmlessly if a worker dies — they stay due until `sent_at`),
+  and the send itself (`lockForUpdate` + re-check + stamp-after-send). Each is safe
+  to re-run independently, so a missed cron self-heals on the next tick.
+- *The stagger is the rate limit.* Telegram allows ~1 msg/sec per chat; the batch
+  trickles one send a second rather than blasting, and the batch is sized to drain
+  within one cron minute so the next sweep cannot double-dispatch.
+- *Suppression is a send-time question.* A period swept between minting and sending,
+  or a check-in settled in the meantime, stamps the row without sending — the moment
+  to be reminded about is gone. This is why `SendReminder` re-derives the truth
+  rather than trusting the row it was handed.
+- *No rows for windows that passed during downtime.* A window already gone when the
+  scheduler first sees it never gets a row, so nobody gets a "period open!" three
+  days late for a period that closed. Deliberate, documented on the action.
+- *`/language` is ungated* for the same reason `/cancel` is: a user blocked at the
+  gate still deserves to read the blocking message in a language they understand.
+- *Rollover owns the lifecycle flips.* Scheduled→Active and Active→Completed belong
+  to the clock, not to whichever user action happens to notice the date first.
+
+**Traps met.** PHP arrays cannot key by enum — `kindsFor()` first returned an
+`array<ReminderKind, …>` map (an "Illegal offset type" waiting for the first real
+run) and now returns a list of `['kind' => …, 'scheduled_for' => …]` pairs.
+`eachById()` returns bool, not a count. `travelTo($start->subHour())` mutates a
+mutable Carbon in place, so the shared fixture's `$start` is deliberately immutable.
+The participant factory grants one freeze by default, so a "missed" test must pin
+`freezes_total => 0` or the miss quietly becomes a freeze.
+
+**Assumptions / follow-ups recorded.** The §6 reminder-boundary verification now has
+an automated test (freeze the clock, sweep twice at each boundary, exactly one send)
+— the remaining §6 items are the live-token webhook replay and the payments/Mini App
+rejections. The completion transition exists but credits nothing yet (payments
+phase). Reminder materialisation cost at scale is bounded by the 24h horizon but not
+otherwise optimised (documented on the action). Carried unchanged: all standing
+follow-ups from Task 6.
+
+**Result — `sail composer ci:check` GREEN:** eslint ✓, prettier ✓, `tsc --noEmit` ✓,
+pint ✓, phpstan lvl 7 (0 errors) ✓, tests **1012 (1008 pass, 4 skipped = Fortify 2FA
+disabled)**, 2751 assertions, +18 on the suite across
+`tests/Feature/Bot/ReminderSweepTest.php` (6), `ChallengeRolloverCommandTest.php`
+(7) and `LanguageCommandTest.php` (5) — every one driven through the real command or
+the real `ProcessTelegramUpdate` with `Http::fake()`d Bot API. Graph: 2716 nodes /
+5169 edges / 231 communities.
+
+**Next:** Phase 4 — Stars payments. `createInvoiceLink` with `XTR` currency and an
+empty `provider_token`, the `pre_checkout_query` answered promptly, and the
+`successful_payment` credit keyed on `telegram_payment_charge_id` through
+`CoinLedger` — the third §6 idempotency verification.
