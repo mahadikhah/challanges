@@ -1,4 +1,5 @@
 import { usePage } from '@inertiajs/react';
+import type { ReactNode } from 'react';
 import { useEffect } from 'react';
 
 /**
@@ -19,4 +20,18 @@ export function useDocumentDirection() {
         document.documentElement.lang = locale;
         document.documentElement.dir = direction;
     }, [locale, direction]);
+}
+
+/**
+ * The mount point for `useDocumentDirection`. The hook reads `usePage()`,
+ * which only works beneath Inertia's context provider — wrapping the app from
+ * the outside (`withApp`) renders *above* the provider and throws "usePage
+ * must be used within the Inertia component". So instead, `app.tsx`'s layout
+ * resolver returns `[DirectionLayout, ...page layouts]`, placing this inside
+ * the provider on every page without touching page components themselves.
+ */
+export function DirectionLayout({ children }: { children: ReactNode }) {
+    useDocumentDirection();
+
+    return children;
 }
