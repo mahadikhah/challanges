@@ -3,6 +3,7 @@
 namespace App\Console\Commands\Challenges;
 
 use App\Actions\Challenges\RollOverPeriod;
+use App\Actions\CheckIns\ExpireStaleCheckInSessions;
 use App\Enums\ChallengeStatus;
 use App\Exceptions\PeriodNotEndedException;
 use App\Models\Challenge;
@@ -40,12 +41,25 @@ class RollOverDuePeriodsCommand extends Command
         $activated = $this->activateStartedChallenges();
         $swept = $this->sweepEndedPeriods($rollOver);
         $completed = $this->completeElapsedChallenges();
+        $expired = $this->expireAbandonedSessions();
 
         $this->components->twoColumnDetail('Challenges activated', (string) $activated);
         $this->components->twoColumnDetail('Periods swept', (string) $swept);
         $this->components->twoColumnDetail('Challenges completed', (string) $completed);
+        $this->components->twoColumnDetail('Sessions expired', (string) $expired);
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Bookkeeping tail to the sweep: open sessions in closed periods become
+     * `expired`. Runs *after* the rollover by design — the miss decision is
+     * made by the settlement engine on the check-in row, never here — so this
+     * only ever labels what the sweep has already decided.
+     */
+    private function expireAbandonedSessions(): int
+    {
+        return app(ExpireStaleCheckInSessions::class)->handle()->count();
     }
 
     /**

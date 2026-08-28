@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "prompts/progress.md": {
-    "mtime": 1787945896.1898282,
-    "ast_hash": "05f754ede174b6ec1f3437d909de672e",
+    "mtime": 1787946649.7768738,
+    "ast_hash": "df06a4082f3dc8410d76d482f4cf596c",
     "semantic_hash": ""
   },
   "prompts/task-01-setup.md": {
@@ -2045,8 +2045,8 @@
     "semantic_hash": ""
   },
   "app/Console/Commands/Challenges/RollOverDuePeriodsCommand.php": {
-    "mtime": 1787925398.5784914,
-    "ast_hash": "63d3ab0dc4e8529a59af4b6b21eb33e0",
+    "mtime": 1787946863.7372017,
+    "ast_hash": "cf31de8d971005e2c5fbf8c0476f5af7",
     "semantic_hash": ""
   },
   "app/Console/Commands/Challenges/SendRemindersCommand.php": {
@@ -2652,6 +2652,46 @@
   "tests/Feature/Domain/ChallengeStepDesignTest.php": {
     "mtime": 1787946384.3886273,
     "ast_hash": "579ff1dcf6c83c9ed0afc55595e06164",
+    "semantic_hash": ""
+  },
+  "app/Actions/CheckIns/AdvanceCheckInStep.php": {
+    "mtime": 1787947103.5344312,
+    "ast_hash": "a914063bda84616abc2e75f909f4b039",
+    "semantic_hash": ""
+  },
+  "app/Actions/CheckIns/CompleteCheckInSession.php": {
+    "mtime": 1787946845.1232429,
+    "ast_hash": "10ab38ce3db8b52aa62a9c242c8c556a",
+    "semantic_hash": ""
+  },
+  "app/Actions/CheckIns/ExpireStaleCheckInSessions.php": {
+    "mtime": 1787947124.0708563,
+    "ast_hash": "d57f8d9d2da851cb4ae267d6ff21c3bd",
+    "semantic_hash": ""
+  },
+  "app/Actions/CheckIns/StartCheckInSession.php": {
+    "mtime": 1787947103.7704244,
+    "ast_hash": "6c14a73ed5f52607b7b6f9b21a681d3c",
+    "semantic_hash": ""
+  },
+  "app/Enums/SessionRejection.php": {
+    "mtime": 1787946776.4855144,
+    "ast_hash": "eddda0c33db577886fb69a659bf076c5",
+    "semantic_hash": ""
+  },
+  "app/Exceptions/SessionRejectedException.php": {
+    "mtime": 1787946771.7708344,
+    "ast_hash": "b65668f4b129569203fe9144c64eb80c",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Domain/CheckInSessionConcurrencyTest.php": {
+    "mtime": 1787947102.8264515,
+    "ast_hash": "1e82343d9068c0deb3d2f7f98e739732",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Domain/CheckInSessionFlowTest.php": {
+    "mtime": 1787947103.2694387,
+    "ast_hash": "fd0d8dfd3178ee3b36463a0d404c203f",
     "semantic_hash": ""
   }
 }
