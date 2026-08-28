@@ -58,7 +58,8 @@ Status key: ✅ done · 🔄 in progress · ⬜ not started
 - ✅ Gameish React SPA (details, status, freezes, progress; themeParams/BackButton/MainButton)
 
 ## Phase 6 — Admin panel
-- ⬜ Settings/economy tuning, challenge moderation, image-proof review, user/coin adjustments, audit views
+- ✅ Panel foundation: admin gate + settings/economy tuning UI
+- ⬜ Challenge moderation, image-proof review, user/coin adjustments, audit views
 
 ## Phase 7 — Website
 - ⬜ Marketing landing (fuller mirror later)
@@ -2215,3 +2216,65 @@ deep-link start_param → join flow, Jalali dates for `fa` (existing).
 tuning, challenge moderation, image-proof review queue, user and coin
 adjustments, invite/payment audit views, and the refund surface calling
 `RefundStarsPayment`.
+
+---
+
+## Admin Task 1 — panel foundation + settings/economy tuning
+
+**Branch/commit:** `feat(admin): settings panel — registry-driven tuning surface` (+ separate
+`docs(progress)` commit).
+
+**What was built**
+
+- **The gate.** `EnsureUserIsAdmin` middleware on every `/admin/*` route — `auth` runs first so a
+  guest is redirected to login (not 403), then `is_admin` is re-checked on every request. The Form
+  Request re-checks `authorize()` again, per the CLAUDE.md rule about re-validating authorization on
+  every request. `is_admin` remains un-fillable on `User`; tests mint admins through the factory's
+  `admin()` state.
+- **The surface.** `routes/admin.php`: `GET /admin/settings`, `PUT/DELETE /admin/settings/{setting}`.
+  All Inertia. Wayfinder helpers regenerated (`resources/js/routes/admin/settings/`).
+- **The form is generated, not enumerated.** `Admin\SettingsController` builds its rows from
+  `SettingKey::cases()` via a GROUPS presentation map (economy / baseline / access / reminders).
+  Adding a tunable to the registry makes it appear on the page with zero further registration; the
+  label comes from `lang/{en,fa}/admin.php` keyed by the enum value.
+- **Writes only through the service.** `Settings::set()`/`forget()` — never the `Setting` model —
+  so every write is type-checked against the registry and the cache is flushed (proved by a test
+  reading the new value back immediately). Double validation: the Form Request rules are derived
+  from the key's declared `SettingType` (integer/text/json-packages rules), so nothing can satisfy
+  validation that storage would reject. Unknown key → uniform 404.
+- **`Settings::isOverridden()`** added — drives the "overridden · default: X" hint and the
+  reset-to-default button, which DELETEs the override row.
+- **The React page** (`resources/js/pages/Admin/Settings.tsx`): grouped cards, per-type editors —
+  number/text inputs (integers forced `dir="ltr"` for RTL locales), an editable Stars-packages
+  table with add/remove rows, a checkbox branch ready for the first `Boolean` registry key. Uses
+  `useTranslation()` (`admin.*` added to `client_groups`), flash toasts via sonner, breadcrumbs via
+  `Page.layout`. RTL-safe: logical utilities only.
+- **Sidebar entry.** `AppSidebar` adds an "Admin → Settings" link when `auth.user.is_admin` (the
+  User TS type gained `is_admin?: boolean`; the model already serialises it). Offered, not relied
+  on — the server re-checks on every request.
+- **Tests** (`tests/Feature/Admin/SettingsPanelTest.php`, 13): guest redirect, non-admin 403 on
+  all three routes, full 15-row grouped shape with defaults/labels/types, override persists with
+  cache flush, overridden flag appears, invalid value 422 (no row written), unknown key 404,
+  reset reverts to default, Stars-package table rewrite + malformed rejection with the catalogue
+  message, required-channel text update.
+
+**Decisions**
+
+- *PUT/DELETE per row*, not one giant form: each setting is its own small `useForm`, so a bad value
+  on one row can't block the rest, and reset is naturally per-setting.
+- *Boolean editor written but unused* — no `Boolean` registry key exists yet; the branch exists so
+  the first one needs no page change.
+- *Breadcrumbs stay English at module scope* (Inertia `Page.layout` is static — no hooks there);
+  page body copy is fully translated. Same trade the existing settings pages make; a proper fix is
+  the starter-kit → `t()` conversion follow-up.
+- *Intra-row key order of stored packages* can differ from the submitted order after the
+  request→JSON round-trip; the test compares rows semantically, the UI is keyed by index anyway.
+
+**Result — `sail composer ci:check` GREEN:** eslint ✓, prettier ✓, `tsc --noEmit` ✓, pint ✓,
+phpstan lvl 7 (0 errors) ✓, tests **1092 (1088 pass, 4 skipped)**, 3097 assertions; `vite build`
+compiles both entries.
+
+**Next:** Admin Task 2 — challenge moderation and the image-proof review queue (list challenges by
+status, creator-side proof approval from the panel through the same review Action the bot uses),
+then user/coin adjustments via `CoinLedger`, invite/payment audit views, and the Stars refund
+surface.
