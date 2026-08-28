@@ -65,6 +65,56 @@ return [
     ],
 
     /*
+    | The check-in conversation. `refused` lines are addressed by the value of a
+    | `CheckInRejection` case, and `review_refused` by the subset `ReviewCheckIn`
+    | itself can throw — the same convention the invite and join groups use.
+    */
+    'checkin' => [
+        'none' => 'You are not in any challenges yet.',
+        'nothing_due' => 'Nothing is due from you right now. Check back when the next period opens.',
+        'todo' => '“:title” — period :index of :total is open.',
+        'done' => '“:title” — already checked in. Streak: :streak',
+        'awaiting_review' => '“:title” — your photo is with the creator, waiting on a verdict.',
+        'button' => 'Check in: :title',
+        'not_found' => 'That check-in button no longer belongs to a challenge.',
+
+        'phrase_prompt' => 'Type this phrase back to check in for “:title”:',
+        'phrase_error' => 'That is not the phrase. Check it and send it again.',
+        'phrase_expected' => 'Send the phrase as a text message.',
+
+        'photo_prompt' => 'Send a photo to check in for “:title”. The creator will take a look.',
+        'photo_expected' => 'Send the proof as a photo.',
+        'photo_sent' => 'Your photo for “:title” is in. You will hear back once the creator has reviewed it.',
+        'photo_error' => 'That photo could not be received. Please send it again.',
+
+        'confirmed' => 'Checked in for “:title”. Streak: :streak',
+
+        'review_prompt' => ':name has sent a photo for “:title”.',
+        'approve_button' => 'Approve',
+        'reject_button' => 'Reject',
+        'review_approved_ack' => 'Approved.',
+        'review_rejected_ack' => 'Rejected.',
+        'review_approved' => 'Your check-in for “:title” was approved. Streak: :streak',
+        'review_rejected' => 'Your photo for “:title” was turned down. Send another before the period ends.',
+
+        'refused' => [
+            'challenge_closed' => '“:title” is no longer running.',
+            'not_a_participant' => 'You are not an active participant in “:title”.',
+            'no_open_period' => '“:title” has no period open right now.',
+            'already_settled' => 'That period is already settled.',
+            'awaiting_review' => 'Your check-in for “:title” is already waiting on the creator.',
+            'wrong_proof_type' => '“:title” is not proven that way.',
+            'proof_missing' => 'Nothing was sent.',
+        ],
+
+        'review_refused' => [
+            'not_the_reviewer' => 'Only the creator of that challenge can review it.',
+            'already_settled' => 'That period has already closed, so the verdict can no longer change.',
+            'not_awaiting_review' => 'There is no photo waiting on you for that one.',
+        ],
+    ],
+
+    /*
     | The create-challenge wizard.
     |
     | The per-step keys are addressed as `bot.wizard.<conversation state>.prompt`,

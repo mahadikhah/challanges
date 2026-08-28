@@ -78,6 +78,29 @@ class TelegramUpdateFactory extends Factory
         ]);
     }
 
+    /**
+     * A photo message from a sender described field by field.
+     *
+     * A photo has no `text`, which is the whole point: it exercises the paths that
+     * must not treat "no text" as "nothing". Telegram sends an array of sizes
+     * smallest-first with a `file_id` on each, so this builds the same ladder.
+     *
+     * @param  array<string, mixed>  $from  merged over Telegram's `from` object
+     */
+    public function photoFrom(array $from, string $fileId = 'AgACphoto-file-id'): static
+    {
+        return $this->state(function (array $attributes) use ($from, $fileId): array {
+            $payload = $this->messagePayload('', null, $from);
+            unset($payload['message']['text']);
+            $payload['message']['photo'] = [
+                ['file_id' => $fileId.'-small', 'width' => 160, 'height' => 160],
+                ['file_id' => $fileId, 'width' => 1280, 'height' => 960],
+            ];
+
+            return ['payload' => $payload];
+        });
+    }
+
     public function callbackQuery(string $data, ?int $fromTelegramId = null): static
     {
         return $this->callbackQueryFrom(

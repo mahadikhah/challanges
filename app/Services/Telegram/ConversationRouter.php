@@ -2,6 +2,7 @@
 
 namespace App\Services\Telegram;
 
+use App\Models\BotConversation;
 use App\Models\TelegramUpdate;
 use App\Models\User;
 use App\Services\Telegram\Wizards\CreateChallengeWizard;
@@ -23,16 +24,20 @@ use Illuminate\Support\Facades\Log;
  * Ordering matters at the call site, not here. `MessageHandler` routes registered
  * commands **before** asking this router, so `/cancel` and `/start` always work
  * mid-flow instead of being swallowed as an answer to "what is your title?".
+ *
+ * The whole update is handed over rather than its text, because what a message
+ * *is* can be the answer itself: a check-in photo has no text to extract, but it
+ * is exactly the thing `AwaitingCheckInPhoto` is waiting for.
  */
 class ConversationRouter
 {
-    public function __construct(private readonly CreateChallengeWizard $wizard) {}
+    public function __construct(
+        private readonly CreateChallengeWizard $wizard,
+        private readonly CheckInFlow $checkIns,
+    ) {}
 
     /**
      * Hand the message to the open flow, reporting whether there was one.
-     *
-     * Takes the whole update rather than the text so that the check-in flow's photo
-     * step can read `message.photo` without changing this signature.
      */
     public function route(User $user, TelegramUpdate $update): bool
     {
@@ -48,14 +53,45 @@ class ConversationRouter
             return true;
         }
 
-        // A check-in conversation, which nothing handles yet. Reported as unclaimed
-        // so the user gets the fallback reply rather than silence.
+        if ($conversation->state->isCheckInStep()) {
+            $this->routeCheckIn($user, $conversation, $update);
+
+            return true;
+        }
+
+        // A state nothing routes — reachable only if `ConversationState` grows a
+        // case before a flow claims it. Reported as unclaimed so the user gets
+        // the fallback reply rather than silence.
         Log::info('A message arrived for a conversation state nothing routes.', [
             'update_id' => $update->update_id,
             'state' => $conversation->state->value,
         ]);
 
         return false;
+    }
+
+    /**
+     * A check-in answer: text for the phrase step, a photo for the photo step.
+     *
+     * The flow itself decides what a non-matching message means — a photo sent to
+     * the phrase step is re-asked, not refused — so this only picks the entry
+     * point the stored state names and passes the payload through untouched.
+     */
+    private function routeCheckIn(User $user, BotConversation $conversation, TelegramUpdate $update): void
+    {
+        if ($conversation->state->expectsPhoto()) {
+            $photo = $update->value('message.photo');
+
+            $this->checkIns->receivePhoto(
+                $user,
+                $conversation,
+                is_array($photo) ? $photo : null,
+            );
+
+            return;
+        }
+
+        $this->checkIns->receiveText($user, $conversation, $this->text($update));
     }
 
     /**
