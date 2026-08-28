@@ -7,10 +7,12 @@ use App\Services\Localization;
 use InvalidArgumentException;
 
 /**
- * Turn Telegram's `from` object into the platform's own user row.
+ * Turn Telegram's `User` object into the platform's own user row.
  *
- * The bot has no sign-up step: a user exists because they messaged the bot. This
- * is that step, and it is the only place a Telegram identity becomes a `User`.
+ * The platform has no sign-up step: a user exists because they messaged the
+ * bot or opened the Mini App. Those are the two arrivals this action serves —
+ * a bot update's `from` and initData's decoded `user` have the same shape —
+ * and it remains the only place a Telegram identity becomes a `User`.
  *
  * **The returned instance matters, not just the row.** `ClaimInvite` decides
  * whether an inviter gets paid from `wasRecentlyCreated`, which is true only on

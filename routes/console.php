@@ -25,3 +25,8 @@ Schedule::command('challenges:roll-over')->everyMinute();
 // Mint the coming minute's/day's reminder rows and queue the due ones,
 // staggered one send a second.
 Schedule::command('challenges:reminders')->everyMinute();
+
+// Mini App bearer tokens are short-lived; this keeps `personal_access_tokens`
+// from growing one app-open at a time. Retains tokens expired less than 24h,
+// so debugging yesterday's session is still possible.
+Schedule::command('sanctum:prune-expired')->daily();

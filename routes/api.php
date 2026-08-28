@@ -1,26 +1,33 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\MiniApp\AuthController;
+use App\Http\Controllers\MiniApp\MeController;
 use Illuminate\Support\Facades\Route;
-
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
 
 /*
 |--------------------------------------------------------------------------
 | Mini App JSON API (versioned)
 |--------------------------------------------------------------------------
 |
-| The standalone Mini App SPA consumes this versioned surface. Authentication
-| (Telegram initData -> short-lived Sanctum bearer token) and the real
-| endpoints are built in Phase 5; this is the registered-but-empty scaffold.
+| The standalone Mini App SPA consumes this versioned surface: it cannot be
+| Inertia, because the Mini App's identity (initData) only arrives after the
+| page has loaded — see CLAUDE.md's "Surfaces & Auth" for the settled why.
+|
+| Auth is one unauthenticated exchange — initData in, short-lived Sanctum
+| bearer token out — and everything else hangs off `auth:sanctum` with the
+| `miniapp` ability, so the SPA never holds anything longer-lived than the
+| token or broader than the Mini App.
 |
 */
-Route::prefix('v1')->group(function (): void {
-    Route::get('/ping', fn () => response()->json(['ok' => true, 'surface' => 'api']));
+Route::prefix('v1')->name('miniapp.')->group(function (): void {
+    Route::get('/ping', fn () => response()->json(['ok' => true, 'surface' => 'api']))
+        ->name('ping');
 
-    Route::prefix('miniapp')->name('miniapp.')->group(function (): void {
-        // /api/v1/miniapp/* — Phase 5 (auth, challenge details, status, progress).
+    Route::prefix('miniapp')->group(function (): void {
+        Route::post('/auth', [AuthController::class, 'store'])->name('auth');
+
+        Route::get('/me', MeController::class)
+            ->middleware(['auth:sanctum', 'ability:miniapp'])
+            ->name('me');
     });
 });
