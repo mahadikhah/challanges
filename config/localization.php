@@ -46,6 +46,6 @@ return [
     |
     */
 
-    'client_groups' => ['common', 'enums', 'miniapp'],
+    'client_groups' => ['common', 'enums', 'miniapp', 'admin'],
 
 ];

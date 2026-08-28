@@ -260,9 +260,9 @@
     "semantic_hash": "0d3a837ac67b8969159f68d3d4310faa"
   },
   "resources/js/components/app-sidebar.tsx": {
-    "mtime": 1787315451.0,
-    "ast_hash": "4e03e78612240a0088225bc0b14b8912",
-    "semantic_hash": "4e03e78612240a0088225bc0b14b8912"
+    "mtime": 1787931749.0080655,
+    "ast_hash": "ecaeec03de4b3c28b9cd989ebc625bef",
+    "semantic_hash": ""
   },
   "resources/js/components/appearance-tabs.tsx": {
     "mtime": 1787601445.2095737,
@@ -585,9 +585,9 @@
     "semantic_hash": "abf65a6126013e5497d09b4f9a338ff5"
   },
   "resources/js/types/auth.ts": {
-    "mtime": 1787590271.009126,
-    "ast_hash": "524c79094b956bad8125c129fffebc95",
-    "semantic_hash": "524c79094b956bad8125c129fffebc95"
+    "mtime": 1787931454.47551,
+    "ast_hash": "2cbe5df19f533023f4385dec799cf256",
+    "semantic_hash": ""
   },
   "resources/js/types/global.d.ts": {
     "mtime": 1787601418.4221792,
@@ -775,8 +775,8 @@
     "semantic_hash": ""
   },
   "routes/admin.php": {
-    "mtime": 1787599463.7835903,
-    "ast_hash": "8f74ae0de11b628ffc81b645c0c09ee7",
+    "mtime": 1787931040.4131222,
+    "ast_hash": "4719ba795ccc93571914f7a546b86948",
     "semantic_hash": ""
   },
   "routes/api.php": {
@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "prompts/progress.md": {
-    "mtime": 1787929174.741152,
-    "ast_hash": "ee8a165e9a867bc1d2aebd3c4c60c7f8",
+    "mtime": 1787930327.7170756,
+    "ast_hash": "8b4bcdeb0ff2b4963509ce1d64df78da",
     "semantic_hash": ""
   },
   "prompts/task-01-setup.md": {
@@ -1135,8 +1135,8 @@
     "semantic_hash": ""
   },
   "config/localization.php": {
-    "mtime": 1787929601.3137515,
-    "ast_hash": "71dd1105bb74e6e87ed838ac7c4a9f0b",
+    "mtime": 1787931079.7854931,
+    "ast_hash": "44ae31c287b347a2050e41c0f3069f31",
     "semantic_hash": ""
   },
   "lang/en/common.php": {
@@ -1200,8 +1200,8 @@
     "semantic_hash": ""
   },
   "app/Services/Settings.php": {
-    "mtime": 1787602632.5084248,
-    "ast_hash": "f526e76ba105656a5668334b953884b7",
+    "mtime": 1787930961.0124145,
+    "ast_hash": "1f5e611e4f43f17977279c53b3d8d0c6",
     "semantic_hash": ""
   },
   "database/factories/SettingFactory.php": {
@@ -2247,6 +2247,41 @@
   "tests/Feature/MiniApp/MiniAppCheckInTest.php": {
     "mtime": 1787930165.9941466,
     "ast_hash": "f2458f218503b239e45ea3dc94ce7c55",
+    "semantic_hash": ""
+  },
+  "app/Http/Controllers/Admin/SettingsController.php": {
+    "mtime": 1787931171.1923985,
+    "ast_hash": "3d5e98b6eca7d486734f0c68f90c5759",
+    "semantic_hash": ""
+  },
+  "app/Http/Middleware/EnsureUserIsAdmin.php": {
+    "mtime": 1787930818.4343045,
+    "ast_hash": "7af5fae93b444159ec159861304d77af",
+    "semantic_hash": ""
+  },
+  "app/Http/Requests/Admin/UpdateSettingRequest.php": {
+    "mtime": 1787930938.3562233,
+    "ast_hash": "6ad3be8b031a4b7d3d76d21b2f147da4",
+    "semantic_hash": ""
+  },
+  "lang/en/admin.php": {
+    "mtime": 1787931025.4279845,
+    "ast_hash": "ec47c1935e66bce2ba53e4d8e7cdead2",
+    "semantic_hash": ""
+  },
+  "lang/fa/admin.php": {
+    "mtime": 1787931025.5009851,
+    "ast_hash": "f239e45f221068894995edbb3b03c9a1",
+    "semantic_hash": ""
+  },
+  "resources/js/pages/Admin/Settings.tsx": {
+    "mtime": 1787931771.3303437,
+    "ast_hash": "bde9dc8820734af6286f3457766f06ed",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Admin/SettingsPanelTest.php": {
+    "mtime": 1787931708.580564,
+    "ast_hash": "8da32e99eb099e645bb9cec5e62f6183",
     "semantic_hash": ""
   }
 }

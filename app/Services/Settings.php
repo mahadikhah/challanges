@@ -140,6 +140,15 @@ class Settings
     }
 
     /**
+     * Whether an admin override exists for this tunable — the registry
+     * default is what applies otherwise.
+     */
+    public function isOverridden(SettingKey $key): bool
+    {
+        return array_key_exists($key->value, $this->overrides());
+    }
+
+    /**
      * Override a tunable.
      *
      * Rejects a value of the wrong shape rather than coercing it: these are
