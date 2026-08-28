@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Services\Localization;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -166,4 +167,20 @@ describe('mini app shell', function () {
     it('serves the shell for any client-side route beneath /miniapp', function () {
         $this->withoutVite()->get('/miniapp/challenges/42')->assertOk();
     });
+
+    /*
+    | The SPA renders every sentence from the embedded catalogue — a key that
+    | exists in lang/miniapp.php but not in the shipped payload renders as its
+    | own key on the user's screen. This guards the wiring: the group must be
+    | in `localization.client_groups`, in every supported locale.
+    */
+    it('ships the Mini App catalogue to the client in every supported locale', function (string $locale) {
+        $payload = app(Localization::class)->payload($locale);
+
+        expect($payload['translations'])
+            ->toHaveKey('miniapp.challenges.title')
+            ->toHaveKey('miniapp.check_in.button')
+            ->and($payload['translations']['miniapp.challenges.title'])
+            ->toBe(__('miniapp.challenges.title', [], $locale));
+    })->with(['en', 'fa']);
 });
