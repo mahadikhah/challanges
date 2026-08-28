@@ -42,7 +42,8 @@ Status key: ✅ done · 🔄 in progress · ⬜ not started
   inline keyboards, `CreateChallenge` + announcement post)
 - ✅ **Bot Core Task 5 — join flow** (`JoinChallenge` action, `join_token` deep links, preview-then-confirm,
   announcement-channel join button, `JoinRejection`)
-- ⬜ Check-in for all three proof types
+- ✅ **Bot Core Task 6 — check-in for all three proof types** (`/checkin` listing, `CheckInFlow`,
+  `TelegramFileDownloader` via `getFile`, creator approve/reject callbacks, `ConversationRouter` check-in states)
 - ⬜ Reminders (scheduler + staggered queued jobs); locale selection
 
 ## Phase 4 — Stars payments
@@ -1790,3 +1791,86 @@ surface is what lands: a `/checkin` entry point (or a per-period prompt), the ph
 `getFile`, the creator's approve/reject buttons on pending image proofs, and the streak feedback on every
 successful check-in. All of it goes through the same `SubmitCheckIn` action the Mini App and admin panel
 will later call.
+
+---
+
+## Bot Core Task 6 — check-in for all three proof types (done)
+
+**Scope.** The bot surface over the Domain Task 7 actions: `/checkin` lists what the
+user owes right now, the proof arrives for `button` (one tap), `text_autogen` (the
+issued phrase typed back) and `image_approval` (a photo, then the creator's verdict
+on inline buttons). `SubmitCheckIn`, `ReviewCheckIn`, `IssueCheckInPhrase`,
+`OpenCheckIn` and `SettleCheckIn` were already done and tested — this task adds
+zero rules and all surface.
+
+**What landed.**
+- `app/Services/Telegram/CheckInFlow.php` — `begin()` (the `/checkin` listing: todo
+  lines with a per-challenge button, done + streak, awaiting-review, nothing-due),
+  `start()` (dispatches by proof type: the tap *is* the proof for `button`; the
+  other two open a `BotConversation`), `receiveText()` / `receivePhoto()` (routed by
+  the extended `ConversationRouter`; a wrong phrase or a photo-where-words-were-due
+  is re-asked, everything else is refused with the reason and closes the flow).
+- `app/Services/Telegram/TelegramFileDownloader.php` — photo ladder → largest size →
+  `getFile` → bytes at `https://api.telegram.org/file/bot<token>/<path>` → stored
+  under `check-in-proofs/Y/m/d/<hex>.jpg` on the local disk. The surface owns the
+  Telegram transport; `SubmitCheckIn::uploadPhoto()` keeps taking a stored path.
+- `app/Services/Telegram/Callbacks/CheckInCallback.php` (`ci:<join_token>`) and
+  `ReviewCheckInCallback.php` (`rv:<check-in id>:a|r`) — the latter re-verifies the
+  gate at the tap, delegates to `ReviewCheckIn` (which re-derives ownership from the
+  row), acks the creator and tells the participant the verdict with their new streak.
+  Rejection notifies the participant to resubmit — rejection is not an ending.
+- `app/Services/Telegram/Commands/CheckInCommand.php` (`/checkin`), registered in
+  `BOT_COMMANDS`; both callbacks in `CALLBACK_HANDLERS`.
+- `ConversationRouter` now routes `AwaitingCheckInText` / `AwaitingCheckInPhoto`
+  (replacing the log-and-fall-through placeholder) and takes the whole update so a
+  photo message can be the answer itself.
+- `TelegramUpdateFactory::photoFrom()` — a real `message.photo` ladder, no `text`.
+- Lang: `bot.checkin.*` in en + fa, including `refused.*` addressed by
+  `CheckInRejection` values and `review_refused.*` by the subset `ReviewCheckIn`
+  throws. Farsi copy written, not transliterated.
+
+**Decisions.**
+- *The phrase is issued at the prompt, not at submission.* `askPhrase()` calls
+  `IssueCheckInPhrase::forParticipant()` before showing it, so the string the
+  participant reads is the persisted one their answer is compared against. (Submission
+  still issues on demand — a Mini App user can arrive with no prompt ever sent.)
+- *A wrong phrase does not close the flow.* It is the mechanic working; the
+  conversation holds and a later correct phrase still lands. Every other rejection
+  (closed, not-a-participant, settled, awaiting-review) is a state the participant
+  cannot retry out of, so the flow closes and says which.
+- *An infrastructure failure is ours, not theirs.* A Telegram/storage failure in
+  `receivePhoto()` logs, says `photo_error`, and leaves the conversation open — no
+  `Submitted` row exists, so nothing is half-recorded and the second attempt works.
+- *The review verdict travels to both parties.* Creator gets an ack; participant gets
+  approval-with-streak or rejection-with-resubmit-plea. Streaks are read after
+  `$participant->refresh()` — `SettleCheckIn` moves counters on a freshly locked row.
+- *A check-in conversation replaces a half-built wizard.* One `BotConversation` row
+  per user is the existing constraint; reaching for `/checkin` when something is due
+  beats preserving a draft, and `/create` restarts cheaply.
+
+**Traps met.** `BotConversation` lives in `App\Models` — a missing import in
+`ConversationRouter` surfaced only at runtime (typed param, not a `use`); `getFile`
+travels as a GET so the `file_id` is on the URL, not in the body; the factory's
+random en/fa `language_code` flips per-recipient copy mid-test (helpers now pin
+`preferring('en')`); `active()` challenges open yesterday so "today" is period 2 —
+computed from `currentPeriod()`, never assumed.
+
+**Assumptions / follow-ups recorded.** A creator with no `telegram_id` (email-only
+admin) cannot be notified of a submitted photo — logged, not lost; the queue review
+path for that case is a follow-up. The `ci:` button reuses `join_token` as its
+reference (unique, unguessable-enough, already on the row) rather than minting a
+second token. Photos are stored on the `local` disk — moving to a public/protected
+disk with a signed-URL viewer is a Mini App / admin task, recorded for Phase 5/6.
+Carried unchanged: all standing follow-ups from Task 5.
+
+**Result — `sail composer ci:check` GREEN:** eslint ✓, prettier ✓, `tsc --noEmit` ✓,
+pint ✓, phpstan lvl 7 (0 errors) ✓, tests **994 (990 pass, 4 skipped = Fortify 2FA
+disabled)**, 2694 assertions, +22 on the suite (all in
+`tests/Feature/Bot/CheckInFlowTest.php`, which drives every step through
+`ProcessTelegramUpdate` with `Http::fake()`d Bot API + file bytes). Graph: 2664
+nodes / 4981 edges / 231 communities.
+
+**Next:** Bot Core Task 7 — reminders: the scheduler that rolls periods over and
+fans reminder jobs out staggered (`ReminderDispatch` unique on participant+period+kind),
+plus the `/language` locale selection. Nothing currently calls `RollOverPeriod` on a
+schedule, so challenges never close their periods — that is the heart of the next task.
