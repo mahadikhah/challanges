@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Enums\ChallengeStatus;
 use App\Enums\ChallengeVisibility;
+use App\Enums\FlowType;
 use App\Enums\PeriodType;
 use App\Enums\ProofType;
 use App\Models\Challenge;
@@ -43,6 +44,7 @@ class ChallengeFactory extends Factory
             'timezone' => 'UTC',
             'visibility' => ChallengeVisibility::InviteOnly,
             'proof_type' => ProofType::Button,
+            'flow_type' => FlowType::Simple,
             'proof_is_public' => false,
             'default_freezes' => 1,
             'status' => ChallengeStatus::Scheduled,
@@ -145,6 +147,16 @@ class ChallengeFactory extends Factory
     {
         return $this->state(fn (array $attributes): array => [
             'join_token' => $token,
+        ]);
+    }
+
+    /**
+     * Check-ins arrive as gated step sessions rather than one submission.
+     */
+    public function timedSession(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'flow_type' => FlowType::TimedSession,
         ]);
     }
 }

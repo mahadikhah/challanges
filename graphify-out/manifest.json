@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "prompts/progress.md": {
-    "mtime": 1787944276.362659,
-    "ast_hash": "24b1072a0972dc45f26d4723979d1986",
+    "mtime": 1787945896.1898282,
+    "ast_hash": "05f754ede174b6ec1f3437d909de672e",
     "semantic_hash": ""
   },
   "prompts/task-01-setup.md": {
@@ -1255,8 +1255,8 @@
     "semantic_hash": ""
   },
   "app/Models/Challenge.php": {
-    "mtime": 1787921921.835566,
-    "ast_hash": "456818cd53f9c2e5adb26f61b8031cd6",
+    "mtime": 1787946136.4224336,
+    "ast_hash": "5d8e0f972d9ba7c14628a0bc8e47f900",
     "semantic_hash": ""
   },
   "app/Models/ChallengeParticipant.php": {
@@ -1275,8 +1275,8 @@
     "semantic_hash": ""
   },
   "database/factories/ChallengeFactory.php": {
-    "mtime": 1787921257.0441916,
-    "ast_hash": "9c968146623ab3e3a267616cbb9895d6",
+    "mtime": 1787946232.7702913,
+    "ast_hash": "1b41b08088788637be04b97d2eb1ea02",
     "semantic_hash": ""
   },
   "database/factories/ChallengeParticipantFactory.php": {
@@ -1320,13 +1320,13 @@
     "semantic_hash": ""
   },
   "lang/en/enums.php": {
-    "mtime": 1787606538.0635643,
-    "ast_hash": "15bf82a7d6fa332ad6f221af2fd8b513",
+    "mtime": 1787946279.3386424,
+    "ast_hash": "61ee0c262b4b702e89b1204c235f6749",
     "semantic_hash": ""
   },
   "lang/fa/enums.php": {
-    "mtime": 1787606713.0099378,
-    "ast_hash": "be06c2657c8f83ca1fd5682214794bbf",
+    "mtime": 1787946279.3386424,
+    "ast_hash": "a368f35919bfd226a87589958ef70299",
     "semantic_hash": ""
   },
   "tests/Feature/Domain/ChallengeSchemaTest.php": {
@@ -1825,8 +1825,8 @@
     "semantic_hash": ""
   },
   "app/Actions/Challenges/CreateChallenge.php": {
-    "mtime": 1787921233.942575,
-    "ast_hash": "8a10ad0b039ba6ddf2ea7dd1456e61c8",
+    "mtime": 1787946384.6406345,
+    "ast_hash": "d8332fd2adf52233fa0d5c3be84ac98c",
     "semantic_hash": ""
   },
   "app/Jobs/Challenges/AnnounceChallenge.php": {
@@ -2577,6 +2577,81 @@
   "tests/Feature/Bot/ChallengeChatPostingTest.php": {
     "mtime": 1787945666.4696224,
     "ast_hash": "868a9414812f66fe4742e5dcb530303b",
+    "semantic_hash": ""
+  },
+  "app/Actions/Challenges/ValidateChallengeStepDesign.php": {
+    "mtime": 1787946422.624695,
+    "ast_hash": "12a6217225299ee214e2d41f6ae7d31d",
+    "semantic_hash": ""
+  },
+  "app/Enums/CheckInSessionStatus.php": {
+    "mtime": 1787946039.2544503,
+    "ast_hash": "cbd27753efe0a4377d95f20dfe9b274e",
+    "semantic_hash": ""
+  },
+  "app/Enums/FlowType.php": {
+    "mtime": 1787946035.2143238,
+    "ast_hash": "37edd5485cc76f56e3b0c83fb6756b61",
+    "semantic_hash": ""
+  },
+  "app/Enums/StepInputType.php": {
+    "mtime": 1787946037.485395,
+    "ast_hash": "1268c036c57ffc43b63db6a9c94d3744",
+    "semantic_hash": ""
+  },
+  "app/Models/ChallengeStep.php": {
+    "mtime": 1787946423.1347094,
+    "ast_hash": "7d8cfb07cdada6e17dd2a4b63157f45c",
+    "semantic_hash": ""
+  },
+  "app/Models/CheckInSession.php": {
+    "mtime": 1787946423.5817218,
+    "ast_hash": "cdef813dee647bc6742d0cff0865c933",
+    "semantic_hash": ""
+  },
+  "app/Models/CheckInStepSubmission.php": {
+    "mtime": 1787946129.4652236,
+    "ast_hash": "008a107fd7d9408cc6481a4f18ec5009",
+    "semantic_hash": ""
+  },
+  "database/factories/ChallengeStepFactory.php": {
+    "mtime": 1787946261.2341194,
+    "ast_hash": "6f8f4263ec01d3863deac950b146f411",
+    "semantic_hash": ""
+  },
+  "database/factories/CheckInSessionFactory.php": {
+    "mtime": 1787946251.9728508,
+    "ast_hash": "3457339be0030ecc56df67e198c4fc8e",
+    "semantic_hash": ""
+  },
+  "database/factories/CheckInStepSubmissionFactory.php": {
+    "mtime": 1787946252.045853,
+    "ast_hash": "0b6d5e2c381a576971867521eddd0b12",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_28_194005_create_challenge_steps_table.php": {
+    "mtime": 1787946057.1190073,
+    "ast_hash": "bc998370db3f317c72d77e6a452c5d4a",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_28_194007_create_check_in_sessions_table.php": {
+    "mtime": 1787946067.720336,
+    "ast_hash": "ea145eaf01cfac623c794ad60095a5bd",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_28_194010_create_check_in_step_submissions_table.php": {
+    "mtime": 1787946084.5298543,
+    "ast_hash": "07109b9843d9013d415161a96b337dee",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_28_194100_add_flow_type_to_challenges_table.php": {
+    "mtime": 1787946086.248907,
+    "ast_hash": "d891a41e082a26b0349dce78823b1ca5",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Domain/ChallengeStepDesignTest.php": {
+    "mtime": 1787946384.3886273,
+    "ast_hash": "579ff1dcf6c83c9ed0afc55595e06164",
     "semantic_hash": ""
   }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ChallengeStatus;
 use App\Enums\ChallengeVisibility;
+use App\Enums\FlowType;
 use App\Enums\PeriodType;
 use App\Enums\ProofType;
 use Carbon\CarbonImmutable;
@@ -32,6 +33,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $timezone
  * @property ChallengeVisibility $visibility
  * @property ProofType $proof_type
+ * @property FlowType $flow_type
  * @property bool $proof_is_public
  * @property int $default_freezes
  * @property ChallengeStatus $status
@@ -54,6 +56,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'timezone',
     'visibility',
     'proof_type',
+    'flow_type',
     'proof_is_public',
     'default_freezes',
     'status',
@@ -85,6 +88,16 @@ class Challenge extends Model
     public function periods(): HasMany
     {
         return $this->hasMany(ChallengePeriod::class)->orderBy('index');
+    }
+
+    /**
+     * The timed-session step list, first step first. Empty for `simple` flows.
+     *
+     * @return HasMany<ChallengeStep, $this>
+     */
+    public function steps(): HasMany
+    {
+        return $this->hasMany(ChallengeStep::class)->orderBy('step_order');
     }
 
     /**
@@ -221,6 +234,7 @@ class Challenge extends Model
             'total_periods' => 'integer',
             'visibility' => ChallengeVisibility::class,
             'proof_type' => ProofType::class,
+            'flow_type' => FlowType::class,
             'proof_is_public' => 'boolean',
             'default_freezes' => 'integer',
             'status' => ChallengeStatus::class,

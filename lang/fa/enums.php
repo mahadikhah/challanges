@@ -98,4 +98,21 @@ return [
         'period_ending' => 'آخرین فرصت ثبت فعالیت',
     ],
 
+    'flow_type' => [
+        'simple' => 'یک‌مرحله‌ای',
+        'timed_session' => 'مرحله‌ای زمان‌دار',
+    ],
+
+    'step_input_type' => [
+        'button' => 'دکمه',
+        'image' => 'عکس',
+        'voice' => 'پیام صوتی',
+    ],
+
+    'check_in_session_status' => [
+        'in_progress' => 'در جریان',
+        'completed' => 'تکمیل شد',
+        'expired' => 'منقضی شد',
+        'abandoned' => 'رها شد',
+    ],
 ];

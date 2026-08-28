@@ -98,4 +98,21 @@ return [
         'period_ending' => 'Last chance to check in',
     ],
 
+    'flow_type' => [
+        'simple' => 'One submission',
+        'timed_session' => 'Timed steps',
+    ],
+
+    'step_input_type' => [
+        'button' => 'Button tap',
+        'image' => 'Photo',
+        'voice' => 'Voice message',
+    ],
+
+    'check_in_session_status' => [
+        'in_progress' => 'In progress',
+        'completed' => 'Completed',
+        'expired' => 'Expired',
+        'abandoned' => 'Abandoned',
+    ],
 ];
