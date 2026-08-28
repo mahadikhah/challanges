@@ -59,7 +59,8 @@ Status key: ✅ done · 🔄 in progress · ⬜ not started
 
 ## Phase 6 — Admin panel
 - ✅ Panel foundation: admin gate + settings/economy tuning UI
-- ⬜ Challenge moderation, image-proof review, user/coin adjustments, audit views
+- ✅ Challenge moderation (list/detail/cancel) + image-proof review queue
+- ⬜ User/coin adjustments, invite/payment audit views, Stars refund surface
 
 ## Phase 7 — Website
 - ⬜ Marketing landing (fuller mirror later)
@@ -2278,3 +2279,78 @@ compiles both entries.
 status, creator-side proof approval from the panel through the same review Action the bot uses),
 then user/coin adjustments via `CoinLedger`, invite/payment audit views, and the Stars refund
 surface.
+
+---
+
+## Admin Task 2 — challenge moderation + image-proof review queue
+
+**Branch/commit:** `feat(admin): challenge moderation and the image-proof review queue` (+ separate
+`docs(progress)` commit).
+
+**What was built**
+
+- **`CancelChallenge` action** (`app/Actions/Challenges/CancelChallenge.php`) — the first
+  cancellation path in the codebase (the bot's `/cancel` only ends wizard conversations). One-way
+  door: terminal statuses refused with `ChallengeNotCancellable`. Authorization derived from the
+  row — creator or platform admin. Participants are notified by the bot.
+- **`SendBotMessage` job** (`app/Jobs/Telegram/SendBotMessage.php`) — the generic queued one-line
+  bot send: user re-resolved by id at send time (deleted/web-only users end quietly), locale per
+  recipient, `tries = 5`. The fan-out half of everything that is not a reply.
+- **Staggered notification** — `CancelChallenge` dispatches one `SendBotMessage` per *active*
+  participant with `delay($position * 1s)`, matching `DispatchDueReminders`' stagger, inside the
+  transaction so nothing sends if the cancellation does not commit.
+- **`NotifyCheckInVerdict` service** — the participant-side verdict message extracted out of
+  `ReviewCheckInCallback` so the bot's inline buttons and the panel's queue send the *same* words
+  for the same outcome. PHPStan caught a genuine bug in the extraction (an undefined `$rejected`
+  after the refactor) before it could ship — the guard is real.
+- **Review queue surface** (`Admin\ReviewQueueController` + `Admin/Reviews.tsx`): every
+  `Submitted` check-in (image proofs) with challenge, participant, period and a proof thumbnail.
+  Approve/reject go through `ReviewCheckIn` — the same action the bot calls, no second copy of the
+  rule — and notify the participant synchronously; a refusal (rollover beat the click) becomes an
+  error toast keyed by `CheckInRejection::value`, not a 500.
+- **Proofs served through a gated route** (`GET /admin/reviews/{checkIn}/proof`) — streamed from the
+  `local` disk behind `auth` + admin; 404 when the row has no photo or the file is gone. The proof
+  path never appears in a URL; the admin URL is the only door.
+- **Moderation surface** (`Admin\ChallengesController` + `Admin/Challenges.tsx` /
+  `Admin/Challenges/Show.tsx`): newest-first listing (deterministic `created_at, id` order), status
+  filter, title search, simple pagination with the query string carried; detail view with the
+  challenge's shape (enums as `{value, label}`) and participants with streaks/freezes; a confirmed
+  Cancel button on non-terminal challenges.
+- **Middleware priority fix** (`bootstrap/app.php`): without it, route-model binding answered
+  before `EnsureUserIsAdmin`, so a non-admin probing admin URLs learned from a 404 which row ids
+  exist. The priority list now puts the gate before `SubstituteBindings` — every id reads the same
+  to a non-admin (403). Tests pin this with nonexistent ids.
+- **Sidebar**: admins get Challenges / Proof review / Settings nav items. Wayfinder regenerated.
+- **Tests** — `tests/Feature/Admin/ReviewQueueTest.php` (11): gates on every route, queue contents
+  (settled rows and non-photo challenges excluded), proof route auth/404/content-type, approve via
+  the shared action (streak moves, participant notified in-request, `Http::assertSent`), reject,
+  already-settled toast, empty queue, id probing. `tests/Feature/Admin/ChallengeModerationTest.php`
+  (8): gates, listing shape/order, status+title filters (unknown status = no filter), detail shape,
+  cancel → status + 3 staggered `SendBotMessage` (delays 0/1/2s, left participants excluded),
+  terminal refusal. `tests/Feature/Domain/CancelChallengeTest.php` (6): creator may, admin may,
+  bystander refused, second cancellation refused, notification stagger/targeting, nobody-to-tell.
+
+**Decisions**
+
+- *Verdict notification is synchronous, cancellation notification is queued.* A review is one
+  message in direct response to an admin click; a cancellation can be hundreds, which is exactly
+  what the stagger exists for.
+- *Only `active` participants hear about a cancellation* — `left`/`removed` participants are done
+  being told things.
+- *No new UI components*: no `table.tsx` exists in the shadcn set, so the listings use the same
+  plain-`<table>` markup the Settings packages editor uses, rather than importing a component
+  library.
+- *Breadcrumbs stay English at module scope* (same trade as Task 1 — `Page.layout` is static);
+  body copy fully translated, en + fa.
+- *`SendBotMessage` is deliberately not `SendReminder`-shaped*: no row, no `sent_at` stamp, no
+  idempotency token — it is one message to one user, retryable as a unit. If a future announcement
+  needs exactly-once delivery, that is a new dispatch table in the `ReminderDispatch` style, not
+  this job.
+
+**Result — `sail composer ci:check` GREEN:** eslint ✓, prettier ✓, `tsc --noEmit` ✓, pint ✓,
+phpstan lvl 7 (0 errors) ✓, tests **1118 (1114 pass, 4 skipped)**, 3302 assertions; `vite build`
+compiles both entries.
+
+**Next:** Admin Task 3 — users, coins and audits: user lookup with balance, admin coin adjustments
+through `CoinLedger` (never a bare write), invite and Stars-payment audit views, and the Stars
+refund surface calling `refundStarPayment`.
