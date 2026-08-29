@@ -322,3 +322,86 @@ frames say nothing is a human's to watch.
 - Task 5: bot/Mini App capture & review UI for voice/video. Feeds on Task 3/4's
   review legs; needs video routed through `AdvanceCheckInStep`, review-queue preview,
   and the Mini App upload surface.
+
+## Task 5 — Voice/video capture & review UI (`feat(bot)`, 2026-08-29)
+
+What the last line of Task 4 needed: the surfaces. A `voice_approval` or
+`video_approval` challenge now runs the same conversation the photo flow owns —
+`AwaitingCheckInVoice`/`AwaitingCheckInVideo` join `ConversationState`,
+`ConversationRouter` routes a message carrying the matching object into
+`CheckInFlow::receiveVoice/receiveVideo`, and both funnel into one shared
+`receiveRecording` body (the photo's mirror, plus the duration and byte size
+the messenger itself measured riding through to `SubmitCheckIn::uploadVoice/
+uploadVideo`, which refuse an over-cap recording *before anything is written*).
+
+**Doctrine held: a cap refusal re-asks, it does not abandon.** An overlong or
+oversized recording gets the `media_too_long`/`media_too_large` line with the
+conversation still open — the same treatment a mismatched phrase gets — because
+a shorter take is one message away. Everything else (state refusals) abandons;
+infrastructure failures log and keep the flow open, exactly as the photo flow
+already did.
+
+**Video joined the cross-routing.** `SessionStepFlow::receiveMedia`'s `wants`
+match now recognises `message.video` alongside photo and voice, submitting
+`video_seconds` plus a `media_size_kb` derived from the payload's `file_size`
+for either recording kind. One ordering test proves both legs: the video
+message during an active video step routes to `AdvanceCheckInStep` (and its
+caps — on the *challenge* row, not the step — are enforced), while the
+`checkinChallenge` suite proves the same message type against a simple
+`video_approval` challenge routes to the ordinary check-in handler.
+
+**The queue is kind-aware from one source of truth.** `CheckIn::proofKind()`
+derives `image|voice|video` from the stored path's extension — deliberately
+*not* from the challenge-level `proof_type`, because a session's evidence
+(Phase 9) need not match it. Three consumers read it: the queue row's
+`proof_kind` (the panel renders native `<audio>`/`<video>` players instead of
+the `<img>`), the creator's notification copy (`review_prompt_voice` points
+them at the queue — `BotMessenger` has no `sendVoice`/`sendVideo` and inline
+buttons stay image-only), and `NotifyCheckInVerdict`'s rejection copy, which
+now names what to replace ("send another voice message", not "another photo").
+
+**The proof route names what it streams.** `response()->file()` sniffs bytes,
+and a real `.ogg` stub sniffs as octet-stream — so the browser would download
+instead of playing. The route now picks the content type from the stored
+extension's mime list, disambiguated by `proofKind()` (`.ogg` maps to both
+`audio/*` and `video/*`; a voice kind takes the audio answer). Assertions
+cover `audio/ogg` and `video/mp4`.
+
+**Mini App untouched, on the spec's own terms.** The task said "extend the
+existing check-in submission surface *if one exists*" — it does not; the Mini
+App's `CheckInController` is tap-only with no upload endpoint. Building one
+would be new-surface work the task explicitly scoped out ("no new Mini App
+screens"), so nothing was extended and this line records why.
+
+**Traps hit and closed:**
+
+- **The caps are nullable with no factory default.** A recording-proof
+  challenge created without explicit `proof_media_max_seconds`/`_size_kb`
+  refuses *everything* (`(int) null === 0`). Tests pass caps explicitly
+  (`recordingCaps()`: 120s / 4096 KB); production challenge creation goes
+  through `CreateChallenge::assertMediaCaps`, which is not so permissive.
+- **The lang keys had to be renamed, not added to.** `review_prompt` and
+  `review_rejected` became `review_prompt_image`/`review_rejected_image`
+  because the code interpolates the kind into the key — and the generic
+  `review_prompt`/`_rejected` keys would sit alongside the `_voice`/`_video`
+  ones as dead weight. Two existing test assertions followed the rename.
+- **PHPStan caught the enum partition twice:** the wizard's `nextAfter` match
+  needed the two new states in its wiring-bug arm, and
+  `EconomySchemaTest`'s exhaustive dataset + partition counts needed the two
+  new rows/columns. Both are the safety net doing its job.
+- `SessionStepFlow::showStep` stated `:max` from `voice_max_seconds` for every
+  media step — a video step's ceiling lives on the challenge, so the prompt
+  printed an empty "up to  seconds". The `match` now picks by input type.
+
+**Tests.** `CheckInFlowTest` grows a `recording proof` describe (6): prompt
+with caps + state; voice stored + creator pointed at the queue; the video
+mirror; overlong refused before storage with the flow still open *and* a
+shorter take then accepted; oversized refused the same way; re-ask on text
+where a recording was due. `TimedSessionBotTest` grows the video
+cross-routing test (walk to the video step, assert the `step_video` prompt
+carries the challenge's ceiling, send the video, session completes into an
+approved check-in). `ReviewQueueTest` grows two: the queue lists a pending
+voice and video with the kind that plays them (both content types asserted),
+and approve-a-voice / reject-a-video both go through the shared action with
+the streak arithmetic landing. Gate: **1482 passed**, Pint/PHPStan(0)/ESLint/
+Prettier/tsc all green.
