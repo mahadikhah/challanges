@@ -19,19 +19,22 @@ use App\Models\CheckIn;
  */
 class NotifyCheckInVerdict
 {
-    public function __construct(private readonly BotMessenger $messenger) {}
+    public function __construct(
+        private readonly BotMessenger $messenger,
+        private readonly CheckInConfirmation $confirmations,
+    ) {}
 
     public function approved(CheckIn $checkIn): void
     {
         $participant = $checkIn->participant;
         $user = $participant->user;
 
-        $this->messenger->send($user, $this->messenger->line($user, 'bot.checkin.review_approved', [
-            'title' => $participant->challenge->title,
-            // Refreshed: the settlement just moved the streak on the locked row,
-            // and the relation here may predate it.
-            'streak' => $participant->refresh()->current_streak,
-        ]));
+        // The same sentence a tap or a completed session confirms with — the
+        // score line when the challenge scores one, the plain streak line when
+        // it does not — so the participant hears one voice whatever decided.
+        [$line, $replace] = $this->confirmations->line($participant->challenge, $checkIn, 'bot.checkin.review_approved');
+
+        $this->messenger->send($user, $this->messenger->line($user, $line, $replace));
     }
 
     public function rejected(CheckIn $checkIn): void

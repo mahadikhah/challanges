@@ -137,6 +137,31 @@ class CheckInRejectedException extends RuntimeException
         );
     }
 
+    /**
+     * A quantity challenge takes a number, and none arrived.
+     */
+    public static function valueRequired(Challenge $challenge): self
+    {
+        return new self(
+            CheckInRejection::ValueRequired,
+            null,
+            "Challenge {$challenge->id} scores a reported quantity and none was supplied.",
+        );
+    }
+
+    /**
+     * A quantity check-in reached its verdict with no reported value on the
+     * row — the participant was asked but never answered.
+     */
+    public static function valueMissing(CheckIn $checkIn): self
+    {
+        return new self(
+            CheckInRejection::ValueMissing,
+            $checkIn,
+            "Check-in {$checkIn->id} has no reported value to score.",
+        );
+    }
+
     public static function notTheReviewer(CheckIn $checkIn): self
     {
         return new self(

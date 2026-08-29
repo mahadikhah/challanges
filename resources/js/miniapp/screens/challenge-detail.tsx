@@ -17,7 +17,7 @@ import type { ChallengeView } from '../types';
  */
 
 type Notice =
-    | { kind: 'success' }
+    | { kind: 'success'; text?: string }
     | { kind: 'error'; text: string }
     | { kind: 'gate'; text: string; joinUrl: string | null };
 
@@ -25,8 +25,11 @@ export function ChallengeDetail({ initial }: { initial: ChallengeView }) {
     const [challenge, setChallenge] = useState(initial);
     const [pending, setPending] = useState(false);
     const [notice, setNotice] = useState<Notice | null>(null);
+    const [value, setValue] = useState('');
 
     const period = challenge.current_period;
+    // A quantity challenge is scored on a number; a binary one is not asked.
+    const scoring = challenge.scoring;
     const canTap =
         period !== null &&
         period.owes_check_in &&
@@ -37,14 +40,45 @@ export function ChallengeDetail({ initial }: { initial: ChallengeView }) {
             return;
         }
 
+        // The number is part of the submission on a scoring challenge — the
+        // server refuses one without it (`value_required`), and saying so here
+        // is kinder than letting it.
+        let reported: number | undefined;
+
+        if (scoring !== null) {
+            const trimmed = value.trim();
+
+            if (trimmed === '') {
+                setNotice({
+                    kind: 'error',
+                    text: t('miniapp.check_in.value_missing'),
+                });
+
+                return;
+            }
+
+            const parsed = Number(trimmed);
+
+            if (!Number.isFinite(parsed) || parsed < 0) {
+                setNotice({
+                    kind: 'error',
+                    text: t('miniapp.check_in.value_invalid'),
+                });
+
+                return;
+            }
+
+            reported = parsed;
+        }
+
         setPending(true);
         setNotice(null);
 
         try {
-            const updated = await submitCheckIn(challenge.id);
+            const updated = await submitCheckIn(challenge.id, reported);
 
             setChallenge(updated);
-            setNotice({ kind: 'success' });
+            setNotice({ kind: 'success', text: scoredLine(updated) });
             webApp()?.HapticFeedback?.notificationOccurred('success');
         } catch (error) {
             webApp()?.HapticFeedback?.notificationOccurred('error');
@@ -84,7 +118,7 @@ export function ChallengeDetail({ initial }: { initial: ChallengeView }) {
         } finally {
             setPending(false);
         }
-    }, [canTap, challenge.id, pending]);
+    }, [canTap, challenge.id, pending, scoring, value]);
 
     useEffect(() => {
         const app = webApp();
@@ -134,7 +168,30 @@ export function ChallengeDetail({ initial }: { initial: ChallengeView }) {
 
             {notice !== null ? <NoticeBanner notice={notice} /> : null}
 
-            <section className="grid grid-cols-3 gap-3">
+            {canTap && scoring !== null ? (
+                <label className="block rounded-2xl bg-[var(--tg-section-bg)] p-4">
+                    <span className="text-sm font-semibold">
+                        {t('miniapp.check_in.value_prompt', {
+                            unit: scoring.unit_label,
+                        })}
+                    </span>
+
+                    <input
+                        type="text"
+                        inputMode="decimal"
+                        value={value}
+                        onChange={(event) => setValue(event.target.value)}
+                        placeholder={t('miniapp.check_in.value_placeholder')}
+                        disabled={pending}
+                        dir="ltr"
+                        className="mt-2 w-full rounded-xl border border-[var(--tg-separator)] bg-transparent px-3 py-2 text-base outline-none focus:border-[var(--tg-button)]"
+                    />
+                </label>
+            ) : null}
+
+            <section
+                className={`grid gap-3 ${scoring === null ? 'grid-cols-3' : 'grid-cols-4'}`}
+            >
                 <Stat
                     label={t('miniapp.challenges.streak')}
                     value={challenge.me.current_streak}
@@ -143,6 +200,12 @@ export function ChallengeDetail({ initial }: { initial: ChallengeView }) {
                     label={t('miniapp.challenges.best')}
                     value={challenge.me.longest_streak}
                 />
+                {scoring !== null ? (
+                    <Stat
+                        label={t('miniapp.challenges.score')}
+                        value={challenge.me.total_score}
+                    />
+                ) : null}
                 <Stat
                     label={t('miniapp.challenges.freezes')}
                     value={challenge.me.freezes.remaining}
@@ -175,7 +238,7 @@ function NoticeBanner({ notice }: { notice: Notice }) {
     if (notice.kind === 'success') {
         return (
             <p className="rounded-xl bg-green-500/15 px-4 py-3 text-sm text-green-600">
-                {t('miniapp.check_in.done')}
+                {notice.text ?? t('miniapp.check_in.done')}
             </p>
         );
     }
@@ -388,6 +451,35 @@ function HistoryDot({ state, title }: { state: string; title: string }) {
             className={`block size-4 rounded-full ${DOT_CLASSES[state]}`}
         />
     );
+}
+
+/**
+ * The scored success line — "45 pushups — 150 points!" — read straight off
+ * the settlement the response carries, so what the participant just saw
+ * confirmed is what the server actually scored. Undefined on a binary
+ * challenge, whose success stays the plain sentence.
+ */
+function scoredLine(challenge: ChallengeView): string | undefined {
+    if (challenge.scoring === null) {
+        return undefined;
+    }
+
+    const checkIn = challenge.current_period?.check_in;
+
+    if (
+        checkIn === undefined ||
+        checkIn === null ||
+        checkIn.score === null ||
+        checkIn.score === undefined
+    ) {
+        return undefined;
+    }
+
+    return t('miniapp.check_in.scored', {
+        value: checkIn.reported_value ?? 0,
+        unit: challenge.scoring.unit_label,
+        score: checkIn.score,
+    });
 }
 
 /**

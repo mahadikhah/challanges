@@ -688,3 +688,199 @@ describe('the verdict', function () {
         expect(lastBotReply()['text'])->toBe(botCopy('bot.fallback.stale_button'));
     });
 });
+
+/*
+ * A quantity challenge: the proof ride is the same, and one question is added —
+ * "how many?". Where it lands in the flow is per proof type: a tap and the
+ * media proofs ask the number first (their verdict settles the moment the
+ * evidence exists), the phrase asks it second (the phrase proves presence, the
+ * number is judged). The confirmation quotes the number back with the score it
+ * earned — that sentence is the whole feature, so it is asserted verbatim.
+ */
+describe('quantity scoring', function () {
+    /**
+     * A quantity challenge with the factory's pushup shape — target 30,
+     * base 100 — so the arithmetic stays legible: 45 is 150 points, 15 is 50.
+     */
+    function quantityChallenge(ProofType $proofType, bool $partialCountsAsDone = false): Challenge
+    {
+        $challenge = Challenge::factory()
+            ->active()
+            ->provenBy($proofType)
+            ->quantity(partialCountsAsDone: $partialCountsAsDone)
+            ->create(['join_token' => 'scoretoken', 'title' => 'Morning run', 'total_periods' => 10]);
+
+        app(MaterialiseChallengePeriods::class)->handle($challenge);
+
+        return $challenge;
+    }
+
+    it('asks for the number before the tap settles it, and confirms with the score', function () {
+        telegramServesTheLot();
+        $challenge = quantityChallenge(ProofType::Button);
+        [$user, $participant] = aParticipantIn($challenge, 888_100_1);
+
+        taps(BotCallback::encode(CheckInCallback::ACTION, $challenge->join_token), 888_100_1);
+
+        // The tap did not settle anything: the number is the substance of the
+        // report, so it is asked before the period is judged.
+        expect(soleBotMessage()['text'])
+            ->toBe(botCopy('bot.checkin.value_prompt', ['title' => 'Morning run', 'unit' => 'pushups']))
+            ->and(BotConversation::query()->where('user_id', $user->getKey())->sole()->state)
+            ->toBe(ConversationState::AwaitingCheckInValue)
+            ->and(CheckIn::query()->count())->toBe(0);
+
+        typesIn(888_100_1, '45');
+
+        $checkIn = CheckIn::query()->where('challenge_participant_id', $participant->getKey())->sole();
+
+        expect($checkIn->status)->toBe(CheckInStatus::Approved)
+            ->and($checkIn->reported_value)->toBe('45.00')
+            ->and($checkIn->score)->toBe('150.00')
+            ->and($participant->refresh())
+            ->current_streak->toBe(1)
+            ->total_score->toBe('150.00')
+            ->and(BotConversation::query()->where('user_id', $user->getKey())->exists())->toBeFalse()
+            ->and(lastBotReply()['text'])->toBe(botCopy('bot.checkin.confirmed_scored', [
+                'title' => 'Morning run', 'value' => '45', 'unit' => 'pushups', 'score' => 150, 'streak' => 1,
+            ]));
+    });
+
+    it('confirms a below-target report with its lower score when the creator opted in', function () {
+        telegramServesTheLot();
+        $challenge = quantityChallenge(ProofType::Button, partialCountsAsDone: true);
+        [$user, $participant] = aParticipantIn($challenge, 888_100_1);
+
+        taps(BotCallback::encode(CheckInCallback::ACTION, $challenge->join_token), 888_100_1);
+        typesIn(888_100_1, '15');
+
+        $checkIn = CheckIn::query()->where('challenge_participant_id', $participant->getKey())->sole();
+
+        expect($checkIn->status)->toBe(CheckInStatus::Approved)
+            ->and($checkIn->score)->toBe('50.00')
+            ->and(lastBotReply()['text'])->toBe(botCopy('bot.checkin.confirmed_scored', [
+                'title' => 'Morning run', 'value' => '15', 'unit' => 'pushups', 'score' => 50, 'streak' => 1,
+            ]));
+    });
+
+    it('re-asks a number it cannot read, folding nothing into a guess', function () {
+        telegramServesTheLot();
+        $challenge = quantityChallenge(ProofType::Button);
+        [$user, $participant] = aParticipantIn($challenge, 888_100_1);
+
+        taps(BotCallback::encode(CheckInCallback::ACTION, $challenge->join_token), 888_100_1);
+        typesIn(888_100_1, 'lots of them');
+
+        expect(lastBotReply()['text'])
+            ->toBe(botCopy('bot.checkin.value_error', ['unit' => 'pushups']))
+            ->and(BotConversation::query()->where('user_id', $user->getKey())->sole()->state)
+            ->toBe(ConversationState::AwaitingCheckInValue)
+            ->and(CheckIn::query()->count())->toBe(0);
+
+        typesIn(888_100_1, '45');
+
+        expect(CheckIn::query()->where('challenge_participant_id', $participant->getKey())->sole()->score)
+            ->toBe('150.00');
+    });
+
+    it('asks the phrase first and the number after, settling on the pair', function () {
+        telegramServesTheLot();
+        $challenge = quantityChallenge(ProofType::TextAutogen);
+        [$user, $participant] = aParticipantIn($challenge, 888_100_1);
+
+        taps(BotCallback::encode(CheckInCallback::ACTION, $challenge->join_token), 888_100_1);
+
+        // Presence first: the phrase prompt is the same one a binary challenge
+        // gets — the scoring design has not changed the mechanic.
+        $phrase = CheckIn::query()->where('challenge_participant_id', $participant->getKey())->sole()->expected_phrase;
+
+        expect(soleBotMessage()['text'])->toContain(
+            botCopy('bot.checkin.phrase_prompt', ['title' => 'Morning run']),
+        );
+
+        typesIn(888_100_1, $phrase);
+
+        expect(lastBotReply()['text'])
+            ->toBe(botCopy('bot.checkin.value_prompt', ['title' => 'Morning run', 'unit' => 'pushups']))
+            ->and(BotConversation::query()->where('user_id', $user->getKey())->sole()->state)
+            ->toBe(ConversationState::AwaitingCheckInValue);
+
+        typesIn(888_100_1, '45');
+
+        $checkIn = CheckIn::query()->where('challenge_participant_id', $participant->getKey())->sole();
+
+        expect($checkIn->status)->toBe(CheckInStatus::Approved)
+            ->and($checkIn->score)->toBe('150.00')
+            ->and($checkIn->submitted_text)->toBe($phrase)
+            ->and(lastBotReply()['text'])->toBe(botCopy('bot.checkin.confirmed_scored', [
+                'title' => 'Morning run', 'value' => '45', 'unit' => 'pushups', 'score' => 150, 'streak' => 1,
+            ]));
+    });
+
+    it('keeps the answered number when the stashed phrase turns out wrong', function () {
+        telegramServesTheLot();
+        $challenge = quantityChallenge(ProofType::TextAutogen);
+        [$user, $participant] = aParticipantIn($challenge, 888_100_1);
+
+        taps(BotCallback::encode(CheckInCallback::ACTION, $challenge->join_token), 888_100_1);
+        $phrase = CheckIn::query()->where('challenge_participant_id', $participant->getKey())->sole()->expected_phrase;
+
+        // The wrong phrase is stashed unjudged — the flow cannot know it is
+        // wrong until the number arrives and the pair is submitted.
+        typesIn(888_100_1, 'definitely not the phrase');
+        typesIn(888_100_1, '45');
+
+        expect(lastBotReply()['text'])->toBe(botCopy('bot.checkin.phrase_error'))
+            ->and(BotConversation::query()->where('user_id', $user->getKey())->sole()->state)
+            ->toBe(ConversationState::AwaitingCheckInText);
+
+        // The retry is one question, not two: the number already answered rides
+        // in the conversation and settles with the corrected phrase.
+        typesIn(888_100_1, $phrase);
+
+        $checkIn = CheckIn::query()->where('challenge_participant_id', $participant->getKey())->sole();
+
+        expect($checkIn->status)->toBe(CheckInStatus::Approved)
+            ->and($checkIn->score)->toBe('150.00')
+            ->and(BotConversation::query()->where('user_id', $user->getKey())->exists())->toBeFalse();
+    });
+
+    it('numbers the photo before taking it, and the verdict scores the stored number', function () {
+        telegramServesTheLot();
+        $challenge = quantityChallenge(ProofType::ImageApproval, partialCountsAsDone: true);
+        theCreatorOf($challenge, 888_200_2);
+        [$user, $participant] = aParticipantIn($challenge, 888_100_1);
+
+        taps(BotCallback::encode(CheckInCallback::ACTION, $challenge->join_token), 888_100_1);
+
+        expect(soleBotMessage()['text'])
+            ->toBe(botCopy('bot.checkin.value_prompt', ['title' => 'Morning run', 'unit' => 'pushups']));
+
+        typesIn(888_100_1, '20');
+
+        expect(lastBotReply()['text'])->toBe(botCopy('bot.checkin.photo_prompt', ['title' => 'Morning run']))
+            ->and(BotConversation::query()->where('user_id', $user->getKey())->sole()->state)
+            ->toBe(ConversationState::AwaitingCheckInPhoto);
+
+        sendsPhoto(888_100_1);
+
+        $checkIn = CheckIn::query()->where('challenge_participant_id', $participant->getKey())->sole();
+
+        // The number is on the row *before* review: the creator's verdict may
+        // land hours later, and it scores the evidence the participant saw
+        // confirmed, not a number re-supplied at verdict time.
+        expect($checkIn->status)->toBe(CheckInStatus::Submitted)
+            ->and($checkIn->reported_value)->toBe('20.00');
+
+        taps(BotCallback::encode(ReviewCheckInCallback::ACTION, (string) $checkIn->getKey(), ReviewCheckInCallback::APPROVE), 888_200_2);
+
+        $messages = botMessages();
+
+        expect($checkIn->refresh()->score)->toBe('67.00')
+            ->and($participant->refresh()->total_score)->toBe('67.00')
+            ->and($messages[count($messages) - 1]['text'])
+            ->toBe(botCopy('bot.checkin.review_approved_scored', [
+                'title' => 'Morning run', 'value' => '20', 'unit' => 'pushups', 'score' => 67, 'streak' => 1,
+            ]));
+    });
+});

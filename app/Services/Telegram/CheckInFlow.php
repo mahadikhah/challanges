@@ -44,6 +44,13 @@ use Throwable;
  * participant reaches for `/checkin` when the thing they owe is now, and a
  * half-built challenge is recoverable with `/create`.
  *
+ * **A quantity challenge adds one question: "how many?"** Asked before the
+ * proof for everything that settles on the spot — the tap, and the media
+ * proofs whose AI verdict settles at upload — and after the phrase for a text
+ * challenge, where the phrase proves presence and the number is the score. The
+ * answer travels to `SubmitCheckIn`, which refuses to score a period without
+ * one; the flow only decides when to ask.
+ *
  * **The creator is notified, not polled.** A photo is worth nothing until the
  * creator looks at it, so the submission message carries the review buttons —
  * the creator's tap goes to `ReviewCheckInCallback`, which re-derives ownership
@@ -66,6 +73,8 @@ class CheckInFlow
         private readonly TelegramFileDownloader $files,
         private readonly BotMessenger $messenger,
         private readonly Settings $settings,
+        private readonly ReportedValue $values,
+        private readonly CheckInConfirmation $confirmations,
     ) {}
 
     /**
@@ -160,6 +169,17 @@ class CheckInFlow
             return;
         }
 
+        // A quantity challenge is judged on a number, so the number is asked
+        // first for every proof that settles on the spot — the tap, and the
+        // media proofs whose AI verdict settles at upload, before the evidence
+        // exists. Text is the one exception: the phrase is what proves the
+        // participant is present, so it is asked first and the number after.
+        if ($challenge->scoring_type->isQuantity() && $challenge->proof_type !== ProofType::TextAutogen) {
+            $this->askValue($user, $challenge, ['proof' => $challenge->proof_type->value]);
+
+            return;
+        }
+
         // A recording-proof challenge opens the conversation its recording
         // arrives through — voice and video share the review fate a photo has,
         // so they share this flow's shape: the prompt names the cap, the
@@ -176,6 +196,11 @@ class CheckInFlow
 
     /**
      * The typed phrase, answering the challenge the conversation holds.
+     *
+     * On a quantity challenge the phrase proves presence and the number is the
+     * score, so the phrase is remembered in the conversation and the number is
+     * asked next — except on a retry, where the payload already holds the
+     * number and this message is the corrected phrase.
      */
     public function receiveText(User $user, BotConversation $conversation, ?string $text): void
     {
@@ -197,8 +222,24 @@ class CheckInFlow
             return;
         }
 
+        $reportedValue = $this->reportedValueOf($conversation);
+
+        if ($challenge->scoring_type->isQuantity() && $reportedValue === null) {
+            // The phrase matched nothing yet, but it is the answer to the
+            // question on their screen — remembered verbatim and judged after
+            // the number arrives, so the participant is asked one thing at a
+            // time rather than a phrase and a total in the same breath.
+            $this->openConversation($user, ConversationState::AwaitingCheckInValue, $challenge, [
+                'proof' => ProofType::TextAutogen->value,
+                'phrase' => $text,
+            ]);
+            $this->sendValuePrompt($user, $challenge);
+
+            return;
+        }
+
         try {
-            $checkIn = $this->submit->typePhrase($user, $challenge, $text);
+            $checkIn = $this->submit->typePhrase($user, $challenge, $text, reportedValue: $reportedValue);
         } catch (CheckInRejectedException $refused) {
             if ($refused->reason === CheckInRejection::PhraseMismatch) {
                 // The mechanic working, not a failure. The conversation stays
@@ -217,6 +258,139 @@ class CheckInFlow
 
         $this->abandon($user, $conversation);
         $this->confirm($user, $challenge, $checkIn);
+    }
+
+    /**
+     * The typed quantity report, answering the value question this flow asked.
+     *
+     * Where the answer goes depends on what proof the challenge takes: a tap
+     * settles right here, a stashed phrase is judged with the number riding
+     * along, and a media proof has its own question still to come — the
+     * conversation moves on to the proof state carrying the number.
+     */
+    public function receiveValue(User $user, BotConversation $conversation, ?string $text): void
+    {
+        $this->assertOwnState($conversation, ConversationState::AwaitingCheckInValue);
+
+        $challenge = $this->challengeOf($conversation);
+
+        if ($challenge === null) {
+            $this->abandon($user, $conversation, 'bot.fallback.stale_button');
+
+            return;
+        }
+
+        $value = $this->values->normalise($text);
+
+        if ($value === null) {
+            // A decimal comma, Persian digits — all folded. Anything left that
+            // is not a plain number is re-asked, not guessed at.
+            $this->reask($user, $conversation, 'bot.checkin.value_error', [
+                'unit' => (string) $challenge->unit_label,
+            ]);
+
+            return;
+        }
+
+        $proof = ProofType::tryFrom((string) $conversation->answer('proof', ''));
+
+        if ($proof === null) {
+            $this->abandon($user, $conversation, 'bot.fallback.stale_button');
+
+            return;
+        }
+
+        match ($proof) {
+            ProofType::Button => $this->tapValue($user, $conversation, $challenge, $value),
+            ProofType::TextAutogen => $this->typePhraseValue($user, $conversation, $challenge, $value),
+            default => $this->awaitProof($user, $conversation, $challenge, $proof, $value),
+        };
+    }
+
+    /**
+     * The number that completes a one-tap submission.
+     */
+    private function tapValue(User $user, BotConversation $conversation, Challenge $challenge, string $value): void
+    {
+        try {
+            $checkIn = $this->submit->tap($user, $challenge, null, $value);
+        } catch (CheckInRejectedException $refused) {
+            $this->abandon($user, $conversation, "bot.checkin.refused.{$refused->reason->value}", [
+                'title' => $challenge->title,
+            ]);
+
+            return;
+        }
+
+        $this->abandon($user, $conversation);
+        $this->confirm($user, $challenge, $checkIn);
+    }
+
+    /**
+     * The number that completes a phrase submission: the phrase was stashed
+     * when the value was asked, and is judged now that both halves exist.
+     */
+    private function typePhraseValue(User $user, BotConversation $conversation, Challenge $challenge, string $value): void
+    {
+        $phrase = $conversation->answer('phrase');
+
+        if (! is_string($phrase) || $phrase === '') {
+            $this->abandon($user, $conversation, 'bot.fallback.stale_button');
+
+            return;
+        }
+
+        try {
+            $checkIn = $this->submit->typePhrase($user, $challenge, $phrase, reportedValue: $value);
+        } catch (CheckInRejectedException $refused) {
+            if ($refused->reason === CheckInRejection::PhraseMismatch) {
+                // The number stays answered; only the phrase is re-asked. The
+                // conversation returns to the text state carrying the value in
+                // its payload, so the retry is one question, not two.
+                $this->openConversation($user, ConversationState::AwaitingCheckInText, $challenge, [
+                    'proof' => ProofType::TextAutogen->value,
+                    'reported_value' => $value,
+                ]);
+                $this->messenger->send($user, $this->messenger->line($user, 'bot.checkin.phrase_error'));
+
+                return;
+            }
+
+            $this->abandon($user, $conversation, "bot.checkin.refused.{$refused->reason->value}", [
+                'title' => $challenge->title,
+            ]);
+
+            return;
+        }
+
+        $this->abandon($user, $conversation);
+        $this->confirm($user, $challenge, $checkIn);
+    }
+
+    /**
+     * The number that precedes a media proof: hand the conversation to the
+     * proof state with the value in its payload, and ask for the media.
+     */
+    private function awaitProof(User $user, BotConversation $conversation, Challenge $challenge, ProofType $proof, string $value): void
+    {
+        $state = match ($proof) {
+            ProofType::ImageApproval => ConversationState::AwaitingCheckInPhoto,
+            ProofType::VoiceApproval => ConversationState::AwaitingCheckInVoice,
+            default => ConversationState::AwaitingCheckInVideo,
+        };
+
+        $this->openConversation($user, $state, $challenge, ['reported_value' => $value]);
+
+        $line = match ($proof) {
+            ProofType::ImageApproval => 'bot.checkin.photo_prompt',
+            default => 'bot.checkin.'.($proof === ProofType::VoiceApproval ? 'voice' : 'video').'_prompt',
+        };
+
+        $this->messenger->send($user, $this->messenger->line($user, $line, [
+            'title' => $challenge->title,
+            'max' => $challenge->proof_media_max_seconds,
+            'size' => $challenge->proof_media_max_size_kb,
+        ]));
     }
 
     /**
@@ -242,7 +416,7 @@ class CheckInFlow
 
         try {
             $path = $this->files->downloadPhoto($user->platform, $photo);
-            $checkIn = $this->submit->uploadPhoto($user, $challenge, $path);
+            $checkIn = $this->submit->uploadPhoto($user, $challenge, $path, reportedValue: $this->reportedValueOf($conversation));
         } catch (CheckInRejectedException $refused) {
             $this->abandon($user, $conversation, "bot.checkin.refused.{$refused->reason->value}", [
                 'title' => $challenge->title,
@@ -331,6 +505,7 @@ class CheckInFlow
                 $path,
                 (int) ($payload['duration'] ?? 0),
                 $this->sizeInKb($payload),
+                reportedValue: $this->reportedValueOf($conversation),
             );
         } catch (CheckInRejectedException $refused) {
             if ($refused->reason === CheckInRejection::MediaTooLong || $refused->reason === CheckInRejection::MediaTooLarge) {
@@ -525,17 +700,60 @@ class CheckInFlow
 
     /**
      * Open (or replace) the conversation holding which challenge is being proved.
+     *
+     * `$extra` rides in the payload for the states that need one more fact to
+     * finish: which proof the value answers, the phrase stashed while the value
+     * is asked, or the value stashed while the proof arrives.
+     *
+     * @param  array<string, string|int|float>  $extra
      */
-    private function openConversation(User $user, ConversationState $state, Challenge $challenge): BotConversation
+    private function openConversation(User $user, ConversationState $state, Challenge $challenge, array $extra = []): BotConversation
     {
         return BotConversation::query()->updateOrCreate(
             ['user_id' => $user->getKey()],
             [
                 'state' => $state,
-                'payload' => ['challenge_id' => $challenge->getKey()],
+                'payload' => array_merge(['challenge_id' => $challenge->getKey()], $extra),
                 'expires_at' => now()->addMinutes($this->settings->integer(SettingKey::ConversationTtlMinutes)),
             ],
         );
+    }
+
+    /**
+     * The quantity question every value-first flow opens with.
+     *
+     * @param  array<string, string>  $extra
+     */
+    private function askValue(User $user, Challenge $challenge, array $extra = []): void
+    {
+        try {
+            $this->obligation($user, $challenge);
+        } catch (CheckInRejectedException $refused) {
+            $this->refuse($user, $refused, $challenge);
+
+            return;
+        }
+
+        $this->openConversation($user, ConversationState::AwaitingCheckInValue, $challenge, $extra);
+        $this->sendValuePrompt($user, $challenge);
+    }
+
+    private function sendValuePrompt(User $user, Challenge $challenge): void
+    {
+        $this->messenger->send($user, $this->messenger->line($user, 'bot.checkin.value_prompt', [
+            'title' => $challenge->title,
+            'unit' => (string) $challenge->unit_label,
+        ]));
+    }
+
+    /**
+     * The quantity report stashed in the conversation's payload, if any.
+     */
+    private function reportedValueOf(BotConversation $conversation): ?string
+    {
+        $value = $conversation->answer('reported_value');
+
+        return is_string($value) && $value !== '' ? $value : null;
     }
 
     /**
@@ -553,17 +771,14 @@ class CheckInFlow
     }
 
     /**
-     * Say a check-in landed, with the streak it earned.
+     * Say a check-in landed, with what it earned: the number, the score and
+     * the streak on a quantity challenge, the streak alone on a binary one.
      */
     private function confirm(User $user, Challenge $challenge, CheckIn $checkIn): void
     {
-        // Refreshed, because `SettleCheckIn` moves the streak on a freshly locked
-        // row while the relation hanging off this instance still holds the
-        // pre-settlement count — reporting "streak: 0" on the day it became 1.
-        $this->messenger->send($user, $this->messenger->line($user, 'bot.checkin.confirmed', [
-            'title' => $challenge->title,
-            'streak' => $checkIn->participant->refresh()->current_streak,
-        ]));
+        [$line, $replace] = $this->confirmations->line($challenge, $checkIn);
+
+        $this->messenger->send($user, $this->messenger->line($user, $line, $replace));
     }
 
     /**

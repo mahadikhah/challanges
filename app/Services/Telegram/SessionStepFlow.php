@@ -6,15 +6,19 @@ use App\Actions\CheckIns\AdvanceCheckInStep;
 use App\Actions\CheckIns\StartCheckInSession;
 use App\Actions\Telegram\VerifyChannelMembership;
 use App\Enums\CheckInSessionStatus;
+use App\Enums\ConversationState;
 use App\Enums\SessionRejection;
+use App\Enums\SettingKey;
 use App\Enums\StepInputType;
 use App\Exceptions\SessionRejectedException;
+use App\Models\BotConversation;
 use App\Models\Challenge;
 use App\Models\ChallengeStep;
 use App\Models\CheckIn;
 use App\Models\CheckInSession;
 use App\Models\TelegramUpdate;
 use App\Models\User;
+use App\Services\Settings;
 use App\Services\Telegram\Callbacks\SessionStepCallback;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
@@ -32,16 +36,22 @@ use Throwable;
  * or message, and the completion confirmation, which is the settled-check-in
  * line verbatim because a completed session *is* a settled check-in.
  *
- * **No `BotConversation` is opened for a session, deliberately.** The session
- * row is the state — one `in_progress` row per (participant, period) is already
- * guaranteed — and a conversation row would be a second copy of that state that
- * could go stale against it. The cost is that a photo or voice message arrives
- * with no conversation to key on, so `MessageHandler` asks this flow directly
- * after the conversation router declines, and the flow answers only when an
- * open session's current step is waiting for exactly that kind of message.
- * A conversation still wins over a session when both are live: an explicit
- * "send me the phrase/photo" prompt outranks an ambient session the user may
- * have forgotten about.
+ * **No `BotConversation` is opened for a session, deliberately** — with one
+ * exception. The session row is the state — one `in_progress` row per
+ * (participant, period) is already guaranteed — and a conversation row would
+ * be a second copy of that state that could go stale against it. The cost is
+ * that a photo or voice message arrives with no conversation to key on, so
+ * `MessageHandler` asks this flow directly after the conversation router
+ * declines, and the flow answers only when an open session's current step is
+ * waiting for exactly that kind of message. A conversation still wins over a
+ * session when both are live: an explicit "send me the phrase/photo" prompt
+ * outranks an ambient session the user may have forgotten about.
+ *
+ * The exception is a quantity challenge's final step: completing it settles
+ * the period, and the settlement needs the number before it runs. The step's
+ * evidence is stashed in a short-lived `AwaitingCheckInValue` conversation and
+ * the step itself is answered only when the number arrives — the session row
+ * keeps its state, the conversation holds nothing but the pending question.
  */
 class SessionStepFlow
 {
@@ -52,6 +62,9 @@ class SessionStepFlow
         private readonly AdvanceCheckInStep $advanceStep,
         private readonly TelegramFileDownloader $files,
         private readonly BotMessenger $messenger,
+        private readonly Settings $settings,
+        private readonly ReportedValue $values,
+        private readonly CheckInConfirmation $confirmations,
     ) {}
 
     /**
@@ -117,6 +130,15 @@ class SessionStepFlow
 
         if ($step === null) {
             $this->messenger->send($user, $this->messenger->line($user, 'bot.session.stale'));
+
+            return;
+        }
+
+        if ($this->isFinalQuantityStep($challenge, $step)) {
+            // Completing this step settles the period, and the settlement
+            // scores a number — so the number is asked before the step is
+            // answered, and the answer is held until it arrives.
+            $this->awaitValue($user, $challenge, $step, []);
 
             return;
         }
@@ -212,6 +234,16 @@ class SessionStepFlow
             return true;
         }
 
+        if ($this->isFinalQuantityStep($challenge, $step)) {
+            // The evidence is stored; the step is not answered yet. Completing
+            // it would settle the period without the number the settlement
+            // scores, so the media rides in the conversation and the step is
+            // advanced when the number arrives.
+            $this->awaitValue($user, $challenge, $step, $submission);
+
+            return true;
+        }
+
         try {
             $session = $this->advanceStep->handle($session, $step, $submission);
         } catch (SessionRejectedException $refused) {
@@ -223,6 +255,147 @@ class SessionStepFlow
         $this->settledOrNext($user, $challenge, $session);
 
         return true;
+    }
+
+    /**
+     * The typed quantity report, answering the final step's value question.
+     *
+     * The stashed step and its evidence are replayed through the ordinary
+     * `AdvanceCheckInStep` — every gate (current step, wait elapsed, media
+     * shaped) re-checked there, exactly as a tap's answer would be, because
+     * the question being typed rather than tapped changes nothing about the
+     * rules.
+     */
+    public function receiveValue(User $user, BotConversation $conversation, ?string $text): void
+    {
+        $challenge = $this->challengeOf($conversation);
+
+        if ($challenge === null) {
+            $this->abandonValue($user, $conversation);
+
+            return;
+        }
+
+        $value = $this->values->normalise($text);
+
+        if ($value === null) {
+            $conversation->forceFill(['expires_at' => now()->addMinutes($this->settings->integer(SettingKey::ConversationTtlMinutes))])->save();
+
+            $this->messenger->send($user, $this->messenger->line($user, 'bot.checkin.value_error', [
+                'unit' => (string) $challenge->unit_label,
+            ]));
+
+            return;
+        }
+
+        $session = $this->openSessionOn($user, $challenge);
+        $stepOrder = $conversation->answer('step');
+        $step = is_int($stepOrder) || is_string($stepOrder) && $stepOrder !== ''
+            ? $challenge->steps()->where('step_order', (int) $stepOrder)->first()
+            : null;
+
+        if ($session === null || $step === null) {
+            // The session closed or expired while the question was open — the
+            // expiry sweep does not know about conversations.
+            $this->abandonValue($user, $conversation);
+
+            return;
+        }
+
+        $stashed = $conversation->answer('submission');
+
+        try {
+            $session = $this->advanceStep->handle($session, $step, is_array($stashed) ? $stashed : [], null, $value);
+        } catch (SessionRejectedException $refused) {
+            if ($refused->reason === SessionRejection::TooEarly) {
+                // The wait is still running. The answer is good — the question
+                // stays open so they can send the same number once it has
+                // elapsed, rather than starting the step over.
+                $this->refuse($user, $refused, $challenge);
+
+                return;
+            }
+
+            $this->abandonValue($user, $conversation);
+            $this->refuse($user, $refused, $challenge);
+
+            return;
+        }
+
+        $conversation->delete();
+        $this->settledOrNext($user, $challenge, $session);
+    }
+
+    /**
+     * Whether this step is the one whose completion a quantity report must
+     * precede: the last step of a quantity challenge.
+     */
+    private function isFinalQuantityStep(Challenge $challenge, ChallengeStep $step): bool
+    {
+        if (! $challenge->scoring_type->isQuantity()) {
+            return false;
+        }
+
+        /** @var int|null $last */
+        $last = $challenge->steps()->max('step_order');
+
+        return $last !== null && $step->step_order === $last;
+    }
+
+    /**
+     * Ask the quantity question, stashing the step and its evidence in the
+     * conversation. The session row is untouched — its state still says this
+     * step is current, which is exactly what `AdvanceCheckInStep` will insist
+     * on when the answer arrives.
+     *
+     * @param  array{proof_path?: string|null, voice_seconds?: int|null, video_seconds?: int|null, media_size_kb?: int|null}  $submission
+     */
+    private function awaitValue(User $user, Challenge $challenge, ChallengeStep $step, array $submission): void
+    {
+        BotConversation::query()->updateOrCreate(
+            ['user_id' => $user->getKey()],
+            [
+                'state' => ConversationState::AwaitingCheckInValue,
+                'payload' => [
+                    'challenge_id' => $challenge->getKey(),
+                    // The marker that routes this conversation's answer here
+                    // rather than to the check-in flow.
+                    'session' => '1',
+                    'step' => $step->step_order,
+                    'submission' => $submission,
+                ],
+                'expires_at' => now()->addMinutes($this->settings->integer(SettingKey::ConversationTtlMinutes)),
+            ],
+        );
+
+        $this->messenger->send($user, $this->messenger->line($user, 'bot.checkin.value_prompt', [
+            'title' => $challenge->title,
+            'unit' => (string) $challenge->unit_label,
+        ]));
+    }
+
+    /**
+     * Close the value question, saying the session is gone.
+     */
+    private function abandonValue(User $user, BotConversation $conversation): void
+    {
+        $conversation->delete();
+
+        $this->messenger->send($user, $this->messenger->line($user, 'bot.session.stale'));
+    }
+
+    /**
+     * The challenge this conversation's value question answers, or null.
+     */
+    private function challengeOf(BotConversation $conversation): ?Challenge
+    {
+        $challengeId = $conversation->answer('challenge_id');
+
+        if (! is_int($challengeId) && ! is_string($challengeId)) {
+            return null;
+        }
+
+        return Challenge::query()->find($challengeId);
     }
 
     /**
@@ -291,6 +464,15 @@ class SessionStepFlow
                     'bot.session.submitted_for_review',
                     ['title' => $challenge->title],
                 ));
+
+                return;
+            }
+
+            if ($checkIn !== null) {
+                // The scored sentence on a quantity challenge, the plain one
+                // on a binary challenge — the same words a tap confirms with.
+                [$line, $replace] = $this->confirmations->line($challenge, $checkIn);
+                $this->messenger->send($user, $this->messenger->line($user, $line, $replace));
 
                 return;
             }

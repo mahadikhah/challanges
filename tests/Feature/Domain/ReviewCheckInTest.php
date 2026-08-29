@@ -275,3 +275,79 @@ describe('who may review', function () {
             ->and($approved->reviewed_by)->toBe($challenge->creator_id);
     });
 });
+
+/*
+ * A quantity photo for review: the number arrived with the submission, so it is
+ * on the row before the creator ever looks. A row without one can only have
+ * bypassed the question — approving it would score a period the creator was
+ * never shown a number for, so the verdict is refused and the row goes back.
+ */
+describe('a quantity check-in for review', function () {
+    /**
+     * A submitted quantity photo, carrying `$reportedValue` (or deliberately
+     * none).
+     */
+    function quantityAwaitingVerdict(?string $reportedValue): CheckIn
+    {
+        $challenge = Challenge::factory()
+            ->active()
+            ->provenBy(ProofType::ImageApproval)
+            ->quantity()
+            ->create();
+
+        $period = ChallengePeriod::factory()->for($challenge)->atIndex(0)->create([
+            'starts_at' => now()->subHour(),
+            'ends_at' => now()->addHour(),
+        ]);
+
+        $participant = ChallengeParticipant::factory()->for($challenge)->create();
+
+        return CheckIn::factory()->on($participant, $period)->submitted()->create([
+            'proof_path' => 'proofs/photo.jpg',
+            'reported_value' => $reportedValue,
+        ]);
+    }
+
+    it('refuses to approve a row that never answered "how many"', function () {
+        $checkIn = quantityAwaitingVerdict(null);
+        $creator = $checkIn->participant->challenge->creator;
+
+        expect(verdictRefusal(fn () => $this->review->approve($creator, $checkIn)))
+            ->toBe(CheckInRejection::ValueMissing)
+            ->and($checkIn->refresh()->status)->toBe(CheckInStatus::Submitted)
+            ->and($checkIn->reviewed_by)->toBeNull();
+
+        // The creator's way out is a rejection, which sends it back for a
+        // resubmission that carries the number.
+        $rejected = $this->review->reject($creator, $checkIn);
+
+        expect($rejected->status)->toBe(CheckInStatus::Rejected);
+    });
+
+    it('approves against the number stored at submission, not one re-supplied at verdict time', function () {
+        $checkIn = quantityAwaitingVerdict('45.00');
+        $creator = $checkIn->participant->challenge->creator;
+
+        $approved = $this->review->approve($creator, $checkIn);
+
+        expect($approved->status)->toBe(CheckInStatus::Approved)
+            ->and($approved->score)->toBe('150.00')
+            ->and($approved->participant->refresh()->total_score)->toBe('150.00')
+            ->and($approved->reviewed_by)->toBe($creator->id);
+    });
+
+    it('settles an approval under the bar rather than failing to apply it', function () {
+        // Partial counts as done is off, so 20 of 30 is a freeze-spend — but
+        // the creator approved the photo, so the verdict takes and the number
+        // is what it is judged on.
+        $checkIn = quantityAwaitingVerdict('20.00');
+        $creator = $checkIn->participant->challenge->creator;
+
+        $approved = $this->review->approve($creator, $checkIn);
+
+        expect($approved->status)->toBe(CheckInStatus::Frozen)
+            ->and($approved->score)->toBeNull()
+            ->and($approved->participant->refresh()->current_streak)->toBe(0)
+            ->and($approved->reviewed_by)->toBe($creator->id);
+    });
+});

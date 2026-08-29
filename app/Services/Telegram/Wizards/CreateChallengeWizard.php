@@ -16,6 +16,7 @@ use App\Enums\EntitlementType;
 use App\Enums\FlowType;
 use App\Enums\PeriodType;
 use App\Enums\ProofType;
+use App\Enums\ScoringType;
 use App\Enums\SettingKey;
 use App\Enums\StepInputType;
 use App\Exceptions\NoEntitlementAvailableException;
@@ -29,6 +30,7 @@ use App\Services\Telegram\BotCallback;
 use App\Services\Telegram\BotMessenger;
 use App\Services\Telegram\ChannelGatePrompt;
 use App\Services\Telegram\CompactDuration;
+use App\Services\Telegram\ReportedValue;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
@@ -90,6 +92,14 @@ class CreateChallengeWizard
     public const string ADD_STEP = 'add';
 
     public const string DONE_STEPS = 'done';
+
+    /**
+     * The partial opt-in's two answers: a below-target report keeps the
+     * streak at partial score, or does not.
+     */
+    public const string PARTIAL_ON = 'on';
+
+    public const string PARTIAL_OFF = 'off';
 
     /**
      * The bounds a step answer is held to. These are legibility floors, not
@@ -165,6 +175,7 @@ class CreateChallengeWizard
         private readonly BotMessenger $messenger,
         private readonly Settings $settings,
         private readonly AiApprovalGate $aiApprovalGate,
+        private readonly ReportedValue $numbers,
     ) {}
 
     /**
@@ -391,7 +402,19 @@ class CreateChallengeWizard
             ConversationState::AwaitingCustomPeriodDays => ConversationState::AwaitingTimezone,
             ConversationState::AwaitingTimezone => ConversationState::AwaitingStartDate,
             ConversationState::AwaitingStartDate => ConversationState::AwaitingTotalPeriods,
-            ConversationState::AwaitingTotalPeriods => ConversationState::AwaitingProofType,
+
+            // The scoring fork: only a quantity challenge is asked what it
+            // measures — binary skips the whole block. The four questions are
+            // asked in this order because each answers what the next one is
+            // *about* ("how many :unit?", "worth :points of those").
+            ConversationState::AwaitingTotalPeriods => ConversationState::AwaitingScoringType,
+            ConversationState::AwaitingScoringType => $draft->scoringType()->isQuantity()
+                ? ConversationState::AwaitingScoringTarget
+                : ConversationState::AwaitingProofType,
+            ConversationState::AwaitingScoringTarget => ConversationState::AwaitingScoringUnit,
+            ConversationState::AwaitingScoringUnit => ConversationState::AwaitingScoringBasePoints,
+            ConversationState::AwaitingScoringBasePoints => ConversationState::AwaitingScoringPartial,
+            ConversationState::AwaitingScoringPartial => ConversationState::AwaitingProofType,
 
             // The third branch: only a media-proof challenge is asked who
             // reviews it — and only when this deployment's admin allows AI
@@ -435,6 +458,7 @@ class CreateChallengeWizard
             ConversationState::AwaitingCheckInPhoto,
             ConversationState::AwaitingCheckInVoice,
             ConversationState::AwaitingCheckInVideo,
+            ConversationState::AwaitingCheckInValue,
             ConversationState::AwaitingChatForward => throw new LogicException(
                 "The create-challenge wizard has no step after {$state->value}.",
             ),
@@ -510,6 +534,7 @@ class CreateChallengeWizard
             'total_periods_max' => CreateChallenge::limits()['total_periods_max'],
             'custom_period_days_max' => CreateChallenge::limits()['custom_period_days_max'],
             'criteria_max' => CreateChallenge::limits()['approval_criteria_max'],
+            'unit_max' => CreateChallenge::limits()['unit_label_max'],
             'wait_max' => self::STEP_WAIT_MAX,
             'voice_max' => self::VOICE_LIMIT_MAX,
             'label_max' => self::STEP_LABEL_MAX,
@@ -534,6 +559,11 @@ class CreateChallengeWizard
                 self::TOMORROW => $this->messenger->line($user, 'bot.wizard.tomorrow_button'),
             ],
             ConversationState::AwaitingProofType => $this->enumOptions($user, self::PROOF_TYPES),
+            ConversationState::AwaitingScoringType => $this->enumOptions($user, ScoringType::cases()),
+            ConversationState::AwaitingScoringPartial => [
+                self::PARTIAL_ON => $this->messenger->line($user, 'bot.wizard.partial_on_button'),
+                self::PARTIAL_OFF => $this->messenger->line($user, 'bot.wizard.partial_off_button'),
+            ],
             ConversationState::AwaitingApprovalMode => $this->enumOptions($user, ApprovalMode::cases()),
             ConversationState::AwaitingApprovalCriteriaConfirm => [
                 self::CONFIRM => $this->messenger->line($user, 'bot.wizard.criteria_accept_button'),
@@ -560,12 +590,13 @@ class CreateChallengeWizard
             return null;
         }
 
-        // One per row for the long labels, two across otherwise. Proof types are
-        // sentences; period types and timezones are words.
+        // One per row for the long labels, two across otherwise. Proof types and
+        // the partial opt-in are sentences; period types and timezones are words.
         $perRow = in_array($state, [
             ConversationState::AwaitingProofType,
             ConversationState::AwaitingApprovalMode,
             ConversationState::AwaitingVisibility,
+            ConversationState::AwaitingScoringPartial,
         ], true) ? 1 : 2;
 
         return $this->rows($state, $options, $perRow);
@@ -577,7 +608,7 @@ class CreateChallengeWizard
      * `label()` is not usable here: it resolves in the ambient locale, which in a
      * queue worker is whoever was processed last.
      *
-     * @param  list<PeriodType|ProofType|ChallengeVisibility|FlowType|StepInputType|ApprovalMode>  $cases
+     * @param  list<PeriodType|ProofType|ChallengeVisibility|FlowType|StepInputType|ApprovalMode|ScoringType>  $cases
      * @return array<string, string>
      */
     private function enumOptions(User $user, array $cases): array
@@ -649,6 +680,20 @@ class CreateChallengeWizard
             ])]
             : [];
 
+        // Same for the scoring design: the target, unit and points are what
+        // every participant's period is judged against, and this is the last
+        // place a creator can catch a target they meant to change.
+        $scoringLine = $draft->scoringType()->isQuantity()
+            ? [$this->messenger->line($user, 'bot.wizard.summary_scoring', [
+                'target' => (string) $draft->targetValue(),
+                'unit' => (string) $draft->unitLabel(),
+                'points' => (string) $draft->basePoints(),
+                'partial' => $this->messenger->line($user, $draft->quantityPartialCountsAsDone()
+                    ? 'bot.wizard.partial_on_button'
+                    : 'bot.wizard.partial_off_button'),
+            ])]
+            : [];
+
         return [$this->messenger->line($user, 'bot.wizard.summary', [
             'title' => (string) $draft->title(),
             'description' => $draft->description() ?? $this->messenger->line($user, 'bot.wizard.no_description'),
@@ -661,7 +706,7 @@ class CreateChallengeWizard
             'visibility' => $visibility === null ? '—' : $this->messenger->line($user, $visibility->translationKey()),
             'flow' => $flowLine,
             'freezes' => $this->settings->integer(SettingKey::DefaultChallengeFreezes),
-        ]), ...$approvalLine];
+        ]), ...$approvalLine, ...$scoringLine];
     }
 
     /**
@@ -691,6 +736,19 @@ class CreateChallengeWizard
             ConversationState::AwaitingTotalPeriods => ($periods = $this->positiveInteger($text, $limits['total_periods_max'])) === null
                 ? null
                 : [ChallengeDraft::TOTAL_PERIODS => $periods],
+
+            ConversationState::AwaitingScoringTarget => ($target = $this->numbers->normalise($text)) === null || (float) $target <= 0
+                ? null
+                : [ChallengeDraft::TARGET_VALUE => $target],
+
+            ConversationState::AwaitingScoringUnit => mb_strlen($text) >= 1
+                && mb_strlen($text) <= $limits['unit_label_max']
+                    ? [ChallengeDraft::UNIT_LABEL => $text]
+                    : null,
+
+            ConversationState::AwaitingScoringBasePoints => ($points = $this->positiveInteger($text, PHP_INT_MAX)) === null
+                ? null
+                : [ChallengeDraft::BASE_POINTS => (string) $points],
 
             ConversationState::AwaitingStartDate => ($date = $this->readDate($text, $draft)) === null
                 ? null
@@ -745,6 +803,16 @@ class CreateChallengeWizard
                 && in_array($proof, self::PROOF_TYPES, true)
                 ? [ChallengeDraft::PROOF_TYPE => $proof->value]
                 : null,
+
+            ConversationState::AwaitingScoringType => ($scoring = ScoringType::tryFrom($value)) !== null
+                ? [ChallengeDraft::SCORING_TYPE => $scoring->value]
+                : null,
+
+            ConversationState::AwaitingScoringPartial => match ($value) {
+                self::PARTIAL_ON => [ChallengeDraft::QUANTITY_PARTIAL => '1'],
+                self::PARTIAL_OFF => [ChallengeDraft::QUANTITY_PARTIAL => '0'],
+                default => null,
+            },
 
             // `parseText`, not here: a typed criteria is the normal path and
             // the confirm step's two buttons are handled in `receiveChoice`.
@@ -830,6 +898,11 @@ class CreateChallengeWizard
                 steps: $draft->flowType() === FlowType::TimedSession ? $draft->steps() : null,
                 approvalMode: $draft->approvalMode(),
                 approvalCriteria: $draft->approvalCriteria(),
+                scoringType: $draft->scoringType(),
+                targetValue: $draft->scoringType()->isQuantity() ? $draft->targetValue() : null,
+                unitLabel: $draft->scoringType()->isQuantity() ? $draft->unitLabel() : null,
+                basePoints: $draft->scoringType()->isQuantity() ? $draft->basePoints() : null,
+                quantityPartialCountsAsDone: $draft->scoringType()->isQuantity() && $draft->quantityPartialCountsAsDone(),
             );
         } catch (NoEntitlementAvailableException) {
             // They had a slot when the flow opened and spent it elsewhere since.

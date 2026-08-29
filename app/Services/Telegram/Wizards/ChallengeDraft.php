@@ -7,6 +7,7 @@ use App\Enums\ChallengeVisibility;
 use App\Enums\FlowType;
 use App\Enums\PeriodType;
 use App\Enums\ProofType;
+use App\Enums\ScoringType;
 use App\Enums\StepInputType;
 use App\Models\BotConversation;
 use Carbon\CarbonImmutable;
@@ -43,6 +44,16 @@ readonly class ChallengeDraft
     public const string START_DATE = 'start_date';
 
     public const string TOTAL_PERIODS = 'total_periods';
+
+    public const string SCORING_TYPE = 'scoring_type';
+
+    public const string TARGET_VALUE = 'target_value';
+
+    public const string UNIT_LABEL = 'unit_label';
+
+    public const string BASE_POINTS = 'base_points';
+
+    public const string QUANTITY_PARTIAL = 'quantity_partial_counts_as_done';
 
     public const string PROOF_TYPE = 'proof_type';
 
@@ -132,6 +143,54 @@ readonly class ChallengeDraft
     public function totalPeriods(): ?int
     {
         return $this->number(self::TOTAL_PERIODS);
+    }
+
+    /**
+     * The scoring shape, defaulting to `binary`.
+     *
+     * A default rather than an answer-shaped null, mirroring `flowType()`: the
+     * scoring questions are younger than the wizard, and a conversation parked
+     * before they existed must stay finishable — the database column the draft
+     * feeds defaults the same way.
+     */
+    public function scoringType(): ScoringType
+    {
+        return ScoringType::tryFrom((string) $this->text(self::SCORING_TYPE)) ?? ScoringType::Binary;
+    }
+
+    /**
+     * The target a quantity report must reach, as the creator typed it.
+     *
+     * A decimal string rather than an int — a "2.5 km" target is a legitimate
+     * design, and `CreateChallenge` is the one place that validates the shape.
+     */
+    public function targetValue(): ?string
+    {
+        return $this->text(self::TARGET_VALUE);
+    }
+
+    public function unitLabel(): ?string
+    {
+        return $this->text(self::UNIT_LABEL);
+    }
+
+    /**
+     * The points a full-target report earns, as the creator typed them.
+     */
+    public function basePoints(): ?string
+    {
+        return $this->text(self::BASE_POINTS);
+    }
+
+    /**
+     * Whether a below-target report keeps the streak, at partial score.
+     *
+     * Defaults off — reaching the target is the bar unless the creator says
+     * otherwise, exactly as the database column defaults.
+     */
+    public function quantityPartialCountsAsDone(): bool
+    {
+        return $this->text(self::QUANTITY_PARTIAL) === '1';
     }
 
     public function proofType(): ?ProofType
@@ -335,7 +394,12 @@ readonly class ChallengeDraft
 
         return ! ($this->periodType()?->requiresCustomDays() === true && $this->customPeriodDays() === null)
             && ! ($this->flowType() === FlowType::TimedSession && $this->steps() === [])
-            && ! ($this->approvalMode() === ApprovalMode::Ai && $this->approvalCriteria() === null);
+            && ! ($this->approvalMode() === ApprovalMode::Ai && $this->approvalCriteria() === null)
+            && ! ($this->scoringType()->isQuantity() && (
+                $this->targetValue() === null
+                || $this->unitLabel() === null
+                || $this->basePoints() === null
+            ));
     }
 
     /**

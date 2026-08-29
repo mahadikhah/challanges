@@ -483,7 +483,7 @@ class CreateChallenge
     /**
      * The bounds a surface should validate against before it asks the user twice.
      *
-     * @return array{title_max: int, description_max: int, total_periods_max: int, custom_period_days_max: int, approval_criteria_max: int}
+     * @return array{title_max: int, description_max: int, total_periods_max: int, custom_period_days_max: int, approval_criteria_max: int, unit_label_max: int}
      */
     public static function limits(): array
     {

@@ -114,10 +114,12 @@ it('lists the user’s challenges with their place in each', function () {
             'proof_type' => anEnumValueLabel('proof_type', 'button'),
             'visibility' => anEnumValueLabel('challenge_visibility', 'invite_only'),
             'is_creator' => false,
+            'scoring' => null,
             'me' => [
                 'status' => anEnumValueLabel('participant_status', 'active'),
                 'current_streak' => 2,
                 'longest_streak' => 3,
+                'total_score' => 0,
                 'joined_period_index' => 0,
                 'freezes' => ['total' => 2, 'used' => 1, 'remaining' => 1],
             ],

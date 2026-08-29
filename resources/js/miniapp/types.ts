@@ -30,6 +30,7 @@ export type ChallengeMe = {
     status: LabeledEnum;
     current_streak: number;
     longest_streak: number;
+    total_score: number;
     joined_period_index: number;
     freezes: {
         total: number;
@@ -38,17 +39,35 @@ export type ChallengeMe = {
     };
 };
 
+/**
+ * A check-in's state as the API states it. On a quantity challenge the
+ * reported number and the score it earned ride along — null until the row is
+ * scored.
+ */
+export type CheckInView = LabeledEnum & {
+    reported_value?: number | null;
+    score?: number | null;
+};
+
+/** The quantity scoring design; null on a binary challenge. */
+export type ScoringView = {
+    target_value: number;
+    unit_label: string;
+    base_points: number;
+    partial_counts_as_done: boolean;
+};
+
 export type CurrentPeriod = {
     index: number;
     starts_at: string;
     ends_at: string;
     owes_check_in: boolean;
-    check_in: LabeledEnum | null;
+    check_in: CheckInView | null;
 };
 
 export type HistoryEntry = {
     index: number;
-    status: LabeledEnum;
+    status: CheckInView;
 };
 
 export type ChallengeView = {
@@ -63,6 +82,7 @@ export type ChallengeView = {
     proof_type: LabeledEnum;
     visibility: LabeledEnum;
     is_creator: boolean;
+    scoring: ScoringView | null;
     me: ChallengeMe;
     current_period: CurrentPeriod | null;
     history: HistoryEntry[];

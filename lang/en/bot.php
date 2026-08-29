@@ -98,6 +98,12 @@ return [
         'recording_error' => 'That recording could not be received. Please send it again.',
 
         'confirmed' => 'Checked in for “:title”. Streak: :streak',
+        'confirmed_scored' => 'Nice — :value :unit, that is :score points. Checked in for “:title”. Streak: :streak',
+        'below_target_frozen' => 'You reported :value of :target :unit — under the bar. A freeze covered this period of “:title”. Streak: :streak',
+        'below_target_missed' => 'You reported :value of :target :unit — under the bar, so this period of “:title” is missed and the streak resets. Streak: :streak',
+
+        'value_prompt' => 'How many :unit? Send the number for “:title” as a text message.',
+        'value_error' => 'Send a plain number — 20, or 12.5. How many :unit?',
 
         'review_prompt_image' => ':name has sent a photo for “:title”.',
         'review_prompt_voice' => ':name has sent a voice message for “:title”. Listen to it in the review queue before deciding.',
@@ -107,6 +113,7 @@ return [
         'review_approved_ack' => 'Approved.',
         'review_rejected_ack' => 'Rejected.',
         'review_approved' => 'Your check-in for “:title” was approved. Streak: :streak',
+        'review_approved_scored' => 'Your check-in for “:title” was approved: :value :unit, :score points. Streak: :streak',
         'review_rejected_image' => 'Your photo for “:title” was turned down. Send another before the period ends.',
         'review_rejected_voice' => 'Your voice message for “:title” was turned down. Send another before the period ends.',
         'review_rejected_video' => 'Your video for “:title” was turned down. Send another before the period ends.',
@@ -121,12 +128,14 @@ return [
             'proof_missing' => 'Nothing was sent.',
             'media_too_long' => 'That recording is too long for “:title” — send a shorter one.',
             'media_too_large' => 'That file is too big for “:title” — send a smaller one.',
+            'value_required' => 'That check-in is scored on a number — answer “how many” first.',
         ],
 
         'review_refused' => [
             'not_the_reviewer' => 'Only the creator of that challenge can review it.',
             'already_settled' => 'That period has already closed, so the verdict can no longer change.',
             'not_awaiting_review' => 'There is no proof waiting on you for that one.',
+            'value_missing' => 'That check-in carries no reported number, so it cannot be scored. Reject it and the participant can send it again with one.',
         ],
     ],
 
@@ -210,6 +219,7 @@ return [
         'summary' => "Here is your challenge:\n\nTitle: :title\nDescription: :description\nPeriod: :period\nCustom length: :custom_days days\nStarts: :start (:timezone)\nPeriods: :periods\nProof: :proof\nVisibility: :visibility\nFlow: :flow\nFreezes each: :freezes",
         'summary_steps' => ':steps steps, at least :minimum of waiting per session (one period lasts :period)',
         'summary_approval' => 'Reviewed by AI against: “:criteria”',
+        'summary_scoring' => 'Scoring: :target :unit per period, :points points for reaching it. Below target: :partial',
 
         'created' => '“:title” is ready.',
         'created_timeline' => ':periods periods, starting :start in :timezone.',
@@ -257,6 +267,39 @@ return [
             'error' => 'Send a whole number between 1 and :total_periods_max.',
             'expected' => 'Send the number of periods as a text message.',
         ],
+
+        'awaiting_scoring_type' => [
+            'prompt' => 'How is a period judged?',
+            'error' => 'Please pick one of the options offered.',
+            'expected' => 'Tap one of the buttons to pick how a period is judged.',
+        ],
+
+        'awaiting_scoring_target' => [
+            'prompt' => 'What should participants reach each period? Send a number — 30 for 30 pushups, 2.5 for 2.5 km.',
+            'error' => 'Send a positive number — 30, or 2.5. Fractions use a dot.',
+            'expected' => 'Send the target as a text message.',
+        ],
+
+        'awaiting_scoring_unit' => [
+            'prompt' => 'What is that counted in? One or two words, up to :unit_max characters — pushups, km, pages.',
+            'error' => 'Send a unit of up to :unit_max characters.',
+            'expected' => 'Send the unit as a text message.',
+        ],
+
+        'awaiting_scoring_base_points' => [
+            'prompt' => 'How many points is reaching the target worth each period?',
+            'error' => 'Send a whole number of points, at least 1.',
+            'expected' => 'Send the points as a text message.',
+        ],
+
+        'awaiting_scoring_partial' => [
+            'prompt' => 'If somebody reports less than the target, does it still count as done — for proportionally fewer points?',
+            'error' => 'Please pick one of the options offered.',
+            'expected' => 'Tap one of the buttons to answer.',
+        ],
+
+        'partial_on_button' => 'Yes — partial counts for fewer points',
+        'partial_off_button' => 'No — the target is the bar',
 
         'awaiting_proof_type' => [
             'prompt' => 'How does somebody prove they did it?',

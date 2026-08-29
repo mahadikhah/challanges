@@ -93,6 +93,15 @@ class ApplyAiVerdict
             return;
         }
 
+        // A quantity challenge's verdict scores the reported value, so a row
+        // that reached review without one — the participant was asked and
+        // never answered — cannot be scored by anyone, model or human. It
+        // waits in the manual queue exactly as a below-confidence verdict
+        // does, where a human can reject it back into resubmission.
+        if ($challenge->scoring_type->isQuantity() && $submission->reported_value === null) {
+            return;
+        }
+
         $decision = $this->review->review($submission, $challenge);
 
         if ($decision->outcome !== AiDecisionOutcome::Applied || $decision->approved === null) {

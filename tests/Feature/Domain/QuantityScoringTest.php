@@ -167,3 +167,28 @@ describe('a binary challenge', function () {
             ->and((float) $participant->refresh()->total_score)->toBe(0.0);
     });
 });
+
+describe('the stored-value fallback', function () {
+    it('scores the row’s own number when the caller passes none', function () {
+        // The review paths: a creator approving hours later, an AI verdict at
+        // upload. They never re-supply the number — the row carries it, and
+        // the settlement scores the evidence the participant saw confirmed.
+        $checkIn = quantityObligation($this->challenge);
+        $checkIn->update(['reported_value' => '45.00']);
+
+        $settled = $this->settle->approve($checkIn);
+
+        expect($settled->status)->toBe(CheckInStatus::Approved)
+            ->and($settled->score)->toBe('150.00')
+            ->and($settled->participant->refresh()->total_score)->toBe('150.00');
+    });
+
+    it('falls through as below-target when neither a value nor a stored one exists', function () {
+        $checkIn = quantityObligation($this->challenge);
+
+        $settled = $this->settle->approve($checkIn);
+
+        expect($settled->status)->toBe(CheckInStatus::Frozen)
+            ->and($settled->score)->toBeNull();
+    });
+});

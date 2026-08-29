@@ -6,6 +6,7 @@ use App\Enums\CheckInStatus;
 use App\Enums\ConversationState;
 use App\Enums\FlowType;
 use App\Enums\ProofType;
+use App\Enums\ScoringType;
 use App\Enums\SettingKey;
 use App\Enums\StepInputType;
 use App\Jobs\Telegram\ProcessTelegramUpdate;
@@ -82,7 +83,7 @@ describe('the step loop', function () {
     it('gathers a design through the loop and confirms the duration it implies', function () {
         designerTypesTheSteps();
 
-        expect(latestBotMessage(20)['text'])
+        expect(latestBotMessage(21)['text'])
             ->toContain(botCopy('bot.wizard.summary_steps', [
                 'steps' => 2,
                 'minimum' => CompactDuration::format(180),
@@ -99,6 +100,7 @@ describe('the step loop', function () {
         sessionChooses('Asia/Tehran');
         sessionChooses(CreateChallengeWizard::TOMORROW);
         sessionTypes(SESSION_TELEGRAM_ID, '5');
+        sessionChooses(ScoringType::Binary->value);
         sessionChooses(ProofType::Button->value);
         sessionChooses('invite_only');
         sessionChooses(FlowType::TimedSession->value);
@@ -115,7 +117,7 @@ describe('the step loop', function () {
 
         // The loop answers the refusal and stays put — nothing was created and
         // the design is still editable.
-        expect(latestBotMessage(19)['text'])
+        expect(latestBotMessage(20)['text'])
             ->toContain(botCopy('bot.wizard.steps_too_long', [
                 'minimum' => CompactDuration::format(86_460),
                 'period' => CompactDuration::format(86_400),
@@ -518,6 +520,7 @@ function designerTypesTheSteps(): void
     sessionChooses('Asia/Tehran');
     sessionChooses(CreateChallengeWizard::TOMORROW);
     sessionTypes(SESSION_TELEGRAM_ID, '5');
+    sessionChooses(ScoringType::Binary->value);
     sessionChooses(ProofType::Button->value);
     sessionChooses('invite_only');
     sessionChooses(FlowType::TimedSession->value);
@@ -595,3 +598,127 @@ function theSessionOf(ChallengeParticipant $participant): CheckInSession
 {
     return CheckInSession::query()->where('challenge_participant_id', $participant->getKey())->sole();
 }
+
+/*
+ * A quantity timed session: the design's steps run exactly as before, and one
+ * question is added — "how many?" — asked once, at the final step, after its
+ * evidence is in. Intermediate steps never ask; the session row keeps its state
+ * while a short-lived conversation carries the number.
+ */
+describe('a quantity timed session', function () {
+    beforeEach(function () {
+        $this->challenge = Challenge::factory()
+            ->active()
+            ->timedSession()
+            ->provenBy(ProofType::Button)
+            ->quantity()
+            ->create(['join_token' => 'scoretoken', 'title' => 'Evening stretch', 'total_periods' => 5]);
+
+        app(MaterialiseChallengePeriods::class)->handle($this->challenge);
+
+        ChallengeStep::factory()->for($this->challenge)->atOrder(1)->waiting(60)->create(['label' => 'Start']);
+        ChallengeStep::factory()->for($this->challenge)->atOrder(2)->voice(30)->waiting(120)->create(['label' => null]);
+
+        $this->challenge = $this->challenge->fresh();
+
+        [, $participant] = theParticipantIn($this->challenge);
+        $this->participant = $participant;
+    });
+
+    it('asks for the value at the final step only, and settles with the score', function () {
+        sessionTaps(BotCallback::encode(CheckInCallback::ACTION, $this->challenge->join_token), SESSION_TELEGRAM_ID);
+
+        CarbonImmutable::setTestNow(CarbonImmutable::now()->addMinutes(3));
+
+        // The intermediate step: answered, advanced, and no value question —
+        // the number belongs to the period, not to every step of it.
+        sessionTaps(BotCallback::encode(SessionStepCallback::ACTION, $this->challenge->join_token, '1'), SESSION_TELEGRAM_ID);
+
+        expect(theSessionOf($this->participant)->current_step_order)->toBe(2)
+            ->and(collect(botMessages())->map(fn (array $message): string => $message['text'])->implode("\n"))
+            ->not->toContain(__('bot.checkin.value_prompt', [
+                'title' => 'Evening stretch', 'unit' => 'pushups',
+            ]));
+
+        // The final step's evidence arrives, and only then is the number asked.
+        CarbonImmutable::setTestNow(CarbonImmutable::now()->addSeconds(120));
+
+        sessionSendsVoice(SESSION_TELEGRAM_ID, 20);
+
+        $session = theSessionOf($this->participant);
+
+        expect($session->status)->toBe(CheckInSessionStatus::InProgress)
+            ->and($session->current_step_order)->toBe(2)
+            ->and(BotConversation::query()->sole()->state)->toBe(ConversationState::AwaitingCheckInValue)
+            ->and(lastBotReply()['text'])->toBe(__('bot.checkin.value_prompt', [
+                'title' => 'Evening stretch', 'unit' => 'pushups',
+            ]));
+
+        sessionTypes(SESSION_TELEGRAM_ID, '45');
+
+        $checkIn = CheckIn::query()->where('challenge_participant_id', $this->participant->getKey())->sole();
+
+        expect(theSessionOf($this->participant)->status)->toBe(CheckInSessionStatus::Completed)
+            ->and($checkIn->status)->toBe(CheckInStatus::Approved)
+            ->and($checkIn->reported_value)->toBe('45.00')
+            ->and($checkIn->score)->toBe('150.00')
+            ->and($this->participant->refresh()->total_score)->toBe('150.00')
+            ->and(BotConversation::query()->exists())->toBeFalse()
+            ->and(lastBotReply()['text'])->toBe(__('bot.checkin.confirmed_scored', [
+                'title' => 'Evening stretch', 'value' => '45', 'unit' => 'pushups', 'score' => 150, 'streak' => 1,
+            ]));
+
+        CarbonImmutable::setTestNow();
+    });
+
+    it('keeps the question open when the answer is unreadable, then accepts the number', function () {
+        sessionTaps(BotCallback::encode(CheckInCallback::ACTION, $this->challenge->join_token), SESSION_TELEGRAM_ID);
+
+        CarbonImmutable::setTestNow(CarbonImmutable::now()->addMinutes(3));
+        sessionTaps(BotCallback::encode(SessionStepCallback::ACTION, $this->challenge->join_token, '1'), SESSION_TELEGRAM_ID);
+
+        CarbonImmutable::setTestNow(CarbonImmutable::now()->addSeconds(120));
+        sessionSendsVoice(SESSION_TELEGRAM_ID, 20);
+
+        sessionTypes(SESSION_TELEGRAM_ID, 'some');
+
+        expect(BotConversation::query()->sole()->state)->toBe(ConversationState::AwaitingCheckInValue)
+            ->and(theSessionOf($this->participant)->status)->toBe(CheckInSessionStatus::InProgress)
+            // The obligation row the session opened is still untouched: no
+            // number, no verdict, nothing settled on a guess.
+            ->and(CheckIn::query()->sole()->status)->toBe(CheckInStatus::Pending);
+
+        sessionTypes(SESSION_TELEGRAM_ID, '45');
+
+        expect(CheckIn::query()->where('challenge_participant_id', $this->participant->getKey())->sole()->score)
+            ->toBe('150.00');
+
+        CarbonImmutable::setTestNow();
+    });
+
+    it('settles below-target through the ordinary bar when no opt-in was given', function () {
+        // The factory's safer default: partial does not count. A report under
+        // the target misses exactly as an unfinished session would.
+        sessionTaps(BotCallback::encode(CheckInCallback::ACTION, $this->challenge->join_token), SESSION_TELEGRAM_ID);
+
+        CarbonImmutable::setTestNow(CarbonImmutable::now()->addMinutes(3));
+        sessionTaps(BotCallback::encode(SessionStepCallback::ACTION, $this->challenge->join_token, '1'), SESSION_TELEGRAM_ID);
+
+        CarbonImmutable::setTestNow(CarbonImmutable::now()->addSeconds(120));
+        sessionSendsVoice(SESSION_TELEGRAM_ID, 20);
+
+        sessionTypes(SESSION_TELEGRAM_ID, '15');
+
+        $checkIn = CheckIn::query()->where('challenge_participant_id', $this->participant->getKey())->sole();
+
+        expect($checkIn->status)->toBe(CheckInStatus::Frozen)
+            ->and($checkIn->reported_value)->toBe('15.00')
+            ->and($checkIn->score)->toBeNull()
+            ->and($this->participant->refresh()->current_streak)->toBe(0)
+            ->and(lastBotReply()['text'])->toBe(__('bot.checkin.below_target_frozen', [
+                'title' => 'Evening stretch', 'value' => '15', 'target' => '30', 'unit' => 'pushups', 'streak' => 0,
+            ]));
+
+        CarbonImmutable::setTestNow();
+    });
+});

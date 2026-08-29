@@ -56,10 +56,12 @@ class AdvanceCheckInStep
 
     /**
      * @param  array{proof_path?: string|null, voice_seconds?: int|null, video_seconds?: int|null, media_size_kb?: int|null}  $submission
+     * @param  int|float|string|null  $reportedValue  the quantity report a quantity
+     *                                                challenge asks for once, at the final step
      *
      * @throws SessionRejectedException when any gate refuses
      */
-    public function handle(CheckInSession $session, ChallengeStep $step, array $submission = [], ?CarbonInterface $now = null): CheckInSession
+    public function handle(CheckInSession $session, ChallengeStep $step, array $submission = [], ?CarbonInterface $now = null, int|float|string|null $reportedValue = null): CheckInSession
     {
         $at = CarbonImmutable::instance($now ?? now());
 
@@ -72,7 +74,7 @@ class AdvanceCheckInStep
         // AI-reviewed challenge: the check-in waiting on the verdict router.
         $pendingReview = null;
 
-        $result = DB::transaction(function () use ($session, $step, $submission, $at, &$pendingReview): CheckInSession {
+        $result = DB::transaction(function () use ($session, $step, $submission, $at, $reportedValue, &$pendingReview): CheckInSession {
             // Re-read under the write lock: two taps on the same button arrive
             // as two updates, and the second must see the first's advance.
             /** @var CheckInSession $fresh */
@@ -98,12 +100,12 @@ class AdvanceCheckInStep
                 $evidence = $this->reviewEvidence($fresh);
 
                 if ($evidence !== null && $this->completesUnderReview($fresh)) {
-                    $pendingReview = $this->submitForReview($fresh, $evidence);
+                    $pendingReview = $this->submitForReview($fresh, $evidence, $reportedValue);
 
                     return $fresh;
                 }
 
-                return $this->complete->handle($fresh);
+                return $this->complete->handle($fresh, $reportedValue);
             }
 
             $fresh->update(['current_step_order' => $next]);
@@ -307,12 +309,15 @@ class AdvanceCheckInStep
      * The session's steps are done: `current_step_order` is cleared so a
      * replayed final-step message or callback finds no current step and is
      * refused as stale, exactly as it would be on a completed session.
+     *
+     * @param  int|float|string|null  $reportedValue  stored with the evidence, so
+     *                                                the verdict — model or human — scores a number
      */
-    private function submitForReview(CheckInSession $session, CheckInStepSubmission $evidence): CheckIn
+    private function submitForReview(CheckInSession $session, CheckInStepSubmission $evidence, int|float|string|null $reportedValue = null): CheckIn
     {
         $checkIn = $this->openCheckIn->handle($session->participant, $session->period);
 
-        $checkIn->update([
+        $update = [
             'status' => CheckInStatus::Submitted,
             'proof_path' => $evidence->proof_path,
             'submitted_at' => now(),
@@ -321,7 +326,13 @@ class AdvanceCheckInStep
             // same `Submitted` state.
             'reviewed_by' => null,
             'reviewed_at' => null,
-        ]);
+        ];
+
+        if ($reportedValue !== null) {
+            $update['reported_value'] = number_format((float) $reportedValue, 2, '.', '');
+        }
+
+        $checkIn->update($update);
 
         $session->update(['current_step_order' => null]);
 

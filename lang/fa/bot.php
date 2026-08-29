@@ -98,6 +98,12 @@ return [
         'recording_error' => 'آن ضبط دریافت نشد. لطفاً دوباره بفرستش.',
 
         'confirmed' => 'برای «:title» ثبت شدی. زنجیره: :streak',
+        'confirmed_scored' => 'آفرین — :value :unit، یعنی :score امتیاز. برای «:title» ثبت شدی. زنجیره: :streak',
+        'below_target_frozen' => 'گزارش تو :value از :target :unit بود — زیر هدف. یک فریز این دورهٔ «:title» را پوشش داد. زنجیره: :streak',
+        'below_target_missed' => 'گزارش تو :value از :target :unit بود — زیر هدف، پس این دورهٔ «:title» از دست رفت و زنجیره صفر شد. زنجیره: :streak',
+
+        'value_prompt' => 'چند :unit؟ عدد «:title» را به‌صورت متن بفرست.',
+        'value_error' => 'یک عدد ساده بفرست — ۲۰ یا ۱۲/۵. چند :unit؟',
 
         'review_prompt_image' => ':name برای «:title» عکس فرستاده است.',
         'review_prompt_voice' => ':name برای «:title» پیام صوتی فرستاده است. پیش از تصمیم، در صف بازبینی گوشش بده.',
@@ -107,6 +113,7 @@ return [
         'review_approved_ack' => 'تأیید شد.',
         'review_rejected_ack' => 'رد شد.',
         'review_approved' => 'ثبنت برای «:title» تأیید شد. زنجیره: :streak',
+        'review_approved_scored' => 'ثبنت برای «:title» تأیید شد: :value :unit، :score امتیاز. زنجیره: :streak',
         'review_rejected_image' => 'عکست برای «:title» رد شد. پیش از پایان دوره یکی دیگر بفرست.',
         'review_rejected_voice' => 'پیام صوتی‌ات برای «:title» رد شد. پیش از پایان دوره یکی دیگر بفرست.',
         'review_rejected_video' => 'ویدیویت برای «:title» رد شد. پیش از پایان دوره یکی دیگر بفرست.',
@@ -121,12 +128,14 @@ return [
             'proof_missing' => 'چیزی فرستاده نشد.',
             'media_too_long' => 'آن ضبط برای «:title» بیش از حد طولانی است — کوتاه‌ترش بفرست.',
             'media_too_large' => 'آن فایل برای «:title» بیش از حد بزرگ است — کوچک‌ترش بفرست.',
+            'value_required' => 'آن ثبت بر اساس عدد امتیاز می‌گیرد — اول به «چند تا» جواب بده.',
         ],
 
         'review_refused' => [
             'not_the_reviewer' => 'فقط سازندهٔ آن چالش می‌تواند آن را بازبینی کند.',
             'already_settled' => 'آن دوره از گذشته است، پس دیگر نظر نمی‌تواند تغییری بدهد.',
             'not_awaiting_review' => 'مدرکی که منتظر تو باشد وجود ندارد.',
+            'value_missing' => 'آن ثبت عددی ندارد که امتیاز بگیرد. ردش کن تا شرکت‌کننده با عدد دوباره بفرستد.',
         ],
     ],
 
@@ -208,6 +217,7 @@ return [
         'summary' => "چالش تو این است:\n\nعنوان: :title\nتوضیح: :description\nدوره: :period\nطول دلخواه: :custom_days روز\nشروع: :start (:timezone)\nتعداد دوره‌ها: :periods\nاثبات: :proof\nدسترسی: :visibility\nروش: :flow\nفریز هر نفر: :freezes",
         'summary_steps' => ':steps گام، دست‌کم :minimum انتظار در هر نشست (هر دوره :period طول می‌کشد)',
         'summary_approval' => 'بررسی با هوش مصنوعی بر اساس: «:criteria»',
+        'summary_scoring' => 'امتیازدهی: :target :unit در هر دوره، :points امتیاز برای رسیدن به آن. کمتر از هدف: :partial',
 
         'created' => '«:title» آماده است.',
         'created_timeline' => ':periods دوره، از :start به وقت :timezone.',
@@ -255,6 +265,39 @@ return [
             'error' => 'یک عدد صحیح بین ۱ تا :total_periods_max بفرست.',
             'expected' => 'تعداد دوره‌ها را به‌صورت پیام متنی بفرست.',
         ],
+
+        'awaiting_scoring_type' => [
+            'prompt' => 'یک دوره چطور داوری می‌شود؟',
+            'error' => 'لطفاً یکی از گزینه‌های پیشنهادی را انتخاب کن.',
+            'expected' => 'برای انتخاب روش داوری یکی از دکمه‌ها را بزن.',
+        ],
+
+        'awaiting_scoring_target' => [
+            'prompt' => 'در هر دوره شرکت‌کننده‌ها به چه عددی باید برسند؟ عدد را بفرست — ۳۰ برای سی شنا، یا ۲/۵ برای دو و نیم کیلومتر.',
+            'error' => 'یک عدد مثبت بفرست — ۳۰ یا ۲/۵. اعشار با ممیز بفرست.',
+            'expected' => 'هدف را به‌صورت پیام متنی بفرست.',
+        ],
+
+        'awaiting_scoring_unit' => [
+            'prompt' => 'هدف با چه واحدی شمرده می‌شود؟ یک یا دو کلمه، تا :unit_max نویسه — شنا، کیلومتر، صفحه.',
+            'error' => 'یک واحد تا :unit_max نویسه بفرست.',
+            'expected' => 'واحد را به‌صورت پیام متنی بفرست.',
+        ],
+
+        'awaiting_scoring_base_points' => [
+            'prompt' => 'رسیدن به هدف در هر دوره چند امتیاز می‌ارزد؟',
+            'error' => 'یک عدد صحیح امتیاز بفرست، دست‌کم ۱.',
+            'expected' => 'امتیاز را به‌صورت پیام متنی بفرست.',
+        ],
+
+        'awaiting_scoring_partial' => [
+            'prompt' => 'اگر کسی کمتر از هدف گزارش کند، باز هم ثبت شود — با امتیاز نسبتاً کمتر؟',
+            'error' => 'لطفاً یکی از گزینه‌های پیشنهادی را انتخاب کن.',
+            'expected' => 'برای پاسخ یکی از دکمه‌ها را بزن.',
+        ],
+
+        'partial_on_button' => 'بله — گزارش ناقص با امتیاز کمتر ثبت می‌شود',
+        'partial_off_button' => 'نه — رسیدن به هدف شرط است',
 
         'awaiting_proof_type' => [
             'prompt' => 'هر کس چطور ثابت کند که انجامش داده؟',

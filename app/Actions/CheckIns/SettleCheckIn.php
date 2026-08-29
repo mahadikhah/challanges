@@ -54,13 +54,22 @@ class SettleCheckIn
      * harmless no-op — but approving one the rollover has already closed returns a
      * `Missed` row, and a creator reviewing late needs to be told that rather than
      * shown a success message.
+     *
+     * A caller that passes no value is not guessing zero: the row's own stored
+     * `reported_value` is used when there is one, because the review paths — a
+     * creator approving a photo hours later, an AI verdict at upload — settle
+     * long after the number was recorded on the row. A row with neither a
+     * passed nor a stored value falls through `scored()` as below-target, which
+     * is why every submission surface is required to collect one.
      */
     public function approve(CheckIn $checkIn, int|float|string|null $reportedValue = null): CheckIn
     {
+        $reported = $reportedValue ?? $checkIn->reported_value;
+
         return $this->settle(
             $checkIn,
-            fn (ChallengeParticipant $participant): CheckInStatus => $this->scored($checkIn, $participant, $reportedValue),
-            $reportedValue,
+            fn (ChallengeParticipant $participant): CheckInStatus => $this->scored($checkIn, $participant, $reported),
+            $reported,
         );
     }
 

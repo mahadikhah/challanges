@@ -1,6 +1,7 @@
 <?php
 
 use App\Actions\CheckIns\IssueCheckInPhrase;
+use App\Actions\CheckIns\OpenCheckIn;
 use App\Actions\CheckIns\SubmitCheckIn;
 use App\Enums\ChallengeStatus;
 use App\Enums\CheckInRejection;
@@ -388,5 +389,97 @@ describe('which period a submission lands in', function () {
 
         expect(refusalFor(fn () => $this->submit->tap($actor, $challenge)))
             ->toBe(CheckInRejection::AlreadySettled);
+    });
+});
+
+/*
+ * A quantity challenge is judged on a number, so the submission entry points
+ * insist on one — whatever surface they are reached from. The bot asks the
+ * question before the proof settles; the Mini App validates on the wire; the
+ * guard here is the last line, refusing a null rather than guessing zero.
+ */
+describe('a quantity challenge', function () {
+    /**
+     * A quantity challenge proven by `$proofType`, with one open period.
+     */
+    function quantityProvenBy(ProofType $proofType): Challenge
+    {
+        $challenge = Challenge::factory()->active()->provenBy($proofType)->quantity()->create();
+
+        ChallengePeriod::factory()->for($challenge)->atIndex(0)->create([
+            'starts_at' => now()->subHour(),
+            'ends_at' => now()->addHour(),
+        ]);
+
+        return $challenge;
+    }
+
+    it('refuses a tap with no number behind it', function () {
+        $challenge = quantityProvenBy(ProofType::Button);
+
+        expect(refusalFor(fn () => $this->submit->tap(enrol($challenge), $challenge)))
+            ->toBe(CheckInRejection::ValueRequired)
+            ->and(CheckIn::query()->count())->toBe(0);
+    });
+
+    it('settles a tap on the number reported', function () {
+        $challenge = quantityProvenBy(ProofType::Button);
+        $actor = enrol($challenge, $participant);
+
+        $checkIn = $this->submit->tap($actor, $challenge, reportedValue: '45');
+
+        expect($checkIn->status)->toBe(CheckInStatus::Approved)
+            ->and($checkIn->reported_value)->toBe('45.00')
+            ->and($checkIn->score)->toBe('150.00')
+            ->and($participant->refresh()->total_score)->toBe('150.00');
+    });
+
+    it('refuses a phrase with no number riding along', function () {
+        $challenge = quantityProvenBy(ProofType::TextAutogen);
+
+        expect(refusalFor(fn () => $this->submit->typePhrase(enrol($challenge), $challenge, 'anything at all')))
+            ->toBe(CheckInRejection::ValueRequired)
+            ->and(CheckIn::query()->count())->toBe(0);
+    });
+
+    it('judges the phrase and the number as one submission', function () {
+        $challenge = quantityProvenBy(ProofType::TextAutogen);
+        $actor = enrol($challenge, $participant);
+
+        // The phrase a reminder would have delivered, issued directly so the
+        // first typed attempt can be judged against the real thing.
+        $checkIn = app(OpenCheckIn::class)->handle(
+            $participant,
+            $challenge->periods()->where('index', 0)->sole(),
+        );
+        app(IssueCheckInPhrase::class)->handle($checkIn);
+        $phrase = $checkIn->expected_phrase;
+
+        expect(refusalFor(fn () => $this->submit->typePhrase($actor, $challenge, $phrase)))
+            ->toBe(CheckInRejection::ValueRequired);
+
+        $settled = $this->submit->typePhrase($actor, $challenge, $phrase, reportedValue: 45);
+
+        expect($settled->status)->toBe(CheckInStatus::Approved)
+            ->and($settled->score)->toBe('150.00');
+    });
+
+    it('refuses a photo with no number on it', function () {
+        $challenge = quantityProvenBy(ProofType::ImageApproval);
+
+        expect(refusalFor(fn () => $this->submit->uploadPhoto(enrol($challenge), $challenge, 'proofs/x.jpg')))
+            ->toBe(CheckInRejection::ValueRequired)
+            ->and(CheckIn::query()->count())->toBe(0);
+    });
+
+    it('carries the number onto a photo awaiting review', function () {
+        $challenge = quantityProvenBy(ProofType::ImageApproval);
+        $actor = enrol($challenge);
+
+        $checkIn = $this->submit->uploadPhoto($actor, $challenge, 'proofs/x.jpg', reportedValue: 20);
+
+        expect($checkIn->status)->toBe(CheckInStatus::Submitted)
+            ->and($checkIn->reported_value)->toBe('20.00')
+            ->and($checkIn->score)->toBeNull();
     });
 });

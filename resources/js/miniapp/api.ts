@@ -93,9 +93,20 @@ export function fetchChallenge(id: number): Promise<ChallengeView> {
 /**
  * Submit the one-tap check-in. Resolves with the participant's whole new
  * state — the server's response is the replacement, not a patch to merge.
+ *
+ * `reportedValue` is the quantity a scoring challenge asks for alongside the
+ * tap; omitted on a binary one, and a scoring challenge without one is
+ * refused with `value_required`, which is the SPA's cue to show its input.
  */
-export function submitCheckIn(id: number): Promise<ChallengeView> {
+export function submitCheckIn(
+    id: number,
+    reportedValue?: number,
+): Promise<ChallengeView> {
     return request<{ data: ChallengeView }>(`/challenges/${id}/check-in`, {
         method: 'POST',
+        body:
+            reportedValue === undefined
+                ? undefined
+                : JSON.stringify({ reported_value: reportedValue }),
     }).then((payload) => payload.data);
 }

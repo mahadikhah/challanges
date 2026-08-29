@@ -61,11 +61,23 @@ class CompleteCheckInSession
 
             $settled = $this->settle->approve($checkIn, $reportedValue);
 
-            // The rollover can have closed the period between the session's
-            // last gate and here. The session stays completed — the steps were
-            // genuinely run — but the participant must hear "too late", not
-            // have a Missed row reported to them as success.
-            if ($settled->status->isSettled() && ! $settled->status->incrementsStreak()) {
+            // Two different arrivals land here as a settled row that did not
+            // earn its streak. The rollover can have closed the period between
+            // the session's last gate and this call — the steps were genuinely
+            // run, but the participant must hear "too late", not have a
+            // `Missed` row reported to them as success. A below-target report
+            // is the other one: the session completed and the report was
+            // judged, so the session stands and the caller confirms the
+            // outcome. The row carrying the value this call settled on is what
+            // separates them — a settlement that took writes it, a rollover's
+            // row does not.
+            $judgedBelowTarget = $reportedValue !== null
+                && $settled->reported_value !== null
+                && (float) $settled->reported_value === (float) $reportedValue;
+
+            if ($settled->status->isSettled()
+                && ! $settled->status->incrementsStreak()
+                && ! $judgedBelowTarget) {
                 throw CheckInRejectedException::alreadySettled($settled);
             }
 

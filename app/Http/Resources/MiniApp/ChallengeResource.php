@@ -53,10 +53,21 @@ class ChallengeResource extends JsonResource
             'visibility' => $this->enum($challenge->visibility),
             'is_creator' => $challenge->creator_id === $this->user_id,
 
+            // The quantity scoring design, or null on a binary challenge —
+            // the SPA shows its numeric input only when this is present, and
+            // the fields are exactly what the confirmation quotes back.
+            'scoring' => $challenge->scoring_type->isQuantity() ? [
+                'target_value' => (float) $challenge->target_value,
+                'unit_label' => (string) $challenge->unit_label,
+                'base_points' => (int) $challenge->base_points,
+                'partial_counts_as_done' => (bool) $challenge->quantity_partial_counts_as_done,
+            ] : null,
+
             'me' => [
                 'status' => $this->enum($this->status),
                 'current_streak' => $this->current_streak,
                 'longest_streak' => $this->longest_streak,
+                'total_score' => (float) $this->total_score,
                 'joined_period_index' => $this->joined_period_index,
                 'freezes' => [
                     'total' => $this->freezes_total,
@@ -112,7 +123,11 @@ class ChallengeResource extends JsonResource
     /**
      * A check-in as the Mini App states it: its status and the label for it.
      *
-     * @return array{value: int|string, label: string}|null
+     * On a quantity challenge, the reported number and the score it earned ride
+     * along — the settled row's own record, so the SPA's history grid can show
+     * "45 · 150 pts" without recomputing anything.
+     *
+     * @return array{value: int|string, label: string, reported_value?: float|null, score?: int|null}|null
      */
     private function checkInShape(ChallengePeriod $period): ?array
     {
@@ -122,7 +137,16 @@ class ChallengeResource extends JsonResource
             return null;
         }
 
-        return $this->enum($checkIn->status);
+        $shape = $this->enum($checkIn->status);
+
+        if ($this->challenge->scoring_type->isQuantity()) {
+            // The model's decimal cast hands back strings; the wire carries
+            // numbers, so the two are normalised here at the boundary.
+            $shape['reported_value'] = $checkIn->reported_value !== null ? (float) $checkIn->reported_value : null;
+            $shape['score'] = $checkIn->score !== null ? (int) $checkIn->score : null;
+        }
+
+        return $shape;
     }
 
     /**

@@ -87,6 +87,21 @@ enum CheckInRejection: string
     case MediaTooLarge = 'media_too_large';
 
     /**
+     * A quantity challenge was submitted without a reported value. The number
+     * is what the whole period is judged on — a submission without one cannot
+     * be scored, so the surface is refused rather than silently settling a
+     * period as below-target.
+     */
+    case ValueRequired = 'value_required';
+
+    /**
+     * A quantity check-in awaiting review carries no reported value, so a
+     * verdict cannot score it. The participant never answered "how many";
+     * the creator should reject the proof so it can be resubmitted with one.
+     */
+    case ValueMissing = 'value_missing';
+
+    /**
      * The reviewer does not own this challenge. Platform admins are exempt;
      * nobody else reviews somebody else's challenge.
      */

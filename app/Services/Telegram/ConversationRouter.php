@@ -2,6 +2,7 @@
 
 namespace App\Services\Telegram;
 
+use App\Enums\ConversationState;
 use App\Models\BotConversation;
 use App\Models\TelegramUpdate;
 use App\Models\User;
@@ -34,6 +35,7 @@ class ConversationRouter
     public function __construct(
         private readonly CreateChallengeWizard $wizard,
         private readonly CheckInFlow $checkIns,
+        private readonly SessionStepFlow $sessions,
         private readonly LinkChatFlow $chatLinks,
     ) {}
 
@@ -91,6 +93,18 @@ class ConversationRouter
      */
     private function routeCheckIn(User $user, BotConversation $conversation, TelegramUpdate $update): void
     {
+        if ($conversation->state === ConversationState::AwaitingCheckInValue) {
+            // The value question belongs to two flows: the check-in flow asks
+            // it for a submission's number, the session flow for a final
+            // step's. The payload's session marker says which — the session's
+            // answer replays a stashed step, the check-in's submits proof.
+            $flow = $conversation->answer('session') === '1' ? $this->sessions : $this->checkIns;
+
+            $flow->receiveValue($user, $conversation, $this->text($update));
+
+            return;
+        }
+
         if ($conversation->state->expectsPhoto()) {
             $photo = $update->value('message.photo');
 

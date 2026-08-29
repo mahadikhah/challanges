@@ -11,6 +11,8 @@ use App\Enums\EntitlementType;
 use App\Enums\FlowType;
 use App\Enums\PeriodType;
 use App\Enums\ProofType;
+use App\Enums\ScoringStrategy;
+use App\Enums\ScoringType;
 use App\Enums\SettingKey;
 use App\Jobs\Challenges\AnnounceChallenge;
 use App\Jobs\Telegram\ProcessTelegramUpdate;
@@ -528,6 +530,10 @@ describe('a tapped answer', function () {
             ConversationState::AwaitingFlowType,
             ['simple', 'timed_session'],
         ],
+        'scoring types' => [
+            ConversationState::AwaitingScoringType,
+            ['binary', 'quantity'],
+        ],
         'step input types' => [
             ConversationState::AwaitingStepInputType,
             ['button', 'image', 'voice'],
@@ -792,7 +798,7 @@ describe('the confirmation step', function () {
 });
 
 describe('the flow end to end', function () {
-    it('turns eleven answers into one challenge', function () {
+    it('turns twelve answers into one challenge', function () {
         wizardTypes('/create');
         wizardTypes('Read every day');
         wizardTypes('Twenty pages, no excuses.');
@@ -801,6 +807,7 @@ describe('the flow end to end', function () {
         wizardChooses('Asia/Tehran');
         wizardChooses(CreateChallengeWizard::TOMORROW);
         wizardTypes('12');
+        wizardChooses(ScoringType::Binary->value);
         wizardChooses(ProofType::TextAutogen->value);
         wizardChooses(ChallengeVisibility::InviteOnly->value);
         wizardChooses(FlowType::Simple->value);
@@ -821,9 +828,9 @@ describe('the flow end to end', function () {
             ->and($challenge->periods()->count())->toBe(12)
             ->and(liveFlow())->toBeNull();
 
-        // Twelve updates, twelve replies. One message per update is a rate-limit rule
-        // rather than a tidiness preference.
-        expect(botMessages())->toHaveCount(12);
+        // Thirteen updates, thirteen replies. One message per update is a rate-limit
+        // rule rather than a tidiness preference.
+        expect(botMessages())->toHaveCount(13);
     });
 
     it('creates one challenge however many times Telegram redelivers the confirming tap', function () {
@@ -1144,5 +1151,159 @@ describe('/cancel', function () {
         // `/cancel` asks Telegram nothing at all.
         expect(liveFlow())->toBeNull();
         Http::assertSentCount(1);
+    });
+});
+
+/*
+ * The scoring branch: how a period is judged. Binary is one question and out;
+ * quantity is four more — what to reach, counted in what, worth how many
+ * points, and whether falling short still counts. The strategy is never asked:
+ * proportional is the only one, so the wizard picks it on the creator's behalf.
+ */
+describe('the scoring branch', function () {
+    it('asks how a period is judged right after its length', function () {
+        flowSittingAt(ConversationState::AwaitingTotalPeriods, completeDraft(['total_periods' => null]));
+
+        wizardTypes('10');
+
+        expect(liveFlow()?->state)->toBe(ConversationState::AwaitingScoringType)
+            ->and(soleBotMessage()['text'])
+            ->toBe(botCopy('bot.wizard.awaiting_scoring_type.prompt'))
+            ->and(lastOfferedValues())->toBe([ScoringType::Binary->value, ScoringType::Quantity->value]);
+    });
+
+    it('never asks a binary challenge anything about scoring', function () {
+        flowSittingAt(ConversationState::AwaitingTotalPeriods, completeDraft(['total_periods' => null]));
+
+        wizardTypes('10');
+        wizardChooses(ScoringType::Binary->value);
+
+        // Straight past the whole block to the proof type — no target, no unit,
+        // no points, no partial question in between.
+        expect(liveFlow()?->state)->toBe(ConversationState::AwaitingProofType)
+            ->and(collect(botMessages())->map(fn (array $message): string => $message['text'])->implode("\n"))
+            ->not->toContain(botCopy('bot.wizard.awaiting_scoring_target.prompt'))
+            ->not->toContain(botCopy('bot.wizard.awaiting_scoring_partial.prompt'));
+    });
+
+    it('walks the quantity questions in order and records every answer', function () {
+        flowSittingAt(ConversationState::AwaitingTotalPeriods, completeDraft(['total_periods' => null]));
+
+        wizardTypes('10');
+        wizardChooses(ScoringType::Quantity->value);
+
+        expect(liveFlow()?->state)->toBe(ConversationState::AwaitingScoringTarget)
+            ->and(lastBotReply()['text'])
+            ->toBe(botCopy('bot.wizard.awaiting_scoring_target.prompt'));
+
+        wizardTypes('30');
+
+        expect(liveFlow()?->state)->toBe(ConversationState::AwaitingScoringUnit)
+            ->and(lastBotReply()['text'])
+            ->toBe(botCopy('bot.wizard.awaiting_scoring_unit.prompt', [
+                'unit_max' => wizardLimits()['unit_label_max'],
+            ]));
+
+        wizardTypes('pushups');
+
+        expect(liveFlow()?->state)->toBe(ConversationState::AwaitingScoringBasePoints)
+            ->and(lastBotReply()['text'])
+            ->toBe(botCopy('bot.wizard.awaiting_scoring_base_points.prompt'));
+
+        wizardTypes('100');
+
+        // The partial question explains itself, one button per row, and the
+        // safer off is offered second rather than buried.
+        expect(liveFlow()?->state)->toBe(ConversationState::AwaitingScoringPartial)
+            ->and(lastBotReply()['text'])
+            ->toBe(botCopy('bot.wizard.awaiting_scoring_partial.prompt'))
+            ->and(lastOfferedValues())->toBe([CreateChallengeWizard::PARTIAL_ON, CreateChallengeWizard::PARTIAL_OFF])
+            ->and(array_map(
+                fn (array $row): array => array_map(fn (array $button): string => $button['text'], $row),
+                lastBotKeyboard(),
+            ))->toBe([
+                [botCopy('bot.wizard.partial_on_button')],
+                [botCopy('bot.wizard.partial_off_button')],
+            ]);
+
+        wizardChooses(CreateChallengeWizard::PARTIAL_OFF);
+
+        expect(liveFlow()?->state)->toBe(ConversationState::AwaitingProofType)
+            ->and(flowAnswers())->toMatchArray([
+                'scoring_type' => ScoringType::Quantity->value,
+                'target_value' => '30',
+                'unit_label' => 'pushups',
+                'base_points' => '100',
+                'quantity_partial_counts_as_done' => '0',
+            ]);
+    });
+
+    it('creates a quantity challenge carrying the design, and the strategy is never asked', function () {
+        flowSittingAt(ConversationState::AwaitingScoringType, completeDraft(['total_periods' => 10]));
+
+        wizardChooses(ScoringType::Quantity->value);
+        wizardTypes('30');
+        wizardTypes('pushups');
+        wizardTypes('100');
+        wizardChooses(CreateChallengeWizard::PARTIAL_ON);
+        wizardChooses(ProofType::Button->value);
+        wizardChooses(ChallengeVisibility::InviteOnly->value);
+        wizardChooses(FlowType::Simple->value);
+
+        // The confirmation reads the scoring design back before anything is created.
+        expect(lastBotReply()['text'])->toContain(botCopy('bot.wizard.summary_scoring', [
+            'target' => '30',
+            'unit' => 'pushups',
+            'points' => '100',
+            'partial' => botCopy('bot.wizard.partial_on_button'),
+        ]));
+
+        wizardChooses(CreateChallengeWizard::CONFIRM);
+
+        $challenge = Challenge::query()->sole();
+
+        expect($challenge->scoring_type)->toBe(ScoringType::Quantity)
+            ->and($challenge->target_value)->toBe('30.00')
+            ->and($challenge->unit_label)->toBe('pushups')
+            ->and($challenge->base_points)->toBe('100.00')
+            ->and($challenge->quantity_partial_counts_as_done)->toBeTrue()
+            // Proportional is the only strategy, so the creator was offered no
+            // choice: the scoring-type keyboard was binary or quantity and
+            // nothing else (pinned in the tapped-answer dataset above), and the
+            // created row still carries the strategy.
+            ->and($challenge->scoring_strategy)->toBe(ScoringStrategy::Proportional);
+    });
+
+    it('drops a quantity draft that lacks its numbers rather than guessing', function () {
+        // The fork was taken but the questions never answered: the draft cannot
+        // be completed, so confirming it is refused like any other gap.
+        flowSittingAt(ConversationState::AwaitingCreateConfirmation, completeDraft([
+            'scoring_type' => ScoringType::Quantity->value,
+        ]));
+
+        wizardTaps(ConversationState::AwaitingCreateConfirmation, CreateChallengeWizard::CONFIRM);
+
+        expect(Challenge::query()->count())->toBe(0)
+            ->and($this->creator->entitlements()->whereNotNull('consumed_at')->count())->toBe(0);
+    });
+
+    it('re-asks a target that is not a positive number', function () {
+        flowSittingAt(ConversationState::AwaitingScoringTarget, completeDraft(['total_periods' => 10]));
+
+        wizardTypes('lots');
+
+        expect(liveFlow()?->state)->toBe(ConversationState::AwaitingScoringTarget)
+            ->and(lastBotReply()['text'])
+            ->toContain(botCopy('bot.wizard.awaiting_scoring_target.error'));
+    });
+
+    it('re-asks base points that are not a whole number of at least one', function () {
+        flowSittingAt(ConversationState::AwaitingScoringBasePoints, completeDraft(['total_periods' => 10]));
+
+        wizardTypes('2.5');
+
+        expect(liveFlow()?->state)->toBe(ConversationState::AwaitingScoringBasePoints)
+            ->and(lastBotReply()['text'])
+            ->toContain(botCopy('bot.wizard.awaiting_scoring_base_points.error'));
     });
 });

@@ -200,3 +200,94 @@ it('re-verifies a stale gate against Telegram and lets a member through', functi
 
     expect($user->refresh()->channel_verified_at)->toBeGreaterThan(now()->subMinute());
 });
+
+/*
+ * A quantity challenge on the one-tap surface: the number the SPA collects
+ * rides the request, and the guard in SubmitCheckIn is the last line — so a
+ * request without one is refused with the reason rather than scored as zero.
+ */
+describe('a quantity challenge', function () {
+    /**
+     * An active, button-proof quantity challenge (30 pushups, 100 points)
+     * whose period 0 is open now, with `$actor` enrolled.
+     *
+     * @return array{0: Challenge, 1: ChallengeParticipant}
+     */
+    function aQuantityChallenge(User $actor): array
+    {
+        $challenge = Challenge::factory()->active()->quantity()->create([
+            'creator_id' => User::factory()->telegram()->create()->getKey(),
+            'proof_type' => ProofType::Button,
+            'starts_at' => now()->startOfDay(),
+            'total_periods' => 3,
+        ]);
+
+        ChallengePeriod::factory()->for($challenge)->create([
+            'index' => 0,
+            'starts_at' => now()->startOfDay(),
+            'ends_at' => now()->addDay()->startOfDay(),
+        ]);
+
+        $participant = ChallengeParticipant::factory()
+            ->for($challenge)
+            ->for($actor)
+            ->create(['joined_period_index' => 0]);
+
+        return [$challenge, $participant];
+    }
+
+    it('refuses a tap that reports no number', function () {
+        $user = aMiniAppActor();
+        [$challenge] = aQuantityChallenge($user);
+
+        test()->postJson('/api/v1/miniapp/challenges/'.$challenge->getKey().'/check-in')
+            ->assertStatus(422)
+            ->assertJsonPath('reason', 'value_required');
+
+        expect(CheckIn::query()->count())->toBe(0);
+    });
+
+    it('refuses a report the wire cannot read as a non-negative number', function () {
+        $user = aMiniAppActor();
+        [$challenge] = aQuantityChallenge($user);
+
+        test()->postJson('/api/v1/miniapp/challenges/'.$challenge->getKey().'/check-in', [
+            'reported_value' => -5,
+        ])->assertStatus(422);
+    });
+
+    it('settles the reported number and answers with the score it earned', function () {
+        $user = aMiniAppActor();
+        [$challenge, $participant] = aQuantityChallenge($user);
+
+        $response = test()->postJson('/api/v1/miniapp/challenges/'.$challenge->getKey().'/check-in', [
+            'reported_value' => 45,
+        ]);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('data.scoring.target_value', 30)
+            ->assertJsonPath('data.scoring.unit_label', 'pushups')
+            ->assertJsonPath('data.scoring.base_points', 100)
+            ->assertJsonPath('data.scoring.partial_counts_as_done', false)
+            ->assertJsonPath('data.current_period.check_in.reported_value', 45)
+            ->assertJsonPath('data.current_period.check_in.score', 150)
+            ->assertJsonPath('data.me.total_score', 150);
+
+        $checkIn = CheckIn::query()->sole();
+
+        expect($checkIn->status)->toBe(CheckInStatus::Approved)
+            ->and($checkIn->reported_value)->toBe('45.00')
+            ->and($checkIn->score)->toBe('150.00')
+            ->and($participant->refresh()->total_score)->toBe('150.00');
+    });
+
+    it('carries no scoring block on a binary challenge', function () {
+        $user = aMiniAppActor();
+        [$challenge] = aTappableChallenge($user);
+
+        test()->postJson('/api/v1/miniapp/challenges/'.$challenge->getKey().'/check-in')
+            ->assertStatus(201)
+            ->assertJsonPath('data.scoring', null)
+            ->assertJsonPath('data.me.total_score', 0);
+    });
+});

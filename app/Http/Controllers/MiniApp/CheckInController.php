@@ -55,8 +55,16 @@ class CheckInController extends Controller
             ], 403);
         }
 
+        // The quantity report a scoring challenge asks for alongside the tap.
+        // Nullable: a binary challenge takes none, and `SubmitCheckIn` refuses
+        // a quantity submission without one — `value_required` is the reason
+        // the SPA then renders its numeric input.
+        $data = $request->validate([
+            'reported_value' => ['nullable', 'numeric', 'min:0'],
+        ]);
+
         try {
-            $this->submit->tap($request->user(), $participant->challenge);
+            $this->submit->tap($request->user(), $participant->challenge, reportedValue: $data['reported_value'] ?? null);
         } catch (CheckInRejectedException $refused) {
             // The reason, machine-readable; the sentence lives in the SPA's
             // own catalogue in the user's locale. A bare reason keeps this

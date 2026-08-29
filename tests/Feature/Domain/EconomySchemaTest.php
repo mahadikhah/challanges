@@ -613,6 +613,11 @@ describe('economy enum behaviour', function () {
         'custom days' => [ConversationState::AwaitingCustomPeriodDays, true, false, false, false],
         'start date' => [ConversationState::AwaitingStartDate, true, false, false, false],
         'total periods' => [ConversationState::AwaitingTotalPeriods, true, false, false, false],
+        'scoring type' => [ConversationState::AwaitingScoringType, false, false, false, false],
+        'scoring target' => [ConversationState::AwaitingScoringTarget, true, false, false, false],
+        'scoring unit' => [ConversationState::AwaitingScoringUnit, true, false, false, false],
+        'scoring base points' => [ConversationState::AwaitingScoringBasePoints, true, false, false, false],
+        'scoring partial' => [ConversationState::AwaitingScoringPartial, false, false, false, false],
         'timezone' => [ConversationState::AwaitingTimezone, false, false, false, false],
         'proof type' => [ConversationState::AwaitingProofType, false, false, false, false],
         'visibility' => [ConversationState::AwaitingVisibility, false, false, false, false],
@@ -621,6 +626,7 @@ describe('economy enum behaviour', function () {
         'check-in photo' => [ConversationState::AwaitingCheckInPhoto, false, true, false, false],
         'check-in voice' => [ConversationState::AwaitingCheckInVoice, false, false, true, false],
         'check-in video' => [ConversationState::AwaitingCheckInVideo, false, false, false, true],
+        'check-in value' => [ConversationState::AwaitingCheckInValue, true, false, false, false],
     ]);
 
     it('splits the wizard steps from the check-in steps with no state left over', function () {
@@ -629,7 +635,7 @@ describe('economy enum behaviour', function () {
         $chatLink = array_filter(ConversationState::cases(), fn (ConversationState $s) => $s->isChatLinkStep());
 
         expect(count($wizard) + count($checkIn) + count($chatLink))->toBe(count(ConversationState::cases()))
-            ->and($checkIn)->toHaveCount(4)
+            ->and($checkIn)->toHaveCount(5)
             ->and($chatLink)->toHaveCount(1);
     });
 });

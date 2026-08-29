@@ -63,6 +63,8 @@ class SubmitCheckIn
      */
     public function tap(User $actor, Challenge $challenge, ?CarbonInterface $now = null, int|float|string|null $reportedValue = null): CheckIn
     {
+        $this->assertQuantityValue($challenge, $reportedValue);
+
         $checkIn = $this->openSubmittable($actor, $challenge, ProofType::Button, $now);
 
         return $this->approved($checkIn, $reportedValue);
@@ -75,10 +77,15 @@ class SubmitCheckIn
      * capitals, stray whitespace, Persian digits and an Arabic yeh all pass, and
      * somebody else's phrase does not.
      *
+     * @param  int|float|string|null  $reportedValue  the quantity report that rides
+     *                                                along on a quantity challenge
+     *
      * @throws CheckInRejectedException
      */
-    public function typePhrase(User $actor, Challenge $challenge, string $text, ?CarbonInterface $now = null): CheckIn
+    public function typePhrase(User $actor, Challenge $challenge, string $text, ?CarbonInterface $now = null, int|float|string|null $reportedValue = null): CheckIn
     {
+        $this->assertQuantityValue($challenge, $reportedValue);
+
         if (trim($text) === '') {
             throw CheckInRejectedException::proofMissing($challenge);
         }
@@ -97,7 +104,7 @@ class SubmitCheckIn
             throw CheckInRejectedException::phraseMismatch($checkIn);
         }
 
-        return DB::transaction(function () use ($checkIn, $text): CheckIn {
+        return DB::transaction(function () use ($checkIn, $text, $reportedValue): CheckIn {
             $checkIn->update([
                 'submitted_text' => $text,
                 'submitted_at' => now(),
@@ -106,7 +113,7 @@ class SubmitCheckIn
             // In one transaction so that a settlement lost to the rollover takes
             // the recorded submission down with it, rather than leaving a `Missed`
             // row that claims the participant submitted on time.
-            return $this->approved($checkIn);
+            return $this->approved($checkIn, $reportedValue);
         });
     }
 
@@ -118,26 +125,24 @@ class SubmitCheckIn
      * moving an `UploadedFile` belongs to the surface, and keeping it out of here
      * is what lets the bot and the API share this method.
      *
+     * `$reportedValue` is the quantity a `quantity` challenge asks for; it is
+     * written onto the row *before* the AI verdict runs, because a verdict that
+     * approves settles on the spot and must find the number already stored.
+     *
+     *
      * @throws CheckInRejectedException
      */
-    public function uploadPhoto(User $actor, Challenge $challenge, string $path, ?CarbonInterface $now = null): CheckIn
+    public function uploadPhoto(User $actor, Challenge $challenge, string $path, ?CarbonInterface $now = null, int|float|string|null $reportedValue = null): CheckIn
     {
         if (trim($path) === '') {
             throw CheckInRejectedException::proofMissing($challenge);
         }
 
+        $this->assertQuantityValue($challenge, $reportedValue);
+
         $checkIn = $this->openSubmittable($actor, $challenge, ProofType::ImageApproval, $now);
 
-        $checkIn->update([
-            'status' => CheckInStatus::Submitted,
-            'proof_path' => $path,
-            'submitted_at' => now(),
-            // A resubmission after a rejection starts a fresh review. Leaving the
-            // old reviewer stamped would make the new photo look already decided,
-            // and it would drop out of the creator's queue unseen.
-            'reviewed_by' => null,
-            'reviewed_at' => null,
-        ]);
+        $checkIn->update($this->submissionUpdate($path, $reportedValue));
 
         // An `approval_mode = ai` challenge reviews itself here: the router
         // asks the model and either settles through the ordinary path or
@@ -163,22 +168,25 @@ class SubmitCheckIn
      *                            surface's own pre-download check is then the
      *                            only size gate, which is why surfaces should
      *                            always send it when they can
+     * @param  int|float|string|null  $reportedValue  the quantity report, stored
+     *                                                on the row before any verdict
      *
      * @throws CheckInRejectedException
      */
-    public function uploadVoice(User $actor, Challenge $challenge, string $path, int $seconds, ?int $sizeKb = null, ?CarbonInterface $now = null): CheckIn
+    public function uploadVoice(User $actor, Challenge $challenge, string $path, int $seconds, ?int $sizeKb = null, ?CarbonInterface $now = null, int|float|string|null $reportedValue = null): CheckIn
     {
-        return $this->uploadRecording($actor, $challenge, ProofType::VoiceApproval, $path, $seconds, $sizeKb, $now);
+        return $this->uploadRecording($actor, $challenge, ProofType::VoiceApproval, $path, $seconds, $sizeKb, $now, $reportedValue);
     }
 
     /**
      * A video message — same shape, same caps, heavier bytes.
      *
+     *
      * @throws CheckInRejectedException
      */
-    public function uploadVideo(User $actor, Challenge $challenge, string $path, int $seconds, ?int $sizeKb = null, ?CarbonInterface $now = null): CheckIn
+    public function uploadVideo(User $actor, Challenge $challenge, string $path, int $seconds, ?int $sizeKb = null, ?CarbonInterface $now = null, int|float|string|null $reportedValue = null): CheckIn
     {
-        return $this->uploadRecording($actor, $challenge, ProofType::VideoApproval, $path, $seconds, $sizeKb, $now);
+        return $this->uploadRecording($actor, $challenge, ProofType::VideoApproval, $path, $seconds, $sizeKb, $now, $reportedValue);
     }
 
     /**
@@ -188,6 +196,7 @@ class SubmitCheckIn
      * challenge asked for it (Phases 14 Task 3 and Task 4) — every gate the
      * verdict router checks (admin switches, the video environment check)
      * is checked inside it, so this call is always safe to make.
+     *
      *
      * @throws CheckInRejectedException
      */
@@ -199,10 +208,13 @@ class SubmitCheckIn
         int $seconds,
         ?int $sizeKb,
         ?CarbonInterface $now,
+        int|float|string|null $reportedValue = null,
     ): CheckIn {
         if (trim($path) === '') {
             throw CheckInRejectedException::proofMissing($challenge);
         }
+
+        $this->assertQuantityValue($challenge, $reportedValue);
 
         if ($seconds > (int) $challenge->proof_media_max_seconds) {
             throw CheckInRejectedException::mediaTooLong($challenge, $seconds);
@@ -214,15 +226,7 @@ class SubmitCheckIn
 
         $checkIn = $this->openSubmittable($actor, $challenge, $offered, $now);
 
-        $checkIn->update([
-            'status' => CheckInStatus::Submitted,
-            'proof_path' => $path,
-            'submitted_at' => now(),
-            // A resubmission after a rejection starts a fresh review, for the
-            // same reason a re-sent photo does.
-            'reviewed_by' => null,
-            'reviewed_at' => null,
-        ]);
+        $checkIn->update($this->submissionUpdate($path, $reportedValue));
 
         // Same rule as `uploadPhoto`: the recording is stored before anyone
         // — model or human — is asked to look at it.
@@ -234,24 +238,31 @@ class SubmitCheckIn
     }
 
     /**
-     * Settle as approved, insisting that it actually took.
+     * Settle as approved — or, on a quantity challenge, as whatever the report
+     * earned.
      *
      * `SettleCheckIn::approve()` returns an already-settled row untouched by
-     * design, which for a *submission* means the rollover closed the period
-     * between the guard in `openSubmittable()` and this call. The participant was
-     * a moment too late, and saying so beats handing back a `Missed` row that a
-     * caller will read as success.
+     * design. For a *submission* that means one of two very different things:
+     * the rollover closed the period between the guard in `openSubmittable()`
+     * and this call (the participant was a moment too late, and saying so beats
+     * handing back a `Missed` row a caller will read as success), or the report
+     * genuinely fell short of the target — the submission was accepted and
+     * judged, and the caller owes the participant the outcome rather than a
+     * refusal. The two are told apart by whether the row carries the value this
+     * call settled on: a settlement that took writes it, a rollover's row does
+     * not.
      *
-     * @throws CheckInRejectedException
-     */
-    /**
      * @throws CheckInRejectedException
      */
     private function approved(CheckIn $checkIn, int|float|string|null $reportedValue = null): CheckIn
     {
         $settled = $this->settle->approve($checkIn, $reportedValue);
 
-        if ($settled->status !== CheckInStatus::Approved) {
+        $judgedBelowTarget = $reportedValue !== null
+            && $settled->reported_value !== null
+            && (float) $settled->reported_value === (float) $reportedValue;
+
+        if ($settled->status !== CheckInStatus::Approved && ! $judgedBelowTarget) {
             throw CheckInRejectedException::alreadySettled($settled);
         }
 
@@ -336,5 +347,46 @@ class SubmitCheckIn
         }
 
         return $period;
+    }
+
+    /**
+     * A quantity challenge is judged on a number, so a submission without one
+     * is refused outright rather than scored as a below-target report.
+     *
+     * @throws CheckInRejectedException
+     */
+    private function assertQuantityValue(Challenge $challenge, int|float|string|null $reportedValue): void
+    {
+        if ($challenge->scoring_type->isQuantity() && $reportedValue === null) {
+            throw CheckInRejectedException::valueRequired($challenge);
+        }
+    }
+
+    /**
+     * The write that turns accepted media into a submission awaiting verdict.
+     *
+     * A resubmission after a rejection starts a fresh review, for the same
+     * reason a re-sent photo does. The quantity report rides along when there
+     * is one, normalised to the row's two-decimal scale so a later settlement
+     * — or a creator reviewing hours later — scores the same number the
+     * participant saw confirmed.
+     *
+     * @return array<string, mixed>
+     */
+    private function submissionUpdate(string $path, int|float|string|null $reportedValue): array
+    {
+        $update = [
+            'status' => CheckInStatus::Submitted,
+            'proof_path' => $path,
+            'submitted_at' => now(),
+            'reviewed_by' => null,
+            'reviewed_at' => null,
+        ];
+
+        if ($reportedValue !== null) {
+            $update['reported_value'] = number_format((float) $reportedValue, 2, '.', '');
+        }
+
+        return $update;
     }
 }

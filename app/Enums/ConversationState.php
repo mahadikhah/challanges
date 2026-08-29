@@ -22,6 +22,13 @@ enum ConversationState: string
     case AwaitingCustomPeriodDays = 'awaiting_custom_period_days';
     case AwaitingStartDate = 'awaiting_start_date';
     case AwaitingTotalPeriods = 'awaiting_total_periods';
+
+    case AwaitingScoringType = 'awaiting_scoring_type';
+    case AwaitingScoringTarget = 'awaiting_scoring_target';
+    case AwaitingScoringUnit = 'awaiting_scoring_unit';
+    case AwaitingScoringBasePoints = 'awaiting_scoring_base_points';
+    case AwaitingScoringPartial = 'awaiting_scoring_partial';
+
     case AwaitingTimezone = 'awaiting_timezone';
     case AwaitingProofType = 'awaiting_proof_type';
     case AwaitingApprovalMode = 'awaiting_approval_mode';
@@ -40,6 +47,14 @@ enum ConversationState: string
     case AwaitingCheckInPhoto = 'awaiting_check_in_photo';
     case AwaitingCheckInVoice = 'awaiting_check_in_voice';
     case AwaitingCheckInVideo = 'awaiting_check_in_video';
+
+    /**
+     * A quantity challenge's reported value — asked after the proof for text
+     * and timed-session challenges, before it for button and media ones (the
+     * media AI verdict settles on upload, so its value must already be on the
+     * row by then).
+     */
+    case AwaitingCheckInValue = 'awaiting_check_in_value';
 
     case AwaitingChatForward = 'awaiting_chat_forward';
 
@@ -61,7 +76,8 @@ enum ConversationState: string
     {
         return match ($this) {
             self::AwaitingCheckInText, self::AwaitingCheckInPhoto,
-            self::AwaitingCheckInVoice, self::AwaitingCheckInVideo => true,
+            self::AwaitingCheckInVoice, self::AwaitingCheckInVideo,
+            self::AwaitingCheckInValue => true,
             default => false,
         };
     }
@@ -85,11 +101,15 @@ enum ConversationState: string
             self::AwaitingCustomPeriodDays,
             self::AwaitingStartDate,
             self::AwaitingTotalPeriods,
+            self::AwaitingScoringTarget,
+            self::AwaitingScoringUnit,
+            self::AwaitingScoringBasePoints,
             self::AwaitingApprovalCriteria,
             self::AwaitingStepWait,
             self::AwaitingStepVoiceLimit,
             self::AwaitingStepLabel,
-            self::AwaitingCheckInText => true,
+            self::AwaitingCheckInText,
+            self::AwaitingCheckInValue => true,
             default => false,
         };
     }

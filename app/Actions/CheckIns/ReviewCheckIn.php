@@ -53,11 +53,30 @@ class ReviewCheckIn
         return DB::transaction(function () use ($reviewer, $checkIn): CheckIn {
             $this->guardAwaitingVerdict($checkIn);
 
+            // Approve on a quantity challenge means "score the number", so there
+            // has to be one. A row with no reported value reached review because
+            // the participant never answered "how many" — approving it would score
+            // null as below-target through the stored-value fallback, silently
+            // deciding a period the creator was never shown a number for. This is
+            // an approve-only guard: a *rejection* is exactly the way out, as it
+            // returns the row for a resubmission that carries the number.
+            if ($checkIn->participant->challenge->scoring_type->isQuantity()
+                && $checkIn->reported_value === null) {
+                throw CheckInRejectedException::valueMissing($checkIn);
+            }
+
             $settled = $this->settle->approve($checkIn);
 
             // The guard above answers the ordinary case with a precise reason;
-            // this catches the rollover landing in the gap between the two.
-            if ($settled->status !== CheckInStatus::Approved) {
+            // this catches the rollover landing in the gap between the two. A
+            // below-target quantity report is the exception: the photo was
+            // approved, the number was judged, and the period settling under
+            // the bar is the verdict rather than a failure to apply one.
+            $judgedBelowTarget = $checkIn->reported_value !== null
+                && $settled->reported_value !== null
+                && (float) $settled->reported_value === (float) $checkIn->reported_value;
+
+            if ($settled->status !== CheckInStatus::Approved && ! $judgedBelowTarget) {
                 throw CheckInRejectedException::alreadySettled($settled);
             }
 
