@@ -22,16 +22,17 @@ use Illuminate\Support\Facades\DB;
  * 2. **The wait must have elapsed.** The wait is the point of a timed session
  *    — accepting an early tap would make it decorative. The exact remaining
  *    seconds travel on the exception so the surface can say them.
- * 3. **The submission must be the kind the step demands**, and a voice
- *    message must respect the step's cap, measured by the duration Telegram
- *    reports — never a client-supplied number.
+ * 3. **The submission must be the kind the step demands**, and a recording
+ *    must respect its cap — a voice message the step's own
+ *    `voice_max_seconds`, a video the challenge's media caps — measured by
+ *    the duration the messenger reports, never a client-supplied number.
  */
 class AdvanceCheckInStep
 {
     public function __construct(private readonly CompleteCheckInSession $complete) {}
 
     /**
-     * @param  array{proof_path?: string|null, voice_seconds?: int|null}  $submission
+     * @param  array{proof_path?: string|null, voice_seconds?: int|null, video_seconds?: int|null, media_size_kb?: int|null}  $submission
      *
      * @throws SessionRejectedException when any gate refuses
      */
@@ -120,7 +121,7 @@ class AdvanceCheckInStep
     }
 
     /**
-     * @param  array{proof_path?: string|null, voice_seconds?: int|null}  $submission
+     * @param  array{proof_path?: string|null, voice_seconds?: int|null, video_seconds?: int|null, media_size_kb?: int|null}  $submission
      *
      * @throws SessionRejectedException
      */
@@ -128,8 +129,13 @@ class AdvanceCheckInStep
     {
         $path = $submission['proof_path'] ?? null;
         $voiceSeconds = $submission['voice_seconds'] ?? null;
+        $videoSeconds = $submission['video_seconds'] ?? null;
+        $sizeKb = $submission['media_size_kb'] ?? null;
 
-        if ($step->input_type === StepInputType::Button && ($path !== null || $voiceSeconds !== null)) {
+        $recording = $step->input_type === StepInputType::Voice || $step->input_type === StepInputType::Video;
+
+        if ($step->input_type === StepInputType::Button
+            && ($path !== null || $voiceSeconds !== null || $videoSeconds !== null || $sizeKb !== null)) {
             throw SessionRejectedException::unexpectedSubmission($step);
         }
 
@@ -137,19 +143,43 @@ class AdvanceCheckInStep
             throw SessionRejectedException::submissionMissing($step);
         }
 
+        // The duration is the surface's to report honestly — the bot reads
+        // it from Telegram's own `voice.duration`; the Mini App reads it
+        // from the recorded file. Neither may be *trusted*, but a lie can
+        // only shorten, and a too-long message is refused below regardless
+        // of who counted it.
         if ($step->input_type === StepInputType::Voice) {
             if ($voiceSeconds === null) {
                 throw SessionRejectedException::submissionMissing($step);
             }
 
-            // The duration is the surface's to report honestly — the bot reads
-            // it from Telegram's own `voice.duration`; the Mini App reads it
-            // from the recorded file. Neither may be *trusted*, but a lie can
-            // only shorten, and a too-long message is refused below regardless
-            // of who counted it.
             if ($voiceSeconds > (int) $step->voice_max_seconds) {
                 throw SessionRejectedException::voiceTooLong($step, $voiceSeconds);
             }
+        }
+
+        // A video step is capped by the challenge, not by the step: video
+        // duration and size are the platform's storage problem, so both live
+        // on the challenge row and are required the moment a video step is
+        // designed (see `CreateChallenge::assertMediaCaps()`).
+        if ($step->input_type === StepInputType::Video) {
+            if ($videoSeconds === null) {
+                throw SessionRejectedException::submissionMissing($step);
+            }
+
+            $challenge = $step->challenge;
+
+            if ($videoSeconds > (int) $challenge->proof_media_max_seconds) {
+                throw SessionRejectedException::videoTooLong($challenge, $videoSeconds);
+            }
+        }
+
+        // The size cap spans both recording kinds whenever the surface
+        // measured the bytes. Null means the surface could not — its own
+        // pre-download check is then the only size gate, which is why a
+        // surface should always send what it can.
+        if ($recording && $sizeKb !== null && $sizeKb > (int) $step->challenge->proof_media_max_size_kb) {
+            throw SessionRejectedException::mediaTooLarge($step->challenge, $sizeKb);
         }
     }
 

@@ -103,6 +103,27 @@ class SessionRejectedException extends RuntimeException
         );
     }
 
+    /**
+     * A video outran the challenge's own duration cap, not a per-step one.
+     */
+    public static function videoTooLong(Challenge $challenge, int $seconds): self
+    {
+        return new self(
+            SessionRejection::VideoTooLong,
+            "This challenge accepts video of at most {$challenge->proof_media_max_seconds} seconds; {$seconds} arrived.",
+            voiceSeconds: $seconds,
+            voiceCeiling: (int) $challenge->proof_media_max_seconds,
+        );
+    }
+
+    public static function mediaTooLarge(Challenge $challenge, int $sizeKb): self
+    {
+        return new self(
+            SessionRejection::MediaTooLarge,
+            "This challenge accepts media of at most {$challenge->proof_media_max_size_kb} KB; {$sizeKb} KB arrived.",
+        );
+    }
+
     public static function submissionMissing(ChallengeStep $step): self
     {
         return new self(

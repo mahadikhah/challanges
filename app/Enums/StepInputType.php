@@ -8,9 +8,10 @@ use App\Enums\Contracts\HasTranslatedLabel as HasTranslatedLabelContract;
 /**
  * What a session step demands of the participant once its wait has elapsed.
  *
- * The button/image/voice triple is deliberately coarser than the platform's
- * proof types: a step is an ingredient of a check-in, not a check-in, and it
- * never reaches a settlement on its own — the completed session does.
+ * The button/image/voice/video quadruple is deliberately coarser than the
+ * platform's proof types: a step is an ingredient of a check-in, not a
+ * check-in, and it never reaches a settlement on its own — the completed
+ * session does.
  */
 enum StepInputType: string implements HasTranslatedLabelContract
 {
@@ -24,4 +25,12 @@ enum StepInputType: string implements HasTranslatedLabelContract
 
     /** A voice message, length-capped by the step's `voice_max_seconds`. */
     case Voice = 'voice';
+
+    /**
+     * A video message. No per-step cap of its own: video duration and size
+     * are the platform's storage problem rather than the step's, so both are
+     * capped at the challenge level (`proof_media_max_seconds` /
+     * `proof_media_max_size_kb`).
+     */
+    case Video = 'video';
 }

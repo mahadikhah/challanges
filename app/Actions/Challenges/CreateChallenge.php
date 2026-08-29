@@ -94,6 +94,8 @@ class CreateChallenge
      *                                                                                                                                        the timed-session step list; required when `$flowType` is `timed_session`, ignored otherwise
      * @param  ApprovalMode|null  $approvalMode  null keeps `manual`; `ai` additionally requires a non-empty `$approvalCriteria`
      * @param  string|null  $approvalCriteria  pre-screened criteria; never re-screened here — the floor is that it exists, not that it is trustworthy
+     * @param  int|null  $proofMediaMaxSeconds  cap on a voice/video submission's duration; required when the proof type or a step demands a recording, and never above the admin ceiling
+     * @param  int|null  $proofMediaMaxSizeKb  cap on a voice/video submission's size in KB, same requirements as the duration cap
      *
      * @throws InvalidArgumentException when the challenge could not be a coherent challenge
      * @throws NoEntitlementAvailableException when the creator holds no create-slot
@@ -115,6 +117,8 @@ class CreateChallenge
         ?array $steps = null,
         ?ApprovalMode $approvalMode = null,
         ?string $approvalCriteria = null,
+        ?int $proofMediaMaxSeconds = null,
+        ?int $proofMediaMaxSizeKb = null,
     ): Challenge {
         $title = trim($title);
         $description = $description === null ? null : trim($description);
@@ -148,6 +152,14 @@ class CreateChallenge
             $this->stepDesign->handle($periodType, $customPeriodDays, $startsAt, $timezone, $steps ?? []);
         }
 
+        [$proofMediaMaxSeconds, $proofMediaMaxSizeKb] = $this->assertMediaCaps(
+            $proofType,
+            $flowType,
+            $steps ?? [],
+            $proofMediaMaxSeconds,
+            $proofMediaMaxSizeKb,
+        );
+
         $startsAt = CarbonImmutable::instance($startsAt)->utc();
 
         $challenge = DB::transaction(function () use (
@@ -162,6 +174,8 @@ class CreateChallenge
             $proofType,
             $visibility,
             $proofIsPublic,
+            $proofMediaMaxSeconds,
+            $proofMediaMaxSizeKb,
             $defaultFreezes,
             $flowType,
             $steps,
@@ -195,6 +209,9 @@ class CreateChallenge
                 // proofs on a type that cannot honour it gets private ones
                 // rather than an error, because it is a display preference.
                 'proof_is_public' => $proofIsPublic && $proofType->supportsPublicProof(),
+
+                'proof_media_max_seconds' => $proofMediaMaxSeconds,
+                'proof_media_max_size_kb' => $proofMediaMaxSizeKb,
 
                 'default_freezes' => $defaultFreezes ?? $this->settings->integer(SettingKey::DefaultChallengeFreezes),
                 'status' => $startsAt->isFuture() ? ChallengeStatus::Scheduled : ChallengeStatus::Active,
@@ -231,6 +248,61 @@ class CreateChallenge
         }
 
         return $challenge;
+    }
+
+    /**
+     * The media caps a challenge needs, or a refusal when they are missing or
+     * beyond what the platform allows.
+     *
+     * Caps are required the moment a *recording* is involved: a voice or video
+     * proof type, or a video step. Image proof and voice steps are exempt —
+     * not because their bytes are free, but because they shipped without caps
+     * and the platform's promise to them is already made.
+     *
+     * A cap on a challenge that needs none degrades to null, exactly as a
+     * stray `approvalMode` does: the caller has built a working challenge
+     * with a stray parameter. A cap *on* a challenge that needs one may sit
+     * below the admin ceiling but never above it — the ceiling exists because
+     * disk is the platform's to run out of, not the creator's.
+     *
+     * @param  list<array{input_type: StepInputType, ...}>  $steps
+     * @return array{0: int|null, 1: int|null} the seconds and KB caps to store
+     *
+     * @throws InvalidArgumentException
+     */
+    private function assertMediaCaps(
+        ProofType $proofType,
+        FlowType $flowType,
+        array $steps,
+        ?int $seconds,
+        ?int $sizeKb,
+    ): array {
+        $wantsDuration = $proofType->expectsDuration()
+            || ($flowType === FlowType::TimedSession
+                && in_array(StepInputType::Video, array_column($steps, 'input_type'), true));
+
+        if (! $wantsDuration) {
+            return [null, null];
+        }
+
+        $ceilingSeconds = $this->settings->integer(SettingKey::ProofMediaMaxSeconds);
+        $ceilingKb = $this->settings->integer(SettingKey::ProofMediaMaxSizeKb);
+
+        foreach ([['duration', $seconds, $ceilingSeconds, 'seconds'], ['size', $sizeKb, $ceilingKb, 'KB']] as [$name, $value, $ceiling, $unit]) {
+            if ($value === null || $value < 1) {
+                throw new InvalidArgumentException(
+                    "A {$proofType->value} challenge needs a proof media {$name} cap; none was given.",
+                );
+            }
+
+            if ($value > $ceiling) {
+                throw new InvalidArgumentException(
+                    "The proof media {$name} cap may not exceed the admin ceiling of {$ceiling} {$unit}, got {$value}.",
+                );
+            }
+        }
+
+        return [$seconds, $sizeKb];
     }
 
     /**

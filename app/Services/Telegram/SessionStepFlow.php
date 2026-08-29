@@ -282,6 +282,13 @@ class SessionStepFlow
                 'seconds' => $refused->voiceSeconds,
                 'max' => $refused->voiceCeiling,
             ]),
+            // The video pair reuses the voice counters on the exception: they
+            // carry "how long it ran" and "how long it may run", which is the
+            // whole message either way.
+            SessionRejection::VideoTooLong => $this->messenger->line($user, 'bot.session.video_too_long', [
+                'seconds' => $refused->voiceSeconds,
+                'max' => $refused->voiceCeiling,
+            ]),
             SessionRejection::WrongStep, SessionRejection::SessionNotOpen => $this->messenger->line($user, 'bot.session.stale'),
             default => $this->messenger->line(
                 $user,

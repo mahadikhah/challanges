@@ -70,6 +70,16 @@ enum SettingKey: string
     */
     case AiApprovalConfidenceThreshold = 'ai_approval_confidence_threshold';
 
+    /*
+    | Voice/video proof media (§2.11). Storage is a real constraint on shared
+    | hosting: the two ceilings below are the most a creator may ask of a
+    | participant's recording, and the retention window is how long a decided
+    | submission's media file lives after the verdict.
+    */
+    case ProofMediaMaxSeconds = 'proof_media_max_seconds';
+    case ProofMediaMaxSizeKb = 'proof_media_max_size_kb';
+    case ProofMediaRetentionDays = 'proof_media_retention_days';
+
     /**
      * The value shape this setting accepts.
      */
@@ -192,6 +202,31 @@ enum SettingKey: string
             | failure mode that erodes trust fastest, so the bar sits high.
             */
             self::AiApprovalConfidenceThreshold => 80,
+
+            /*
+            | The ceiling a creator's duration cap may not exceed. Five
+            | minutes: long enough for a real demonstration, short enough that
+            | one participant's check-ins cannot quietly become the host's
+            | largest files. A creator may set their challenge lower, never
+            | higher — enforced server-side at creation.
+            */
+            self::ProofMediaMaxSeconds => 300,
+
+            /*
+            | The ceiling a creator's file-size cap may not exceed, in KB.
+            | Twenty megabytes matches what the Bot API will reliably fetch
+            | for a bot; anything larger is a download that fails as often as
+            | it succeeds, whatever the challenge asked for.
+            */
+            self::ProofMediaMaxSizeKb => 20_480,
+
+            /*
+            | How long a decided submission's media file is kept. Ninety days
+            | is long enough to settle any dispute about a verdict, and the
+            | decision record itself — status, reviewer, timestamps — is kept
+            | forever; only the bytes go.
+            */
+            self::ProofMediaRetentionDays => 90,
         };
     }
 }

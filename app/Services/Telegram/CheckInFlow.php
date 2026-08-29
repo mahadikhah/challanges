@@ -160,10 +160,20 @@ class CheckInFlow
             return;
         }
 
+        // Voice/video check-in conversations arrive with Phase 14 Task 5's
+        // capture flow; until then a recording-proof challenge reached through
+        // the bot gets the same honest "not proven that way" sentence rather
+        // than an unanswered match. The Mini App and admin panel submit through
+        // `SubmitCheckIn::uploadVoice()/uploadVideo()` regardless — the rule
+        // lives in the action, not in this surface.
         match ($challenge->proof_type) {
             ProofType::Button => $this->tap($user, $challenge),
             ProofType::TextAutogen => $this->askPhrase($user, $challenge),
             ProofType::ImageApproval => $this->askPhoto($user, $challenge),
+            ProofType::VoiceApproval, ProofType::VideoApproval => $this->messenger->send(
+                $user,
+                $this->messenger->line($user, 'bot.checkin.refused.wrong_proof_type', ['title' => $challenge->title]),
+            ),
         };
     }
 

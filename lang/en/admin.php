@@ -11,6 +11,7 @@ return [
             'baseline' => 'Free baseline & defaults',
             'access' => 'Access & tokens',
             'reminders' => 'Reminders',
+            'proofs' => 'Proof media',
         ],
 
         'keys' => [
@@ -30,6 +31,9 @@ return [
             'initdata_max_age_seconds' => 'initData maximum age (seconds)',
             'conversation_ttl_minutes' => 'Bot wizard lifetime (minutes)',
             'reminder_ending_lead_hours' => '“Period ending” lead (hours)',
+            'proof_media_max_seconds' => 'Recording duration ceiling (seconds)',
+            'proof_media_max_size_kb' => 'Recording size ceiling (KB)',
+            'proof_media_retention_days' => 'Proof media retention (days)',
         ],
 
         'value' => 'Value',

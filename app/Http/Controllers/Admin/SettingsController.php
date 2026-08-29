@@ -54,6 +54,11 @@ class SettingsController extends Controller
         'reminders' => [
             SettingKey::ReminderEndingLeadHours,
         ],
+        'proofs' => [
+            SettingKey::ProofMediaMaxSeconds,
+            SettingKey::ProofMediaMaxSizeKb,
+            SettingKey::ProofMediaRetentionDays,
+        ],
     ];
 
     public function __construct(private readonly Settings $settings) {}

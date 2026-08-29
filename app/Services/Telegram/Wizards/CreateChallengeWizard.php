@@ -104,6 +104,34 @@ class CreateChallengeWizard
     private const int STEP_LABEL_MAX = 120;
 
     /**
+     * The proof types and step inputs this wizard can build a working
+     * challenge for.
+     *
+     * A smaller list than the enums' full case lists, deliberately. The enum
+     * grows first (Phase 14 adds voice/video proof and video steps at the
+     * schema level); the wizard catches up when the bot can actually *collect*
+     * the new kind — a recording-proof challenge whose check-in conversation
+     * does not exist yet is a challenge no participant can satisfy, and
+     * offering it here would let a creator build one by accident. The wizard
+     * also asks for the media caps a recording proof requires, and that
+     * question arrives with the capture flow.
+     *
+     * @var list<ProofType>
+     */
+    private const array PROOF_TYPES = [
+        ProofType::Button,
+        ProofType::TextAutogen,
+        ProofType::ImageApproval,
+    ];
+
+    /** @var list<StepInputType> */
+    private const array STEP_INPUT_TYPES = [
+        StepInputType::Button,
+        StepInputType::Image,
+        StepInputType::Voice,
+    ];
+
+    /**
      * The zones offered as buttons.
      *
      * A curated list rather than all 400-odd IANA identifiers, which no inline
@@ -484,7 +512,7 @@ class CreateChallengeWizard
                 self::TODAY => $this->messenger->line($user, 'bot.wizard.today_button'),
                 self::TOMORROW => $this->messenger->line($user, 'bot.wizard.tomorrow_button'),
             ],
-            ConversationState::AwaitingProofType => $this->enumOptions($user, ProofType::cases()),
+            ConversationState::AwaitingProofType => $this->enumOptions($user, self::PROOF_TYPES),
             ConversationState::AwaitingApprovalMode => $this->enumOptions($user, ApprovalMode::cases()),
             ConversationState::AwaitingApprovalCriteriaConfirm => [
                 self::CONFIRM => $this->messenger->line($user, 'bot.wizard.criteria_accept_button'),
@@ -496,7 +524,7 @@ class CreateChallengeWizard
                 self::ADD_STEP => $this->messenger->line($user, 'bot.wizard.add_step_button'),
                 self::DONE_STEPS => $this->messenger->line($user, 'bot.wizard.done_steps_button'),
             ],
-            ConversationState::AwaitingStepInputType => $this->enumOptions($user, StepInputType::cases()),
+            ConversationState::AwaitingStepInputType => $this->enumOptions($user, self::STEP_INPUT_TYPES),
             ConversationState::AwaitingStepLabel => [
                 self::SKIP => $this->messenger->line($user, 'bot.wizard.skip_button'),
             ],
@@ -692,9 +720,10 @@ class CreateChallengeWizard
                 default => null,
             },
 
-            ConversationState::AwaitingProofType => ($proof = ProofType::tryFrom($value)) === null
-                ? null
-                : [ChallengeDraft::PROOF_TYPE => $proof->value],
+            ConversationState::AwaitingProofType => ($proof = ProofType::tryFrom($value)) !== null
+                && in_array($proof, self::PROOF_TYPES, true)
+                ? [ChallengeDraft::PROOF_TYPE => $proof->value]
+                : null,
 
             // `parseText`, not here: a typed criteria is the normal path and
             // the confirm step's two buttons are handled in `receiveChoice`.
@@ -708,9 +737,10 @@ class CreateChallengeWizard
                 ? null
                 : [ChallengeDraft::FLOW_TYPE => $flow->value],
 
-            ConversationState::AwaitingStepInputType => ($input = StepInputType::tryFrom($value)) === null
-                ? null
-                : [ChallengeDraft::PENDING_STEP => ['input_type' => $input->value]],
+            ConversationState::AwaitingStepInputType => ($input = StepInputType::tryFrom($value)) !== null
+                && in_array($input, self::STEP_INPUT_TYPES, true)
+                ? [ChallengeDraft::PENDING_STEP => ['input_type' => $input->value]]
+                : null,
 
             ConversationState::AwaitingStepLabel => $value === self::SKIP
                 ? $this->completePendingStep($draft, null)

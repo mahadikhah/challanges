@@ -145,6 +145,84 @@ class SubmitCheckIn
     }
 
     /**
+     * A voice message, stored and handed to the creator — the audio mirror
+     * of `uploadPhoto`, and reviewed the same way.
+     *
+     * `$seconds` is the duration the *surface* read off the payload (the
+     * bot from Telegram's `voice.duration`, the Mini App from the recorded
+     * file), and `$sizeKb` the size it measured. Both are checked against the
+     * challenge's own caps before anything is written, so an over-cap
+     * recording never becomes a submission the creator is asked to look at.
+     *
+     * @param  int|null  $sizeKb  null when the surface could not measure; the
+     *                            surface's own pre-download check is then the
+     *                            only size gate, which is why surfaces should
+     *                            always send it when they can
+     *
+     * @throws CheckInRejectedException
+     */
+    public function uploadVoice(User $actor, Challenge $challenge, string $path, int $seconds, ?int $sizeKb = null, ?CarbonInterface $now = null): CheckIn
+    {
+        return $this->uploadRecording($actor, $challenge, ProofType::VoiceApproval, $path, $seconds, $sizeKb, $now);
+    }
+
+    /**
+     * A video message — same shape, same caps, heavier bytes.
+     *
+     * @throws CheckInRejectedException
+     */
+    public function uploadVideo(User $actor, Challenge $challenge, string $path, int $seconds, ?int $sizeKb = null, ?CarbonInterface $now = null): CheckIn
+    {
+        return $this->uploadRecording($actor, $challenge, ProofType::VideoApproval, $path, $seconds, $sizeKb, $now);
+    }
+
+    /**
+     * The shared recording path: cap the media, then submit it for review.
+     *
+     * No AI verdict call here, deliberately: `approval_mode = ai` cannot be
+     * set on a recording-proof challenge yet (Tasks 3/4 generalize the
+     * reviewer), so calling it would be dead code that pretends to be a
+     * guarantee.
+     *
+     * @throws CheckInRejectedException
+     */
+    private function uploadRecording(
+        User $actor,
+        Challenge $challenge,
+        ProofType $offered,
+        string $path,
+        int $seconds,
+        ?int $sizeKb,
+        ?CarbonInterface $now,
+    ): CheckIn {
+        if (trim($path) === '') {
+            throw CheckInRejectedException::proofMissing($challenge);
+        }
+
+        if ($seconds > (int) $challenge->proof_media_max_seconds) {
+            throw CheckInRejectedException::mediaTooLong($challenge, $seconds);
+        }
+
+        if ($sizeKb !== null && $sizeKb > (int) $challenge->proof_media_max_size_kb) {
+            throw CheckInRejectedException::mediaTooLarge($challenge, $sizeKb);
+        }
+
+        $checkIn = $this->openSubmittable($actor, $challenge, $offered, $now);
+
+        $checkIn->update([
+            'status' => CheckInStatus::Submitted,
+            'proof_path' => $path,
+            'submitted_at' => now(),
+            // A resubmission after a rejection starts a fresh review, for the
+            // same reason a re-sent photo does.
+            'reviewed_by' => null,
+            'reviewed_at' => null,
+        ]);
+
+        return $checkIn->refresh();
+    }
+
+    /**
      * Settle as approved, insisting that it actually took.
      *
      * `SettleCheckIn::approve()` returns an already-settled row untouched by

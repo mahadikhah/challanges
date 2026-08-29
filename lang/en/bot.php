@@ -105,6 +105,8 @@ return [
             'awaiting_review' => 'Your check-in for “:title” is already waiting on the creator.',
             'wrong_proof_type' => '“:title” is not proven that way.',
             'proof_missing' => 'Nothing was sent.',
+            'media_too_long' => 'That recording is too long for “:title” — send a shorter one.',
+            'media_too_large' => 'That file is too big for “:title” — send a smaller one.',
         ],
 
         'review_refused' => [
@@ -126,6 +128,8 @@ return [
         'stale' => 'That step is no longer the one waiting. Send /checkin to see where the session is.',
         'too_early' => ':seconds seconds left — the wait is part of this challenge.',
         'voice_too_long' => 'That voice message is :seconds seconds long; this step accepts up to :max.',
+        'video_too_long' => 'That video is :seconds seconds long; this challenge accepts up to :max.',
+        'media_too_large' => 'That file is too big for this challenge — send a smaller one.',
         'store_error' => 'That could not be received. Please send it again.',
 
         'step_button' => 'Step :step of :total in “:title” — tap Next once :wait has passed since the step before it.',

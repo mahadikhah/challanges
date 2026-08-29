@@ -55,6 +55,19 @@ class ChallengeStepFactory extends Factory
     }
 
     /**
+     * A video step. Its duration and size caps live on the challenge, not the
+     * step — a recording challenge records one pair of caps for every kind of
+     * recording it accepts, so there is no per-step number to carry.
+     */
+    public function video(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'input_type' => StepInputType::Video,
+            'voice_max_seconds' => null,
+        ]);
+    }
+
+    /**
      * Position in the sequence; 1-based, as the session machinery expects.
      */
     public function atOrder(int $order): static

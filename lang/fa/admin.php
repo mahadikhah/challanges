@@ -15,6 +15,7 @@ return [
             'baseline' => 'پایه رایگان و پیش‌فرض‌ها',
             'access' => 'دسترسی و توکن‌ها',
             'reminders' => 'یادآورها',
+            'proofs' => 'رسانه‌های اثبات',
         ],
 
         'keys' => [
@@ -34,6 +35,9 @@ return [
             'initdata_max_age_seconds' => 'حداکثر عمر initData (ثانیه)',
             'conversation_ttl_minutes' => 'عمر ویزارد ربات (دقیقه)',
             'reminder_ending_lead_hours' => 'پیش‌گرفتی «نزدیک پایان دوره» (ساعت)',
+            'proof_media_max_seconds' => 'سقف مدت ضبط (ثانیه)',
+            'proof_media_max_size_kb' => 'سقف حجم ضبط (کیلوبایت)',
+            'proof_media_retention_days' => 'نگهداشت رسانه اثبات (روز)',
         ],
 
         'value' => 'مقدار',

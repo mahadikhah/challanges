@@ -39,7 +39,7 @@ it('shows every registry tunable, grouped, with its default and override state',
     $response->assertOk()->assertInertia(
         fn (AssertableInertia $page) => $page
             ->component('Admin/Settings')
-            ->has('settings', 15)
+            ->has('settings', 18)
             ->where('settings.0.key', 'invite_coin_reward')
             ->where('settings.0.type', 'integer')
             ->where('settings.0.group', 'economy')
@@ -57,7 +57,13 @@ it('shows every registry tunable, grouped, with its default and override state',
             ->where('settings.13.key', 'conversation_ttl_minutes')
             ->where('settings.13.group', 'access')
             ->where('settings.14.key', 'reminder_ending_lead_hours')
-            ->where('settings.14.group', 'reminders'),
+            ->where('settings.14.group', 'reminders')
+            // The proof-media trio: ceiling, ceiling, retention window.
+            ->where('settings.15.key', 'proof_media_max_seconds')
+            ->where('settings.15.group', 'proofs')
+            ->where('settings.16.key', 'proof_media_max_size_kb')
+            ->where('settings.17.key', 'proof_media_retention_days')
+            ->where('settings.17.value', SettingKey::ProofMediaRetentionDays->default()),
     );
 });
 

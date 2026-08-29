@@ -37,7 +37,13 @@ type PackageRow = {
     rial?: number;
 };
 
-const GROUPS = ['economy', 'baseline', 'access', 'reminders'] as const;
+const GROUPS = [
+    'economy',
+    'baseline',
+    'access',
+    'reminders',
+    'proofs',
+] as const;
 
 export default function Settings({ settings }: { settings: SettingRow[] }) {
     const { t } = useTranslation();

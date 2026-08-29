@@ -31,6 +31,8 @@ return [
         'button' => 'One tap',
         'text_autogen' => 'Type a phrase',
         'image_approval' => 'Photo, approved by the creator',
+        'voice_approval' => 'Voice message, approved by the creator',
+        'video_approval' => 'Video, approved by the creator',
     ],
 
     'approval_mode' => [
@@ -118,6 +120,7 @@ return [
         'button' => 'Button tap',
         'image' => 'Photo',
         'voice' => 'Voice message',
+        'video' => 'Video',
     ],
 
     'check_in_session_status' => [

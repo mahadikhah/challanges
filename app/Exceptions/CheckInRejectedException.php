@@ -110,6 +110,33 @@ class CheckInRejectedException extends RuntimeException
         );
     }
 
+    /**
+     * A recording outran the challenge's own duration cap.
+     *
+     * The counts travel on the exception so a surface can render "this
+     * challenge accepts up to N seconds" in the participant's language,
+     * exactly as `SessionRejectedException` carries its seconds.
+     */
+    public static function mediaTooLong(Challenge $challenge, int $seconds): self
+    {
+        return new self(
+            CheckInRejection::MediaTooLong,
+            null,
+            "Challenge {$challenge->id} accepts proof media of at most "
+            ."{$challenge->proof_media_max_seconds} seconds; {$seconds} arrived.",
+        );
+    }
+
+    public static function mediaTooLarge(Challenge $challenge, int $sizeKb): self
+    {
+        return new self(
+            CheckInRejection::MediaTooLarge,
+            null,
+            "Challenge {$challenge->id} accepts proof media of at most "
+            ."{$challenge->proof_media_max_size_kb} KB; {$sizeKb} KB arrived.",
+        );
+    }
+
     public static function notTheReviewer(CheckIn $checkIn): self
     {
         return new self(

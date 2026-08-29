@@ -31,6 +31,8 @@ return [
         'button' => 'یک لمس',
         'text_autogen' => 'نوشتن یک عبارت',
         'image_approval' => 'عکس، با تأیید سازنده',
+        'voice_approval' => 'پیام صوتی، با تأیید سازنده',
+        'video_approval' => 'ویدیو، با تأیید سازنده',
     ],
 
     'approval_mode' => [
@@ -118,6 +120,7 @@ return [
         'button' => 'دکمه',
         'image' => 'عکس',
         'voice' => 'پیام صوتی',
+        'video' => 'ویدیو',
     ],
 
     'check_in_session_status' => [

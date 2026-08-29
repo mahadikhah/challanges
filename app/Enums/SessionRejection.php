@@ -41,6 +41,16 @@ enum SessionRejection: string
     /** The voice message ran past the step's cap; a shorter one must be sent. */
     case VoiceTooLong = 'voice_too_long';
 
+    /**
+     * A video ran past the challenge's duration cap. Video steps have no cap
+     * of their own — the challenge's `proof_media_max_seconds` is the limit,
+     * so a shorter recording must be sent.
+     */
+    case VideoTooLong = 'video_too_long';
+
+    /** A file exceeded the challenge's size cap; a smaller one must be sent. */
+    case MediaTooLarge = 'media_too_large';
+
     /** The step demands media or a duration and none arrived. */
     case SubmissionMissing = 'submission_missing';
 

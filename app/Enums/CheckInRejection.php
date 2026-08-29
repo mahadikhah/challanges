@@ -74,6 +74,19 @@ enum CheckInRejection: string
     case ProofMissing = 'proof_missing';
 
     /**
+     * A recording ran past the challenge's duration cap. The participant is
+     * asked to send a shorter one — the cap is the challenge's own, chosen
+     * under the admin ceiling at creation.
+     */
+    case MediaTooLong = 'media_too_long';
+
+    /**
+     * A file exceeded the challenge's size cap. Same conversation as
+     * `MediaTooLong`: resend smaller, nothing was stored.
+     */
+    case MediaTooLarge = 'media_too_large';
+
+    /**
      * The reviewer does not own this challenge. Platform admins are exempt;
      * nobody else reviews somebody else's challenge.
      */

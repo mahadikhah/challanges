@@ -38,3 +38,9 @@ Schedule::command('sanctum:prune-expired')->daily();
 // Close out invoice links nobody paid, so the payments audit stays a list of
 // purchases rather than a landfill of abandoned carts.
 Schedule::command('payments:sweep-abandoned')->daily();
+
+// Enforce the proof-media retention window: delete the media of decided
+// submissions past it, keeping the decision records forever. Voice/video
+// proof is the platform's heaviest stored bytes, and shared hosting has a
+// disk quota.
+Schedule::command('challenges:prune-proof-media')->daily();

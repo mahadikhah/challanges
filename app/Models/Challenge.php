@@ -39,6 +39,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $approval_criteria
  * @property FlowType $flow_type
  * @property bool $proof_is_public
+ * @property int|null $proof_media_max_seconds
+ * @property int|null $proof_media_max_size_kb
  * @property int $default_freezes
  * @property ChallengeStatus $status
  * @property CarbonImmutable|null $announced_at
@@ -64,6 +66,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'approval_criteria',
     'flow_type',
     'proof_is_public',
+    'proof_media_max_seconds',
+    'proof_media_max_size_kb',
     'default_freezes',
     'status',
     'announced_at',
@@ -246,6 +250,8 @@ class Challenge extends Model
             'approval_mode' => ApprovalMode::class,
             'flow_type' => FlowType::class,
             'proof_is_public' => 'boolean',
+            'proof_media_max_seconds' => 'integer',
+            'proof_media_max_size_kb' => 'integer',
             'default_freezes' => 'integer',
             'status' => ChallengeStatus::class,
             'announced_at' => 'datetime',
