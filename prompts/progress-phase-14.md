@@ -142,3 +142,96 @@ intentional accommodation of the tightening.
   must make the video toggle honestly disableable when neither path exists.
 - Task 5: bot/Mini App capture surfaces and review UI.
 
+
+## Task 3 — AI review for voice proof (`feat(ai)`, 2026-08-29)
+
+**What shipped.** Voice proof joins image in AI review — on both call sites, through
+one shared verdict router. `ReviewProofWithAi` is now media-type-aware; a voice
+recording is **transcribed first, then judged as a transcript** — verified against the
+vendored `laravel/ai` SDK that no catalog driver accepts audio as a chat attachment
+(only Gemini/OpenRouter do, and they are not in `AiDriverCatalog`), while a first-class
+`Transcription` pipeline exists. The path taken is recorded per decision.
+
+- `AiReviewPath` enum (`attachment` | `transcript`) + nullable `review_path`,
+  `transcript` columns on `ai_approval_decisions` (nullable deliberately: Phase 10's
+  image rows predate the distinction).
+- `BuildProofModerationPrompt`: `systemPrompt(ProofType)` (voice gets its own
+  platform-authored system prompt — criteria AND transcript both tagged untrusted
+  data, plus a "a garble is not a lie" mercy clause for STT noise) and
+  `transcriptPrompt()` with `<criteria>` + `<transcript>` fences. What the participant
+  *said* is an injection surface and gets the same fence discipline as creator
+  criteria.
+- `ReviewProofWithAi`: the STT call runs **inside the chain's attempt closure** — same
+  account, same budget reservation, same rotation. An empty transcript throws to fail
+  the attempt rather than asking a verdict about a recording nobody heard. Voice rows
+  get `review_path = transcript` + truncated transcript; image rows get `attachment`.
+- `AiTextClient::transcribe()` + `LaravelAiTextClient` via
+  `Transcription::of(StoredAudio)`; `AiDriverCatalog::supportsTranscription()/
+  transcriptionModelFor()`; `AiProviderConfig::toConnectionConfig()` registers
+  `models.transcription.default = whisper-1` for `openai_compatible` (the provider
+  throws without it).
+- **Timed sessions on ai-mode challenges** (`AdvanceCheckInStep`): the final step's
+  last proof-bearing submission opens the check-in, attaches the media, sets
+  `Submitted`, and hands it to the one shared `ApplyAiVerdict` **outside the
+  transaction** (multi-second HTTP under a row lock is how every worker deadlocks).
+  Approve → session completes through the ordinary `CompleteCheckInSession` (its
+  approve is an idempotent no-op on the settled row); reject/fallback → session
+  bookkeeping only, *without* the bundled approval, because `CompleteCheckInSession`
+  would approve a row the verdict deliberately left open. `SettleCheckIn` and
+  `CompleteCheckInSession` themselves are untouched, per the code rules.
+- `ProofType::supportsAiReview()` (image+voice yes, video no until Task 4) — separate
+  from the admin gate because "admin allows" ≠ "platform built". `ApplyAiVerdict`
+  routes allowed-but-unbuilt (video) to the manual queue, not an error: a
+  participant's submission must not fail for an admin's optimism.
+- `SubmitCheckIn::uploadRecording()` now runs the shared verdict for voice (video is
+  Task 4). `SessionStepFlow` says `bot.session.submitted_for_review` (en+fa) when a
+  completed session's check-in is still undecided, instead of claiming "confirmed".
+- Admin settings voice capability readout answers from real rows: a moderation
+  account whose driver can transcribe. Video stays `null` ("not yet checked") until
+  Task 4.
+
+### Judgement calls
+
+- **Transcribe-then-evaluate, not native audio** — recorded in code docblocks: no
+  catalog driver maps audio into a chat message, so there is no "send audio if the
+  provider accepts it" path to build. `AiReviewPath` records which path a decision
+  took so a future native-audio driver can be adopted per account.
+- **STT inside the chain** — shares the account's budget reservation and rotation; an
+  outage at transcription rotates accounts exactly like a chat-leg outage.
+- **Two endings for the final step** — the ordinary completion approves; the
+  AI-reviewed one must not, since the verdict may reject. Rejection keeps the session
+  honestly Completed (the steps were genuinely run) with the check-in resubmittable
+  until the period closes.
+
+### Tests
+
+New `tests/Feature/Ai/VoiceProofModerationTest.php` (8) — simple call site: STT-first
+prompt shape (`VOICE_SYSTEM_PROMPT`, `<transcript>` fence, no `image_url`,
+`review_path = transcript`, transcript stored); spoken-injection fenced; approve =
+manual-approval downstream state (streak, `reviewed_by` null); reject + resubmit;
+below-threshold → manual queue (`FellBack`); STT failure → manual queue with zero
+`chat/completions` requests; voice gate off → zero provider calls and zero decision
+rows; video gate flipped early → manual queue. New
+`tests/Feature/Domain/SessionAiReviewTest.php` (7) — session call site: approve
+settles + completes through the ordinary path; reject lands resubmittable with the
+session honestly closed; below-threshold and provider-outage → manual queue; gate
+withdrawn mid-run → manual queue with zero provider calls; manual-mode sessions
+byte-for-byte unchanged; multi-step designs review the last proof-bearing submission
+(not the button tap). Updated `SettingsPanelTest` (voice capability now answers `false`
+with no accounts / `true` with a transcription-capable one) and `AiProviderRotationTest`
+(`models.transcription.default` is an intentional, non-leaked key in connection
+configs).
+
+**Trap found while testing:** the Domain concurrency suites use `DatabaseTruncation`,
+which truncates every table *without re-seeding* — and the `ai_capabilities` rows are
+migration-seeded. Any test running after them that expects the seeded row dies;
+the Ai/ suites survive only because alphabetical discovery puts them first. The two
+files that look the capability up by key now use `firstOrCreate` (the migration's own
+idempotent shape) instead of `firstOrFail`.
+
+### Left for later tasks
+
+- Task 4: video AI review, environment-capability-aware (native video bytes vs
+  ffmpeg frame sampling); feeds the video capability readout; the video toggle must
+  disable honestly when neither path works.
+- Task 5: bot/Mini App capture & review UI for voice/video.

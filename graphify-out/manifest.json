@@ -1250,8 +1250,8 @@
     "semantic_hash": ""
   },
   "app/Enums/ProofType.php": {
-    "mtime": 1787990814.1752496,
-    "ast_hash": "b06b402ec18c9b9a24301a962a6c3a43",
+    "mtime": 1787992453.669176,
+    "ast_hash": "f5a4045728806d244066b57f2ec7724a",
     "semantic_hash": ""
   },
   "app/Models/Challenge.php": {
@@ -1655,8 +1655,8 @@
     "semantic_hash": ""
   },
   "app/Actions/CheckIns/SubmitCheckIn.php": {
-    "mtime": 1787982795.1723108,
-    "ast_hash": "bbb249481561989b0a39a118daf7c8a9",
+    "mtime": 1787992770.647123,
+    "ast_hash": "c55d153e0b5578194e9935c8b3cef96e",
     "semantic_hash": ""
   },
   "app/Enums/CheckInRejection.php": {
@@ -1800,13 +1800,13 @@
     "semantic_hash": ""
   },
   "lang/en/bot.php": {
-    "mtime": 1787991036.2023456,
-    "ast_hash": "39778dea23c313d300869799b6e9bb62",
+    "mtime": 1787992883.9440467,
+    "ast_hash": "8bbaf759afa65c6fdb77403eab0a8bbe",
     "semantic_hash": ""
   },
   "lang/fa/bot.php": {
-    "mtime": 1787991038.1513205,
-    "ast_hash": "a9623abdeb0e595dd69411eaedcc5003",
+    "mtime": 1787992883.994057,
+    "ast_hash": "63c3c2f209e0bf5307825645d5eaddbb",
     "semantic_hash": ""
   },
   "tests/Feature/Bot/ChannelGateTest.php": {
@@ -2250,8 +2250,8 @@
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/SettingsController.php": {
-    "mtime": 1787991258.1734805,
-    "ast_hash": "9a4bb73e90bbfd04a03080076b361728",
+    "mtime": 1787992925.581224,
+    "ast_hash": "c3799f4f2317b44409f4c7d5897c8270",
     "semantic_hash": ""
   },
   "app/Http/Middleware/EnsureUserIsAdmin.php": {
@@ -2280,8 +2280,8 @@
     "semantic_hash": ""
   },
   "tests/Feature/Admin/SettingsPanelTest.php": {
-    "mtime": 1787991449.582023,
-    "ast_hash": "b37513ad31a791eecbc4ce2567e2a12e",
+    "mtime": 1787994269.6288,
+    "ast_hash": "f1f16b7a36c9de8a41da82a38ad1dcf2",
     "semantic_hash": ""
   },
   "app/Actions/Challenges/CancelChallenge.php": {
@@ -2655,8 +2655,8 @@
     "semantic_hash": ""
   },
   "app/Actions/CheckIns/AdvanceCheckInStep.php": {
-    "mtime": 1787982850.6681693,
-    "ast_hash": "cf8c54f80e0240222b4a58a0fed711db",
+    "mtime": 1787992852.690506,
+    "ast_hash": "2509bce91864651fda12c662f681ef8c",
     "semantic_hash": ""
   },
   "app/Actions/CheckIns/CompleteCheckInSession.php": {
@@ -2705,8 +2705,8 @@
     "semantic_hash": ""
   },
   "app/Services/Telegram/SessionStepFlow.php": {
-    "mtime": 1787983177.363209,
-    "ast_hash": "b7820084187932a32e2bd2274d31cf61",
+    "mtime": 1787992899.251122,
+    "ast_hash": "10cf4c44213666666139c3c87faa0f19",
     "semantic_hash": ""
   },
   "tests/Feature/Bot/TimedSessionBotTest.php": {
@@ -2815,8 +2815,8 @@
     "semantic_hash": ""
   },
   "app/Services/Ai/AiDriverCatalog.php": {
-    "mtime": 1787950707.4495347,
-    "ast_hash": "5d8682abd2aa6f16adaf7cb7abfedabd",
+    "mtime": 1787992458.125119,
+    "ast_hash": "f29c54c1ee0d21a0742f4f5523aeea97",
     "semantic_hash": ""
   },
   "app/Services/Ai/AiLimit.php": {
@@ -2850,8 +2850,8 @@
     "semantic_hash": ""
   },
   "app/Services/Ai/AiProviderConfig.php": {
-    "mtime": 1787950340.473572,
-    "ast_hash": "9bda9d16d0ebae6c84c43d34164f7b07",
+    "mtime": 1787993014.1597822,
+    "ast_hash": "b92d0734249e89e5720ba81a19eb47e8",
     "semantic_hash": ""
   },
   "app/Services/Ai/AiQuotaService.php": {
@@ -2860,8 +2860,8 @@
     "semantic_hash": ""
   },
   "app/Services/Ai/AiTextClient.php": {
-    "mtime": 1787957362.1075642,
-    "ast_hash": "f6acda450cd00eb5ca4104f3edd83fcd",
+    "mtime": 1787992480.0068393,
+    "ast_hash": "71681825b23d7c9163d090fc3fee6322",
     "semantic_hash": ""
   },
   "app/Services/Ai/AiTextResult.php": {
@@ -2900,8 +2900,8 @@
     "semantic_hash": ""
   },
   "app/Services/Ai/LaravelAiTextClient.php": {
-    "mtime": 1787957390.68593,
-    "ast_hash": "1f0600ba7c5304382815a4addd8e5b33",
+    "mtime": 1787992540.5700648,
+    "ast_hash": "0a757976ee6c503dfc10b26ecacc3bf8",
     "semantic_hash": ""
   },
   "config/ai_usage.php": {
@@ -2960,8 +2960,8 @@
     "semantic_hash": ""
   },
   "tests/Feature/Ai/AiProviderRotationTest.php": {
-    "mtime": 1787952184.5130546,
-    "ast_hash": "fc1d302b5d63af0e285f8108834c533b",
+    "mtime": 1787994086.4241867,
+    "ast_hash": "ab6e12f74795c3cefecc4e5243c56f9d",
     "semantic_hash": ""
   },
   "tests/Feature/Ai/AiQuotaLedgerTest.php": {
@@ -3050,18 +3050,18 @@
     "semantic_hash": ""
   },
   "app/Actions/Ai/ApplyAiVerdict.php": {
-    "mtime": 1787990853.8217263,
-    "ast_hash": "77477c32d8ce5437c8a2f553dd18fe69",
+    "mtime": 1787992757.4822915,
+    "ast_hash": "46dc855b32c84f77b4228c47288ff02a",
     "semantic_hash": ""
   },
   "app/Actions/Ai/BuildProofModerationPrompt.php": {
-    "mtime": 1787957361.053475,
-    "ast_hash": "4dde9df1da4650625d365299684c423d",
+    "mtime": 1787992581.853537,
+    "ast_hash": "f346f92a270b21c14b66a7d835d4c07f",
     "semantic_hash": ""
   },
   "app/Actions/Ai/ReviewProofWithAi.php": {
-    "mtime": 1787955266.1766603,
-    "ast_hash": "f983f7bfcbf9f9348d9794f5a2dbfdb5",
+    "mtime": 1787992676.5163267,
+    "ast_hash": "e2c7e2603a86a8e27b57a919aa92081c",
     "semantic_hash": ""
   },
   "app/Actions/CheckIns/OverrideCheckInVerdict.php": {
@@ -3080,8 +3080,8 @@
     "semantic_hash": ""
   },
   "app/Models/AiApprovalDecision.php": {
-    "mtime": 1787955045.0455444,
-    "ast_hash": "20621fdb16b78b34fc3991ad368eae29",
+    "mtime": 1787992446.3502696,
+    "ast_hash": "f847d4f4108772968964db965de7b24c",
     "semantic_hash": ""
   },
   "database/migrations/2026_08_29_100000_create_ai_approval_decisions_table.php": {
@@ -3260,8 +3260,28 @@
     "semantic_hash": ""
   },
   "prompts/progress-phase-14.md": {
-    "mtime": 1787990520.6852434,
-    "ast_hash": "b2198b8993af72b4a4d37fd519676737",
+    "mtime": 1787991609.0059803,
+    "ast_hash": "b17fe29f551e7b15f0e9b66134716481",
+    "semantic_hash": ""
+  },
+  "app/Enums/AiReviewPath.php": {
+    "mtime": 1787992434.9224157,
+    "ast_hash": "0024fc152093957eb9bafacc56dada26",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_29_160000_add_review_path_to_ai_approval_decisions_table.php": {
+    "mtime": 1787992437.7593794,
+    "ast_hash": "02e9530dbca9d8d22d0d8472d6a62c24",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Ai/VoiceProofModerationTest.php": {
+    "mtime": 1787994270.1218164,
+    "ast_hash": "8b2b99b0b89f806749ecb4a23f2a4303",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Domain/SessionAiReviewTest.php": {
+    "mtime": 1787994270.404826,
+    "ast_hash": "ee44078e79752185c6cf044708fc1d08",
     "semantic_hash": ""
   }
 }
