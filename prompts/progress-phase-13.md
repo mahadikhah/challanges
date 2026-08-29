@@ -123,3 +123,44 @@ identifiers a Log Viewer search needs:
 - **`Challenge::periods()` composite ordering:** the relation carries its own `orderBy('index')`, so
   `->orderByDesc('index')` on top yields `order by index asc, index desc` — **ASC wins**. Load the collection
   and use `->first()`/`->last()` instead of composing a second order.
+
+## Task 3 — Scheduler heartbeat + optional external dead-man's-switch
+
+**Status: complete**
+
+### What landed
+
+- **`scheduler_heartbeats` table + `SchedulerHeartbeat` model** — one row (`key` unique, default
+  `scheduler`), `last_ran_at` stamped every minute. A dedicated table, deliberately not a cache entry
+  (the database cache driver loses rows on any `cache:clear` — exactly when someone is debugging and a
+  false "cron never ran" alarm hurts most) and not a `settings` override (that registry is admin
+  tunables, not runtime state).
+- **`observability:heartbeat` command** (`app/Console/Commands/Observability/RecordHeartbeat.php`) →
+  `RecordSchedulerHeartbeat` action, scheduled `everyMinute()` in `routes/console.php`. Only cron can
+  run it, so its success *is* the evidence cron is alive.
+- **`QueueHealth`** (`app/Actions/Observability/QueueHealth.php`) — read-only snapshot over Laravel's own
+  `jobs`/`failed_jobs` tables: pending count, oldest-pending age (a backlog five seconds old is a busy
+  minute; one job four hours old is a stuck worker), failed count; plus the scheduler's last stamp.
+- **Optional external ping** — `services.healthcheck.ping_url` from `HEALTHCHECK_PING_URL`
+  (`.env`/`.env.example`, unset by default = strict no-op, asserted with `Http::preventStrayRequests`).
+  Fires **after** the stamp; non-2xx or unreachable logs a §2.10 warning (`ping_url`, `status`/`reason`)
+  and never breaks the stamp or the command's exit code. The only mechanism that can detect **total
+  cron failure**, documented in the action's docblock: a dead cron silences every schedule entry
+  including the heartbeat itself, so only an outside monitor noticing the pings stopped can say so.
+- **`heartbeat_staleness_minutes` Setting** (default 5) wired into the admin panel's observability
+  group (enum case + default, controller group, en/fa labels); `SettingsPanelTest` count 25 → 26.
+
+### Tests
+
+`tests/Feature/Observability/SchedulerHeartbeatTest.php` — stamp advances across two `travel()`ed runs
+and stays **one row**; no outbound call when unset (plus the staleness default comes from the registry);
+a 500 from the monitor leaves the stamp written, the command successful, and a warning logged;
+`QueueHealth` reads seeded `jobs`/`failed_jobs` exactly; empty tables answer zeros/null (never-ran
+scheduler is null, which every reader treats as stale — not healthy).
+
+### Notes
+
+- `jobs.available_at` is a raw Unix-integer column; `QueueHealth` converts to a `CarbonInterval` so
+  callers never touch the integer.
+- The model stamps its `key` default via `booted()`; factory carries a `ranMinutesAgo()` state for
+  Task 4/5 staleness tests.
