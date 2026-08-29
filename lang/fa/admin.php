@@ -47,6 +47,7 @@ return [
             'ai_approval_confidence_threshold' => 'آستانه اطمینان تصمیم هوش مصنوعی (٪)',
             'telescope_slow_query_ms' => 'آستانه کوئری کندِ Telescope (میلی‌ثانیه)',
             'telescope_prune_hours' => 'نگهداشت Telescope (ساعت)',
+            'heartbeat_staleness_minutes' => 'آستانه کهنگی ضربان زمان‌بند (دقیقه)',
         ],
 
         'capability_available' => 'قابلیت زیربنایی ارائه‌دهنده: موجود است.',

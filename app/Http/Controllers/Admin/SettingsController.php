@@ -74,6 +74,7 @@ class SettingsController extends Controller
         'observability' => [
             SettingKey::TelescopeSlowQueryMs,
             SettingKey::TelescopePruneHours,
+            SettingKey::HeartbeatStalenessMinutes,
         ],
     ];
 

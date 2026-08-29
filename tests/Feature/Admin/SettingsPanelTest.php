@@ -42,7 +42,7 @@ it('shows every registry tunable, grouped, with its default and override state',
     $response->assertOk()->assertInertia(
         fn (AssertableInertia $page) => $page
             ->component('Admin/Settings')
-            ->has('settings', 25)
+            ->has('settings', 26)
             ->where('settings.0.key', 'invite_coin_reward')
             ->where('settings.0.type', 'integer')
             ->where('settings.0.group', 'economy')

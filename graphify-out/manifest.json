@@ -165,8 +165,8 @@
     "semantic_hash": "f98ce92e7bf51db1fabaf8a30e12fc5a"
   },
   "config/services.php": {
-    "mtime": 1787979468.027854,
-    "ast_hash": "7b26c0788b473af8dd1751f09c7f8f25",
+    "mtime": 1788014742.4795525,
+    "ast_hash": "b0e3914b33592af8338774b39298bec6",
     "semantic_hash": ""
   },
   "config/session.php": {
@@ -620,8 +620,8 @@
     "semantic_hash": ""
   },
   "routes/console.php": {
-    "mtime": 1788011740.922529,
-    "ast_hash": "bf730a9c6449df5c32d86cbd03c844f2",
+    "mtime": 1788014660.2019844,
+    "ast_hash": "1560bd30d36c4d3313adf969cb87f92e",
     "semantic_hash": ""
   },
   "routes/settings.php": {
@@ -1185,8 +1185,8 @@
     "semantic_hash": ""
   },
   "app/Enums/SettingKey.php": {
-    "mtime": 1788009127.9884171,
-    "ast_hash": "602b6b5303818263b2c5ff2d1b230fbd",
+    "mtime": 1788014712.2057369,
+    "ast_hash": "6d5d2f88c9dd140f1e7ca911421ee628",
     "semantic_hash": ""
   },
   "app/Enums/SettingType.php": {
@@ -2250,8 +2250,8 @@
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/SettingsController.php": {
-    "mtime": 1788009257.5434666,
-    "ast_hash": "36b66e9ea80708f74863133aa3d0a6d2",
+    "mtime": 1788014743.2405238,
+    "ast_hash": "ef8fee410e806c48d1f5252ad475a596",
     "semantic_hash": ""
   },
   "app/Http/Middleware/EnsureUserIsAdmin.php": {
@@ -2265,13 +2265,13 @@
     "semantic_hash": ""
   },
   "lang/en/admin.php": {
-    "mtime": 1788009266.8566885,
-    "ast_hash": "39743e0e80b770a87823321837b40b61",
+    "mtime": 1788014756.2130437,
+    "ast_hash": "f584e0756ffdcb3136a07da8170af075",
     "semantic_hash": ""
   },
   "lang/fa/admin.php": {
-    "mtime": 1788009285.0302138,
-    "ast_hash": "9ce7bc0a8663d201a74ea885faaf8ee3",
+    "mtime": 1788014756.2130437,
+    "ast_hash": "384816ee7269fba25be15eb1a1d8ffa1",
     "semantic_hash": ""
   },
   "resources/js/pages/Admin/Settings.tsx": {
@@ -2280,8 +2280,8 @@
     "semantic_hash": ""
   },
   "tests/Feature/Admin/SettingsPanelTest.php": {
-    "mtime": 1788010877.5696385,
-    "ast_hash": "db596b34c3d9f75b71e78f41dd2760a3",
+    "mtime": 1788014790.3078525,
+    "ast_hash": "aa93b312404d30bbd8f1be89e0829c95",
     "semantic_hash": ""
   },
   "app/Actions/Challenges/CancelChallenge.php": {
@@ -3435,8 +3435,8 @@
     "semantic_hash": ""
   },
   "prompts/progress-phase-13.md": {
-    "mtime": 1788012074.0638635,
-    "ast_hash": "bb398a1f6173447d35a3277c521e3cb3",
+    "mtime": 1788014444.055855,
+    "ast_hash": "a5f18b9d2c95d15cc32fe6d4489699c8",
     "semantic_hash": ""
   },
   "public/vendor/log-viewer/app.js.LICENSE.txt": {
@@ -3457,6 +3457,41 @@
   "public/vendor/log-viewer/img/log-viewer-64.png": {
     "mtime": 1788012162.021496,
     "ast_hash": "4ee9cfa460121415f47550858fc05679",
+    "semantic_hash": ""
+  },
+  "app/Actions/Observability/QueueHealth.php": {
+    "mtime": 1788014649.152499,
+    "ast_hash": "9d8bb2888c4511fa70f034cc12189e76",
+    "semantic_hash": ""
+  },
+  "app/Actions/Observability/RecordSchedulerHeartbeat.php": {
+    "mtime": 1788014838.99332,
+    "ast_hash": "22a7493121537efbf8422aaf39f4f06d",
+    "semantic_hash": ""
+  },
+  "app/Console/Commands/Observability/RecordHeartbeat.php": {
+    "mtime": 1788014658.5110624,
+    "ast_hash": "49714f826d05635d787bb2e629827f44",
+    "semantic_hash": ""
+  },
+  "app/Models/SchedulerHeartbeat.php": {
+    "mtime": 1788015058.424443,
+    "ast_hash": "913f7b8971254cd8b26e4c05fb5e3b65",
+    "semantic_hash": ""
+  },
+  "database/factories/SchedulerHeartbeatFactory.php": {
+    "mtime": 1788015007.1723244,
+    "ast_hash": "2e61c0b3a9010065d8cd2ef0de663211",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_29_170000_create_scheduler_heartbeats_table.php": {
+    "mtime": 1788014565.521854,
+    "ast_hash": "02dd9af86ddb386f08aa352f5ad6a2d2",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Observability/SchedulerHeartbeatTest.php": {
+    "mtime": 1788014906.4054947,
+    "ast_hash": "53147981df5b8de0287a50a0b1b19adb",
     "semantic_hash": ""
   }
 }

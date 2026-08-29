@@ -102,6 +102,12 @@ enum SettingKey: string
     case TelescopeSlowQueryMs = 'telescope_slow_query_ms';
     case TelescopePruneHours = 'telescope_prune_hours';
 
+    /*
+    | How stale the scheduler's heartbeat stamp may get before a reader calls
+    | cron unhealthy. Cron runs every minute; the slack absorbs host jitter.
+    */
+    case HeartbeatStalenessMinutes = 'heartbeat_staleness_minutes';
+
     /**
      * The value shape this setting accepts.
      */
@@ -278,6 +284,13 @@ enum SettingKey: string
             | a disk quota".
             */
             self::TelescopePruneHours => 72,
+
+            /*
+            | Cron runs every minute, so a stamp older than five minutes means
+            | ticks are being missed — generous enough for shared-hosting
+            | jitter, tight enough that a dead cron is caught the same hour.
+            */
+            self::HeartbeatStalenessMinutes => 5,
         };
     }
 }

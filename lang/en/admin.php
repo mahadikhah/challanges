@@ -43,6 +43,7 @@ return [
             'ai_approval_confidence_threshold' => 'AI decision confidence threshold (%)',
             'telescope_slow_query_ms' => 'Telescope slow-query bar (milliseconds)',
             'telescope_prune_hours' => 'Telescope retention (hours)',
+            'heartbeat_staleness_minutes' => 'Scheduler heartbeat staleness bar (minutes)',
         ],
 
         'capability_available' => 'Underlying provider capability: available.',

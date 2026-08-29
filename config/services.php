@@ -104,4 +104,18 @@ return [
         'provider_token' => env('BALE_PROVIDER_TOKEN'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Healthcheck ping (§2.10 dead-man's switch)
+    |--------------------------------------------------------------------------
+    | The one mechanism that can detect total cron failure: an external
+    | monitor that alerts when our pings STOP. Unset by default — a deploy
+    | without it must behave identically to one where the feature does not
+    | exist, so this stays nullable and the heartbeat no-ops when it is.
+    |
+    */
+    'healthcheck' => [
+        'ping_url' => env('HEALTHCHECK_PING_URL'),
+    ],
+
 ];
