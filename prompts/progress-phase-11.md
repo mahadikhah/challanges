@@ -120,3 +120,70 @@ assumes; if any is wrong, the code built on it is wrong.
    `https://ble.ir/<bot_username>?start=<token>`. The SDK runs against Bale with
    `new Api($token, false, null, 'https://tapi.bale.ai/bot')` (base URL via constructor only —
    `setBaseBotUrl()` mangles the `/bot` suffix).
+
+## Task 2 — Bale bot integration (delivered)
+
+**What landed** (commit `feat(bot): Bale messenger platform — second bot surface alongside Telegram`):
+
+- `App\Messaging\PlatformRegistry` — the one place a `MessagingPlatform` case becomes an implementation
+  class. A `match` with **no default arm**: a platform added to the enum without an implementation is a
+  fatal at resolution, not a silent fallthrough to the wrong bot. The old
+  `MessengerPlatform → TelegramMessengerPlatform` container binding is **gone**; nothing can resolve
+  "the platform" without naming whose platform it is.
+- `App\Messaging\Bale\BaleMessengerPlatform` — full contract implementation. SDK constructor
+  `baseBotUrl: 'https://tapi.bale.ai/bot'` (never `setBaseBotUrl()`), same `LaravelHttpClient` transport
+  so `Http::fake()` sees every call. `createInvoiceLink`/`refundPayment` throw
+  `MessengerException('Bale Pay is not wired yet (Phase 11 Task 3)…')` — refuse loudly, never pretend.
+- Platform facts as **enum methods** on `MessagingPlatform` (`requiredChannelSetting()`,
+  `channelUrl()`, `startLink()`, `supportsNativePayments()`) — this is how the task's "no Bale-specific
+  branches inside Actions" constraint was met: the Actions ask the enum, the enum knows.
+- Migrations: `telegram_updates` unique `(platform, update_id)`; `challenge_chats` gains `platform` with
+  unique `(challenge_id, platform, telegram_chat_id)`.
+- Bale webhook: `routes/bale.php` + `BaleWebhookRequest` (path secret via `hash_equals`, **fail-closed**
+  when unconfigured, 404 not 403 so a probe can't distinguish wrong-secret from unrouted) +
+  `BaleWebhookController` (record → queue → 200, same contract as Telegram's).
+- Swept every Telegram hardcoding to the seam: `ResolveTelegramUser` (platform param, defaults Telegram
+  for the Mini App initData path), `TelegramFileDownloader` (PlatformRegistry, per-call platform), all
+  four update handlers (per-update resolution), `BotMessenger`, `VerifyChannelMembership` (per-user
+  channel setting), `ChannelGatePrompt`, `ChannelBroadcaster`, `ChatBroadcaster`, `VerifyChallengeChat`,
+  `RegisterChallengeChat`, `CreateStarsInvoice`, `RefundStarsPayment`, and `Challenge::joinLink()` /
+  `Invite::deepLink()` now take a **required** `MessagingPlatform` argument — no silent t.me default
+  inside a ble.ir post.
+- Shop (`/shop` + the package callback) refuses Bale users via `supportsNativePayments()` with the new
+  `bot.shop.unavailable` line (en+fa), pending Task 3.
+- New lang: `admin.settings.keys.required_channel_bale` (en+fa; the Telegram one is now labelled
+  "(Telegram)" for disambiguation), `bot.shop.unavailable` (en+fa). Factory states: `TelegramUpdateFactory::bale()`,
+  `UserFactory::bale()`.
+
+**Tests** (all `Http::fake()`d; `tapi.bale.ai` and `api.telegram.org` are never really hit):
+- `tests/Feature/Messaging/BaleMessengerPlatformTest.php` (11) — normalization mirror of the Telegram
+  suite (text/callback/photo-ladder/voice with **missing duration tolerated as null**/forward_from_chat/
+  unknown-shape), sendMessage URL + keyboard serialization, `getMe` memoised to one call, ChatMember
+  snapshot mapping, no-token refusal, invoice/refund refusal with nothing sent.
+- `tests/Feature/Bot/BaleBotTest.php` (11) — webhook records on the Bale platform and queues; 404 on
+  wrong/absent secret and when unconfigured; **same `update_id` on both platforms = two updates** (the
+  collision the composite unique exists for); `/start` gates on `required_channel_bale` asking
+  `tapi.bale.ai` (never Telegram) with a `ble.ir` join button on refusal; a Telegram inviter is paid for
+  a brand-new Bale arrival; `/shop` refuses; `/create` opens the wizard on Bale; reminders fan out
+  through each recipient's own platform (one Bale + one Telegram participant in one challenge).
+
+**Deviations & gotchas worth remembering:**
+- **MySQL refused `dropUnique` before the wider unique existed** (error 1553: index needed by the
+  `challenge_id` foreign key) — the chats migration creates `(challenge_id, platform, telegram_chat_id)`
+  *first*, then drops the old two-column one. Anyone widening a unique under an FK must do the same.
+- `users.platform` is **nullable** (web-only Fortify admins have no messenger). The gate/broadcaster read
+  it with an explicit `?? MessagingPlatform::Telegram` fallback rather than assuming the backfill covered
+  everyone — the docblock claim "never null" was wrong and is corrected in code.
+- `VerifyChannelMembership::handle()` now checks **identity before channel**: a web-only admin is refused
+  as `notATelegramUser` before any platform is asked anything (previously the channel resolution could
+  throw first, masking the real reason).
+- `ChannelBroadcaster` resolves the channel **before** claiming `announced_at` — an unconfigured channel
+  must not burn the once-only claim and strand the challenge marked-announced-but-unseen.
+- `Http::fake()` appends and the **first matching pattern wins** — catch-all fakes in `beforeEach`
+  shadow per-test stubs; the Bale tests use `Http::preventStrayRequests()` + method-name wildcards
+  (`*getChatMember*`), which match either host, and assert on *which host* was asked.
+- Pest `expect(...)->toBeCanonicalizingEq` doesn't exist; sorting a collection of enums is order-unstable
+  (enum comparison, not string) — map to `->value` **then** sort.
+- Running two Pest processes against the same `testing` database deadlocks (RefreshDatabase metadata
+  table locks) and leaves the DB half-migrated — always one suite at a time, and
+  `DROP DATABASE testing; CREATE DATABASE testing` recovers.
