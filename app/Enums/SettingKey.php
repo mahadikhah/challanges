@@ -71,6 +71,19 @@ enum SettingKey: string
     case AiApprovalConfidenceThreshold = 'ai_approval_confidence_threshold';
 
     /*
+    | Whether AI approval exists at all, and for which media (§2.11). All
+    | four default off: an admin opts a deployment in, per media type,
+    | deliberately — voice and video are newer and riskier than image, so
+    | allowing image says nothing about allowing them. This is a deliberate
+    | tightening of Phase 10, where image AI-approval was creator-self-service
+    | the moment criteria passed screening.
+    */
+    case AiApprovalGloballyEnabled = 'ai_approval_globally_enabled';
+    case AiApprovalAllowedImage = 'ai_approval_allowed_image';
+    case AiApprovalAllowedVoice = 'ai_approval_allowed_voice';
+    case AiApprovalAllowedVideo = 'ai_approval_allowed_video';
+
+    /*
     | Voice/video proof media (§2.11). Storage is a real constraint on shared
     | hosting: the two ceilings below are the most a creator may ask of a
     | participant's recording, and the retention window is how long a decided
@@ -88,6 +101,10 @@ enum SettingKey: string
         return match ($this) {
             self::StarsPackages => SettingType::Json,
             self::RequiredChannel, self::RequiredChannelBale => SettingType::Text,
+            self::AiApprovalGloballyEnabled,
+            self::AiApprovalAllowedImage,
+            self::AiApprovalAllowedVoice,
+            self::AiApprovalAllowedVideo => SettingType::Boolean,
             default => SettingType::Integer,
         };
     }
@@ -227,6 +244,16 @@ enum SettingKey: string
             | forever; only the bytes go.
             */
             self::ProofMediaRetentionDays => 90,
+
+            /*
+            | The AI approval gates. Off is the safe default on every axis:
+            | globally, and per media type. See the block comment above —
+            | this tightens Phase 10 deliberately.
+            */
+            self::AiApprovalGloballyEnabled,
+            self::AiApprovalAllowedImage,
+            self::AiApprovalAllowedVoice,
+            self::AiApprovalAllowedVideo => false,
         };
     }
 }

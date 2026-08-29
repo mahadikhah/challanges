@@ -113,4 +113,23 @@ enum ProofType: string implements HasTranslatedLabelContract
     {
         return in_array($this, [self::VoiceApproval, self::VideoApproval], true);
     }
+
+    /**
+     * The admin setting that alone decides whether this media type may be
+     * AI-reviewed — see `AiApprovalGate`, which also demands the global
+     * switch.
+     *
+     * Deliberately unavailable for the non-media types rather than throwing:
+     * asking it of a `Button` challenge is a caller bug the gate answers
+     * with a plain "no".
+     */
+    public function aiApprovalSetting(): ?SettingKey
+    {
+        return match ($this) {
+            self::ImageApproval => SettingKey::AiApprovalAllowedImage,
+            self::VoiceApproval => SettingKey::AiApprovalAllowedVoice,
+            self::VideoApproval => SettingKey::AiApprovalAllowedVideo,
+            default => null,
+        };
+    }
 }

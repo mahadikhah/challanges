@@ -8,6 +8,7 @@ use App\Enums\ApprovalMode;
 use App\Enums\CheckInStatus;
 use App\Exceptions\CheckInRejectedException;
 use App\Models\CheckIn;
+use App\Services\Ai\AiApprovalGate;
 use App\Services\Telegram\NotifyCheckInVerdict;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -39,6 +40,7 @@ class ApplyAiVerdict
         private readonly ReviewProofWithAi $review,
         private readonly SettleCheckIn $settle,
         private readonly NotifyCheckInVerdict $notify,
+        private readonly AiApprovalGate $gate,
     ) {}
 
     /**
@@ -50,6 +52,14 @@ class ApplyAiVerdict
         $challenge = $submission->participant->challenge;
 
         if ($challenge->approval_mode !== ApprovalMode::Ai) {
+            return;
+        }
+
+        // The admin can withdraw a media type between a challenge's creation
+        // and its next submission. The row's mode stays `ai` — history is not
+        // rewritten — but no provider is called: the submission waits in the
+        // manual queue like any other the AI declined to answer.
+        if (! $this->gate->allows($challenge->proof_type)) {
             return;
         }
 

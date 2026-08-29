@@ -58,6 +58,13 @@ beforeEach(function () {
     $this->settings = app(Settings::class);
     $this->settings->set(SettingKey::RequiredChannel, '@challenges');
 
+    // Phase 14 Task 2: AI approval is admin-opt-in. This deployment allows
+    // it for image proof, so the wizard's approval-mode branch is reachable
+    // exactly as it was when Phase 10 built it; the gate-off paths are
+    // pinned in AiApprovalGateTest.
+    $this->settings->set(SettingKey::AiApprovalGloballyEnabled, true);
+    $this->settings->set(SettingKey::AiApprovalAllowedImage, true);
+
     // Membership already stamped, so the gate is satisfied from the row and these
     // tests spend their Bot API budget on replies rather than on `getChatMember`.
     // The tests that care about the gate arrange their own answer to it.
@@ -1069,6 +1076,36 @@ describe('the approval-mode branch', function () {
         expect(soleBotMessage()['text'])
             ->toContain(botCopy('bot.wizard.summary_approval', ['criteria' => 'A photo of the kettlebell on the floor.']))
             ->toContain('A photo of the kettlebell on the floor.');
+    });
+
+    it('never asks who reviews when the admin has not allowed AI review for photos', function () {
+        $this->settings->set(SettingKey::AiApprovalGloballyEnabled, false);
+
+        flowSittingAt(ConversationState::AwaitingProofType, completeDraft());
+
+        wizardChooses(ProofType::ImageApproval->value);
+
+        // Manual is the only mode left, so the question is skipped entirely —
+        // one button is not a choice, and the draft records no mode at all.
+        expect(liveFlow()?->state)->toBe(ConversationState::AwaitingVisibility)
+            ->and(flowAnswers()['approval_mode'] ?? null)->toBeNull();
+
+        finishDraftFromVisibility();
+
+        expect(Challenge::query()->sole()->approval_mode)->toBe(ApprovalMode::Manual);
+    });
+
+    it('refuses a stale AI-review tap when the gate closes mid-flow, and keeps asking', function () {
+        flowSittingAt(ConversationState::AwaitingApprovalMode, completeDraft(['proof_type' => ProofType::ImageApproval->value]));
+
+        $this->settings->set(SettingKey::AiApprovalAllowedImage, false);
+
+        wizardChooses(ApprovalMode::Ai->value);
+
+        expect(liveFlow()?->state)->toBe(ConversationState::AwaitingApprovalMode)
+            ->and(flowAnswers()['approval_mode'] ?? null)->toBeNull()
+            ->and(soleBotMessage()['text'])
+            ->toContain(botCopy('bot.wizard.awaiting_approval_mode.unavailable'));
     });
 });
 

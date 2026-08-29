@@ -8,12 +8,14 @@ use App\Enums\ApprovalMode;
 use App\Enums\ChallengeVisibility;
 use App\Enums\PeriodType;
 use App\Enums\ProofType;
+use App\Enums\SettingKey;
 use App\Models\AiCapability;
 use App\Models\AiProviderAccount;
 use App\Models\ApprovalCriteriaScreening;
 use App\Models\Challenge;
 use App\Models\Entitlement;
 use App\Models\User;
+use App\Services\Settings;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 
@@ -62,6 +64,13 @@ function creator(): User
 beforeEach(function (): void {
     Http::preventStrayRequests();
     $this->creator = creator();
+
+    // Phase 14 Task 2 tightened Phase 10: AI approval is admin-opt-in. The
+    // image-approval flow these tests pin down is unchanged underneath — the
+    // admin of this deployment simply allows it.
+    $settings = app(Settings::class);
+    $settings->set(SettingKey::AiApprovalGloballyEnabled, true);
+    $settings->set(SettingKey::AiApprovalAllowedImage, true);
 });
 
 /*

@@ -252,6 +252,7 @@ return [
             'prompt' => 'Who reviews the check-in photos?',
             'error' => 'Please pick one of the options offered.',
             'expected' => 'Tap one of the buttons to choose who reviews the photos.',
+            'unavailable' => 'AI review is not available on this platform right now — review stays with you. Pick manual review to continue.',
         ],
 
         'awaiting_approval_criteria' => [

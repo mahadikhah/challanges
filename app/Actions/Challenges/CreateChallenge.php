@@ -16,6 +16,7 @@ use App\Exceptions\NoEntitlementAvailableException;
 use App\Jobs\Challenges\AnnounceChallenge;
 use App\Models\Challenge;
 use App\Models\User;
+use App\Services\Ai\AiApprovalGate;
 use App\Services\Settings;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
@@ -79,6 +80,7 @@ class CreateChallenge
         private readonly MintJoinToken $joinTokens,
         private readonly Settings $settings,
         private readonly ValidateChallengeStepDesign $stepDesign,
+        private readonly AiApprovalGate $aiApprovalGate,
     ) {}
 
     /**
@@ -92,7 +94,7 @@ class CreateChallenge
      * @param  int|null  $defaultFreezes  null takes the admin-configured default
      * @param  list<array{input_type: StepInputType, min_wait_seconds: int, voice_max_seconds?: int|null, label?: string|null}>|null  $steps
      *                                                                                                                                        the timed-session step list; required when `$flowType` is `timed_session`, ignored otherwise
-     * @param  ApprovalMode|null  $approvalMode  null keeps `manual`; `ai` additionally requires a non-empty `$approvalCriteria`
+     * @param  ApprovalMode|null  $approvalMode  null keeps `manual`; `ai` is allowed only for media types the admin has enabled (see `AiApprovalGate`) and additionally requires a non-empty `$approvalCriteria`
      * @param  string|null  $approvalCriteria  pre-screened criteria; never re-screened here — the floor is that it exists, not that it is trustworthy
      * @param  int|null  $proofMediaMaxSeconds  cap on a voice/video submission's duration; required when the proof type or a step demands a recording, and never above the admin ceiling
      * @param  int|null  $proofMediaMaxSizeKb  cap on a voice/video submission's size in KB, same requirements as the duration cap
@@ -126,13 +128,25 @@ class CreateChallenge
 
         $this->assertCoherent($title, $description, $periodType, $customPeriodDays, $totalPeriods, $timezone);
 
-        // AI review is an attribute of `image_approval` only: a tap or a typed
-        // phrase has no photo to look at, and criteria next to them is prose
-        // with nothing to constrain. The mode degrades to manual rather than
-        // refusing, because a caller that asked for AI review on a button
+        // AI review is an attribute of media-proof challenges — a tap or a
+        // typed phrase has nothing to look at, and criteria next to them is
+        // prose with nothing to constrain. The mode degrades to manual rather
+        // than refusing, because a caller that asked for AI review on a button
         // challenge has built a working challenge with a stray parameter.
-        $approvalMode = $proofType === ProofType::ImageApproval ? $approvalMode : null;
+        $approvalMode = $proofType->isMediaApproval() ? $approvalMode : null;
         $approvalCriteria = $approvalMode === ApprovalMode::Ai ? $approvalCriteria : null;
+
+        // Within the media types, AI review exists only where this
+        // deployment's admin has allowed it (§2.11) — refused, not degraded:
+        // the caller offered a participant AI review the platform never
+        // promised, and silently switching to the creator's own queue would
+        // make the manual queue fill with challenges whose creators never
+        // volunteered to review them.
+        if ($approvalMode === ApprovalMode::Ai && ! $this->aiApprovalGate->allows($proofType)) {
+            throw new InvalidArgumentException(
+                "AI review is not available for {$proofType->value} proof on this deployment.",
+            );
+        }
 
         if ($approvalMode === ApprovalMode::Ai && ($approvalCriteria === null || $approvalCriteria === '')) {
             throw new InvalidArgumentException('An AI-reviewed challenge needs approval criteria.');

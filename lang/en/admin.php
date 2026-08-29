@@ -12,6 +12,7 @@ return [
             'access' => 'Access & tokens',
             'reminders' => 'Reminders',
             'proofs' => 'Proof media',
+            'ai' => 'AI approval',
         ],
 
         'keys' => [
@@ -34,7 +35,16 @@ return [
             'proof_media_max_seconds' => 'Recording duration ceiling (seconds)',
             'proof_media_max_size_kb' => 'Recording size ceiling (KB)',
             'proof_media_retention_days' => 'Proof media retention (days)',
+            'ai_approval_globally_enabled' => 'AI approval available at all',
+            'ai_approval_allowed_image' => 'AI review for photo proof',
+            'ai_approval_allowed_voice' => 'AI review for voice proof',
+            'ai_approval_allowed_video' => 'AI review for video proof',
+            'ai_approval_confidence_threshold' => 'AI decision confidence threshold (%)',
         ],
+
+        'capability_available' => 'Underlying provider capability: available.',
+        'capability_unavailable' => 'Underlying provider capability: not available — no configured moderation provider would answer.',
+        'capability_unknown' => 'Underlying provider capability: not yet checked for this media type.',
 
         'value' => 'Value',
         'default' => 'Default',

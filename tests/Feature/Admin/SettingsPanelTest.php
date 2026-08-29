@@ -1,6 +1,8 @@
 <?php
 
 use App\Enums\SettingKey;
+use App\Models\AiCapability;
+use App\Models\AiProviderAccount;
 use App\Models\Setting;
 use App\Models\User;
 use App\Services\Settings;
@@ -39,7 +41,7 @@ it('shows every registry tunable, grouped, with its default and override state',
     $response->assertOk()->assertInertia(
         fn (AssertableInertia $page) => $page
             ->component('Admin/Settings')
-            ->has('settings', 18)
+            ->has('settings', 23)
             ->where('settings.0.key', 'invite_coin_reward')
             ->where('settings.0.type', 'integer')
             ->where('settings.0.group', 'economy')
@@ -63,7 +65,22 @@ it('shows every registry tunable, grouped, with its default and override state',
             ->where('settings.15.group', 'proofs')
             ->where('settings.16.key', 'proof_media_max_size_kb')
             ->where('settings.17.key', 'proof_media_retention_days')
-            ->where('settings.17.value', SettingKey::ProofMediaRetentionDays->default()),
+            ->where('settings.17.value', SettingKey::ProofMediaRetentionDays->default())
+            // The AI approval gates, off by default on every axis, and the
+            // decision threshold that finally joins them in the panel.
+            ->where('settings.18.key', 'ai_approval_globally_enabled')
+            ->where('settings.18.type', 'boolean')
+            ->where('settings.18.value', false)
+            ->where('settings.19.key', 'ai_approval_allowed_image')
+            ->where('settings.20.key', 'ai_approval_allowed_voice')
+            ->where('settings.21.key', 'ai_approval_allowed_video')
+            ->where('settings.22.key', 'ai_approval_confidence_threshold')
+            ->where('settings.22.group', 'ai')
+            // Voice and video capability is honestly "not yet checked" until
+            // their review paths ship (Phase 14 Tasks 3–4); image answers now.
+            ->where('aiCapabilities.image.available', false)
+            ->where('aiCapabilities.voice.available', null)
+            ->where('aiCapabilities.video.available', null),
     );
 });
 
@@ -85,6 +102,30 @@ it('marks a setting as overridden once an admin has changed it', function (): vo
 
     $this->get('/admin/settings')->assertInertia(
         fn (AssertableInertia $page) => $page->where('settings.3.overridden', true),
+    );
+});
+
+it('updates an AI approval gate toggle and reports the image capability honestly', function (): void {
+    $capability = AiCapability::query()->where('key', AiCapability::KEY_PROOF_MODERATION)->firstOrFail();
+    $capability->update(['is_active' => true]);
+
+    AiProviderAccount::factory()->configured()->create([
+        'ai_capability_id' => $capability->getKey(),
+    ]);
+
+    // Form-encoded booleans arrive as "1" — the controller converts, the
+    // storage layer stays strict.
+    $this->actingAs(anAdminPanelUser())
+        ->from('/admin/settings')
+        ->put('/admin/settings/ai_approval_allowed_image', ['value' => true])
+        ->assertRedirect('/admin/settings');
+
+    expect(theSettingsService()->boolean(SettingKey::AiApprovalAllowedImage))->toBeTrue();
+
+    $this->get('/admin/settings')->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->where('settings.19.overridden', true)
+            ->where('aiCapabilities.image.available', true),
     );
 });
 

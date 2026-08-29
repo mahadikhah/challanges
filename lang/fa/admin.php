@@ -16,6 +16,7 @@ return [
             'access' => 'دسترسی و توکن‌ها',
             'reminders' => 'یادآورها',
             'proofs' => 'رسانه‌های اثبات',
+            'ai' => 'بازبینی با هوش مصنوعی',
         ],
 
         'keys' => [
@@ -38,7 +39,16 @@ return [
             'proof_media_max_seconds' => 'سقف مدت ضبط (ثانیه)',
             'proof_media_max_size_kb' => 'سقف حجم ضبط (کیلوبایت)',
             'proof_media_retention_days' => 'نگهداشت رسانه اثبات (روز)',
+            'ai_approval_globally_enabled' => 'وجود بازبینی با هوش مصنوعی',
+            'ai_approval_allowed_image' => 'بازبینی هوشمند مدرک عکس',
+            'ai_approval_allowed_voice' => 'بازبینی هوشمند مدرک صوتی',
+            'ai_approval_allowed_video' => 'بازبینی هوشمند مدرک ویدیویی',
+            'ai_approval_confidence_threshold' => 'آستانه اطمینان تصمیم هوش مصنوعی (٪)',
         ],
+
+        'capability_available' => 'قابلیت زیربنایی ارائه‌دهنده: موجود است.',
+        'capability_unavailable' => 'قابلیت زیربنایی ارائه‌دهنده: موجود نیست — هیچ ارائه‌دهنده‌ی بازبینیِ پیکربندی‌شده‌ای پاسخ نمی‌دهد.',
+        'capability_unknown' => 'قابلیت زیربنایی ارائه‌دهنده: برای این نوع رسانه هنوز بررسی نشده است.',
 
         'value' => 'مقدار',
         'default' => 'پیش‌فرض',

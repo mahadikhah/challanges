@@ -11,6 +11,7 @@ use App\Enums\ApprovalMode;
 use App\Enums\CheckInRejection;
 use App\Enums\CheckInStatus;
 use App\Enums\ProofType;
+use App\Enums\SettingKey;
 use App\Exceptions\CheckInRejectedException;
 use App\Models\AiApprovalDecision;
 use App\Models\AiCapability;
@@ -20,6 +21,7 @@ use App\Models\ChallengeParticipant;
 use App\Models\ChallengePeriod;
 use App\Models\CheckIn;
 use App\Models\User;
+use App\Services\Settings;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -132,6 +134,12 @@ function aiReviewedChallenge(string $criteria = 'A photo of the runner outdoors,
  */
 beforeEach(function (): void {
     config(['services.telegram.bot_token' => '123456:TEST-TOKEN']);
+
+    // Phase 14 Task 2: AI approval is admin-opt-in. This deployment allows it
+    // for image proof — the flow under test is otherwise exactly Phase 10's.
+    $settings = app(Settings::class);
+    $settings->set(SettingKey::AiApprovalGloballyEnabled, true);
+    $settings->set(SettingKey::AiApprovalAllowedImage, true);
 
     Http::fake(['*sendMessage*' => Http::response(['ok' => true, 'result' => ['message_id' => 1]])]);
     Http::preventStrayRequests();

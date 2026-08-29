@@ -26,6 +26,13 @@ type SettingRow = {
 };
 
 /**
+ * What each media type's AI review actually rests on, read-only. `null` is
+ * "not yet checked" — the review path for that media type has not shipped —
+ * which the panel states plainly rather than passing off as a yes or a no.
+ */
+type AiCapabilities = Record<string, { available: boolean | null }>;
+
+/**
  * One purchasable package: what each rail charges and what we credit. `rial`
  * is the Bale-side price and is optional — a row without one is simply not
  * offered to Bale payers, so a fresh Telegram-only deployment never has to
@@ -43,9 +50,25 @@ const GROUPS = [
     'access',
     'reminders',
     'proofs',
+    'ai',
 ] as const;
 
-export default function Settings({ settings }: { settings: SettingRow[] }) {
+/**
+ * Per-media-type allow toggles that carry a capability readout beneath them.
+ */
+const AI_MEDIA_TOGGLE_KEYS = [
+    'ai_approval_allowed_image',
+    'ai_approval_allowed_voice',
+    'ai_approval_allowed_video',
+] as const;
+
+export default function Settings({
+    settings,
+    aiCapabilities = {},
+}: {
+    settings: SettingRow[];
+    aiCapabilities?: AiCapabilities;
+}) {
     const { t } = useTranslation();
 
     return (
@@ -77,6 +100,7 @@ export default function Settings({ settings }: { settings: SettingRow[] }) {
                                         <SettingCard
                                             key={setting.key}
                                             setting={setting}
+                                            aiCapabilities={aiCapabilities}
                                         />
                                     ))}
                             </div>
@@ -88,11 +112,24 @@ export default function Settings({ settings }: { settings: SettingRow[] }) {
     );
 }
 
-function SettingCard({ setting }: { setting: SettingRow }) {
+function SettingCard({
+    setting,
+    aiCapabilities = {},
+}: {
+    setting: SettingRow;
+    aiCapabilities?: AiCapabilities;
+}) {
     const { t } = useTranslation();
     const form = useForm<{ value: number | string | boolean | PackageRow[] }>({
         value: setting.value,
     });
+
+    const capability = AI_MEDIA_TOGGLE_KEYS.includes(
+        setting.key as (typeof AI_MEDIA_TOGGLE_KEYS)[number],
+    )
+        ? (aiCapabilities[setting.key.replace('ai_approval_allowed_', '')] ??
+          undefined)
+        : undefined;
 
     const submit = () => {
         form.put(update(setting.key).url, {
@@ -115,6 +152,18 @@ function SettingCard({ setting }: { setting: SettingRow }) {
                         <CardTitle className="text-base">
                             {setting.label}
                         </CardTitle>
+
+                        {capability && (
+                            <p className="text-xs text-muted-foreground">
+                                {capability.available === null
+                                    ? t('admin.settings.capability_unknown')
+                                    : capability.available
+                                      ? t('admin.settings.capability_available')
+                                      : t(
+                                            'admin.settings.capability_unavailable',
+                                        )}
+                            </p>
+                        )}
 
                         {setting.overridden && (
                             <p className="text-xs text-muted-foreground">

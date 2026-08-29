@@ -22,6 +22,7 @@ use App\Exceptions\NoEntitlementAvailableException;
 use App\Models\BotConversation;
 use App\Models\Challenge;
 use App\Models\User;
+use App\Services\Ai\AiApprovalGate;
 use App\Services\Localization;
 use App\Services\Settings;
 use App\Services\Telegram\BotCallback;
@@ -163,6 +164,7 @@ class CreateChallengeWizard
         private readonly ScreenApprovalCriteria $screenCriteria,
         private readonly BotMessenger $messenger,
         private readonly Settings $settings,
+        private readonly AiApprovalGate $aiApprovalGate,
     ) {}
 
     /**
@@ -391,10 +393,13 @@ class CreateChallengeWizard
             ConversationState::AwaitingStartDate => ConversationState::AwaitingTotalPeriods,
             ConversationState::AwaitingTotalPeriods => ConversationState::AwaitingProofType,
 
-            // The third branch: only a photo-proof challenge is asked who
-            // reviews it. AI review then needs criteria, gathered on its own
-            // two-step path (`criteriaFlow` owns the transition in).
-            ConversationState::AwaitingProofType => $draft->proofType() === ProofType::ImageApproval
+            // The third branch: only a media-proof challenge is asked who
+            // reviews it — and only when this deployment's admin allows AI
+            // review for that media type; otherwise manual is the only mode
+            // and the question would have one button. AI review then needs
+            // criteria, gathered on its own two-step path (`criteriaFlow`
+            // owns the transition in).
+            ConversationState::AwaitingProofType => $this->asksApprovalMode($draft)
                 ? ConversationState::AwaitingApprovalMode
                 : ConversationState::AwaitingVisibility,
 
@@ -432,6 +437,20 @@ class CreateChallengeWizard
                 "The create-challenge wizard has no step after {$state->value}.",
             ),
         };
+    }
+
+    /**
+     * Whether the proof type just chosen earns the who-reviews question at
+     * all: a media proof the admin allows AI review for does; everything else
+     * goes straight to visibility with manual as the only mode.
+     */
+    private function asksApprovalMode(ChallengeDraft $draft): bool
+    {
+        $proofType = $draft->proofType();
+
+        return $proofType !== null
+            && $proofType->isMediaApproval()
+            && $this->aiApprovalGate->allows($proofType);
     }
 
     /**
@@ -1044,6 +1063,20 @@ class CreateChallengeWizard
         }
 
         $draft = ChallengeDraft::of($conversation);
+
+        // A stale button from further up the chat, or the admin withdrawing
+        // the media type while a flow was open. Either way the tap cannot be
+        // honoured, and the draft must not record a mode `CreateChallenge`
+        // would refuse at hand-in.
+        $proofType = $draft->proofType();
+
+        if ($proofType === null || ! $this->aiApprovalGate->allows($proofType)) {
+            $this->ask($user, $conversation, [
+                $this->messenger->line($user, 'bot.wizard.awaiting_approval_mode.unavailable'),
+            ]);
+
+            return;
+        }
 
         // Generated inside the conversation's job, not queued on its own: the
         // suggestion is what the very next message shows, and a queued call

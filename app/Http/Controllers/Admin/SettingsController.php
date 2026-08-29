@@ -6,6 +6,8 @@ use App\Enums\SettingKey;
 use App\Enums\SettingType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateSettingRequest;
+use App\Models\AiCapability;
+use App\Models\AiProviderAccount;
 use App\Services\Settings;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -59,6 +61,13 @@ class SettingsController extends Controller
             SettingKey::ProofMediaMaxSizeKb,
             SettingKey::ProofMediaRetentionDays,
         ],
+        'ai' => [
+            SettingKey::AiApprovalGloballyEnabled,
+            SettingKey::AiApprovalAllowedImage,
+            SettingKey::AiApprovalAllowedVoice,
+            SettingKey::AiApprovalAllowedVideo,
+            SettingKey::AiApprovalConfidenceThreshold,
+        ],
     ];
 
     public function __construct(private readonly Settings $settings) {}
@@ -67,6 +76,7 @@ class SettingsController extends Controller
     {
         return Inertia::render('Admin/Settings', [
             'settings' => $this->settingRows(),
+            'aiCapabilities' => $this->aiCapabilities(),
         ]);
     }
 
@@ -74,7 +84,17 @@ class SettingsController extends Controller
     {
         $key = SettingKey::from($setting);
 
-        $this->settings->set($key, $request->validated('value'));
+        $value = $request->validated('value');
+
+        // Booleans are the one shape the transport mangles: a form-encoded
+        // checkbox arrives as "1"/"0", which `Settings::set()` correctly
+        // refuses to coerce for itself. Converting here is not that coercion
+        // gone astray — the request already validated it *is* a boolean.
+        if ($key->type() === SettingType::Boolean) {
+            $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+        }
+
+        $this->settings->set($key, $value);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('admin.settings.saved')]);
 
@@ -131,9 +151,39 @@ class SettingsController extends Controller
     {
         return match ($key->type()) {
             SettingType::Text => $this->settings->string($key),
-            SettingType::Integer,
-            SettingType::Boolean => $this->settings->integer($key),
+            SettingType::Integer => $this->settings->integer($key),
+            SettingType::Boolean => $this->settings->boolean($key),
             SettingType::Json => $this->settings->array($key),
         };
+    }
+
+    /**
+     * What each media type's AI review actually rests on, read-only, so an
+     * admin flipping an allow-toggle can see whether anything would answer.
+     *
+     * Image answers today: a capability row with at least one active,
+     * configured account is what Phase 10's moderation calls run on. Voice
+     * and video answer `null` — not "no", *unknown* — until their review
+     * paths land (Phase 14 Tasks 3–4), and the panel says exactly that
+     * rather than guessing. A transient cooldown is deliberately ignored:
+     * this is the deployment's capability, not its health right now.
+     *
+     * @return array<string, array{available: bool|null}>
+     */
+    private function aiCapabilities(): array
+    {
+        $imageReady = AiProviderAccount::query()
+            ->where('ai_provider_accounts.is_active', true)
+            ->whereHas('capability', fn ($capability) => $capability
+                ->where('key', AiCapability::KEY_PROOF_MODERATION)
+                ->where('is_active', true))
+            ->get()
+            ->contains(fn (AiProviderAccount $account) => $account->isConfigured());
+
+        return [
+            'image' => ['available' => $imageReady],
+            'voice' => ['available' => null],
+            'video' => ['available' => null],
+        ];
     }
 }
