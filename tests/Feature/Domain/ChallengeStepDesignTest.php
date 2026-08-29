@@ -119,7 +119,10 @@ describe('the design validator', function () {
         'custom' => [PeriodType::Custom, 21],
     ]);
 
-    it('refuses a timed-session challenge with no steps at all')->throws(InvalidArgumentException::class, 'at least one step');
+    it('refuses a timed-session challenge with no steps at all', function () {
+        expect(fn () => validating(PeriodType::Daily, []))
+            ->toThrow(InvalidArgumentException::class, 'at least one step');
+    });
 
     it('requires a voice cap on a voice step and refuses one anywhere else', function () {
         validating(PeriodType::Daily, [

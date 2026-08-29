@@ -29,8 +29,16 @@ type SettingRow = {
  * What each media type's AI review actually rests on, read-only. `null` is
  * "not yet checked" — the review path for that media type has not shipped —
  * which the panel states plainly rather than passing off as a yes or a no.
+ * Video alone carries a `reason` when unavailable, because its blocker is
+ * the environment (no video-accepting provider, no ffmpeg), which the panel
+ * must name and the toggle must honour by refusing to switch on.
  */
-type AiCapabilities = Record<string, { available: boolean | null }>;
+type AiCapability = {
+    available: boolean | null;
+    reason?: 'no_provider' | 'no_toolchain';
+};
+
+type AiCapabilities = Record<string, AiCapability>;
 
 /**
  * One purchasable package: what each rail charges and what we credit. `rial`
@@ -131,6 +139,13 @@ function SettingCard({
           undefined)
         : undefined;
 
+    // A video toggle the environment cannot honour stays off and greyed —
+    // the server refuses the update anyway; a switch that looks on but does
+    // nothing is worse than no switch.
+    const environmentBlocked =
+        setting.key === 'ai_approval_allowed_video' &&
+        capability?.available === false;
+
     const submit = () => {
         form.put(update(setting.key).url, {
             preserveScroll: true,
@@ -159,9 +174,13 @@ function SettingCard({
                                     ? t('admin.settings.capability_unknown')
                                     : capability.available
                                       ? t('admin.settings.capability_available')
-                                      : t(
-                                            'admin.settings.capability_unavailable',
-                                        )}
+                                      : capability.reason === 'no_toolchain'
+                                        ? t(
+                                              'admin.settings.capability_video_no_toolchain',
+                                          )
+                                        : t(
+                                              'admin.settings.capability_unavailable',
+                                          )}
                             </p>
                         )}
 
@@ -197,7 +216,7 @@ function SettingCard({
                         setting={setting}
                         value={form.data.value}
                         onChange={(value) => form.setData('value', value)}
-                        disabled={form.processing}
+                        disabled={form.processing || environmentBlocked}
                     />
 
                     <InputError message={form.errors.value} />

@@ -300,7 +300,7 @@ it('blocks voice AI review when only image is allowed, without calling a provide
         ->toBeFalse();
 });
 
-it('leaves video to the manual queue even with its gate flipped on — its reviewer is Task 4', function (): void {
+it('leaves video to the manual queue when the environment cannot review it — no provider, no toolchain', function (): void {
     app(Settings::class)->set(SettingKey::AiApprovalAllowedVideo, true);
 
     Storage::disk('local')->put('check-in-proofs/ai/run.mp4', 'mp4-bytes');

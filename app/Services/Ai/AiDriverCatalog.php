@@ -13,10 +13,11 @@ use App\Enums\AiCapabilityPurpose;
  */
 final class AiDriverCatalog
 {
-    /** @var array<string, array{label: string, fields: list<array<string, mixed>>}> */
+    /** @var array<string, array{label: string, fields: list<array<string, mixed>>, supports_video: bool}> */
     private const DRIVERS = [
         'openai' => [
             'label' => 'OpenAI',
+            'supports_video' => false,
             'fields' => [
                 ['key' => 'key', 'label' => 'API key', 'required' => true, 'secret' => true],
                 ['key' => 'url', 'label' => 'Base URL', 'placeholder' => 'https://api.openai.com/v1',
@@ -25,6 +26,7 @@ final class AiDriverCatalog
         ],
         'anthropic' => [
             'label' => 'Anthropic',
+            'supports_video' => false,
             'fields' => [
                 ['key' => 'key', 'label' => 'API key', 'required' => true, 'secret' => true],
                 ['key' => 'url', 'label' => 'Base URL', 'placeholder' => 'https://api.anthropic.com'],
@@ -34,12 +36,14 @@ final class AiDriverCatalog
             // A local server: no API key at all — which is why `key` must
             // tolerate being empty in the connection config.
             'label' => 'Ollama',
+            'supports_video' => false,
             'fields' => [
                 ['key' => 'url', 'label' => 'Base URL', 'required' => true, 'placeholder' => 'http://127.0.0.1:11434'],
             ],
         ],
         'openai_compatible' => [
             'label' => 'OpenAI-compatible endpoint',
+            'supports_video' => false,
             'fields' => [
                 ['key' => 'key', 'label' => 'API key', 'required' => false, 'secret' => true,
                     'helper' => 'Leave empty for endpoints that need no auth header.'],
@@ -68,6 +72,19 @@ final class AiDriverCatalog
     private const TRANSCRIPTION_MODEL_DEFAULTS = [
         'openai_compatible' => 'whisper-1',
     ];
+
+    /**
+     * Whether the driver's gateway would accept video bytes as a prompt
+     * attachment. False across the catalog today, and verified rather than
+     * assumed: in the SDK only Gemini's and OpenRouter's `MapsAttachments`
+     * handle video, and neither driver is in this catalog. The day one joins,
+     * its `supports_video` flag flips — and video review gains a native path
+     * alongside the frame-sampling one.
+     */
+    public static function supportsVideoInput(string $driver): bool
+    {
+        return self::DRIVERS[$driver]['supports_video'] ?? false;
+    }
 
     /**
      * Whether the driver's provider can transcribe audio at all.

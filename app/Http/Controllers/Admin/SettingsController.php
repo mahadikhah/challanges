@@ -9,8 +9,10 @@ use App\Http\Requests\Admin\UpdateSettingRequest;
 use App\Models\AiCapability;
 use App\Models\AiProviderAccount;
 use App\Services\Ai\AiDriverCatalog;
+use App\Services\Ai\VideoReviewCapability;
 use App\Services\Settings;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -73,19 +75,32 @@ class SettingsController extends Controller
 
     public function __construct(private readonly Settings $settings) {}
 
-    public function index(): Response
+    public function index(VideoReviewCapability $videoReview): Response
     {
         return Inertia::render('Admin/Settings', [
             'settings' => $this->settingRows(),
-            'aiCapabilities' => $this->aiCapabilities(),
+            'aiCapabilities' => $this->aiCapabilities($videoReview),
         ]);
     }
 
-    public function update(UpdateSettingRequest $request, string $setting): RedirectResponse
+    public function update(UpdateSettingRequest $request, string $setting, VideoReviewCapability $videoReview): RedirectResponse
     {
         $key = SettingKey::from($setting);
 
         $value = $request->validated('value');
+
+        // The video allow-toggle is the one setting whose promise the
+        // environment can veto: without a video-capable provider or ffmpeg,
+        // an enabled toggle would silently route every video to the manual
+        // queue — a switch that looks on and does nothing, which is worse
+        // than no switch (Phase 14 Task 4). Refusing here keeps the panel
+        // and the runtime saying the same thing; the runtime re-checks
+        // anyway for hosts that lose ffmpeg later.
+        if ($key === SettingKey::AiApprovalAllowedVideo && $value && ! $videoReview->available()) {
+            throw ValidationException::withMessages([
+                'value' => __('admin.settings.video_review_unavailable'),
+            ]);
+        }
 
         // Booleans are the one shape the transport mangles: a form-encoded
         // checkbox arrives as "1"/"0", which `Settings::set()` correctly
@@ -164,14 +179,16 @@ class SettingsController extends Controller
      *
      * Image answers today: a capability row with at least one active,
      * configured account is what Phase 10's moderation calls run on. Voice
-     * and video answer `null` — not "no", *unknown* — until their review
-     * paths land (Phase 14 Tasks 3–4), and the panel says exactly that
-     * rather than guessing. A transient cooldown is deliberately ignored:
-     * this is the deployment's capability, not its health right now.
+     * answers from the same rows plus a transcription-capable driver (Task 3).
+     * Video answers from `VideoReviewCapability` (Task 4): the environment
+     * itself — a video-accepting provider, or ffmpeg on this host — has to
+     * be able to get the recording to a model. A transient cooldown is
+     * deliberately ignored: this is the deployment's capability, not its
+     * health right now.
      *
-     * @return array<string, array{available: bool|null}>
+     * @return array<string, array{available: bool|null, reason?: string}>
      */
-    private function aiCapabilities(): array
+    private function aiCapabilities(VideoReviewCapability $videoReview): array
     {
         $accounts = AiProviderAccount::query()
             ->where('ai_provider_accounts.is_active', true)
@@ -180,6 +197,12 @@ class SettingsController extends Controller
                 ->where('is_active', true))
             ->get()
             ->filter(fn (AiProviderAccount $account) => $account->isConfigured());
+
+        $video = ['available' => $videoReview->available()];
+
+        if (! $video['available']) {
+            $video['reason'] = (string) $videoReview->unavailableReason();
+        }
 
         return [
             'image' => ['available' => $accounts->isNotEmpty()],
@@ -192,9 +215,7 @@ class SettingsController extends Controller
                     fn (AiProviderAccount $account) => AiDriverCatalog::supportsTranscription((string) $account->driver),
                 ),
             ],
-            // Video ships with Task 4: "not yet checked" stays the honest
-            // answer until its review path exists.
-            'video' => ['available' => null],
+            'video' => $video,
         ];
     }
 }

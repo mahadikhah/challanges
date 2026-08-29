@@ -79,11 +79,14 @@ it('shows every registry tunable, grouped, with its default and override state',
             ->where('settings.22.group', 'ai')
             // Image answers from the account rows now. Voice answers too, as
             // of Phase 14 Task 3: the readout demands a moderation account
-            // whose driver can also transcribe. Video alone stays "not yet
-            // checked" until its review path ships (Task 4).
+            // whose driver can also transcribe. Video answers from the
+            // environment itself (Task 4) — with no accounts at all the
+            // readout names the remedy an admin can act on, deterministically
+            // (no provider fails before the host's ffmpeg is even asked).
             ->where('aiCapabilities.image.available', false)
             ->where('aiCapabilities.voice.available', false)
-            ->where('aiCapabilities.video.available', null),
+            ->where('aiCapabilities.video.available', false)
+            ->where('aiCapabilities.video.reason', 'no_provider'),
     );
 });
 

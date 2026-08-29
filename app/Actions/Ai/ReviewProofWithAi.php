@@ -13,6 +13,7 @@ use App\Models\CheckIn;
 use App\Services\Ai\AiOperationIdentity;
 use App\Services\Ai\AiTextClient;
 use App\Services\Ai\AiTextResult;
+use App\Services\Media\VideoFrameSampler;
 use App\Services\Settings;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
@@ -55,6 +56,7 @@ class ReviewProofWithAi
         private readonly AiTextClient $clients,
         private readonly BuildProofModerationPrompt $prompt,
         private readonly Settings $settings,
+        private readonly VideoFrameSampler $frames,
     ) {}
 
     /**
@@ -75,30 +77,50 @@ class ReviewProofWithAi
                 AiCapability::KEY_PROOF_MODERATION,
                 AiOperationIdentity::create(AiCapability::KEY_PROOF_MODERATION, $submission->getKey()),
                 function (string $connection, ?string $model) use ($submission, $challenge, $proofType, &$transcript): AiTextResult {
-                    // The voice leg runs inside the chain's attempt on
-                    // purpose: the transcription belongs to the same account,
-                    // the same rotation, and the same budget reservation as
-                    // the verdict it feeds. A provider that cannot transcribe
-                    // fails the attempt and the chain rotates accounts — a
-                    // transcription the verdict never sees is worth nothing.
-                    $transcript = $proofType === ProofType::VoiceApproval
-                        ? $this->transcribe($connection, (string) $submission->proof_path)
-                        : null;
+                    // The voice and video legs run inside the chain's attempt
+                    // on purpose: the transcription and the frame extraction
+                    // belong to the same account, the same rotation, and the
+                    // same budget reservation as the verdict they feed. A
+                    // provider that cannot hear or watch fails the attempt
+                    // and the chain rotates accounts — a rendering the
+                    // verdict never sees is worth nothing.
+                    if ($proofType === ProofType::VoiceApproval) {
+                        $transcript = $this->transcribe($connection, (string) $submission->proof_path);
+
+                        return $this->clients->prompt(
+                            $connection,
+                            $model,
+                            $this->prompt->transcriptPrompt($challenge, $transcript),
+                            $this->promptOptions($proofType),
+                        );
+                    }
+
+                    if ($proofType === ProofType::VideoApproval) {
+                        // The frames are scratch files that exist only inside
+                        // the callback, so the prompt they feed is built
+                        // there too. Extraction failure throws and fails the
+                        // attempt like any other provider leg.
+                        return $this->frames->withFrames(
+                            (string) $submission->proof_path,
+                            function (array $paths) use ($connection, $model, $challenge, $proofType): AiTextResult {
+                                return $this->clients->prompt(
+                                    $connection,
+                                    $model,
+                                    $this->prompt->framesPrompt($challenge, count($paths)),
+                                    $this->promptOptions($proofType) + ['frames' => $paths],
+                                );
+                            },
+                        );
+                    }
 
                     return $this->clients->prompt(
                         $connection,
                         $model,
-                        $transcript !== null
-                            ? $this->prompt->transcriptPrompt($challenge, $transcript)
-                            : $this->prompt->userPrompt($challenge),
-                        [
-                            'system' => $this->prompt->systemPrompt($proofType),
-                            'schema' => fn ($schema): array => $this->prompt->lockedVerdictSchema($schema),
-                            'image' => $proofType === ProofType::ImageApproval ? [
-                                'path' => (string) $submission->proof_path,
-                                'disk' => 'local',
-                            ] : null,
-                        ],
+                        $this->prompt->userPrompt($challenge),
+                        $this->promptOptions($proofType) + ['image' => [
+                            'path' => (string) $submission->proof_path,
+                            'disk' => 'local',
+                        ]],
                     );
                 },
                 $submission,
@@ -110,9 +132,11 @@ class ReviewProofWithAi
                 'check_in_id' => $submission->getKey(),
                 'connection' => $answer->connection,
                 'model' => $answer->model,
-                'review_path' => $proofType === ProofType::VoiceApproval
-                    ? AiReviewPath::Transcript
-                    : AiReviewPath::Attachment,
+                'review_path' => match ($proofType) {
+                    ProofType::VoiceApproval => AiReviewPath::Transcript,
+                    ProofType::VideoApproval => AiReviewPath::Frames,
+                    default => AiReviewPath::Attachment,
+                },
                 'outcome' => $this->confidenceClearsThreshold($confidence)
                     ? AiDecisionOutcome::Applied
                     : AiDecisionOutcome::FellBack,
@@ -142,6 +166,21 @@ class ReviewProofWithAi
                 'reason' => $unanswered::class,
             ]);
         }
+    }
+
+    /**
+     * The options every media path shares: the platform-authored system
+     * prompt and the locked verdict schema. Only the media itself differs
+     * per path, and the caller attaches it.
+     *
+     * @return array<string, mixed>
+     */
+    private function promptOptions(ProofType $proofType): array
+    {
+        return [
+            'system' => $this->prompt->systemPrompt($proofType),
+            'schema' => fn ($schema): array => $this->prompt->lockedVerdictSchema($schema),
+        ];
     }
 
     /**

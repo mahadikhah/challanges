@@ -45,6 +45,9 @@ return [
         'capability_available' => 'Underlying provider capability: available.',
         'capability_unavailable' => 'Underlying provider capability: not available — no configured moderation provider would answer.',
         'capability_unknown' => 'Underlying provider capability: not yet checked for this media type.',
+        'capability_video_no_toolchain' => 'Video AI review: not available in this environment — ffmpeg is not installed and no configured provider accepts video directly.',
+
+        'video_review_unavailable' => 'Video AI review cannot be enabled: ffmpeg is not installed on this host and no configured provider accepts video directly.',
 
         'value' => 'Value',
         'default' => 'Default',

@@ -12,7 +12,9 @@ interface AiTextClient
      * @param  array<string, mixed>  $options  `system` (string), `attachments` (list), `timeout` (int),
      *                                         `schema` (Closure(Illuminate\Contracts\JsonSchema\JsonSchema): array — forces a
      *                                         structured response, delivered as `AiTextResult::$structured`),
-     *                                         `image` (array{path: string, disk?: string|null} — attached as the photo under review)
+     *                                         `image` (array{path: string, disk?: string|null} — attached as the photo under review),
+     *                                         `frames` (list<string> of absolute paths — attached in order as the video stills
+     *                                         under review; scratch files that exist only for this call)
      */
     public function prompt(string $connection, ?string $model, string $prompt, array $options = []): AiTextResult;
 

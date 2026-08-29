@@ -3,6 +3,7 @@
 namespace App\Services\Ai;
 
 use Laravel\Ai\AnonymousAgent;
+use Laravel\Ai\Files\LocalImage;
 use Laravel\Ai\Files\StoredAudio;
 use Laravel\Ai\Files\StoredImage;
 use Laravel\Ai\StructuredAnonymousAgent;
@@ -34,6 +35,13 @@ class LaravelAiTextClient implements AiTextClient
                 (string) $options['image']['path'],
                 $options['image']['disk'] ?? null,
             );
+        }
+
+        // Video frames are absolute scratch paths that exist only for this
+        // call, hence `LocalImage` rather than `StoredImage`: they are not on
+        // a storage disk and are deleted the moment this prompt returns.
+        foreach ((array) ($options['frames'] ?? []) as $frame) {
+            $attachments[] = new LocalImage((string) $frame);
         }
 
         $agent = isset($options['schema'])

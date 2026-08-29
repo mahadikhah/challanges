@@ -1250,8 +1250,8 @@
     "semantic_hash": ""
   },
   "app/Enums/ProofType.php": {
-    "mtime": 1787992453.669176,
-    "ast_hash": "f5a4045728806d244066b57f2ec7724a",
+    "mtime": 1787998278.5601697,
+    "ast_hash": "dd2046f0eb21a4688e96c19c83c5bff1",
     "semantic_hash": ""
   },
   "app/Models/Challenge.php": {
@@ -1655,8 +1655,8 @@
     "semantic_hash": ""
   },
   "app/Actions/CheckIns/SubmitCheckIn.php": {
-    "mtime": 1787992770.647123,
-    "ast_hash": "c55d153e0b5578194e9935c8b3cef96e",
+    "mtime": 1787998278.5601697,
+    "ast_hash": "1545b3cc5792d6735ff2d63b5b05d61e",
     "semantic_hash": ""
   },
   "app/Enums/CheckInRejection.php": {
@@ -2250,8 +2250,8 @@
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/SettingsController.php": {
-    "mtime": 1787992925.581224,
-    "ast_hash": "c3799f4f2317b44409f4c7d5897c8270",
+    "mtime": 1787998278.5601697,
+    "ast_hash": "172a27ebf090fb7088f17f6668136eda",
     "semantic_hash": ""
   },
   "app/Http/Middleware/EnsureUserIsAdmin.php": {
@@ -2265,23 +2265,23 @@
     "semantic_hash": ""
   },
   "lang/en/admin.php": {
-    "mtime": 1787991019.2465658,
-    "ast_hash": "fece16eb108cd691bdc5d2cec56e3871",
+    "mtime": 1787998278.5611696,
+    "ast_hash": "1991ef0cabd9337b505462136095a0cd",
     "semantic_hash": ""
   },
   "lang/fa/admin.php": {
-    "mtime": 1787991023.387512,
-    "ast_hash": "d3881927290b266069c24c2b8e13872a",
+    "mtime": 1787998278.5621696,
+    "ast_hash": "f4f571661b3361402a4377bba88322c1",
     "semantic_hash": ""
   },
   "resources/js/pages/Admin/Settings.tsx": {
-    "mtime": 1787990984.6800148,
-    "ast_hash": "fe92e815d1af32e404c2763f4826a67d",
+    "mtime": 1787998278.5621696,
+    "ast_hash": "e100cd70d62be28d18f9b307bf33dad4",
     "semantic_hash": ""
   },
   "tests/Feature/Admin/SettingsPanelTest.php": {
-    "mtime": 1787994269.6288,
-    "ast_hash": "f1f16b7a36c9de8a41da82a38ad1dcf2",
+    "mtime": 1787998278.5621696,
+    "ast_hash": "8f3ab2e098529701b68c34f7b7120d02",
     "semantic_hash": ""
   },
   "app/Actions/Challenges/CancelChallenge.php": {
@@ -2650,8 +2650,8 @@
     "semantic_hash": ""
   },
   "tests/Feature/Domain/ChallengeStepDesignTest.php": {
-    "mtime": 1787946384.3886273,
-    "ast_hash": "579ff1dcf6c83c9ed0afc55595e06164",
+    "mtime": 1787998360.0982878,
+    "ast_hash": "e0080833eb0a3af771abc307c53b8300",
     "semantic_hash": ""
   },
   "app/Actions/CheckIns/AdvanceCheckInStep.php": {
@@ -2815,8 +2815,8 @@
     "semantic_hash": ""
   },
   "app/Services/Ai/AiDriverCatalog.php": {
-    "mtime": 1787992458.125119,
-    "ast_hash": "f29c54c1ee0d21a0742f4f5523aeea97",
+    "mtime": 1787998278.5611696,
+    "ast_hash": "6d18a3f4a0aad723a5cff75f07f32e57",
     "semantic_hash": ""
   },
   "app/Services/Ai/AiLimit.php": {
@@ -2860,8 +2860,8 @@
     "semantic_hash": ""
   },
   "app/Services/Ai/AiTextClient.php": {
-    "mtime": 1787992480.0068393,
-    "ast_hash": "71681825b23d7c9163d090fc3fee6322",
+    "mtime": 1787998278.5611696,
+    "ast_hash": "4db5554cf138714fcbc2308c9feed680",
     "semantic_hash": ""
   },
   "app/Services/Ai/AiTextResult.php": {
@@ -2900,8 +2900,8 @@
     "semantic_hash": ""
   },
   "app/Services/Ai/LaravelAiTextClient.php": {
-    "mtime": 1787992540.5700648,
-    "ast_hash": "0a757976ee6c503dfc10b26ecacc3bf8",
+    "mtime": 1787998278.5611696,
+    "ast_hash": "61b4aafe7f821c2bcb7fd3ca726ec8d9",
     "semantic_hash": ""
   },
   "config/ai_usage.php": {
@@ -3050,18 +3050,18 @@
     "semantic_hash": ""
   },
   "app/Actions/Ai/ApplyAiVerdict.php": {
-    "mtime": 1787992757.4822915,
-    "ast_hash": "46dc855b32c84f77b4228c47288ff02a",
+    "mtime": 1787998278.5591695,
+    "ast_hash": "75e3dc4ae1b11fe18e778ba884a4a3fd",
     "semantic_hash": ""
   },
   "app/Actions/Ai/BuildProofModerationPrompt.php": {
-    "mtime": 1787992581.853537,
-    "ast_hash": "f346f92a270b21c14b66a7d835d4c07f",
+    "mtime": 1787998278.5591695,
+    "ast_hash": "d7a76a2a489b97258ee5893d2d46b9e3",
     "semantic_hash": ""
   },
   "app/Actions/Ai/ReviewProofWithAi.php": {
-    "mtime": 1787992676.5163267,
-    "ast_hash": "e2c7e2603a86a8e27b57a919aa92081c",
+    "mtime": 1787998278.5591695,
+    "ast_hash": "2a84f278f50d8b773dfc3fa443c322be",
     "semantic_hash": ""
   },
   "app/Actions/CheckIns/OverrideCheckInVerdict.php": {
@@ -3260,13 +3260,13 @@
     "semantic_hash": ""
   },
   "prompts/progress-phase-14.md": {
-    "mtime": 1787991609.0059803,
-    "ast_hash": "b17fe29f551e7b15f0e9b66134716481",
+    "mtime": 1787994616.2663102,
+    "ast_hash": "0c2e935dbeab33cbdb785f9a255c743c",
     "semantic_hash": ""
   },
   "app/Enums/AiReviewPath.php": {
-    "mtime": 1787992434.9224157,
-    "ast_hash": "0024fc152093957eb9bafacc56dada26",
+    "mtime": 1787998278.5601697,
+    "ast_hash": "6aa0ee17629888bc1867c0206846f0ed",
     "semantic_hash": ""
   },
   "database/migrations/2026_08_29_160000_add_review_path_to_ai_approval_decisions_table.php": {
@@ -3275,13 +3275,33 @@
     "semantic_hash": ""
   },
   "tests/Feature/Ai/VoiceProofModerationTest.php": {
-    "mtime": 1787994270.1218164,
-    "ast_hash": "8b2b99b0b89f806749ecb4a23f2a4303",
+    "mtime": 1787998278.5621696,
+    "ast_hash": "92952ae3d4b0af6d424327c674591d6f",
     "semantic_hash": ""
   },
   "tests/Feature/Domain/SessionAiReviewTest.php": {
     "mtime": 1787994270.404826,
     "ast_hash": "ee44078e79752185c6cf044708fc1d08",
+    "semantic_hash": ""
+  },
+  "app/Services/Ai/FfmpegDetector.php": {
+    "mtime": 1787998278.5691698,
+    "ast_hash": "d7cc3af09bdf0b67fd57b67abf621420",
+    "semantic_hash": ""
+  },
+  "app/Services/Ai/VideoReviewCapability.php": {
+    "mtime": 1787998278.5691698,
+    "ast_hash": "0e80e7d5b3b80fc083c079d5874e7b31",
+    "semantic_hash": ""
+  },
+  "app/Services/Media/VideoFrameSampler.php": {
+    "mtime": 1787998278.5701697,
+    "ast_hash": "cafd9d3d76c0378fc2ed25e362cfc92b",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Ai/VideoProofModerationTest.php": {
+    "mtime": 1787998278.5701697,
+    "ast_hash": "3554aac5e1ba46a1f812574b1c0bd6bb",
     "semantic_hash": ""
   }
 }

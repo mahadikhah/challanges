@@ -6,9 +6,11 @@ use App\Actions\CheckIns\SettleCheckIn;
 use App\Enums\AiDecisionOutcome;
 use App\Enums\ApprovalMode;
 use App\Enums\CheckInStatus;
+use App\Enums\ProofType;
 use App\Exceptions\CheckInRejectedException;
 use App\Models\CheckIn;
 use App\Services\Ai\AiApprovalGate;
+use App\Services\Ai\VideoReviewCapability;
 use App\Services\Telegram\NotifyCheckInVerdict;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -23,7 +25,8 @@ use Throwable;
  * manual queue.
  *
  * The media kind comes from the challenge: a photo review attaches the
- * photo, a voice review transcribes then judges the transcript (§2.11), and
+ * photo, a voice review transcribes then judges the transcript, a video
+ * review extracts evenly-spaced frames and judges the set (§2.11), and
  * the caller does not get to pick — the proof type the challenge was created
  * with is the proof type under review.
  *
@@ -47,6 +50,7 @@ class ApplyAiVerdict
         private readonly SettleCheckIn $settle,
         private readonly NotifyCheckInVerdict $notify,
         private readonly AiApprovalGate $gate,
+        private readonly VideoReviewCapability $videoCapability,
     ) {}
 
     /**
@@ -74,6 +78,18 @@ class ApplyAiVerdict
         // an unbuilt path routes to the manual queue rather than throwing —
         // the participant's submission must not fail for an admin's optimism.
         if (! $challenge->proof_type->supportsAiReview()) {
+            return;
+        }
+
+        // Video is environment-gated on top of admin-gated: without a driver
+        // that accepts video bytes and without ffmpeg on this host, there is
+        // no path from the recording to a model. The admin panel refuses to
+        // enable the toggle in this state; this is the runtime re-check for a
+        // challenge created while it was available (or a host that lost its
+        // ffmpeg), and it lands the submission in the manual queue — the
+        // participant's proof must not be stranded because the environment
+        // changed under it.
+        if ($challenge->proof_type === ProofType::VideoApproval && ! $this->videoCapability->available()) {
             return;
         }
 
