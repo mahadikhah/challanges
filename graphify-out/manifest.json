@@ -80,8 +80,8 @@
     "semantic_hash": ""
   },
   "app/Providers/AppServiceProvider.php": {
-    "mtime": 1788012282.1176107,
-    "ast_hash": "277ca3ed07a511ced646c5ab2625fda5",
+    "mtime": 1788017532.9775963,
+    "ast_hash": "3510b34622d56916f5c884e16d6be658",
     "semantic_hash": ""
   },
   "app/Providers/FortifyServiceProvider.php": {
@@ -95,8 +95,8 @@
     "semantic_hash": "e66bb13691f6184c762c196427d8e685"
   },
   "bootstrap/app.php": {
-    "mtime": 1787974231.6024108,
-    "ast_hash": "992c21109260cf6e1a157e1ded460945",
+    "mtime": 1788017342.5889528,
+    "ast_hash": "08e26ca31f455ffbfd701891f6b3efd0",
     "semantic_hash": ""
   },
   "bootstrap/providers.php": {
@@ -620,8 +620,8 @@
     "semantic_hash": ""
   },
   "routes/console.php": {
-    "mtime": 1788014660.2019844,
-    "ast_hash": "1560bd30d36c4d3313adf969cb87f92e",
+    "mtime": 1788017074.7873437,
+    "ast_hash": "057268ce1d9f2085fb87154b3b54c2f6",
     "semantic_hash": ""
   },
   "routes/settings.php": {
@@ -1185,8 +1185,8 @@
     "semantic_hash": ""
   },
   "app/Enums/SettingKey.php": {
-    "mtime": 1788014712.2057369,
-    "ast_hash": "6d5d2f88c9dd140f1e7ca911421ee628",
+    "mtime": 1788016988.1151097,
+    "ast_hash": "9801ef31bd29a823bf092d92f2591a80",
     "semantic_hash": ""
   },
   "app/Enums/SettingType.php": {
@@ -2250,8 +2250,8 @@
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/SettingsController.php": {
-    "mtime": 1788014743.2405238,
-    "ast_hash": "ef8fee410e806c48d1f5252ad475a596",
+    "mtime": 1788017075.8013358,
+    "ast_hash": "6c81a419a2441f7498757f27e00f0fe1",
     "semantic_hash": ""
   },
   "app/Http/Middleware/EnsureUserIsAdmin.php": {
@@ -2260,18 +2260,18 @@
     "semantic_hash": ""
   },
   "app/Http/Requests/Admin/UpdateSettingRequest.php": {
-    "mtime": 1787980168.1626582,
-    "ast_hash": "b93a02780a48cc05badcb537c760da84",
+    "mtime": 1788017118.2130265,
+    "ast_hash": "e8562f3c90f387bf5feea984385abcd6",
     "semantic_hash": ""
   },
   "lang/en/admin.php": {
-    "mtime": 1788016124.009292,
-    "ast_hash": "82d3b2b01fd4d9e8f1033f7426ee05e6",
+    "mtime": 1788017166.418721,
+    "ast_hash": "5bfb1eb779703af6747ed1bf3e5f26ff",
     "semantic_hash": ""
   },
   "lang/fa/admin.php": {
-    "mtime": 1788016124.2072933,
-    "ast_hash": "46054fa4a85a96071dbbd84baf73373d",
+    "mtime": 1788017205.9945033,
+    "ast_hash": "2b4b92f309f6d70836ed2252adb4629d",
     "semantic_hash": ""
   },
   "resources/js/pages/Admin/Settings.tsx": {
@@ -2280,8 +2280,8 @@
     "semantic_hash": ""
   },
   "tests/Feature/Admin/SettingsPanelTest.php": {
-    "mtime": 1788014790.3078525,
-    "ast_hash": "aa93b312404d30bbd8f1be89e0829c95",
+    "mtime": 1788017501.1296287,
+    "ast_hash": "92a3146b358f378eb2567f18376f3ded",
     "semantic_hash": ""
   },
   "app/Actions/Challenges/CancelChallenge.php": {
@@ -3435,8 +3435,8 @@
     "semantic_hash": ""
   },
   "prompts/progress-phase-13.md": {
-    "mtime": 1788015234.4593396,
-    "ast_hash": "84bbc0843b43799cbf3b2844293c067b",
+    "mtime": 1788016731.6697216,
+    "ast_hash": "f35e17adc6231100dd3f28de6bf48c02",
     "semantic_hash": ""
   },
   "public/vendor/log-viewer/app.js.LICENSE.txt": {
@@ -3547,6 +3547,31 @@
   "tests/Feature/Observability/SystemHealthTest.php": {
     "mtime": 1788016018.3006456,
     "ast_hash": "7d2138588802bd279e0862df859abf9b",
+    "semantic_hash": ""
+  },
+  "app/Actions/Observability/SendCriticalAlert.php": {
+    "mtime": 1788017532.3225968,
+    "ast_hash": "1feb9b208a0a8df9a8c183624a352e2f",
+    "semantic_hash": ""
+  },
+  "app/Actions/Observability/SendExceptionAlert.php": {
+    "mtime": 1788017020.7197995,
+    "ast_hash": "8d27ee5291be1b121243c2130b7dd824",
+    "semantic_hash": ""
+  },
+  "app/Console/Commands/Observability/AlertOnStaleHeartbeat.php": {
+    "mtime": 1788017040.1046278,
+    "ast_hash": "aa422b1ca8908e77ecda917853bb16bc",
+    "semantic_hash": ""
+  },
+  "app/Listeners/Observability/AlertOnFailedJob.php": {
+    "mtime": 1788017024.2947671,
+    "ast_hash": "ebe980de35f369aa6a509730f9787721",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Observability/CriticalAlertsTest.php": {
+    "mtime": 1788017365.920886,
+    "ast_hash": "5ea4e64025051ed7c6a8e75470b3699d",
     "semantic_hash": ""
   }
 }

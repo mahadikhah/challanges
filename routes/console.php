@@ -56,3 +56,10 @@ Schedule::command('observability:prune-telescope')->daily();
 // external ping beside the stamp is the one thing that can detect cron dying
 // outright, since a dead cron silences every schedule entry including this one.
 Schedule::command('observability:heartbeat')->everyMinute();
+
+// Task 5's stale-heartbeat check: reads the stamp above and alerts the ops
+// chat when it has gone past the staleness bar. Scheduled after the
+// heartbeat on purpose — the stamp this minute should exist before anyone
+// judges its age — and subject to the same bound stated there: a totally
+// dead cron silences this entry too.
+Schedule::command('observability:alert-stale-heartbeat')->everyMinute();

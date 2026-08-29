@@ -44,6 +44,10 @@ return [
             'telescope_slow_query_ms' => 'Telescope slow-query bar (milliseconds)',
             'telescope_prune_hours' => 'Telescope retention (hours)',
             'heartbeat_staleness_minutes' => 'Scheduler heartbeat staleness bar (minutes)',
+            'alerts_enabled' => 'Critical alerts to the ops chat',
+            'alert_ops_platform' => 'Ops chat platform (telegram or bale)',
+            'alert_ops_chat_id' => 'Ops chat id (0 = alerting off)',
+            'alert_cooldown_minutes' => 'Alert cooldown per kind/class (minutes)',
         ],
 
         'capability_available' => 'Underlying provider capability: available.',
@@ -240,6 +244,13 @@ return [
         'discard' => 'Discard',
         'open_telescope' => 'Open Telescope',
         'refresh' => 'Refresh',
+    ],
+
+    'alerts' => [
+        'failed_job' => "⚠️ A job exhausted its retries and needs a human.\n\nJob: :job\nReason: :reason\nFailed jobs: :link",
+        'exception' => "⚠️ The platform keeps hitting this exception.\n\nException: :class\nReason: :reason\nSystem health: :link",
+        'stale_heartbeat' => "⚠️ The scheduler heartbeat is stale.\n\nAge: :minutes (bar: :threshold minutes)\nSystem health: :link",
+        'never_ran' => 'never stamped',
     ],
 
     'invites' => [

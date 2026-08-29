@@ -75,6 +75,10 @@ class SettingsController extends Controller
             SettingKey::TelescopeSlowQueryMs,
             SettingKey::TelescopePruneHours,
             SettingKey::HeartbeatStalenessMinutes,
+            SettingKey::AlertsEnabled,
+            SettingKey::AlertOpsPlatform,
+            SettingKey::AlertOpsChatId,
+            SettingKey::AlertCooldownMinutes,
         ],
     ];
 

@@ -3,12 +3,14 @@
 namespace App\Providers;
 
 use App\Listeners\Ai\RecordAiProviderFailover;
+use App\Listeners\Observability\AlertOnFailedJob;
 use App\Models\User;
 use App\Services\Ai\AiTextClient;
 use App\Services\Ai\LaravelAiTextClient;
 use App\Services\Localization;
 use App\Services\Settings;
 use Carbon\CarbonImmutable;
+use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
@@ -52,6 +54,7 @@ class AppServiceProvider extends ServiceProvider
         $this->configureDefaults();
         $this->registerLogViewerGate();
         $this->registerAiFailoverListeners();
+        $this->registerAlertListeners();
     }
 
     /**
@@ -75,6 +78,16 @@ class AppServiceProvider extends ServiceProvider
     {
         Event::listen(ProviderFailedOver::class, RecordAiProviderFailover::class);
         Event::listen(AgentFailedOver::class, RecordAiProviderFailover::class);
+    }
+
+    /**
+     * Task 5's failed-job trigger: Laravel fires `JobFailed` once a job has
+     * exhausted its retries, and the listener turns that into an ops-chat
+     * alert (or a silent no-op — every gate lives in the send action).
+     */
+    protected function registerAlertListeners(): void
+    {
+        Event::listen(JobFailed::class, AlertOnFailedJob::class);
     }
 
     /**

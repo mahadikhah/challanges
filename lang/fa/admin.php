@@ -48,6 +48,10 @@ return [
             'telescope_slow_query_ms' => 'آستانه کوئری کندِ Telescope (میلی‌ثانیه)',
             'telescope_prune_hours' => 'نگهداشت Telescope (ساعت)',
             'heartbeat_staleness_minutes' => 'آستانه کهنگی ضربان زمان‌بند (دقیقه)',
+            'alerts_enabled' => 'هشدارهای بحرانی به گفت‌وگوی عملیات',
+            'alert_ops_platform' => 'پلتفرم گفت‌وگوی عملیات (telegram یا bale)',
+            'alert_ops_chat_id' => 'شناسه گفت‌وگوی عملیات (۰ = خاموش)',
+            'alert_cooldown_minutes' => 'فاصله تکرار هشدار به ازای هر نوع (دقیقه)',
         ],
 
         'capability_available' => 'قابلیت زیربنایی ارائه‌دهنده: موجود است.',
@@ -244,6 +248,13 @@ return [
         'discard' => 'دور انداختن',
         'open_telescope' => 'باز کردن Telescope',
         'refresh' => 'نوسازی',
+    ],
+
+    'alerts' => [
+        'failed_job' => "⚠️ یک کار پس از تمام‌شدن تلاش‌ها به دست انسان نیاز دارد.\n\nکار: :job\nدلیل: :reason\nکارهای ناتمام: :link",
+        'exception' => "⚠️ پلتفرم پیوسته به این استثنا می‌خورد.\n\nاستثنا: :class\nدلیل: :reason\nسلامت سامانه: :link",
+        'stale_heartbeat' => "⚠️ ضربان زمان‌بند کهنه شده است.\n\nسن: :minutes (آستانه: :threshold دقیقه)\nسلامت سامانه: :link",
+        'never_ran' => 'هرگز ثبت نشده',
     ],
 
     'invites' => [

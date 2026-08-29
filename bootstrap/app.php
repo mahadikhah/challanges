@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\Observability\SendExceptionAlert;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -90,4 +91,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        // Task 5's exception trigger. Runs *beside* the default file logging
+        // (a reportable closure only replaces it by returning false); the
+        // action itself debounces per exception class and no-ops entirely
+        // when alerting is off or the ops chat is unconfigured.
+        $exceptions->reportable(fn (Throwable $e) => app(SendExceptionAlert::class)->handle($e));
     })->create();

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Enums\MessagingPlatform;
 use App\Enums\SettingKey;
 use App\Enums\SettingType;
 use App\Models\User;
@@ -80,8 +81,8 @@ class UpdateSettingRequest extends FormRequest
     }
 
     /**
-     * Only the required channel is text today. Not required to start with
-     * `@` — a numeric `-100…` channel is a supported (if degraded)
+     * The required channel and the alert ops platform. Neither is required to
+     * start with `@` — a numeric `-100…` channel is a supported (if degraded)
      * configuration, and refusing it here would tell an admin their working
      * gate is invalid.
      *
@@ -89,6 +90,13 @@ class UpdateSettingRequest extends FormRequest
      */
     private function textRules(): array
     {
+        // The ops-chat platform is the one text setting that must be a
+        // registry value, not free text: an unresolvable string would mean
+        // alerting that looks configured and never sends.
+        if ($this->settingKey() === SettingKey::AlertOpsPlatform) {
+            return ['value' => ['required', 'string', 'in:'.implode(',', array_column(MessagingPlatform::cases(), 'value'))]];
+        }
+
         return ['value' => ['required', 'string', 'max:64']];
     }
 

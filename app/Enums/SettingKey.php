@@ -108,6 +108,18 @@ enum SettingKey: string
     */
     case HeartbeatStalenessMinutes = 'heartbeat_staleness_minutes';
 
+    /*
+    | Critical alerts through the existing bot (§2.10): a configured ops chat
+    | gets a DM when something needs a human immediately. Off by default on
+    | every axis — the kill switch, and the platform/chat pair that says where
+    | an alert would even go. Unset platform or zero chat id means unconfigured,
+    | and every alert path no-ops silently rather than erroring.
+    */
+    case AlertsEnabled = 'alerts_enabled';
+    case AlertOpsPlatform = 'alert_ops_platform';
+    case AlertOpsChatId = 'alert_ops_chat_id';
+    case AlertCooldownMinutes = 'alert_cooldown_minutes';
+
     /**
      * The value shape this setting accepts.
      */
@@ -115,11 +127,12 @@ enum SettingKey: string
     {
         return match ($this) {
             self::StarsPackages => SettingType::Json,
-            self::RequiredChannel, self::RequiredChannelBale => SettingType::Text,
+            self::RequiredChannel, self::RequiredChannelBale, self::AlertOpsPlatform => SettingType::Text,
             self::AiApprovalGloballyEnabled,
             self::AiApprovalAllowedImage,
             self::AiApprovalAllowedVoice,
-            self::AiApprovalAllowedVideo => SettingType::Boolean,
+            self::AiApprovalAllowedVideo,
+            self::AlertsEnabled => SettingType::Boolean,
             default => SettingType::Integer,
         };
     }
@@ -291,6 +304,24 @@ enum SettingKey: string
             | jitter, tight enough that a dead cron is caught the same hour.
             */
             self::HeartbeatStalenessMinutes => 5,
+
+            /*
+            | The alerting gates. Off until deliberately switched on, and the
+            | ops chat unconfigured until both halves are set — either half
+            | missing means the send path no-ops silently (Task 5's discipline:
+            | fully optional, same as Task 3's external ping).
+            */
+            self::AlertsEnabled => false,
+            self::AlertOpsPlatform => '',
+            self::AlertOpsChatId => 0,
+
+            /*
+            | At most one alert per distinct kind/class inside this window.
+            | Fifteen minutes: a burst of the same error must not become a
+            | burst of messages, and the ops chat should not hear the same
+            | sentence again until it could plausibly be new information.
+            */
+            self::AlertCooldownMinutes => 15,
         };
     }
 }
