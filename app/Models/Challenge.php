@@ -9,6 +9,8 @@ use App\Enums\FlowType;
 use App\Enums\MessagingPlatform;
 use App\Enums\PeriodType;
 use App\Enums\ProofType;
+use App\Enums\ScoringStrategy;
+use App\Enums\ScoringType;
 use Carbon\CarbonImmutable;
 use Database\Factories\ChallengeFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -38,6 +40,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property ApprovalMode $approval_mode
  * @property string|null $approval_criteria
  * @property FlowType $flow_type
+ * @property ScoringType $scoring_type
+ * @property string|null $target_value
+ * @property string|null $unit_label
+ * @property ScoringStrategy|null $scoring_strategy
+ * @property string|null $base_points
+ * @property bool $quantity_partial_counts_as_done
  * @property bool $proof_is_public
  * @property int|null $proof_media_max_seconds
  * @property int|null $proof_media_max_size_kb
@@ -65,6 +73,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'approval_mode',
     'approval_criteria',
     'flow_type',
+    'scoring_type',
+    'target_value',
+    'unit_label',
+    'scoring_strategy',
+    'base_points',
+    'quantity_partial_counts_as_done',
     'proof_is_public',
     'proof_media_max_seconds',
     'proof_media_max_size_kb',
@@ -249,6 +263,11 @@ class Challenge extends Model
             'proof_type' => ProofType::class,
             'approval_mode' => ApprovalMode::class,
             'flow_type' => FlowType::class,
+            'scoring_type' => ScoringType::class,
+            'target_value' => 'decimal:2',
+            'base_points' => 'decimal:2',
+            'scoring_strategy' => ScoringStrategy::class,
+            'quantity_partial_counts_as_done' => 'boolean',
             'proof_is_public' => 'boolean',
             'proof_media_max_seconds' => 'integer',
             'proof_media_max_size_kb' => 'integer',

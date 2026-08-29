@@ -27,6 +27,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property CheckInStatus $status
  * @property string|null $expected_phrase
  * @property string|null $submitted_text
+ * @property string|null $reported_value
+ * @property string|null $score
  * @property string|null $proof_path
  * @property CarbonImmutable|null $submitted_at
  * @property int|null $reviewed_by
@@ -44,6 +46,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'status',
     'expected_phrase',
     'submitted_text',
+    'reported_value',
+    'score',
     'proof_path',
     'submitted_at',
     'reviewed_by',
@@ -189,6 +193,8 @@ class CheckIn extends Model
     {
         return [
             'status' => CheckInStatus::class,
+            'reported_value' => 'decimal:2',
+            'score' => 'decimal:2',
             'submitted_at' => 'datetime',
             'reviewed_at' => 'datetime',
         ];

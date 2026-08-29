@@ -10,6 +10,8 @@ use App\Enums\EntitlementType;
 use App\Enums\FlowType;
 use App\Enums\PeriodType;
 use App\Enums\ProofType;
+use App\Enums\ScoringStrategy;
+use App\Enums\ScoringType;
 use App\Enums\SettingKey;
 use App\Enums\StepInputType;
 use App\Exceptions\NoEntitlementAvailableException;
@@ -69,6 +71,12 @@ class CreateChallenge
     private const CUSTOM_PERIOD_DAYS_MAX = 365;
 
     /**
+     * A unit label rides in prompts ("How many pushups?") and leaderboard
+     * lines; the bound keeps both legible, not the column short.
+     */
+    private const UNIT_LABEL_MAX = 64;
+
+    /**
      * Descriptive criteria for an AI reviewer, not an essay. Shared with the
      * AI suggestion clamp so the model cannot talk its way past the bound.
      */
@@ -98,6 +106,12 @@ class CreateChallenge
      * @param  string|null  $approvalCriteria  pre-screened criteria; never re-screened here — the floor is that it exists, not that it is trustworthy
      * @param  int|null  $proofMediaMaxSeconds  cap on a voice/video submission's duration; required when the proof type or a step demands a recording, and never above the admin ceiling
      * @param  int|null  $proofMediaMaxSizeKb  cap on a voice/video submission's size in KB, same requirements as the duration cap
+     * @param  ScoringType  $scoringType  `binary` (default) leaves the challenge exactly as every challenge before it; `quantity` requires the whole scoring block below
+     * @param  int|float|string|null  $targetValue  the value a full score is awarded for; positive, required for `quantity`, forbidden otherwise
+     * @param  string|null  $unitLabel  what the participant counts ("pushups", "seconds"); required for `quantity`, forbidden otherwise
+     * @param  int|float|string|null  $basePoints  the score awarded at exactly `targetValue`; positive, required for `quantity`, forbidden otherwise
+     * @param  bool  $quantityPartialCountsAsDone  when true, a below-target report still settles the period (streak continues, lower score); default false — falling short is a miss
+     * @param  ScoringStrategy|null  $scoringStrategy  how a report becomes a score; fixed enum, never a formula. Defaults to `proportional`, the only strategy, so callers need not say it
      *
      * @throws InvalidArgumentException when the challenge could not be a coherent challenge
      * @throws NoEntitlementAvailableException when the creator holds no create-slot
@@ -121,6 +135,12 @@ class CreateChallenge
         ?string $approvalCriteria = null,
         ?int $proofMediaMaxSeconds = null,
         ?int $proofMediaMaxSizeKb = null,
+        ScoringType $scoringType = ScoringType::Binary,
+        int|float|string|null $targetValue = null,
+        ?string $unitLabel = null,
+        int|float|string|null $basePoints = null,
+        bool $quantityPartialCountsAsDone = false,
+        ?ScoringStrategy $scoringStrategy = null,
     ): Challenge {
         $title = trim($title);
         $description = $description === null ? null : trim($description);
@@ -174,6 +194,15 @@ class CreateChallenge
             $proofMediaMaxSizeKb,
         );
 
+        [$targetValue, $unitLabel, $basePoints, $scoringStrategy] = $this->assertScoring(
+            $scoringType,
+            $targetValue,
+            $unitLabel,
+            $basePoints,
+            $quantityPartialCountsAsDone,
+            $scoringStrategy,
+        );
+
         $startsAt = CarbonImmutable::instance($startsAt)->utc();
 
         $challenge = DB::transaction(function () use (
@@ -194,7 +223,13 @@ class CreateChallenge
             $flowType,
             $steps,
             $approvalMode,
-            $approvalCriteria
+            $approvalCriteria,
+            $scoringType,
+            $targetValue,
+            $unitLabel,
+            $basePoints,
+            $quantityPartialCountsAsDone,
+            $scoringStrategy
         ): Challenge {
             $challenge = Challenge::query()->create([
                 'creator_id' => $creator->getKey(),
@@ -226,6 +261,13 @@ class CreateChallenge
 
                 'proof_media_max_seconds' => $proofMediaMaxSeconds,
                 'proof_media_max_size_kb' => $proofMediaMaxSizeKb,
+
+                'scoring_type' => $scoringType,
+                'target_value' => $targetValue,
+                'unit_label' => $unitLabel,
+                'scoring_strategy' => $scoringStrategy,
+                'base_points' => $basePoints,
+                'quantity_partial_counts_as_done' => $quantityPartialCountsAsDone,
 
                 'default_freezes' => $defaultFreezes ?? $this->settings->integer(SettingKey::DefaultChallengeFreezes),
                 'status' => $startsAt->isFuture() ? ChallengeStatus::Scheduled : ChallengeStatus::Active,
@@ -320,6 +362,73 @@ class CreateChallenge
     }
 
     /**
+     * The scoring block: all of it for a quantity challenge, none of it for a
+     * binary one — the same required/forbidden pattern the media caps use, so
+     * a stray parameter on either side of the line is a refusal rather than a
+     * silently half-configured challenge.
+     *
+     * `scoring_strategy` is the one exception: it defaults to `proportional`
+     * rather than being asked for, because it is the only strategy — exposing
+     * a choice of one is not a choice. The default still applies only to
+     * quantity challenges; binary ones store null.
+     *
+     * @return array{0: string|null, 1: string|null, 2: string|null, 3: ScoringStrategy|null} the values to store, as the decimal columns' strings
+     *
+     * @throws InvalidArgumentException
+     */
+    private function assertScoring(
+        ScoringType $scoringType,
+        int|float|string|null $targetValue,
+        ?string $unitLabel,
+        int|float|string|null $basePoints,
+        bool $quantityPartialCountsAsDone,
+        ?ScoringStrategy $scoringStrategy,
+    ): array {
+        if (! $scoringType->isQuantity()) {
+            // Forbidden rather than ignored: a target on a binary challenge is
+            // a caller bug, and storing it would be a half-configured scoring
+            // block waiting to surprise whoever flips the type later.
+            if ($targetValue !== null || $unitLabel !== null || $basePoints !== null
+                || $scoringStrategy !== null || $quantityPartialCountsAsDone) {
+                throw new InvalidArgumentException(
+                    "A {$scoringType->value} challenge takes no scoring configuration; leave it out.",
+                );
+            }
+
+            return [null, null, null, null];
+        }
+
+        foreach ([['target_value', $targetValue], ['base_points', $basePoints]] as [$name, $value]) {
+            if ($value === null || (float) $value <= 0) {
+                throw new InvalidArgumentException(
+                    "A quantity challenge needs a positive {$name}; got ".var_export($value, true).'.',
+                );
+            }
+        }
+
+        if ($unitLabel === null || trim($unitLabel) === '') {
+            throw new InvalidArgumentException('A quantity challenge needs a unit label.');
+        }
+
+        if (mb_strlen(trim($unitLabel)) > self::UNIT_LABEL_MAX) {
+            throw new InvalidArgumentException(
+                'A unit label may not exceed '.self::UNIT_LABEL_MAX.' characters.',
+            );
+        }
+
+        // The strategy has a default and keeps it: `proportional` is the only
+        // branch `CalculateQuantityScore` (Task 2) implements, so the wizard
+        // never asks and the column still says which arithmetic scored a
+        // period — the point of storing a strategy at all.
+        return [
+            number_format((float) $targetValue, 2, '.', ''),
+            trim($unitLabel),
+            number_format((float) $basePoints, 2, '.', ''),
+            $scoringStrategy ?? ScoringStrategy::Proportional,
+        ];
+    }
+
+    /**
      * Refuse anything that could not be a working challenge.
      *
      * @throws InvalidArgumentException
@@ -384,6 +493,7 @@ class CreateChallenge
             'total_periods_max' => self::TOTAL_PERIODS_MAX,
             'custom_period_days_max' => self::CUSTOM_PERIOD_DAYS_MAX,
             'approval_criteria_max' => self::APPROVAL_CRITERIA_MAX,
+            'unit_label_max' => self::UNIT_LABEL_MAX,
         ];
     }
 }

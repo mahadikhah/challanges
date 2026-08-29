@@ -7,6 +7,8 @@ use App\Enums\ChallengeVisibility;
 use App\Enums\EntitlementType;
 use App\Enums\PeriodType;
 use App\Enums\ProofType;
+use App\Enums\ScoringStrategy;
+use App\Enums\ScoringType;
 use App\Enums\SettingKey;
 use App\Exceptions\NoEntitlementAvailableException;
 use App\Jobs\Challenges\AnnounceChallenge;
@@ -289,6 +291,115 @@ describe('the announcement', function () {
         // retried and nobody would ever see the challenge.
         expect($challenge->announced_at)->toBeNull()
             ->and($challenge->awaitsAnnouncement())->toBeTrue();
+    });
+});
+
+describe('quantity scoring', function () {
+    it('records the whole scoring block, defaulting the strategy it never asks for', function () {
+        withCreateSlots($this->creator);
+
+        $challenge = creating([
+            'scoringType' => ScoringType::Quantity,
+            'targetValue' => 30,
+            'unitLabel' => 'pushups',
+            'basePoints' => 100,
+        ]);
+
+        // `proportional` is the only strategy, so the wizard never offers a
+        // choice of one — but the column still records which arithmetic scored
+        // a period, which is the point of storing a strategy at all.
+        expect($challenge->scoring_type)->toBe(ScoringType::Quantity)
+            ->and((float) $challenge->target_value)->toBe(30.0)
+            ->and($challenge->unit_label)->toBe('pushups')
+            ->and($challenge->scoring_strategy)->toBe(ScoringStrategy::Proportional)
+            ->and((float) $challenge->base_points)->toBe(100.0)
+            ->and($challenge->quantity_partial_counts_as_done)->toBeFalse();
+    });
+
+    it('takes the opt-in that a below-target report still counts as done', function () {
+        withCreateSlots($this->creator);
+
+        expect(creating([
+            'scoringType' => ScoringType::Quantity,
+            'targetValue' => 30,
+            'unitLabel' => 'pushups',
+            'basePoints' => 100,
+            'quantityPartialCountsAsDone' => true,
+        ])->quantity_partial_counts_as_done)->toBeTrue();
+    });
+
+    it('leaves a binary challenge exactly as challenges were, scoring columns empty', function () {
+        withCreateSlots($this->creator);
+
+        // The regression bar for the whole phase: an ordinary challenge must
+        // not grow half a scoring block it never asked for.
+        $challenge = creating();
+
+        expect($challenge->scoring_type)->toBe(ScoringType::Binary)
+            ->and($challenge->target_value)->toBeNull()
+            ->and($challenge->unit_label)->toBeNull()
+            ->and($challenge->scoring_strategy)->toBeNull()
+            ->and($challenge->base_points)->toBeNull()
+            ->and($challenge->quantity_partial_counts_as_done)->toBeFalse();
+    });
+
+    it('refuses a quantity challenge missing any part of its configuration', function (array $overrides, string $because) {
+        withCreateSlots($this->creator);
+
+        expect(fn () => creating(array_replace([
+            'scoringType' => ScoringType::Quantity,
+            'targetValue' => 30,
+            'unitLabel' => 'pushups',
+            'basePoints' => 100,
+        ], $overrides)))->toThrow(InvalidArgumentException::class, $because);
+    })->with([
+        'no target' => [['targetValue' => null], 'needs a positive target_value'],
+        'no unit label' => [['unitLabel' => null], 'needs a unit label'],
+        'a blank unit label' => [['unitLabel' => '   '], 'needs a unit label'],
+        'no base points' => [['basePoints' => null], 'needs a positive base_points'],
+    ]);
+
+    it('refuses a non-positive target or base points', function (array $overrides, string $because) {
+        withCreateSlots($this->creator);
+
+        expect(fn () => creating(array_replace([
+            'scoringType' => ScoringType::Quantity,
+            'targetValue' => 30,
+            'unitLabel' => 'pushups',
+            'basePoints' => 100,
+        ], $overrides)))->toThrow(InvalidArgumentException::class, $because);
+    })->with([
+        'a zero target' => [['targetValue' => 0], 'needs a positive target_value'],
+        'a negative target' => [['targetValue' => -5], 'needs a positive target_value'],
+        'zero base points' => [['basePoints' => 0], 'needs a positive base_points'],
+        'negative base points' => [['basePoints' => -1], 'needs a positive base_points'],
+    ]);
+
+    it('refuses scoring configuration on a binary challenge', function () {
+        withCreateSlots($this->creator);
+
+        // Forbidden, not ignored: a target on a binary challenge is a caller
+        // bug, and storing it would leave a half-configured scoring block
+        // waiting to surprise whoever flips the type later.
+        expect(fn () => creating(['targetValue' => 30]))->toThrow(
+            InvalidArgumentException::class,
+            'takes no scoring configuration',
+        );
+    });
+
+    it('builds quantity challenges from the factory with the pushup defaults', function () {
+        // The factory state Task 2/3/4 tests build on: legible arithmetic —
+        // half the target is half the score, double is double.
+        $challenge = Challenge::factory()->quantity()->make();
+
+        expect($challenge->scoring_type)->toBe(ScoringType::Quantity)
+            ->and((float) $challenge->target_value)->toBe(30.0)
+            ->and($challenge->unit_label)->toBe('pushups')
+            ->and($challenge->scoring_strategy)->toBe(ScoringStrategy::Proportional)
+            ->and((float) $challenge->base_points)->toBe(100.0)
+            ->and($challenge->quantity_partial_counts_as_done)->toBeFalse()
+            // And the factory's ordinary rows stay binary.
+            ->and(Challenge::factory()->make()->scoring_type)->toBe(ScoringType::Binary);
     });
 });
 

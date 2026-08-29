@@ -1255,13 +1255,13 @@
     "semantic_hash": ""
   },
   "app/Models/Challenge.php": {
-    "mtime": 1787982679.7375226,
-    "ast_hash": "3072dee7ac62688c213503e245888954",
+    "mtime": 1788000232.9472747,
+    "ast_hash": "1a7b9faf2fd94449b6ed287786cbee05",
     "semantic_hash": ""
   },
   "app/Models/ChallengeParticipant.php": {
-    "mtime": 1787606087.163405,
-    "ast_hash": "ef45a65da5367caf50f182e750989ba4",
+    "mtime": 1788000265.017606,
+    "ast_hash": "8c285ca6993baf0eae02cc2199ddf352",
     "semantic_hash": ""
   },
   "app/Models/ChallengePeriod.php": {
@@ -1270,13 +1270,13 @@
     "semantic_hash": ""
   },
   "app/Models/CheckIn.php": {
-    "mtime": 1787999088.1565475,
-    "ast_hash": "4adef9cf29f1409b8d3b1859fc4be036",
+    "mtime": 1788000264.9326053,
+    "ast_hash": "0826993fefb0774ab332201e7a6e2463",
     "semantic_hash": ""
   },
   "database/factories/ChallengeFactory.php": {
-    "mtime": 1787946232.7702913,
-    "ast_hash": "1b41b08088788637be04b97d2eb1ea02",
+    "mtime": 1788000447.8915374,
+    "ast_hash": "bc570a1400901cf51036f9fe4af29bb5",
     "semantic_hash": ""
   },
   "database/factories/ChallengeParticipantFactory.php": {
@@ -1320,13 +1320,13 @@
     "semantic_hash": ""
   },
   "lang/en/enums.php": {
-    "mtime": 1787983107.2371287,
-    "ast_hash": "3e83146a048cb111ef73e80c91ce385a",
+    "mtime": 1788000158.0155113,
+    "ast_hash": "34940040ddc08a03ab6b6a3be4b1ae34",
     "semantic_hash": ""
   },
   "lang/fa/enums.php": {
-    "mtime": 1787983139.6996288,
-    "ast_hash": "ce6043624074bf940335020e758c21d6",
+    "mtime": 1788000173.2676654,
+    "ast_hash": "2c9f876d309b82a985b0e347a1a2c94c",
     "semantic_hash": ""
   },
   "tests/Feature/Domain/ChallengeSchemaTest.php": {
@@ -1825,8 +1825,8 @@
     "semantic_hash": ""
   },
   "app/Actions/Challenges/CreateChallenge.php": {
-    "mtime": 1787990844.817845,
-    "ast_hash": "2b0735fe3a87a8db2607ba2a039b0779",
+    "mtime": 1788000488.9659798,
+    "ast_hash": "d2e991e4784b81b125bc7842286ba65a",
     "semantic_hash": ""
   },
   "app/Jobs/Challenges/AnnounceChallenge.php": {
@@ -1910,8 +1910,8 @@
     "semantic_hash": ""
   },
   "tests/Feature/Domain/CreateChallengeTest.php": {
-    "mtime": 1787637886.74216,
-    "ast_hash": "f7012fdee1790b0805a4a0c59c3e899d",
+    "mtime": 1788000411.4491475,
+    "ast_hash": "594bfbebf61677d16c2bcf8223c5410f",
     "semantic_hash": ""
   },
   "tests/Unit/BotCallbackTest.php": {
@@ -3260,8 +3260,8 @@
     "semantic_hash": ""
   },
   "prompts/progress-phase-14.md": {
-    "mtime": 1787998444.6244566,
-    "ast_hash": "078ed68b81afc2e9cb777c1b22999d64",
+    "mtime": 1788000045.806399,
+    "ast_hash": "548c45d292340ac00d78ac0c819c7c3a",
     "semantic_hash": ""
   },
   "app/Enums/AiReviewPath.php": {
@@ -3304,9 +3304,19 @@
     "ast_hash": "3554aac5e1ba46a1f812574b1c0bd6bb",
     "semantic_hash": ""
   },
-  "storage/framework/tmp.ogg": {
-    "mtime": 1787999530.733088,
-    "ast_hash": "b5b17c941bb07e9d0a25fcab64547595",
+  "app/Enums/ScoringStrategy.php": {
+    "mtime": 1788000548.4196243,
+    "ast_hash": "bcdbcda89b1d9109e5c86eb2d3bd178f",
+    "semantic_hash": ""
+  },
+  "app/Enums/ScoringType.php": {
+    "mtime": 1788000137.3603034,
+    "ast_hash": "9ac8c1096033bf3222017ca758060744",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_29_160000_add_quantity_scoring_schema.php": {
+    "mtime": 1788000183.3707678,
+    "ast_hash": "8ebb2a5ccc8e930e74a7f7a26b7f2017",
     "semantic_hash": ""
   }
 }

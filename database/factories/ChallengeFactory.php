@@ -7,6 +7,8 @@ use App\Enums\ChallengeVisibility;
 use App\Enums\FlowType;
 use App\Enums\PeriodType;
 use App\Enums\ProofType;
+use App\Enums\ScoringStrategy;
+use App\Enums\ScoringType;
 use App\Models\Challenge;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -45,6 +47,7 @@ class ChallengeFactory extends Factory
             'visibility' => ChallengeVisibility::InviteOnly,
             'proof_type' => ProofType::Button,
             'flow_type' => FlowType::Simple,
+            'scoring_type' => ScoringType::Binary,
             'proof_is_public' => false,
             'default_freezes' => 1,
             'status' => ChallengeStatus::Scheduled,
@@ -157,6 +160,30 @@ class ChallengeFactory extends Factory
     {
         return $this->state(fn (array $attributes): array => [
             'flow_type' => FlowType::TimedSession,
+        ]);
+    }
+
+    /**
+     * Check-ins report a quantity, scored against a target.
+     *
+     * Pushup-shaped defaults: a 30-rep target worth 100 points, partial
+     * reports *not* counting as done (the safer default the addendum ships).
+     * Task 2/3/4 tests build on these values, so the arithmetic stays
+     * legible — 15 reps is a half score, 60 is a double.
+     */
+    public function quantity(
+        int|float|string $targetValue = 30,
+        string $unitLabel = 'pushups',
+        int|float|string $basePoints = 100,
+        bool $partialCountsAsDone = false,
+    ): static {
+        return $this->state(fn (array $attributes): array => [
+            'scoring_type' => ScoringType::Quantity,
+            'target_value' => $targetValue,
+            'unit_label' => $unitLabel,
+            'scoring_strategy' => ScoringStrategy::Proportional,
+            'base_points' => $basePoints,
+            'quantity_partial_counts_as_done' => $partialCountsAsDone,
         ]);
     }
 }

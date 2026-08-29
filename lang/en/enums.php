@@ -129,4 +129,13 @@ return [
         'expired' => 'Expired',
         'abandoned' => 'Abandoned',
     ],
+
+    'scoring_type' => [
+        'binary' => 'Done or not',
+        'quantity' => 'Quantity',
+    ],
+
+    'scoring_strategy' => [
+        'proportional' => 'Proportional',
+    ],
 ];

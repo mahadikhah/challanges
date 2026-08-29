@@ -129,4 +129,13 @@ return [
         'expired' => 'منقضی شد',
         'abandoned' => 'رها شد',
     ],
+
+    'scoring_type' => [
+        'binary' => 'انجام شد یا نه',
+        'quantity' => 'تعداد',
+    ],
+
+    'scoring_strategy' => [
+        'proportional' => 'نسبتی',
+    ],
 ];

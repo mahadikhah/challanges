@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property ParticipantStatus $status
  * @property int $current_streak
  * @property int $longest_streak
+ * @property string $total_score
  * @property int $freezes_total
  * @property int $freezes_used
  * @property int $streak_resets_count
@@ -43,6 +44,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'status',
     'current_streak',
     'longest_streak',
+    'total_score',
     'freezes_total',
     'freezes_used',
     'streak_resets_count',
@@ -131,6 +133,7 @@ class ChallengeParticipant extends Model
             'status' => ParticipantStatus::class,
             'current_streak' => 'integer',
             'longest_streak' => 'integer',
+            'total_score' => 'decimal:2',
             'freezes_total' => 'integer',
             'freezes_used' => 'integer',
             'streak_resets_count' => 'integer',
