@@ -187,3 +187,91 @@ assumes; if any is wrong, the code built on it is wrong.
 - Running two Pest processes against the same `testing` database deadlocks (RefreshDatabase metadata
   table locks) and leaves the DB half-migrated — always one suite at a time, and
   `DROP DATABASE testing; CREATE DATABASE testing` recovers.
+
+## Task 3 — Bale Pay ✅
+
+`sail composer ci:check` green (Pint, PHPStan lvl 7, 1394 Pest assertions-bearing tests, ESLint, Prettier,
+`tsc --noEmit`).
+
+### What landed
+
+**The rail facts, encoded as enum methods** (`App\Enums\PaymentProvider`, backed `telegram_stars` |
+`bale_pay`): `forPlatform()`, `priceKey()` (stars|rial), `currency()` (XTR|IRR), `packageLabelKey()`,
+`supportsRefunds()`. The payment model's "provider concept" is this enum on `star_payments.provider`
+(string(32), default `telegram_stars` so existing rows are owned by the only rail that wrote them), plus a
+nullable `rial_amount` and — required by MySQL to accept the null Stars column on Bale rows —
+`stars_amount` itself made nullable. Exactly one of the two price columns is set, per `provider`.
+
+**The flow, initiate → invoice → callback → verify:**
+- `CreateBaleInvoice` — prices the package from the admin-tuned table's optional `rial` key, writes the
+  Pending row (`stars_amount` null), and **sends the invoice into the payer's chat** (`sendInvoice`) —
+  no link exists to hand back (trap #1). The wallet `provider_token` is read per call and refuses loudly
+  when `BALE_PROVIDER_TOKEN` is unset (trap #2).
+- `sendInvoice` on the contract — both platforms implement; Telegram sends XTR + empty `provider_token`
+  unchanged, Bale sends Rial with the wallet token and **no `currency` parameter at all** (Bale takes
+  none). `createInvoiceLink` stays on the contract (Telegram's link-button flow is untouched); Bale
+  refuses it with the no-link fact as the message.
+- `inquireTransaction` on the contract — the verify() of the rail. Bale implements it as a raw
+  `Api::post()` (absent from Telegram SDKs); Telegram refuses it ("a successful_payment is its own
+  confirmation"). Returns the platform-neutral `App\Messaging\DTO\PaymentTransaction`
+  (`PaymentTransactionStatus::fromRail()` tolerates unknown status strings as `Unknown`, never paid).
+- `CompleteStarsPayment` is **the one completion action for both rails** (see design notes).
+- `PreCheckoutQueryHandler` now asks the row `acceptsPreCheckout(currency, total)` — the row's own rail's
+  tag (`XTR`/`IRR`) and the row's own price. `ShopCommand` filters shelves by the payer rail's
+  `priceKey()` so button indexes still name the shared table's rows; `ShopCallback` branches once —
+  Bale's counter sends the invoice, Telegram's keeps its link button exactly as before.
+- Webhook path needed **zero changes**: `UpdateRouter` routes by payload key, so Bale's
+  `pre_checkout_query`/`successful_payment` already reach the same handlers.
+
+**Refunds: none built.** The `bale-payments` skill documents **no refund endpoint** on Bale's rail
+(verified against docs.bale.ai). `PaymentProvider::supportsRefunds()` is false for Bale →
+`StarPayment::isRefundable()` is false → the admin refund lever is hidden, `RefundStarsPayment` throws
+`LogicException`, and `BaleMessengerPlatform::refundPayment()` throws with the documented-absence message.
+Bale purchases are watch-only in the audit view (its description line says so).
+
+**Pricing:** one `stars_packages` table, optional per-row `rial` key (default rows get placeholder
+50k/100k/250k/500k Rial, admin-tunable; `UpdateSettingRequest` gained
+`value.*.rial: sometimes|int|min:0|max:100000000`). Admin Settings gained a Rial column in the packages
+editor; the admin Payments audit gained a Rail badge and a per-rail Price cell (`XTR`/`IRR`, one currency
+per line). Lang: `bot.shop.package_rial`, rail-neutral `bot.shop.prompt`, new
+`bot.shop.pending_confirmation` (inquiry pending ≠ failure), `enums.payment_provider.*`,
+`coin_transaction_reason.bale_pay_purchase`, en+fa everywhere.
+
+### Design notes
+
+- **One completion action, not two.** `CompleteStarsPayment` kept a single provider `match` that swaps
+  the *source of truth* for (currency, total): Telegram trusts its secret-token-authenticated payload;
+  Bale re-asks via `inquireTransaction` **before** the DB transaction — no HTTP under the row lock, no
+  re-inquiry of a spent transaction (rows already Paid get a synthetic confirmed answer). Duplicating
+  the transactional crediting path into a `CompleteBalePayment` was judged the bigger risk for a money
+  path: two copies of lock/replay/credit is how they drift.
+- **Inquiry statuses:** `failed`/`rejected` → row marked Failed, nothing credited; `pending`/unknown →
+  row stays Pending, payer told `bot.shop.pending_confirmation`, a redelivery re-asks. Never credit short
+  of `paid`.
+- **Idempotency:** shared `telegram_payment_charge_id` column (Bale's equals the earlier
+  `PreCheckoutQuery.id`), ledger keys namespaced per rail (`star_payment:credit:` /
+  `bale_payment:credit:`) so the rails' id spaces can never collide into one key.
+- `supportsNativePayments()` is now true for both platforms; the guard stays for future rails, and its
+  meaning is "wired", not "priced" — Bale shelves need `rial` rows *and* `BALE_PROVIDER_TOKEN`.
+
+### Tests
+
+- `tests/Feature/Payments/BalePayTest.php` (12) — the mirror of StarsPurchaseTest through the Bale
+  webhook: tap records a `bale_pay` row and the invoice on the wire (chat_id, wallet provider_token,
+  Rial prices, **no currency key**, invoice-is-the-reply); rial-less package refused; pre-checkout
+  approved on `IRR` == rial_amount, declined on mismatch with the row surviving; successful_payment
+  credits from the *inquiry's* answer (reason `bale_pay_purchase`, key `bale_payment:credit:<charge>`,
+  drift 0, exactly one inquiry); triple delivery credits once and inquires once; inquiry failed/rejected
+  → Failed + no credit; pending → row Pending + `pending_confirmation` line; amount mismatch → Failed;
+  crossed payer → row untouched, *no inquiry at all*; refund lever absent on every layer.
+- `BaleMessengerPlatformTest` (17) — the wire contract per the skill: no-link refusal, no-refund
+  refusal, sendInvoice exact URL + params + provider-token refusal, inquireTransaction mapping /
+  unknown-status-as-Unknown / no-transaction refusal.
+- `BaleBotTest` — `/shop` now lists only Rial-priced shelves (index math intact), says `no_packages`
+  when none are; the old "refuses until wired" test replaced.
+- Existing suites untouched except: `EconomySchemaTest` enum pin gained `bale_pay_purchase`, and the
+  migration's `stars_amount` nullable change (Bale rows carry no Stars price — the columns are not
+  exchange rates of each other).
+
+**Phase 11 complete. Next: per the user's instruction (2026-08-29), phases 12/13 are deferred — proceed
+to Phase 14, then 15, then return to 12 and 13.**

@@ -165,8 +165,8 @@
     "semantic_hash": "f98ce92e7bf51db1fabaf8a30e12fc5a"
   },
   "config/services.php": {
-    "mtime": 1787973621.5343795,
-    "ast_hash": "2205fb788212823272d81fa22011849b",
+    "mtime": 1787979468.027854,
+    "ast_hash": "7b26c0788b473af8dd1751f09c7f8f25",
     "semantic_hash": ""
   },
   "config/session.php": {
@@ -1095,8 +1095,8 @@
     "semantic_hash": ""
   },
   "prompts/goal.md": {
-    "mtime": 1787597898.3580482,
-    "ast_hash": "f0835118afc06b6e5a1b7a5dcfab52f3",
+    "mtime": 1787980850.1742828,
+    "ast_hash": "4f6e1fe6021d0c33943ed028ceab0116",
     "semantic_hash": ""
   },
   "prompts/progress.md": {
@@ -1185,8 +1185,8 @@
     "semantic_hash": ""
   },
   "app/Enums/SettingKey.php": {
-    "mtime": 1787973604.3135657,
-    "ast_hash": "d119374cede125b8c3a47847f28a5e48",
+    "mtime": 1787980168.0936553,
+    "ast_hash": "3fffcf11df6af0e4db52e6b15807feda",
     "semantic_hash": ""
   },
   "app/Enums/SettingType.php": {
@@ -1320,13 +1320,13 @@
     "semantic_hash": ""
   },
   "lang/en/enums.php": {
-    "mtime": 1787953308.42057,
-    "ast_hash": "11103f89312e3b0a697a4a7ac766430b",
+    "mtime": 1787980141.155569,
+    "ast_hash": "5f6fba2dd28f55be8818892ffac2fa9b",
     "semantic_hash": ""
   },
   "lang/fa/enums.php": {
-    "mtime": 1787953322.2435305,
-    "ast_hash": "b5f6654f12abe71e81d5e380111779aa",
+    "mtime": 1787980143.598669,
+    "ast_hash": "9aa3b85d172201df1922515bb7eeb32f",
     "semantic_hash": ""
   },
   "tests/Feature/Domain/ChallengeSchemaTest.php": {
@@ -1340,8 +1340,8 @@
     "semantic_hash": ""
   },
   "app/Enums/CoinTransactionReason.php": {
-    "mtime": 1787928799.2516017,
-    "ast_hash": "da7df724085a6c17438bf0fcfeb514ff",
+    "mtime": 1787979870.4892647,
+    "ast_hash": "8c51a4354b125e726b27eb89c8ce31a4",
     "semantic_hash": ""
   },
   "app/Enums/ConversationState.php": {
@@ -1400,8 +1400,8 @@
     "semantic_hash": ""
   },
   "app/Models/StarPayment.php": {
-    "mtime": 1787605937.8173423,
-    "ast_hash": "cda2c57d32af06990f02cdf179022b4a",
+    "mtime": 1787979503.4777887,
+    "ast_hash": "e59193b3c6efbd23af53232300808843",
     "semantic_hash": ""
   },
   "app/Models/TelegramUpdate.php": {
@@ -1435,13 +1435,13 @@
     "semantic_hash": ""
   },
   "database/factories/StarPaymentFactory.php": {
-    "mtime": 1787606242.2405326,
-    "ast_hash": "271d3bdba64f3e92c971435b05dcc43c",
+    "mtime": 1787980673.3402162,
+    "ast_hash": "8e0f50a91aa4f3dd8f6927e3b9eca13a",
     "semantic_hash": ""
   },
   "database/factories/TelegramUpdateFactory.php": {
-    "mtime": 1787974748.658919,
-    "ast_hash": "fb0abb96412f8b88ecf733a0ab08eb54",
+    "mtime": 1787979984.856482,
+    "ast_hash": "ae1d62d362acee707eb41ebe8f58a31c",
     "semantic_hash": ""
   },
   "database/migrations/2026_08_24_210231_create_coin_transactions_table.php": {
@@ -1480,8 +1480,8 @@
     "semantic_hash": ""
   },
   "tests/Feature/Domain/EconomySchemaTest.php": {
-    "mtime": 1787974442.4015818,
-    "ast_hash": "55f56edb6303e908df9d18ff648364f3",
+    "mtime": 1787980833.0049074,
+    "ast_hash": "3daea336441fd90f0a59fb4b78f666f7",
     "semantic_hash": ""
   },
   "app/Exceptions/InsufficientCoinsException.php": {
@@ -1790,8 +1790,8 @@
     "semantic_hash": ""
   },
   "app/Services/Telegram/Handlers/MessageHandler.php": {
-    "mtime": 1787974595.620678,
-    "ast_hash": "91a1804e6b1c087b5cd1715f68c81572",
+    "mtime": 1787980008.6436563,
+    "ast_hash": "9fe059963b10773dbdfdcd6d4cd93920",
     "semantic_hash": ""
   },
   "app/Services/Telegram/HandlesBotCommand.php": {
@@ -1800,13 +1800,13 @@
     "semantic_hash": ""
   },
   "lang/en/bot.php": {
-    "mtime": 1787974845.1017592,
-    "ast_hash": "5dc1aa68f52fcf30cd4ce8206bd83630",
+    "mtime": 1787980121.8137667,
+    "ast_hash": "e0cf5e6721eba6e4177c039cbde2ad41",
     "semantic_hash": ""
   },
   "lang/fa/bot.php": {
-    "mtime": 1787974845.1017592,
-    "ast_hash": "8140f9597d40768c1ffd5424b1f7101a",
+    "mtime": 1787980128.298038,
+    "ast_hash": "1b3dd9584cb580400eef0e8db0193547",
     "semantic_hash": ""
   },
   "tests/Feature/Bot/ChannelGateTest.php": {
@@ -2085,8 +2085,8 @@
     "semantic_hash": ""
   },
   "app/Actions/Payments/CompleteStarsPayment.php": {
-    "mtime": 1787927067.5960703,
-    "ast_hash": "f677fa18618bf9ec49a762d6174d164b",
+    "mtime": 1787980721.8543797,
+    "ast_hash": "563978cc421e15ef807479b1b8b13e71",
     "semantic_hash": ""
   },
   "app/Actions/Payments/CreateStarsInvoice.php": {
@@ -2105,18 +2105,18 @@
     "semantic_hash": ""
   },
   "app/Services/Telegram/Callbacks/ShopCallback.php": {
-    "mtime": 1787974826.8565972,
-    "ast_hash": "f7c803550d973c6e801e9f1654c550ab",
+    "mtime": 1787979926.3594267,
+    "ast_hash": "6b883cde038e67d4b89bc2a067fe1a0e",
     "semantic_hash": ""
   },
   "app/Services/Telegram/Commands/ShopCommand.php": {
-    "mtime": 1787974826.7995968,
-    "ast_hash": "6963ed238a0dbf7c753417dcd5cd4397",
+    "mtime": 1787979905.6242824,
+    "ast_hash": "b3d40bd6c8f1eb0548be9d4298708366",
     "semantic_hash": ""
   },
   "app/Services/Telegram/Handlers/PreCheckoutQueryHandler.php": {
-    "mtime": 1787974562.9844308,
-    "ast_hash": "7d12b1ad025d68f6d6d96903961b6035",
+    "mtime": 1787979935.7409334,
+    "ast_hash": "1d476f31783e813d2ebfcac6566c4b96",
     "semantic_hash": ""
   },
   "tests/Feature/Payments/RefundStarsPaymentTest.php": {
@@ -2260,23 +2260,23 @@
     "semantic_hash": ""
   },
   "app/Http/Requests/Admin/UpdateSettingRequest.php": {
-    "mtime": 1787930938.3562233,
-    "ast_hash": "6ad3be8b031a4b7d3d76d21b2f147da4",
+    "mtime": 1787980168.1626582,
+    "ast_hash": "b93a02780a48cc05badcb537c760da84",
     "semantic_hash": ""
   },
   "lang/en/admin.php": {
-    "mtime": 1787974865.4079406,
-    "ast_hash": "fa9fd761604cafa6e1669429613924ee",
+    "mtime": 1787980269.7494583,
+    "ast_hash": "7e57e9ec03dbe8b60c520f951178f481",
     "semantic_hash": ""
   },
   "lang/fa/admin.php": {
-    "mtime": 1787974865.4079406,
-    "ast_hash": "ad038af646c2b8df4e5009820d80c41b",
+    "mtime": 1787980291.7742262,
+    "ast_hash": "a4a739bd9a8f79e17aaf57b5ad46ae60",
     "semantic_hash": ""
   },
   "resources/js/pages/Admin/Settings.tsx": {
-    "mtime": 1787939948.6743405,
-    "ast_hash": "92004db97db3f45db398df3aa60bb4ac",
+    "mtime": 1787980250.5047717,
+    "ast_hash": "bbefc73a39f732078ab76630262b862b",
     "semantic_hash": ""
   },
   "tests/Feature/Admin/SettingsPanelTest.php": {
@@ -2365,8 +2365,8 @@
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/PaymentsController.php": {
-    "mtime": 1787940143.428781,
-    "ast_hash": "8985b881b721a0b00507774659f386f4",
+    "mtime": 1787980185.7953503,
+    "ast_hash": "7e64adf41bdc121de0c393c507583bb7",
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/UsersController.php": {
@@ -2385,8 +2385,8 @@
     "semantic_hash": ""
   },
   "resources/js/pages/Admin/Payments.tsx": {
-    "mtime": 1787939916.8394954,
-    "ast_hash": "f7986d348d4579d4f31b5e24b1bd4ea8",
+    "mtime": 1787980223.6757896,
+    "ast_hash": "76155d6b60300695be7863f88e79bb17",
     "semantic_hash": ""
   },
   "resources/js/pages/Admin/Users.tsx": {
@@ -3095,8 +3095,8 @@
     "semantic_hash": ""
   },
   "app/Enums/MessagingPlatform.php": {
-    "mtime": 1787973600.0796134,
-    "ast_hash": "8f78dd43f78b5609733936965bec5349",
+    "mtime": 1787979881.0558822,
+    "ast_hash": "3758d4d772595da610c42eb2777d957b",
     "semantic_hash": ""
   },
   "app/Messaging/Contracts/MessengerException.php": {
@@ -3105,8 +3105,8 @@
     "semantic_hash": ""
   },
   "app/Messaging/Contracts/MessengerPlatform.php": {
-    "mtime": 1787958933.1073947,
-    "ast_hash": "2b4fbece9982a26ada97106121c6e536",
+    "mtime": 1787979704.923211,
+    "ast_hash": "794ab87004d86c9e013d0a600ae87ed4",
     "semantic_hash": ""
   },
   "app/Messaging/DTO/BotUpdate.php": {
@@ -3125,8 +3125,8 @@
     "semantic_hash": ""
   },
   "app/Messaging/Telegram/TelegramMessengerPlatform.php": {
-    "mtime": 1787959358.229872,
-    "ast_hash": "18a42182d28f6ab5212bf91b80b11bad",
+    "mtime": 1787979707.4083984,
+    "ast_hash": "91d1346e88e14e0df4d060f191e70901",
     "semantic_hash": ""
   },
   "database/migrations/2026_08_29_110000_split_platform_identity_on_users_table.php": {
@@ -3155,8 +3155,8 @@
     "semantic_hash": ""
   },
   "app/Messaging/Bale/BaleMessengerPlatform.php": {
-    "mtime": 1787973759.2013028,
-    "ast_hash": "45c43ca46971e46c81d1163d63d9ecad",
+    "mtime": 1787980722.7254002,
+    "ast_hash": "bfbf980ee5c3cff3133c78b83c967a73",
     "semantic_hash": ""
   },
   "app/Messaging/PlatformRegistry.php": {
@@ -3180,18 +3180,48 @@
     "semantic_hash": ""
   },
   "tests/Feature/Bot/BaleBotTest.php": {
-    "mtime": 1787978538.4834228,
-    "ast_hash": "c5064e2144e232e46a0af6ad95e69349",
+    "mtime": 1787980428.9106278,
+    "ast_hash": "e005c87f7e45ffa2c42f7bc5b920bcb8",
     "semantic_hash": ""
   },
   "tests/Feature/Messaging/BaleMessengerPlatformTest.php": {
-    "mtime": 1787978369.8131006,
-    "ast_hash": "322bc5fe008c82b7aa77a2f20821625d",
+    "mtime": 1787980372.0018754,
+    "ast_hash": "7bd5092af820f228a741deffe2bb0dff",
     "semantic_hash": ""
   },
   "prompts/progress-phase-11.md": {
-    "mtime": 1787973166.069955,
-    "ast_hash": "422e139a520614143ddaf52261c30956",
+    "mtime": 1787978831.808463,
+    "ast_hash": "db085ffe4149f5d21ddbfbc231349154",
+    "semantic_hash": ""
+  },
+  "app/Actions/Payments/CreateBaleInvoice.php": {
+    "mtime": 1787979757.5580292,
+    "ast_hash": "486f521bd20e3faa64ded88cf54ba836",
+    "semantic_hash": ""
+  },
+  "app/Enums/PaymentProvider.php": {
+    "mtime": 1787979442.088905,
+    "ast_hash": "db177028bf6e88a6fc85361ec84e3d67",
+    "semantic_hash": ""
+  },
+  "app/Enums/PaymentTransactionStatus.php": {
+    "mtime": 1787979644.81845,
+    "ast_hash": "0f922d2e121a38a9051ad27c0b2d90ae",
+    "semantic_hash": ""
+  },
+  "app/Messaging/DTO/PaymentTransaction.php": {
+    "mtime": 1787979646.1675618,
+    "ast_hash": "cf1dc63b6a13fdea9d69166bca54ab49",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_29_140000_add_provider_to_star_payments_table.php": {
+    "mtime": 1787980518.9962165,
+    "ast_hash": "b8e77caa0a4a4c6b61b5f0a2802d3473",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Payments/BalePayTest.php": {
+    "mtime": 1787980674.5492456,
+    "ast_hash": "5eac1e3436ec69eb6268697e2585e7c4",
     "semantic_hash": ""
   }
 }
