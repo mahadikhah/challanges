@@ -174,7 +174,10 @@ class VerifyChallengeChat
         $creator = $chat->challenge->creator;
 
         if ($creator->platform_user_id === null) {
-            Log::info('A linked chat failed re-verification against a creator the bot cannot message.', [
+            // Warning, not info: a broadcast surface just went dark and the
+            // person who must fix it cannot be told — this line is the only
+            // trace that re-verification failed.
+            Log::warning('A linked chat failed re-verification against a creator the bot cannot message.', [
                 'challenge_chat_id' => $chat->getKey(),
                 'creator_id' => $creator->getKey(),
                 'outcome' => $outcome->value,

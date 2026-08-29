@@ -8,6 +8,7 @@ use App\Models\ChallengeParticipant;
 use App\Models\CheckIn;
 use Closure;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 /**
  * The only place a check-in becomes final and a streak moves.
@@ -130,6 +131,19 @@ class SettleCheckIn
             // which is the same transaction that moved the streak — so a
             // listener can never see the one without the other.
             CheckInSettled::dispatch($checkIn);
+
+            // The settlement's one line in the file log — the database holds
+            // the row, but the file survives the database and answers "when
+            // did this streak move, and to what?". Only the transition fires,
+            // so a replayed settlement never duplicates it.
+            Log::info('A check-in was settled.', [
+                'check_in_id' => $checkIn->getKey(),
+                'challenge_id' => $participant->challenge_id,
+                'participant_id' => $participant->getKey(),
+                'status' => $status->value,
+                'score' => $score,
+                'streak' => $participant->current_streak,
+            ]);
 
             return $checkIn;
         });

@@ -128,6 +128,17 @@ class ReviewProofWithAi
 
             [$approved, $confidence, $reason] = $this->readVerdict($answer->structured);
 
+            // The below-threshold answer is the one fallback the row itself
+            // does not record loudly enough: an admin tuning the threshold
+            // needs to see how many verdicts it is diverting to their queue.
+            if ($approved !== null && ! $this->confidenceClearsThreshold($confidence)) {
+                Log::warning('An AI verdict fell below the confidence threshold and went to the manual queue.', [
+                    'check_in_id' => $submission->getKey(),
+                    'approved' => $approved,
+                    'confidence' => $confidence,
+                ]);
+            }
+
             return AiApprovalDecision::query()->create([
                 'check_in_id' => $submission->getKey(),
                 'connection' => $answer->connection,

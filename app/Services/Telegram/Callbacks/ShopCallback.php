@@ -11,6 +11,7 @@ use App\Services\Telegram\BotCallback;
 use App\Services\Telegram\BotMessenger;
 use App\Services\Telegram\ChannelGatePrompt;
 use App\Services\Telegram\HandlesCallback;
+use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 
 /**
@@ -81,6 +82,12 @@ class ShopCallback implements HandlesCallback
                 // A package that is no longer priced for this rail. The message
                 // the button rode on is still in the chat, so say something
                 // rather than leave a tap that visibly does nothing.
+                Log::warning('A shop tap named a package this rail does not price.', [
+                    'user_id' => $user->getKey(),
+                    'platform' => $user->platform->value,
+                    'package_index' => $index,
+                ]);
+
                 $this->messenger->send($user, $this->messenger->line($user, 'bot.fallback.stale_button'));
             }
 
@@ -94,6 +101,12 @@ class ShopCallback implements HandlesCallback
                 $this->messenger->localeFor($user),
             );
         } catch (InvalidArgumentException) {
+            Log::warning('A shop tap named a package that no longer exists.', [
+                'user_id' => $user->getKey(),
+                'platform' => $user->platform->value,
+                'package_index' => $index,
+            ]);
+
             $this->messenger->send($user, $this->messenger->line($user, 'bot.fallback.stale_button'));
 
             return;

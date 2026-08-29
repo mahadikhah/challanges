@@ -126,6 +126,15 @@ class ApplyAiVerdict
             return;
         }
 
+        // The decision's line in the file log: what the model said about this
+        // proof, at the confidence it said it. The `ai_approval_decisions` row
+        // is the audit; this survives the database.
+        Log::info('An AI verdict settled a proof.', [
+            'check_in_id' => $submission->getKey(),
+            'approved' => $decision->approved,
+            'confidence' => $decision->confidence,
+        ]);
+
         // The participant hears the verdict in the same words a manual
         // verdict uses; delivery failure must not unwind a settled streak.
         try {

@@ -13,6 +13,7 @@ use App\Services\Telegram\BotMessenger;
 use App\Services\Telegram\Callbacks\ShopCallback;
 use App\Services\Telegram\ChannelGatePrompt;
 use App\Services\Telegram\HandlesBotCommand;
+use Illuminate\Support\Facades\Log;
 
 /**
  * `/shop` — the coin top-up counter.
@@ -84,7 +85,14 @@ class ShopCommand implements HandlesBotCommand
 
         if ($lines === []) {
             // No rows carry this rail's price — an unpriced shelf is as empty
-            // as an unconfigured one, and gets the same honest answer.
+            // as an unconfigured one, and gets the same honest answer. On the
+            // Bale rail specifically that is also a degraded shelf next to
+            // Telegram's, so the operator gets a log line naming the rail.
+            Log::warning('A user opened a shop with no packages priced for their rail.', [
+                'user_id' => $user->getKey(),
+                'platform' => $user->platform->value,
+            ]);
+
             $this->messenger->send($user, $this->messenger->line($user, 'bot.shop.no_packages'));
 
             return;

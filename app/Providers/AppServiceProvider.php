@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Listeners\Ai\RecordAiProviderFailover;
+use App\Models\User;
 use App\Services\Ai\AiTextClient;
 use App\Services\Ai\LaravelAiTextClient;
 use App\Services\Localization;
@@ -11,6 +12,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Ai\Events\AgentFailedOver;
@@ -48,7 +50,19 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+        $this->registerLogViewerGate();
         $this->registerAiFailoverListeners();
+    }
+
+    /**
+     * The Log Viewer gate — the same check `EnsureUserIsAdmin` makes on every
+     * admin-panel request and the Telescope gate makes on /telescope: the
+     * authenticated user with `is_admin`. If these three ever diverge, one of
+     * them is a bug.
+     */
+    protected function registerLogViewerGate(): void
+    {
+        Gate::define('viewLogViewer', fn (User $user) => $user->is_admin);
     }
 
     /**

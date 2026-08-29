@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 use LogicException;
 
@@ -258,7 +259,7 @@ class CoinLedger
         ?Model $reference,
     ): CoinTransaction {
         try {
-            return CoinTransaction::query()->create([
+            $entry = CoinTransaction::query()->create([
                 'user_id' => $this->idOf($user),
                 'amount' => $amount,
                 'reason' => $reason,
@@ -276,6 +277,22 @@ class CoinLedger
 
             return $existing;
         }
+
+        // Every coin movement's line in the file log — this is real money's
+        // paper trail, and unlike the ledger row it survives the database being
+        // the thing that is wrong. Replays return above and never log, so the
+        // line count reconciles against the ledger exactly.
+        Log::info('A coin ledger entry was written.', [
+            'user_id' => $entry->user_id,
+            'amount' => $entry->amount,
+            'reason' => $entry->reason->value,
+            'balance_after' => $entry->balance_after,
+            'idempotency_key' => $entry->idempotency_key,
+            'reference_type' => $entry->reference_type,
+            'reference_id' => $entry->reference_id,
+        ]);
+
+        return $entry;
     }
 
     private function idOf(User|int $user): int

@@ -4,10 +4,12 @@ namespace App\Actions\Payments;
 
 use App\Enums\CoinTransactionReason;
 use App\Enums\StarPaymentStatus;
+use App\Messaging\Contracts\MessengerException;
 use App\Messaging\PlatformRegistry;
 use App\Models\StarPayment;
 use App\Services\CoinLedger;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use LogicException;
 
 /**
@@ -61,7 +63,22 @@ class RefundStarsPayment
             // order would leave a refund Telegram never performed. The platform
             // is the payer's own — only the messenger that took the payment can
             // return it.
-            $this->platforms->for($row->user->platform)->refundPayment($row->telegram_payment_charge_id, $platformUserId);
+            try {
+                $this->platforms->for($row->user->platform)->refundPayment($row->telegram_payment_charge_id, $platformUserId);
+            } catch (MessengerException $refused) {
+                // The file-log backstop for the provider leg: this is money
+                // returning to a payer, and the refusal leaves the row retryable
+                // — the operator needs the attempt in the logs even when the
+                // database side of the story is fine.
+                Log::error('A payment refund was refused by the platform.', [
+                    'star_payment_id' => $row->getKey(),
+                    'provider' => $row->provider->value,
+                    'charge_id' => $row->telegram_payment_charge_id,
+                    'reason' => $refused->getMessage(),
+                ]);
+
+                throw $refused;
+            }
 
             $row->forceFill([
                 'status' => StarPaymentStatus::Refunded,
@@ -75,6 +92,14 @@ class RefundStarsPayment
                 $row->refundIdempotencyKey(),
                 $row,
             );
+
+            Log::info('A payment was refunded.', [
+                'star_payment_id' => $row->getKey(),
+                'provider' => $row->provider->value,
+                'charge_id' => $row->telegram_payment_charge_id,
+                'coins_clawed_back' => $row->coin_amount,
+                'idempotency_key' => $row->refundIdempotencyKey(),
+            ]);
 
             return $row;
         });
