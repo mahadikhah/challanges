@@ -70,3 +70,75 @@ clearing; scheduled command). `SettingsPanelTest` updated for the registry's 15 
 - Tasks 3–4: voice/video AI review, environment-capability-aware.
 - Task 5: bot/Mini App capture surfaces and the review UI — the only place the new
   proof types become user-visible.
+
+---
+
+## Task 2 — Admin-gated AI approval settings, retrofit (`feat(ai)`, 2026-08-29)
+
+**Status: complete. `sail composer ci:check` green (1447 passed, 4663 assertions).**
+
+### What was built
+
+- Four new boolean Settings, all defaulting **false**: `ai_approval_globally_enabled`
+  and `ai_approval_allowed_{image,voice,video}`. **This is the deliberate tightening
+  of Phase 10 the spec asked us to confirm**: image AI-approval was creator-self-service
+  once criteria passed screening; now every media type is admin-opt-in, per media type,
+  and image is merely the first allowed.
+- The two-switch rule (global **and** per-type) lives in one class, `App\Services\Ai\
+  AiApprovalGate::allows(ProofType)`, fed by a new `ProofType::aiApprovalSetting()`
+  mapping. Three consumers, no drift:
+  - **`CreateChallenge`** — an `approval_mode = ai` the deployment has not allowed is
+    *refused* (`InvalidArgumentException`, clear reason), not degraded: silently
+    switching to manual would fill creators' queues with challenges they never
+    volunteered to review. The media-type precondition itself generalised from
+    `=== ImageApproval` to `isMediaApproval()`, so voice/video ai mode is creatable
+    the moment Tasks 3–4 make it meaningful.
+  - **`ApplyAiVerdict`** — a media type withdrawn after creation routes new submissions
+    to the manual queue without calling any provider; the challenge's `approval_mode`
+    row is history and stays `ai`.
+  - **`CreateChallengeWizard`** — the who-reviews question is skipped when manual is
+    the only mode left (one button is not a choice), and a stale `ai` tap is refused
+    with a new en/fa line saying review stays with the creator.
+- Admin panel: a new **AI approval** group — the four toggles plus
+  `ai_approval_confidence_threshold`, which had been registry-only until now and
+  finally joins the panel. Each per-type toggle carries a read-only capability note:
+  image answers from the real provider-account rows (active + configured account on
+  the proof-moderation capability), voice/video honestly read **"not yet checked"**
+  (`null`) until Tasks 3–4 ship their review paths. `SettingsController::current()`
+  also gained its missing boolean arm — it had been routing booleans to
+  `Settings::integer()`, unexploded only because no boolean setting existed before.
+- `ScreenApprovalCriteria`/`SuggestApprovalCriteria`: **untouched**, per spec. No
+  creator-visible path exposes provider/model/threshold values beyond the admin panel.
+
+### Judgment calls
+
+- **Refuse, don't degrade, at creation** — a caller offering AI review the platform
+  never promised is a bug to surface, unlike a stray parameter on a working challenge.
+- **Runtime gate in `ApplyAiVerdict`** (not strictly demanded by the task) — "admin
+  controls whether AI approval exists at all" must survive an admin flipping a switch
+  mid-challenge; without this, withdrawal would only stop *new* challenges.
+- **Boolean transport coercion in the controller only** — form-encoded checkboxes
+  arrive as `"1"`; the request validated it *is* a boolean, the controller converts,
+  and `Settings::set()` keeps its strict no-coercion stance for everything else.
+
+### Tests
+
+New `tests/Feature/Ai/AiApprovalGateTest.php` (defaults off; both-switches rule;
+per-type independence; creation refused with global off whatever the flags; image
+allowed while voice refused under image-only permissions; withdrawal routes a real
+submission to the manual queue with zero provider calls). Two wizard-surface tests in
+`CreateChallengeWizardTest` (question skipped → challenge lands manual; stale ai tap
+refused). `SettingsPanelTest` grows the registry 18 → 23 with the gate keys asserted
+and a toggle-update + honest-capability test. Existing Phase 10 suites
+(`ApprovalCriteriaTest`, `ProofModerationTest`, wizard ai-mode tests) pass with their
+assertions unchanged; their fixtures enable the gate in `beforeEach` — the documented,
+intentional accommodation of the tightening.
+
+### Left for later tasks
+
+- Task 3: voice AI review through the generalized `ReviewProofWithAi`; feeds the
+  voice capability readout.
+- Task 4: video AI review, environment-capability-aware; feeds the video readout and
+  must make the video toggle honestly disableable when neither path exists.
+- Task 5: bot/Mini App capture surfaces and review UI.
+
