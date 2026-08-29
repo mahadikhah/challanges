@@ -39,3 +39,43 @@ the block recorded with the defaulted strategy; the partial-counts opt-in; the
 binary regression bar (every scoring column empty); datasets for missing-part
 and non-positive refusals; scoring-config-on-binary refused; the factory state
 pinned. Gate: **1495 passed**, PHPStan 0.
+
+## Task 2 — Scoring calculation & wiring (`feat(scoring)`, 2026-08-29)
+
+The quantity decision lands inside `SettleCheckIn`, not beside it. `approve()`
+takes an optional `reportedValue`; a new `scored()` decides the status inside
+the participant lock (binary → plain `Approved`, exactly as before; quantity →
+`Approved` when the report reaches `target_value` or the creator opted into
+partials; otherwise the ordinary freeze/miss engine, untouched) and `scoreFor()`
+asks the strategy for the points. `settle()` stores `reported_value` on the row
+whatever the outcome — a miss by a whisker is still a fact — and `advance()`
+adds the score to `total_score` inside the same locked write as the streak. The
+status transition remains the single idempotency token for both counters, so a
+replayed settlement can double-credit neither. `SubmitCheckIn::tap()` and
+`CompleteCheckInSession::handle()` grow the pass-through parameter the surfaces
+(Task 3) will feed.
+
+**Traps worth remembering:**
+- Freezes absorb misses; they never convert a below-target report into a done
+  one. A concurrency fixture mixing over- and under-target reports must either
+  opt into `quantity_partial_counts_as_done` or stay over target — otherwise the
+  under-target half settles `Frozen` with no score, which is correct behaviour,
+  not a bug. (Cost one debugging round to notice my own comment was the lie.)
+- `ChallengeParticipantFactory` still defaults `freezes_total => 1`; any test
+  asserting a streak *reset* must set it to 0 explicitly.
+- The concurrency suite mirrors `CoinLedgerConcurrencyTest`: DatabaseTruncation
+  (never RefreshDatabase — its wrapping transaction hides writes from the forked
+  connections), `DB::disconnect()` before the fork, workers with their own
+  connections, exit codes as results, and an `afterEach` cleanup because
+  DatabaseTruncation truncates *before*, not after.
+
+**Tests.** `QuantityScoringTest` (RefreshDatabase): the strategy as a pure
+function (7-case dataset incl. uncapped-above-target and fractional rounding;
+zero target refused), clears-the-bar (full score + total, uncapped bonus,
+replay-scores-once), falls-short (freeze absorbed with no score, streak reset,
+partial opt-in at half score), and the binary regression. The binary
+regression *bar* is the rest of the Domain suite passing unchanged — 107/107
+across StreakEngine/SubmitCheckIn/ReviewCheckIn/CheckInSessionFlow.
+`QuantityScoringConcurrencyTest` proves against the real lock manager that
+eight parallel settlements lose no score (exact total, streak 8) and a race on
+one row scores exactly once. Gate: **1512 passed, 4 skipped**, PHPStan 0.
