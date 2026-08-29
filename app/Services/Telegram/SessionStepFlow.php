@@ -11,6 +11,7 @@ use App\Enums\StepInputType;
 use App\Exceptions\SessionRejectedException;
 use App\Models\Challenge;
 use App\Models\ChallengeStep;
+use App\Models\CheckIn;
 use App\Models\CheckInSession;
 use App\Models\TelegramUpdate;
 use App\Models\User;
@@ -248,12 +249,30 @@ class SessionStepFlow
     }
 
     /**
-     * A completed session is a settled check-in, so the confirmation is the
-     * settled-check-in line; anything else shows the next step.
+     * A completed session with an approved check-in is a settled check-in,
+     * so the confirmation is the settled-check-in line; a completed session
+     * still waiting on a verdict (AI review or the manual queue, Phase 14
+     * Task 3) says so instead of claiming success; anything else shows the
+     * next step.
      */
     private function settledOrNext(User $user, Challenge $challenge, CheckInSession $session): void
     {
         if ($session->status === CheckInSessionStatus::Completed) {
+            $checkIn = CheckIn::query()
+                ->where('challenge_participant_id', $session->participant->getKey())
+                ->where('challenge_period_id', $session->period->getKey())
+                ->first();
+
+            if ($checkIn !== null && ! $checkIn->status->isSettled()) {
+                $this->messenger->send($user, $this->messenger->line(
+                    $user,
+                    'bot.session.submitted_for_review',
+                    ['title' => $challenge->title],
+                ));
+
+                return;
+            }
+
             $this->messenger->send($user, $this->messenger->line($user, 'bot.checkin.confirmed', [
                 'title' => $challenge->title,
                 'streak' => $session->participant->refresh()->current_streak,

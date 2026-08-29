@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateSettingRequest;
 use App\Models\AiCapability;
 use App\Models\AiProviderAccount;
+use App\Services\Ai\AiDriverCatalog;
 use App\Services\Settings;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -172,17 +173,27 @@ class SettingsController extends Controller
      */
     private function aiCapabilities(): array
     {
-        $imageReady = AiProviderAccount::query()
+        $accounts = AiProviderAccount::query()
             ->where('ai_provider_accounts.is_active', true)
             ->whereHas('capability', fn ($capability) => $capability
                 ->where('key', AiCapability::KEY_PROOF_MODERATION)
                 ->where('is_active', true))
             ->get()
-            ->contains(fn (AiProviderAccount $account) => $account->isConfigured());
+            ->filter(fn (AiProviderAccount $account) => $account->isConfigured());
 
         return [
-            'image' => ['available' => $imageReady],
-            'voice' => ['available' => null],
+            'image' => ['available' => $accounts->isNotEmpty()],
+            // A voice review needs the moderation account to also transcribe:
+            // no catalog driver accepts audio as a prompt attachment, so the
+            // recording is transcribed first (Phase 14 Task 3) — an account
+            // whose driver cannot transcribe cannot review a voice at all.
+            'voice' => [
+                'available' => $accounts->contains(
+                    fn (AiProviderAccount $account) => AiDriverCatalog::supportsTranscription((string) $account->driver),
+                ),
+            ],
+            // Video ships with Task 4: "not yet checked" stays the honest
+            // answer until its review path exists.
             'video' => ['available' => null],
         ];
     }

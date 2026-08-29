@@ -48,6 +48,44 @@ final class AiDriverCatalog
         ],
     ];
 
+    /**
+     * The drivers whose provider class implements the SDK's transcription
+     * contract (`TranscriptionProvider`): OpenAI and the OpenAI-compatible
+     * gateway can turn audio into text. Anthropic and Ollama cannot — a voice
+     * review routed to them has no way to hear the recording at all, so the
+     * voice capability readout and the review path both consult this.
+     *
+     * @var list<string>
+     */
+    private const TRANSCRIPTION_DRIVERS = ['openai', 'openai_compatible'];
+
+    /**
+     * The transcription model to register per driver when the driver has no
+     * SDK default of its own. The `openai_compatible` provider throws without
+     * a configured `models.transcription.default`, so the connection config
+     * carries one; the SDK's own default covers `openai`.
+     */
+    private const TRANSCRIPTION_MODEL_DEFAULTS = [
+        'openai_compatible' => 'whisper-1',
+    ];
+
+    /**
+     * Whether the driver's provider can transcribe audio at all.
+     */
+    public static function supportsTranscription(string $driver): bool
+    {
+        return in_array($driver, self::TRANSCRIPTION_DRIVERS, true);
+    }
+
+    /**
+     * The transcription model a connection for this driver should carry, or
+     * null when the SDK's own default is enough.
+     */
+    public static function transcriptionModelFor(string $driver): ?string
+    {
+        return self::TRANSCRIPTION_MODEL_DEFAULTS[$driver] ?? null;
+    }
+
     /** @return list<string> */
     public static function drivers(): array
     {

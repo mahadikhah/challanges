@@ -288,6 +288,10 @@ it('drops unknown keys from an account config instead of leaking them to the SDK
 
     $chain = AiProviderChain::forKey($capability->key);
 
-    expect(array_keys($chain->configs[0]->toConnectionConfig()))->toBe(['driver', 'key', 'url'])
+    // The `models` key is ours, not leaked: openai_compatible needs a
+    // transcription default registered or every speech-to-text call dies
+    // (Phase 14 Task 3). Only known credentials ride along otherwise.
+    expect(array_keys($chain->configs[0]->toConnectionConfig()))->toBe(['driver', 'key', 'url', 'models'])
+        ->and($chain->configs[0]->toConnectionConfig()['models'])->toBe(['transcription' => ['default' => 'whisper-1']])
         ->and($chain->configs[0]->toConnectionConfig())->not->toHaveKey('honey');
 });

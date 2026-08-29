@@ -131,6 +131,7 @@ return [
         'video_too_long' => 'That video is :seconds seconds long; this challenge accepts up to :max.',
         'media_too_large' => 'That file is too big for this challenge — send a smaller one.',
         'store_error' => 'That could not be received. Please send it again.',
+        'submitted_for_review' => 'All steps done — your session is in for review. You will hear the verdict here.',
 
         'step_button' => 'Step :step of :total in “:title” — tap Next once :wait has passed since the step before it.',
         'step_image' => 'Step :step of :total in “:title” — send a photo once :wait has passed since the step before it.',

@@ -2,10 +2,16 @@
 
 namespace App\Actions\CheckIns;
 
+use App\Actions\Ai\ApplyAiVerdict;
+use App\Enums\ApprovalMode;
+use App\Enums\CheckInSessionStatus;
+use App\Enums\CheckInStatus;
 use App\Enums\StepInputType;
 use App\Exceptions\SessionRejectedException;
 use App\Models\ChallengeStep;
+use App\Models\CheckIn;
 use App\Models\CheckInSession;
+use App\Models\CheckInStepSubmission;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\DB;
@@ -26,10 +32,27 @@ use Illuminate\Support\Facades\DB;
  *    must respect its cap — a voice message the step's own
  *    `voice_max_seconds`, a video the challenge's media caps — measured by
  *    the duration the messenger reports, never a client-supplied number.
+ *
+ * The final step has two endings. The ordinary one hands the session to
+ * `CompleteCheckInSession`, which approves the check-in — a completed
+ * session *is* a settled check-in. On a challenge whose `approval_mode` is
+ * `ai`, the final step's evidence is instead *submitted for review*: the
+ * check-in is opened, the media attached, and the one shared AI-verdict
+ * router decides — approve settles and the session completes through the
+ * ordinary path, while a rejection or a fallback to the manual queue leaves
+ * the check-in undecided and the session ends *without* the bundled
+ * approval, because `CompleteCheckInSession` would approve a row the verdict
+ * deliberately left open. The settlement engines themselves are untouched:
+ * every decision still lands through `ApplyAiVerdict` and
+ * `SettleCheckIn`, the same paths a photo takes.
  */
 class AdvanceCheckInStep
 {
-    public function __construct(private readonly CompleteCheckInSession $complete) {}
+    public function __construct(
+        private readonly CompleteCheckInSession $complete,
+        private readonly OpenCheckIn $openCheckIn,
+        private readonly ApplyAiVerdict $aiVerdict,
+    ) {}
 
     /**
      * @param  array{proof_path?: string|null, voice_seconds?: int|null, video_seconds?: int|null, media_size_kb?: int|null}  $submission
@@ -45,7 +68,11 @@ class AdvanceCheckInStep
         $this->assertWaitElapsed($session, $step, $at);
         $this->assertSubmissionShaped($step, $submission);
 
-        return DB::transaction(function () use ($session, $step, $submission, $at): CheckInSession {
+        // Set inside the transaction below when the final step belongs to an
+        // AI-reviewed challenge: the check-in waiting on the verdict router.
+        $pendingReview = null;
+
+        $result = DB::transaction(function () use ($session, $step, $submission, $at, &$pendingReview): CheckInSession {
             // Re-read under the write lock: two taps on the same button arrive
             // as two updates, and the second must see the first's advance.
             /** @var CheckInSession $fresh */
@@ -68,6 +95,14 @@ class AdvanceCheckInStep
             ]);
 
             if ($next === null) {
+                $evidence = $this->reviewEvidence($fresh);
+
+                if ($evidence !== null && $this->completesUnderReview($fresh)) {
+                    $pendingReview = $this->submitForReview($fresh, $evidence);
+
+                    return $fresh;
+                }
+
                 return $this->complete->handle($fresh);
             }
 
@@ -75,6 +110,37 @@ class AdvanceCheckInStep
 
             return $fresh;
         });
+
+        if ($pendingReview === null) {
+            return $result;
+        }
+
+        // Deliberately outside the transaction: the provider call is a
+        // multi-second HTTP request, and holding the session's row lock
+        // across it is how every worker deadlocks.
+        $this->aiVerdict->handle($pendingReview);
+
+        if ($pendingReview->refresh()->status === CheckInStatus::Approved) {
+            // The verdict already settled the check-in through the ordinary
+            // approval path, so the completion below pairs the session's
+            // bookkeeping with an approve that is an idempotent no-op on the
+            // settled row — exactly the pairing `CompleteCheckInSession`
+            // exists to make.
+            return $this->completeIfStillOpen($result);
+        }
+
+        // A rejection (resubmittable until the period closes) or a fallback
+        // to the manual queue: the steps were genuinely run, so the session
+        // is over — but ending it through `CompleteCheckInSession` would
+        // approve a row the verdict deliberately left undecided. Only the
+        // bookkeeping runs; the decision stays with the review queue.
+        $result->update([
+            'status' => CheckInSessionStatus::Completed,
+            'completed_at' => now(),
+            'current_step_order' => null,
+        ]);
+
+        return $result;
     }
 
     /**
@@ -196,5 +262,88 @@ class AdvanceCheckInStep
             ->first();
 
         return $next?->step_order;
+    }
+
+    /**
+     * The media a final-step review would judge: this session's latest
+     * proof-bearing submission, whatever step it came from.
+     *
+     * A review needs something to look at. A step design with no media at
+     * all (buttons only) has nothing to submit for review, and completes the
+     * ordinary way — there is no evidence an honest reviewer could pass on.
+     */
+    private function reviewEvidence(CheckInSession $session): ?CheckInStepSubmission
+    {
+        /** @var CheckInStepSubmission|null $evidence */
+        $evidence = $session->submissions()
+            ->whereNotNull('proof_path')
+            ->orderByDesc('submitted_at')
+            ->first();
+
+        return $evidence;
+    }
+
+    /**
+     * Whether this session's completion must pass through review rather than
+     * auto-approve: the challenge asked for AI review of its media proof.
+     *
+     * The proof *type* decides what the reviewer looks at; the step *inputs*
+     * are how the participant produced evidence of it. Only the media-proof
+     * types are reviewable at all — a session on a `button` or
+     * `text_autogen` challenge has no review to wait for, whatever its mode.
+     */
+    private function completesUnderReview(CheckInSession $session): bool
+    {
+        $challenge = $session->participant->challenge;
+
+        return $challenge->approval_mode === ApprovalMode::Ai
+            && $challenge->proof_type->isMediaApproval();
+    }
+
+    /**
+     * Open the period's check-in and attach the evidence to it, the same
+     * submission state a photo upload leaves behind.
+     *
+     * The session's steps are done: `current_step_order` is cleared so a
+     * replayed final-step message or callback finds no current step and is
+     * refused as stale, exactly as it would be on a completed session.
+     */
+    private function submitForReview(CheckInSession $session, CheckInStepSubmission $evidence): CheckIn
+    {
+        $checkIn = $this->openCheckIn->handle($session->participant, $session->period);
+
+        $checkIn->update([
+            'status' => CheckInStatus::Submitted,
+            'proof_path' => $evidence->proof_path,
+            'submitted_at' => now(),
+            // No reviewer stamped: nothing has been decided, and the manual
+            // queue (the AI verdict's fallback) presents the row by this
+            // same `Submitted` state.
+            'reviewed_by' => null,
+            'reviewed_at' => null,
+        ]);
+
+        $session->update(['current_step_order' => null]);
+
+        return $checkIn;
+    }
+
+    /**
+     * Complete the session when the rollover has not already closed it.
+     *
+     * `CompleteCheckInSession` refuses a session that is no longer open —
+     * the expiry sweep may have won the race while the verdict was being
+     * asked. The session's terminal state then already says what happened,
+     * and returning it beats masking an honest expiry as an error.
+     */
+    private function completeIfStillOpen(CheckInSession $session): CheckInSession
+    {
+        $session->refresh();
+
+        if (! $session->isOpen()) {
+            return $session;
+        }
+
+        return $this->complete->handle($session);
     }
 }

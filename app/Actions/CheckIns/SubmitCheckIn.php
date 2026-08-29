@@ -179,10 +179,10 @@ class SubmitCheckIn
     /**
      * The shared recording path: cap the media, then submit it for review.
      *
-     * No AI verdict call here, deliberately: `approval_mode = ai` cannot be
-     * set on a recording-proof challenge yet (Tasks 3/4 generalize the
-     * reviewer), so calling it would be dead code that pretends to be a
-     * guarantee.
+     * Voice hands itself to the AI reviewer when the challenge asked for it
+     * (Phase 14 Task 3); video does not yet — its reviewer is Task 4, so a
+     * call today would be dead code pretending to be a guarantee, and the
+     * video gate in `ApplyAiVerdict` makes the same check.
      *
      * @throws CheckInRejectedException
      */
@@ -218,6 +218,12 @@ class SubmitCheckIn
             'reviewed_by' => null,
             'reviewed_at' => null,
         ]);
+
+        // Same rule as `uploadPhoto`: the recording is stored before anyone
+        // — model or human — is asked to look at it.
+        if ($offered === ProofType::VoiceApproval) {
+            $this->aiVerdict->handle($checkIn);
+        }
 
         return $checkIn->refresh();
     }

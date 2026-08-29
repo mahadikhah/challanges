@@ -94,6 +94,18 @@ final readonly class AiProviderConfig
         // `key` is always present, even empty: many SDK base classes read
         // $config['key'] with no null-coalesce, and a local model server is
         // the realistic case where no API key exists.
-        return ['driver' => $this->driver, 'key' => '', ...$this->credentials];
+        $config = ['driver' => $this->driver, 'key' => '', ...$this->credentials];
+
+        // A transcription-capable driver that has no SDK default of its own
+        // needs one in the connection config, or every speech-to-text call
+        // would die on a missing `models.transcription.default` (Phase 14
+        // Task 3's voice review path).
+        $transcriptionModel = AiDriverCatalog::transcriptionModelFor($this->driver);
+
+        if ($transcriptionModel !== null) {
+            $config['models'] = ['transcription' => ['default' => $transcriptionModel]];
+        }
+
+        return $config;
     }
 }

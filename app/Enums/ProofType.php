@@ -115,6 +115,20 @@ enum ProofType: string implements HasTranslatedLabelContract
     }
 
     /**
+     * Whether AI review is implemented for this proof type's media.
+     *
+     * Image shipped with Phase 10; voice with Phase 14 Task 3. Video arrives
+     * with Task 4 — until then a deployment that flips the video gate early
+     * gets the manual queue, never a half-built review, which is why this
+     * exists separately from `aiApprovalSetting()`: the setting says what the
+     * admin allows, this says what the platform can do.
+     */
+    public function supportsAiReview(): bool
+    {
+        return in_array($this, [self::ImageApproval, self::VoiceApproval], true);
+    }
+
+    /**
      * The admin setting that alone decides whether this media type may be
      * AI-reviewed — see `AiApprovalGate`, which also demands the global
      * switch.

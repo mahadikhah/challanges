@@ -17,10 +17,15 @@ use Throwable;
 /**
  * The router between AI review and the manual queue.
  *
- * On every photo submitted to an `approval_mode = ai` challenge: ask
+ * On every media proof submitted to an `approval_mode = ai` challenge: ask
  * `ReviewProofWithAi`, and either let the verdict act — through the same
- * settlement machinery a human verdict takes — or leave the row in the manual
- * queue.
+ * settlement machinery a human verdict takes — or leave the row in the
+ * manual queue.
+ *
+ * The media kind comes from the challenge: a photo review attaches the
+ * photo, a voice review transcribes then judges the transcript (§2.11), and
+ * the caller does not get to pick — the proof type the challenge was created
+ * with is the proof type under review.
  *
  * Approval goes through `SettleCheckIn::approve()`, the one settlement path
  * every surface already shares, unmodified: the streak moves there or
@@ -28,7 +33,8 @@ use Throwable;
  * decision, and the `AiApprovalDecision` row is the audit trail naming what
  * did. Rejection lands the row in `Rejected`, the same resubmittable state a
  * manual rejection uses, for the same reason: an AI "no" is not a period
- * lost, and the participant may send a better photo until the period closes.
+ * lost, and the participant may send a better recording until the period
+ * closes.
  *
  * Below the confidence threshold, on an unreadable response, or when no
  * provider answered at all, the row stays `Submitted` — which *is* its
@@ -44,8 +50,8 @@ class ApplyAiVerdict
     ) {}
 
     /**
-     * Route one submitted photo. Never throws: every failure path is the
-     * fallback path.
+     * Route one submitted media proof. Never throws: every failure path is
+     * the fallback path.
      */
     public function handle(CheckIn $submission): void
     {
@@ -60,6 +66,14 @@ class ApplyAiVerdict
         // rewritten — but no provider is called: the submission waits in the
         // manual queue like any other the AI declined to answer.
         if (! $this->gate->allows($challenge->proof_type)) {
+            return;
+        }
+
+        // Allowed by the admin is not the same as built: voice review exists
+        // as of Phase 14 Task 3, video does not yet. A gate flipped early for
+        // an unbuilt path routes to the manual queue rather than throwing —
+        // the participant's submission must not fail for an admin's optimism.
+        if (! $challenge->proof_type->supportsAiReview()) {
             return;
         }
 

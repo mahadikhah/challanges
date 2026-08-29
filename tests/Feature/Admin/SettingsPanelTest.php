@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\AiCapabilityPurpose;
 use App\Enums\SettingKey;
 use App\Models\AiCapability;
 use App\Models\AiProviderAccount;
@@ -76,10 +77,12 @@ it('shows every registry tunable, grouped, with its default and override state',
             ->where('settings.21.key', 'ai_approval_allowed_video')
             ->where('settings.22.key', 'ai_approval_confidence_threshold')
             ->where('settings.22.group', 'ai')
-            // Voice and video capability is honestly "not yet checked" until
-            // their review paths ship (Phase 14 Tasks 3–4); image answers now.
+            // Image answers from the account rows now. Voice answers too, as
+            // of Phase 14 Task 3: the readout demands a moderation account
+            // whose driver can also transcribe. Video alone stays "not yet
+            // checked" until its review path ships (Task 4).
             ->where('aiCapabilities.image.available', false)
-            ->where('aiCapabilities.voice.available', null)
+            ->where('aiCapabilities.voice.available', false)
             ->where('aiCapabilities.video.available', null),
     );
 });
@@ -106,7 +109,14 @@ it('marks a setting as overridden once an admin has changed it', function (): vo
 });
 
 it('updates an AI approval gate toggle and reports the image capability honestly', function (): void {
-    $capability = AiCapability::query()->where('key', AiCapability::KEY_PROOF_MODERATION)->firstOrFail();
+    // Self-healing rather than firstOrFail: the Domain concurrency suites
+    // truncate every table without re-seeding, so the migration-seeded row
+    // may be gone depending on run order. The migration inserts with
+    // firstOrCreate — this is the same idempotent shape.
+    $capability = AiCapability::query()->firstOrCreate(
+        ['key' => AiCapability::KEY_PROOF_MODERATION],
+        ['label' => 'Proof moderation', 'purpose' => AiCapabilityPurpose::Vision],
+    );
     $capability->update(['is_active' => true]);
 
     AiProviderAccount::factory()->configured()->create([
@@ -125,7 +135,10 @@ it('updates an AI approval gate toggle and reports the image capability honestly
     $this->get('/admin/settings')->assertInertia(
         fn (AssertableInertia $page) => $page
             ->where('settings.19.overridden', true)
-            ->where('aiCapabilities.image.available', true),
+            ->where('aiCapabilities.image.available', true)
+            // The factory's openai_compatible driver can transcribe, so the
+            // same account carries voice review too.
+            ->where('aiCapabilities.voice.available', true),
     );
 });
 

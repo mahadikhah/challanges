@@ -3,8 +3,10 @@
 namespace App\Services\Ai;
 
 use Laravel\Ai\AnonymousAgent;
+use Laravel\Ai\Files\StoredAudio;
 use Laravel\Ai\Files\StoredImage;
 use Laravel\Ai\StructuredAnonymousAgent;
+use Laravel\Ai\Transcription;
 
 /**
  * The `laravel/ai` implementation of the client seam.
@@ -63,6 +65,19 @@ class LaravelAiTextClient implements AiTextClient
             durationMs: (int) round((hrtime(true) - $startedAt) / 1e6),
             structured: $this->structuredPayload($response),
         );
+    }
+
+    /**
+     * Speech-to-text on the stored recording, via the SDK's transcription
+     * pipeline. The caller checked the driver can transcribe at all; the
+     * connection's own default model is used for the reason documented on
+     * the interface.
+     */
+    public function transcribe(string $connection, string $path, string $disk = 'local'): string
+    {
+        return Transcription::of(new StoredAudio($path, $disk))
+            ->generate($connection)
+            ->text;
     }
 
     /**
