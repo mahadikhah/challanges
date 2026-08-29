@@ -136,7 +136,10 @@ class PostCheckInAnnouncement implements ShouldQueue
     }
 
     /**
-     * The announcement: name, period, streak — and nothing else.
+     * The announcement: name, period, streak — and nothing else. On a
+     * quantity challenge the period's score rides along, because the number
+     * is the whole point of the challenge; a binary challenge's format is
+     * unchanged.
      *
      * @return list<string|null>
      */
@@ -145,14 +148,38 @@ class PostCheckInAnnouncement implements ShouldQueue
         $challenge = $checkIn->period->challenge;
         $participant = $checkIn->participant;
 
+        $base = 'bot.chatpost.checkin';
+
+        if ($challenge->scoring_type->isQuantity() && $checkIn->score !== null) {
+            $base = "{$base}_scored";
+        }
+
         return [
-            $broadcaster->line('bot.chatpost.checkin', [
+            $broadcaster->line($base, [
                 'title' => $challenge->title,
                 'name' => $participant->user->first_name ?? $participant->user->name,
                 'period' => $checkIn->period->index + 1,
                 'total' => $challenge->total_periods,
                 'streak' => $participant->current_streak,
+                'value' => $this->plainNumber($checkIn->reported_value),
+                'unit' => (string) $challenge->unit_label,
+                'score' => (int) $checkIn->score,
             ]),
         ];
+    }
+
+    /**
+     * A stored two-decimal value shown without its trailing zeros — the
+     * participant typed "45" and recognises that.
+     */
+    private function plainNumber(?string $stored): string
+    {
+        if ($stored === null) {
+            return '0';
+        }
+
+        $trimmed = rtrim(rtrim($stored, '0'), '.');
+
+        return $trimmed === '' ? '0' : $trimmed;
     }
 }

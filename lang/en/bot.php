@@ -467,9 +467,12 @@ return [
     */
     'chatpost' => [
         'checkin' => ':name checked in for period :period of :total — streak: :streak 🔥',
+        'checkin_scored' => ':name checked in for period :period of :total — :value :unit, :score pts 🔥',
         'leaderboard' => [
             'headline' => 'Top streaks in “:title”',
+            'headline_scored' => 'Top scores in “:title”',
             'row' => ':rank. :name — :streak in a row',
+            'row_scored' => ':rank. :name — :score pts :unit',
             'not_admin' => 'Only administrators of this chat can ask for the leaderboard.',
             'cooldown' => 'The leaderboard was just posted. Try again in :minutes minute(s).',
             'empty' => 'Nobody is on the board yet — check in to get there first.',

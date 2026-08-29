@@ -426,3 +426,118 @@ describe('the on-demand leaderboard command', function () {
         expect(postedMessages())->toBeEmpty();
     });
 });
+
+/*
+ * A quantity challenge's linked chat: the board ranks by score and the
+ * announcement carries the period's points. Binary is the regression bar —
+ * every test above must keep passing untouched, which is why the fixtures
+ * here build their own challenge rather than bending the shared one.
+ */
+describe('a quantity challenge’s chat posts', function () {
+    beforeEach(function () {
+        $this->challenge = Challenge::factory()
+            ->active()
+            ->quantity()
+            ->timeline('2026-08-01', 'UTC', 10)
+            ->create(['creator_id' => $this->creator->getKey(), 'title' => 'Morning run']);
+
+        $this->chat = ChallengeChat::factory()
+            ->verified()
+            ->create([
+                'challenge_id' => $this->challenge->getKey(),
+                'telegram_chat_id' => -100_5555,
+                'post_checkin_announcements' => true,
+                'post_daily_leaderboard' => true,
+            ]);
+
+        RateLimiter::clear("leaderboard:{$this->chat->getKey()}");
+    });
+
+    it('ranks the board by score, not streak, where the two orderings differ', function () {
+        telegramServesThePost();
+        $this->settings->set(SettingKey::LeaderboardTopSize, 3);
+
+        // Score-descending is the opposite of streak-descending here: the
+        // long-streak low-scorer must not top the board.
+        ChallengeParticipant::factory()->create([
+            'challenge_id' => $this->challenge->getKey(),
+            'user_id' => User::factory()->telegram()->create(['first_name' => 'HighScore'])->getKey(),
+            'current_streak' => 1,
+            'total_score' => 800,
+        ]);
+        ChallengeParticipant::factory()->create([
+            'challenge_id' => $this->challenge->getKey(),
+            'user_id' => User::factory()->telegram()->create(['first_name' => 'LowScore'])->getKey(),
+            'current_streak' => 9,
+            'total_score' => 200,
+        ]);
+
+        dispatch_sync(new PostDailyLeaderboard($this->chat->getKey(), now()->toDateString()));
+
+        $text = current(array_filter(postedMessages(), fn (array $sent): bool => $sent['chat'] === '-1005555'))['text'];
+
+        expect($text)->toContain(__('bot.chatpost.leaderboard.headline_scored', ['title' => 'Morning run']))
+            ->toContain(__('bot.chatpost.leaderboard.row_scored', [
+                'rank' => 1, 'name' => 'HighScore', 'score' => 800, 'unit' => 'pushups',
+            ]))
+            ->toContain(__('bot.chatpost.leaderboard.row_scored', [
+                'rank' => 2, 'name' => 'LowScore', 'score' => 200, 'unit' => 'pushups',
+            ]))
+            ->and(strpos($text, 'HighScore'))->toBeLessThan(strpos($text, 'LowScore'))
+            ->and($text)->not->toContain('in a row');
+    });
+
+    it('posts nothing when nobody has scored yet', function () {
+        telegramServesThePost();
+
+        ChallengeParticipant::factory()->create([
+            'challenge_id' => $this->challenge->getKey(),
+            'current_streak' => 7,
+            'total_score' => 0,
+        ]);
+
+        dispatch_sync(new PostDailyLeaderboard($this->chat->getKey(), now()->toDateString()));
+
+        expect(postedMessages())->toBeEmpty()
+            ->and($this->chat->posts()->count())->toBe(0);
+    });
+
+    it('announces the period’s score alongside the name and period', function () {
+        telegramServesThePost();
+
+        $checkIn = pendingCheckIn();
+        $checkIn->update(['reported_value' => '45.00', 'score' => 150]);
+        approve($checkIn);
+
+        dispatch_sync(new PostCheckInAnnouncement($this->chat->getKey(), $checkIn->getKey()));
+
+        $text = current(array_filter(postedMessages(), fn (array $sent): bool => $sent['chat'] === '-1005555'))['text'];
+
+        expect($text)->toBe(__('bot.chatpost.checkin_scored', [
+            'title' => 'Morning run',
+            'name' => $checkIn->participant->user->first_name,
+            'period' => 1,
+            'total' => 10,
+            'streak' => 1,
+            'value' => 45,
+            'unit' => 'pushups',
+            'score' => 150,
+        ]));
+    });
+
+    it('announces a scored-but-unscored-row period in the plain format', function () {
+        // A frozen or missed quantity row is announced like any other period
+        // that did not move the streak — nothing increments, nothing posts.
+        telegramServesThePost();
+
+        $checkIn = pendingCheckIn();
+        $checkIn->update(['reported_value' => '15.00']);
+        $checkIn->participant->forceFill(['freezes_total' => 1])->save();
+        app(SettleCheckIn::class)->approve($checkIn);
+
+        dispatch_sync(new PostCheckInAnnouncement($this->chat->getKey(), $checkIn->getKey()));
+
+        expect(postedMessages())->toBeEmpty()
+            ->and($this->chat->posts()->count())->toBe(0);
+    });
+});

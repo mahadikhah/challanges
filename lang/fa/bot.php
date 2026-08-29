@@ -463,9 +463,12 @@ return [
     */
     'chatpost' => [
         'checkin' => ':name دورهٔ :period از :total را ثبت کرد — استریک: :streak 🔥',
+        'checkin_scored' => ':name دورهٔ :period از :total را ثبت کرد — :value :unit، :score امتیاز 🔥',
         'leaderboard' => [
             'headline' => 'بیشترین استریک‌های «:title»',
+            'headline_scored' => 'بالاترین امتیازهای «:title»',
             'row' => ':rank. :name — :streak پشت‌سرهم',
+            'row_scored' => ':rank. :name — :score امتیاز :unit',
             'not_admin' => 'فقط مدیران این گفتگو می‌توانند جدول را بخواهند.',
             'cooldown' => 'جدول همین حالا منتشر شد. :minutes دقیقهٔ دیگر دوباره امتحان کن.',
             'empty' => 'هنوز کسی روی جدول نیست — با ثبت وضعیت اولین نفر شو.',

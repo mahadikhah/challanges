@@ -1800,13 +1800,13 @@
     "semantic_hash": ""
   },
   "lang/en/bot.php": {
-    "mtime": 1788005235.3671725,
-    "ast_hash": "d58b994746a49308e515f497c9d5633c",
+    "mtime": 1788006655.243741,
+    "ast_hash": "c05fc86a644bcaafec7a01e456091994",
     "semantic_hash": ""
   },
   "lang/fa/bot.php": {
-    "mtime": 1788005251.9559357,
-    "ast_hash": "4410ee48bf8508641239302b3327695f",
+    "mtime": 1788006691.2347634,
+    "ast_hash": "3420a2ad6c61131f3eb7866c52bf13a1",
     "semantic_hash": ""
   },
   "tests/Feature/Bot/ChannelGateTest.php": {
@@ -2515,8 +2515,8 @@
     "semantic_hash": ""
   },
   "app/Actions/Challenges/ComposeLeaderboard.php": {
-    "mtime": 1787944856.3574736,
-    "ast_hash": "7d4bc045c09f98675244e324b1e08bd5",
+    "mtime": 1788006759.1006577,
+    "ast_hash": "53fbf310304b36c93bc3fbd5819713ed",
     "semantic_hash": ""
   },
   "app/Console/Commands/Challenges/PostDailyLeaderboardsCommand.php": {
@@ -2535,8 +2535,8 @@
     "semantic_hash": ""
   },
   "app/Jobs/Telegram/PostCheckInAnnouncement.php": {
-    "mtime": 1787944814.5165286,
-    "ast_hash": "777684f517a0b2ff5c197e42cbcd3ff8",
+    "mtime": 1788006582.489633,
+    "ast_hash": "cab16656ecc47816d54930aea5f1234e",
     "semantic_hash": ""
   },
   "app/Jobs/Telegram/PostDailyLeaderboard.php": {
@@ -2575,8 +2575,8 @@
     "semantic_hash": ""
   },
   "tests/Feature/Bot/ChallengeChatPostingTest.php": {
-    "mtime": 1787945666.4696224,
-    "ast_hash": "868a9414812f66fe4742e5dcb530303b",
+    "mtime": 1788006755.7265646,
+    "ast_hash": "6e95a3e1d381b8bd5008e1b7f94c6269",
     "semantic_hash": ""
   },
   "app/Actions/Challenges/ValidateChallengeStepDesign.php": {
@@ -3330,8 +3330,8 @@
     "semantic_hash": ""
   },
   "prompts/progress-phase-15.md": {
-    "mtime": 1788001444.7068272,
-    "ast_hash": "ed64401a36abcdc758df17cceac0420a",
+    "mtime": 1788006262.1144612,
+    "ast_hash": "23b05b5f5560896974120d8939586ba5",
     "semantic_hash": ""
   },
   "app/Services/Telegram/CheckInConfirmation.php": {
