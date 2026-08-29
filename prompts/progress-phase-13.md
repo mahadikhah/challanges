@@ -164,3 +164,63 @@ scheduler is null, which every reader treats as stale — not healthy).
   callers never touch the integer.
 - The model stamps its `key` default via `booted()`; factory carries a `ranMinutesAgo()` state for
   Task 4/5 staleness tests.
+
+## Task 4 — System health page + external-call counters
+
+**Status: complete**
+
+### What landed
+
+- **`external_call_stats` table** (migration `2026_08_29_180000`) — one row per **(provider, day,
+  outcome)**, `count` unsigned. `ExternalCallStat` model with enum casts + `immutable_date` day;
+  provider/outcome are the backed enums `ExternalCallProvider`
+  (telegram|bale|telegram_stars|bale_pay|ai_provider, with `forMessaging()`/`forPayment()` mapping from
+  the platform/rail enums) and `ExternalCallOutcome` (success|failure).
+- **`RecordExternalCall`** action — `handle()` increments the row via update-then-create (create inside
+  a try/catch on the unique violation to lose the race, not the increment); `attempt(provider, callable)`
+  wraps a live call: failure records Failure and **rethrows verbatim**, success records Success. Both
+  recording paths are themselves try/catch-silent — the counter is best-effort and can never become the
+  reason a real send fails.
+- **`RecordingMessengerPlatform` decorator** — implements `MessengerPlatform`, forwards every method
+  verbatim, and counts messaging calls as the platform's provider and payment calls as the rail's
+  provider. Applied at the **single resolution point** (`PlatformRegistry::for()`), so every surface
+  that talks to Telegram/Bale/Stars/Bale Pay is counted with zero call-site changes. The AI chain
+  (not behind the registry) counts itself in `ReviewProofWithAi` — success after a verdict is read
+  (a hedged answer still reached a provider), failure in the catch.
+- **`SystemHealthSnapshot`** — assembles the page: scheduler (heartbeat last-ran + staleness Setting;
+  **never-ran reads as unhealthy** — a fresh install and a dead cron look identical and the safe
+  reading is the alarming one), queue (pending/oldest-pending-minutes/failed from `QueueHealth`),
+  exceptions (Telescope entries type `exception`, last 24h, grouped by `family_hash` with the class
+  extracted inside `MAX()` for `only_full_group_by`; **degrades to `available: false`** when Telescope
+  is disabled or unmigrated rather than rendering an empty table that reads as "no exceptions ever"),
+  and `providers(days)` — every enum case listed **zeros included**, over a rolling day window.
+- **Admin page** `GET /admin/system-health` (`SystemHealthController` + `Admin/SystemHealth.tsx`,
+  sidebar entry, en/fa i18n): the snapshot cards, a failed-jobs list (uuid, queue, payload
+  `displayName`, first line of the trace, newest first, limit 25) with **retry/discard** levers that
+  call Laravel's own `queue:retry`/`queue:forget` — the page can never drift from what a worker on the
+  host would do with the same rows — a Telescope deep-link, manual refresh, and a 30s `router.reload`
+  polling only the two props.
+
+### Tests
+
+`tests/Feature/Observability/SystemHealthTest.php` (12) — admin gate; heartbeat staleness judgments
+including the 30-minute Setting override; retry re-queues (row moves back to `jobs`) and discard
+removes; per-provider increment dataset over all five providers × both outcomes; the counting skin
+(one `Http::fake` closure reading `test()->telegramOk` — a second `Http::fake()` merges
+first-match-wins — proving a refusal both counts as failure **and survives the decorator**);
+AI review success + failure through the real chain; Telescope degrade states; provider window
+(10-day-old row excluded, zeros present for every case).
+
+### Traps recorded
+
+- **`Collection::all()` is `array<int, T>`, not `list<T>`** under PHPStan lvl 7 — even after
+  `->values()`. The repo-clean fix is `array_values($collection->all())` (or `array_values($rows->all())`)
+  at the return boundary; same for `failedJobRows()` in the controller.
+- **Admin route names carry the `admin.` prefix** (group prefix + name prefix):
+  `admin.system-health.index`, `admin.system-health.failed-jobs.retry`. Route definitions must also
+  point at the real method names (`retryFailedJob`/`discardFailedJob`) — `route:list` fails at
+  request time otherwise, not at boot.
+- **`router.reload({only: [...]})` has no `preserveScroll`** in Inertia v3's `ReloadOptions` (only
+  post/visit options do) — dropped from the 30s poll.
+- JSON column extraction under MySQL `only_full_group_by` needs the extraction wrapped in an
+  aggregate: `MAX(JSON_UNQUOTE(JSON_EXTRACT(content, "$.class")))`.
