@@ -3,8 +3,9 @@
 namespace App\Services\Telegram;
 
 use App\Actions\Telegram\VerifyChannelMembership;
+use App\Enums\MessagingPlatform;
 use App\Messaging\Contracts\MessengerException;
-use App\Messaging\Contracts\MessengerPlatform;
+use App\Messaging\PlatformRegistry;
 use App\Models\Challenge;
 use App\Services\Localization;
 use Illuminate\Support\Facades\DB;
@@ -19,12 +20,18 @@ use Throwable;
  * decision that class makes is about a recipient — their chat id, their locale —
  * and a channel has neither. A channel has a mixed-language audience, so posts go
  * out in the platform's fallback locale, and its chat id comes from the
- * `required_channel` setting rather than from a `users` row.
+ * platform's `required_channel` setting rather than from a `users` row.
+ *
+ * Which channel a challenge announces into follows its creator: a challenge
+ * made on Bale is announced where Bale users can see it, and the same for
+ * Telegram. A creator with no messenger identity (a web-only admin) defaults
+ * to Telegram, which is the announcement surface that existed before there
+ * were two.
  */
 class ChannelBroadcaster
 {
     public function __construct(
-        private readonly MessengerPlatform $platform,
+        private readonly PlatformRegistry $platforms,
         private readonly VerifyChannelMembership $gate,
         private readonly Localization $localization,
     ) {}
@@ -52,6 +59,19 @@ class ChannelBroadcaster
             return false;
         }
 
+        // The creator's row names the platform the announcement belongs on. A
+        // creator with no messenger identity (a web-only admin) falls back to
+        // Telegram — the announcement surface that existed before there were
+        // two — rather than failing a challenge that is otherwise announceable.
+        //
+        // Resolved *before* the claim, deliberately: an unconfigured channel
+        // throws here, and if the claim had already been taken the challenge
+        // would be stuck marked announced with nothing posted.
+        $creator = $challenge->creator;
+        $platformCase = $creator->platform ?? MessagingPlatform::Telegram;
+        $channel = $this->gate->channel($creator);
+        $platform = $this->platforms->for($platformCase);
+
         $claimedAt = now();
 
         $claimed = Challenge::query()
@@ -64,8 +84,8 @@ class ChannelBroadcaster
         }
 
         try {
-            $this->platform->sendMessage(
-                $this->gate->channel(),
+            $platform->sendMessage(
+                $channel,
                 $this->post($challenge),
 
                 // The button is a URL deep link, deliberately, and not
@@ -77,7 +97,7 @@ class ChannelBroadcaster
                 // with it.
                 [[[
                     'text' => $this->line('bot.announce.join_button', [], $this->localization->fallback()),
-                    'url' => $challenge->joinLink(),
+                    'url' => $challenge->joinLink($platformCase),
                 ]]],
             );
         } catch (Throwable $failure) {

@@ -6,8 +6,8 @@ use App\Enums\ChatLinkVerification;
 use App\Messaging\Contracts\MessengerException;
 use App\Messaging\Contracts\MessengerPlatform;
 use App\Messaging\DTO\ChatMemberSnapshot;
+use App\Messaging\PlatformRegistry;
 use App\Models\ChallengeChat;
-use App\Services\Telegram\BotIdentity;
 use App\Services\Telegram\BotMessenger;
 use Illuminate\Support\Facades\Log;
 
@@ -15,25 +15,24 @@ use Illuminate\Support\Facades\Log;
  * The two admin checks a linked chat has to pass — and keeps having to pass.
  *
  * A `ChallengeChat` row is a licence to post into somebody's channel, so the
- * licence is re-earned rather than granted once: `handle()` asks Telegram
- * both questions and moves the row to whichever state the answers justify.
- * The wizard calls it at registration; the posting jobs (§2.6) call
- * `ensureFresh()` before every send, because admin status can be revoked the
- * day after registration and a row that still says "active" would be a stale
- * claim, not a fact.
+ * licence is re-earned rather than granted once: `handle()` asks the chat's
+ * own platform both questions and moves the row to whichever state the
+ * answers justify. The wizard calls it at registration; the posting jobs
+ * (§2.6) call `ensureFresh()` before every send, because admin status can be
+ * revoked the day after registration and a row that still says "active"
+ * would be a stale claim, not a fact.
  *
  * **A verdict of no is a state change, not an exception.** Deactivating and
  * telling the creator is the whole response; throwing would land the verdict
- * in the queue's failure handler, whose retry would re-ask Telegram about a
+ * in the queue's failure handler, whose retry would re-ask the platform about a
  * chat we already know we lost — the retry-loop §2.6 rules out. A verdict we
- * could not *obtain* (Telegram unreachable, chat vanished) is different: that
+ * could not *obtain* (platform unreachable, chat vanished) is different: that
  * propagates, so the job retries and asks again properly.
  */
 class VerifyChallengeChat
 {
     public function __construct(
-        private readonly MessengerPlatform $platform,
-        private readonly BotIdentity $identity,
+        private readonly PlatformRegistry $platforms,
         private readonly BotMessenger $messenger,
     ) {}
 
@@ -48,9 +47,10 @@ class VerifyChallengeChat
         $challenge = $chat->challenge;
         $creator = $challenge->creator;
 
-        $botId = $this->identity->id();
+        $platform = $this->platforms->for($chat->platform);
+        $botId = $platform->botId();
 
-        if (! $this->botMayPost($chat, $botId)) {
+        if (! $this->botMayPost($platform, $chat, $botId)) {
             $chat->forceFill([
                 'bot_admin_verified_at' => null,
                 'is_active' => false,
@@ -64,7 +64,7 @@ class VerifyChallengeChat
         // because the remedy (that person opens the bot) is the same.
         $creatorPlatformId = $creator->platform_user_id;
         $creatorIsAdmin = $creatorPlatformId !== null
-            && $this->isAdminOf($chat->telegram_chat_id, $creatorPlatformId, requiresPostPrivilege: false);
+            && $this->isAdminOf($platform, $chat->telegram_chat_id, $creatorPlatformId, requiresPostPrivilege: false);
 
         if (! $creatorIsAdmin) {
             $chat->forceFill([
@@ -94,7 +94,7 @@ class VerifyChallengeChat
      *
      * @param  int  $ttlHours  how long a verification stays fresh
      *
-     * @throws MessengerException when Telegram cannot be asked
+     * @throws MessengerException when the platform cannot be asked
      */
     public function ensureFresh(ChallengeChat $chat, int $ttlHours): ChatLinkVerification
     {
@@ -121,9 +121,9 @@ class VerifyChallengeChat
      *
      * @throws MessengerException
      */
-    private function botMayPost(ChallengeChat $chat, int $botId): bool
+    private function botMayPost(MessengerPlatform $platform, ChallengeChat $chat, int $botId): bool
     {
-        $member = $this->getChatMember($chat->telegram_chat_id, $botId);
+        $member = $this->getChatMember($platform, $chat->telegram_chat_id, $botId);
 
         if (! $member->isAdmin()) {
             return false;
@@ -140,9 +140,9 @@ class VerifyChallengeChat
      *
      * @throws MessengerException
      */
-    private function isAdminOf(int $chatId, int $platformUserId, bool $requiresPostPrivilege): bool
+    private function isAdminOf(MessengerPlatform $platform, int $chatId, int $platformUserId, bool $requiresPostPrivilege): bool
     {
-        $member = $this->getChatMember($chatId, $platformUserId);
+        $member = $this->getChatMember($platform, $chatId, $platformUserId);
 
         if (! $member->isAdmin()) {
             return false;
@@ -156,9 +156,9 @@ class VerifyChallengeChat
      *
      * @throws MessengerException
      */
-    private function getChatMember(int $chatId, int $userId): ChatMemberSnapshot
+    private function getChatMember(MessengerPlatform $platform, int $chatId, int $userId): ChatMemberSnapshot
     {
-        return $this->platform->getChatMember($chatId, $userId);
+        return $platform->getChatMember($chatId, $userId);
     }
 
     /**

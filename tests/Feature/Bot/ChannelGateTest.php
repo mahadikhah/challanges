@@ -170,7 +170,7 @@ describe('the gate’s refusals', function () {
     it('trims a channel that was pasted with whitespace', function () {
         $this->settings->set(SettingKey::RequiredChannel, "  @challenges\n");
 
-        expect($this->gate->channel())->toBe('@challenges');
+        expect($this->gate->channel($this->user))->toBe('@challenges');
     });
 
     it('refuses a user with no Telegram identity', function () {
@@ -218,7 +218,7 @@ describe('the gate’s refusals', function () {
 
 describe('the join link', function () {
     it('links to a public channel', function () {
-        expect($this->gate->joinUrl())->toBe('https://t.me/challenges');
+        expect($this->gate->joinUrl($this->user))->toBe('https://t.me/challenges');
     });
 
     it('offers no link for a private channel id, because there is none', function () {
@@ -226,13 +226,13 @@ describe('the join link', function () {
         // dead link, so the caller has to say "ask an admin" instead.
         $this->settings->set(SettingKey::RequiredChannel, '-1001234567890');
 
-        expect($this->gate->joinUrl())->toBeNull();
+        expect($this->gate->joinUrl($this->user))->toBeNull();
     });
 
     it('will not invent a link when nothing is configured', function () {
         $this->settings->set(SettingKey::RequiredChannel, '');
 
-        expect(fn (): ?string => $this->gate->joinUrl())->toThrow(ChannelGateException::class);
+        expect(fn (): ?string => $this->gate->joinUrl($this->user))->toThrow(ChannelGateException::class);
     });
 });
 

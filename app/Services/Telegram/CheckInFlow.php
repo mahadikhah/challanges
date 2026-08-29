@@ -234,7 +234,7 @@ class CheckInFlow
         }
 
         try {
-            $path = $this->files->downloadPhoto($photo);
+            $path = $this->files->downloadPhoto($user->platform, $photo);
             $checkIn = $this->submit->uploadPhoto($user, $challenge, $path);
         } catch (CheckInRejectedException $refused) {
             $this->abandon($user, $conversation, "bot.checkin.refused.{$refused->reason->value}", [

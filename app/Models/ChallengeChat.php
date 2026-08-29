@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\MessagingPlatform;
 use App\Enums\TelegramChatType;
 use Carbon\CarbonImmutable;
 use Database\Factories\ChallengeChatFactory;
@@ -26,6 +27,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * @property int $id
  * @property int $challenge_id
+ * @property MessagingPlatform $platform
  * @property int $telegram_chat_id
  * @property TelegramChatType $chat_type
  * @property string $title
@@ -42,6 +44,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 #[Fillable([
     'challenge_id',
+    'platform',
     'telegram_chat_id',
     'chat_type',
     'title',
@@ -117,6 +120,7 @@ class ChallengeChat extends Model
     protected function casts(): array
     {
         return [
+            'platform' => MessagingPlatform::class,
             'telegram_chat_id' => 'integer',
             'chat_type' => TelegramChatType::class,
             'bot_admin_verified_at' => 'datetime',

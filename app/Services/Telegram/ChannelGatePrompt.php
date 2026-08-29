@@ -29,14 +29,15 @@ class ChannelGatePrompt
      */
     public function send(User $user, array $extraLines = []): void
     {
-        $url = $this->gate->joinUrl();
+        $url = $this->gate->joinUrl($user);
 
         if ($url === null) {
             // A numeric `-100…` channel id has no public link, so there is no
             // button to offer and the user has to be invited another way. Worth a
             // warning: it is a configuration choice that quietly degrades the gate.
             Log::warning('The required channel has no public link, so no join button can be offered.', [
-                'channel' => $this->gate->channel(),
+                'channel' => $this->gate->channel($user),
+                'platform' => $user->platform->value,
             ]);
         }
 
@@ -46,7 +47,7 @@ class ChannelGatePrompt
                 $this->messenger->line(
                     $user,
                     $url === null ? 'bot.gate.blocked_without_link' : 'bot.gate.blocked',
-                    ['channel' => $this->gate->channel()],
+                    ['channel' => $this->gate->channel($user)],
                 ),
                 ...$extraLines,
                 $this->messenger->line($user, 'bot.gate.then_start_again'),

@@ -2,8 +2,9 @@
 
 namespace App\Services\Telegram;
 
+use App\Enums\MessagingPlatform;
 use App\Messaging\Contracts\MessengerException;
-use App\Messaging\Telegram\TelegramMessengerPlatform;
+use App\Messaging\PlatformRegistry;
 use Illuminate\Support\Facades\Storage;
 use LogicException;
 use RuntimeException;
@@ -17,28 +18,32 @@ use RuntimeException;
  * rule without the rule knowing either transport.
  *
  * The bytes come from the platform seam (`downloadFile`); this class adds only
- * the two Telegram payload shapes callers still hold — the photo ladder and the
- * voice object — and the storage convention shared by both.
+ * the payload shapes callers still hold — the photo ladder and the voice
+ * object, which Bale sends identically — and the storage convention shared by
+ * both. Which messenger's `file_id` is being fetched is the caller's fact
+ * (the user's own platform), passed per call for the same reason every other
+ * consumer of the seam resolves per actor.
  */
 class TelegramFileDownloader
 {
     public function __construct(
-        private readonly TelegramMessengerPlatform $platform,
+        private readonly PlatformRegistry $platforms,
     ) {}
 
     /**
-     * Download a photo array off a Telegram message and store it.
+     * Download a photo array off a message and store it.
      *
-     * @param  array<array-key, mixed>  $photo  Telegram's `message.photo`, as it
+     * @param  MessagingPlatform  $platform  which messenger issued the `file_id`s
+     * @param  array<array-key, mixed>  $photo  the message's `photo`, as it
      *                                          arrived: untrusted, so unusable
      *                                          entries are filtered out here
      * @return string the stored path, as `SubmitCheckIn::uploadPhoto()` takes it
      *
      * @throws LogicException when the photo array carries nothing usable
-     * @throws MessengerException when Telegram refuses the `getFile`
+     * @throws MessengerException when the platform refuses the `getFile`
      * @throws RuntimeException when the bytes cannot be fetched or written
      */
-    public function downloadPhoto(array $photo): string
+    public function downloadPhoto(MessagingPlatform $platform, array $photo): string
     {
         $largest = collect($photo)
             ->filter(fn (mixed $size): bool => is_array($size) && is_string($size['file_id'] ?? null))
@@ -49,24 +54,25 @@ class TelegramFileDownloader
             throw new LogicException('The photo array carries no size with a file_id.');
         }
 
-        return $this->store($this->platform->downloadFile($largest['file_id']), 'jpg');
+        return $this->store($this->platforms->for($platform)->downloadFile($largest['file_id']), 'jpg');
     }
 
     /**
-     * Download a voice message off a Telegram message and store it.
+     * Download a voice message off a message and store it.
      *
      * The *duration* is deliberately not this method's business: the surface
-     * reads it from Telegram's own `voice.duration` and hands it to the step
+     * reads it from the payload's own `voice.duration` and hands it to the step
      * action, which compares it against the step's cap — a duration we
      * re-fetched here could only ever be the same number with more steps.
      *
-     * @param  array<array-key, mixed>  $voice  Telegram's `message.voice`, as it arrived
+     * @param  MessagingPlatform  $platform  which messenger issued the `file_id`
+     * @param  array<array-key, mixed>  $voice  the message's `voice`, as it arrived
      *
      * @throws LogicException when the voice object carries no usable `file_id`
-     * @throws MessengerException when Telegram refuses the `getFile`
+     * @throws MessengerException when the platform refuses the `getFile`
      * @throws RuntimeException when the bytes cannot be fetched or written
      */
-    public function downloadVoice(array $voice): string
+    public function downloadVoice(MessagingPlatform $platform, array $voice): string
     {
         $fileId = $voice['file_id'] ?? null;
 
@@ -74,9 +80,9 @@ class TelegramFileDownloader
             throw new LogicException('The voice object carries no file_id.');
         }
 
-        // Telegram voice notes are Ogg Opus whatever the client labels them,
-        // so the extension is fixed rather than parsed out of `mime_type`.
-        return $this->store($this->platform->downloadFile($fileId), 'ogg');
+        // Voice notes are Ogg Opus whatever the client labels them, so the
+        // extension is fixed rather than parsed out of `mime_type`.
+        return $this->store($this->platforms->for($platform)->downloadFile($fileId), 'ogg');
     }
 
     /**

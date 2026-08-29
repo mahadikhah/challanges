@@ -68,15 +68,16 @@ class MessageHandler implements HandlesUpdate
         $from = $update->value('message.from');
 
         if (! is_array($from) || $update->value('message.from.is_bot') === true) {
-            Log::info('Ignoring a Telegram message with no human sender.', [
+            Log::info('Ignoring a message with no human sender.', [
                 'update_id' => $update->update_id,
+                'platform' => $update->platform->value,
             ]);
 
             return;
         }
 
         /** @var array<string, mixed> $from */
-        $user = $this->resolveUser->handle($from);
+        $user = $this->resolveUser->handle($from, $update->platform);
 
         // A payment confirmation before anything else: it arrives as a message
         // with no text, so without this it would fall through to "I did not

@@ -2,6 +2,7 @@
 
 namespace App\Actions\Telegram;
 
+use App\Enums\MessagingPlatform;
 use App\Jobs\Telegram\ProcessTelegramUpdate;
 use App\Models\TelegramUpdate;
 
@@ -10,26 +11,28 @@ use App\Models\TelegramUpdate;
  *
  * Two things happen here and they happen in this order for a reason. Recording
  * first means the payload survives even if every later step fails, so nothing
- * Telegram sent is ever lost to a bug downstream. Queueing second means the
- * request can answer 200 immediately — Telegram treats a slow webhook as a
- * failing one and retries it.
+ * the platform sent is ever lost to a bug downstream. Queueing second means the
+ * request can answer 200 immediately — a messenger platform treats a slow
+ * webhook as a failing one and retries it.
  *
- * **`update_id` is the idempotency key.** Telegram redelivers an update whenever
- * it does not see a 2xx, including when our response is lost in transit after we
- * already handled it. `firstOrCreate` against the unique index makes the second
- * delivery find the first row instead of inserting a twin, and the job is
- * dispatched only for an insert that actually happened — so one update produces
- * one job no matter how many times it arrives.
+ * **`(platform, update_id)` is the idempotency key.** The platform redelivers
+ * an update whenever it does not see a 2xx, including when our response is lost
+ * in transit after we already handled it. `firstOrCreate` against the unique
+ * index makes the second delivery find the first row instead of inserting a
+ * twin, and the job is dispatched only for an insert that actually happened —
+ * so one update produces one job no matter how many times it arrives. The
+ * platform scopes the key because Telegram and Bale each number their own
+ * updates, and the same number on the two of them is two different updates.
  */
 class IngestTelegramUpdate
 {
     /**
-     * @param  array<string, mixed>  $payload  The raw update, exactly as Telegram sent it.
+     * @param  array<string, mixed>  $payload  The raw update, exactly as the platform sent it.
      */
-    public function handle(int $updateId, array $payload): TelegramUpdate
+    public function handle(MessagingPlatform $platform, int $updateId, array $payload): TelegramUpdate
     {
         $update = TelegramUpdate::query()->firstOrCreate(
-            ['update_id' => $updateId],
+            ['platform' => $platform, 'update_id' => $updateId],
             ['payload' => $payload],
         );
 

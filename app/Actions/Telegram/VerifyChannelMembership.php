@@ -3,10 +3,12 @@
 namespace App\Actions\Telegram;
 
 use App\Enums\ChatMemberStatus;
+use App\Enums\MessagingPlatform;
 use App\Enums\SettingKey;
 use App\Exceptions\ChannelGateException;
 use App\Messaging\Contracts\MessengerException;
 use App\Messaging\Contracts\MessengerPlatform;
+use App\Messaging\PlatformRegistry;
 use App\Models\User;
 use App\Services\Settings;
 
@@ -39,7 +41,7 @@ use App\Services\Settings;
 class VerifyChannelMembership
 {
     public function __construct(
-        private readonly MessengerPlatform $platform,
+        private readonly PlatformRegistry $platforms,
         private readonly Settings $settings,
     ) {}
 
@@ -52,16 +54,20 @@ class VerifyChannelMembership
      */
     public function handle(User $user): bool
     {
-        $channel = $this->channel();
+        // Identity first, channel second: a user with no messenger identity is
+        // refused before any platform is asked anything, and a web-only admin
+        // reading the Telegram channel setting would be a category error.
         $platformUserId = $user->platform_user_id;
 
         if ($platformUserId === null) {
             throw ChannelGateException::notATelegramUser($user);
         }
 
+        $channel = $this->channel($user);
+
         // The snapshot keeps the platform's own status token, judged by the
         // enum; absent booleans stay `null` rather than becoming false.
-        $member = $this->platform->getChatMember($channel, $platformUserId);
+        $member = $this->platformFor($user)->getChatMember($channel, $platformUserId);
 
         $isMember = ChatMemberStatus::fromTelegram($member->status)
             ->grantsAccess($member->isMember);
@@ -94,16 +100,22 @@ class VerifyChannelMembership
     }
 
     /**
-     * The channel every user has to be in.
+     * The channel every user has to be in — the one on *their* platform.
      *
-     * Admin-overridable, seeded from env through config, and **never allowed to be
+     * A Bale user cannot join a Telegram channel, so the gate asks about the
+     * channel that exists where the user is standing. Admin-overridable per
+     * platform, seeded from env through config, and **never allowed to be
      * empty**: see `ChannelGateException::notConfigured()`.
      *
      * @throws ChannelGateException
      */
-    public function channel(): string
+    public function channel(User $user): string
     {
-        $channel = trim($this->settings->string(SettingKey::RequiredChannel));
+        // A user standing on no messenger at all (a web-only admin, reachable
+        // here through the announcement path) is read as the default surface,
+        // which is what they were before there were two.
+        $platform = $user->platform ?? MessagingPlatform::Telegram;
+        $channel = trim($this->settings->string($platform->requiredChannelSetting()));
 
         if ($channel === '') {
             throw ChannelGateException::notConfigured();
@@ -121,15 +133,22 @@ class VerifyChannelMembership
      *
      * @throws ChannelGateException
      */
-    public function joinUrl(): ?string
+    public function joinUrl(User $user): ?string
     {
-        $channel = $this->channel();
+        $platform = $user->platform ?? MessagingPlatform::Telegram;
 
-        if (! str_starts_with($channel, '@')) {
-            return null;
-        }
+        return $platform->channelUrl($this->channel($user));
+    }
 
-        return 'https://t.me/'.substr($channel, 1);
+    /**
+     * The platform implementation this user stands on.
+     *
+     * Callers on the `handle()` path have already refused a user with no
+     * messenger identity, so `platform` is never null here.
+     */
+    private function platformFor(User $user): MessengerPlatform
+    {
+        return $this->platforms->for($user->platform ?? MessagingPlatform::Telegram);
     }
 
     /**

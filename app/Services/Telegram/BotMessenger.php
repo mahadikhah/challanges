@@ -5,13 +5,14 @@ namespace App\Services\Telegram;
 use App\Messaging\Contracts\MessengerException;
 use App\Messaging\Contracts\MessengerPlatform;
 use App\Messaging\DTO\SentMessage;
+use App\Messaging\PlatformRegistry;
 use App\Models\User;
 use App\Services\Localization;
 use Illuminate\Support\Facades\Lang;
 use LogicException;
 
 /**
- * Talks to one user, in that user's own language.
+ * Talks to one user, in that user's own language, on that user's own messenger.
  *
  * The reason this exists rather than call sites reaching for a platform client
  * and `__()` directly is the locale. A handler runs in a queue worker that
@@ -32,14 +33,13 @@ use LogicException;
  * worth a silent class of broken messages now.
  *
  * Sends go through the `MessengerPlatform` seam, resolved from the recipient's
- * stored `platform` — the resolution discipline the interface documents. For
- * now every bot user is Telegram, so that is the one implementation this
- * resolves to.
+ * stored `platform` — a Bale user is replied to by the Bale bot, a Telegram
+ * user by the Telegram bot, with no caller having to care which.
  */
 class BotMessenger
 {
     public function __construct(
-        private readonly MessengerPlatform $platform,
+        private readonly PlatformRegistry $platforms,
         private readonly Localization $localization,
     ) {}
 
@@ -100,7 +100,15 @@ class BotMessenger
      */
     public function send(User $user, string $text, ?array $inlineKeyboard = null): SentMessage
     {
-        return $this->platform->sendMessage($this->chatId($user), $text, $inlineKeyboard);
+        return $this->platformFor($user)->sendMessage($this->chatId($user), $text, $inlineKeyboard);
+    }
+
+    /**
+     * The platform this user lives on.
+     */
+    public function platformFor(User $user): MessengerPlatform
+    {
+        return $this->platforms->for($user->platform);
     }
 
     /**

@@ -70,4 +70,29 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Bale (platform-specific)
+    |--------------------------------------------------------------------------
+    |
+    | Bale's Bot API is Telegram-shaped (same method names, same update
+    | envelopes) served from `https://tapi.bale.ai`. Its webhook offers **no**
+    | signature or secret-token mechanism — `setWebhook` accepts only a URL —
+    | so `webhook_secret` here is the secret *path segment* of the registered
+    | URL and the sole authenticator of an inbound call. It must therefore be
+    | long and random: it is the whole gate, not one of two factors as on
+    | Telegram.
+    |
+    | `required_channel` seeds the Bale side of the channel gate
+    | (`SettingKey::RequiredChannelBale`); empty until a deployment opens a
+    | Bale announcement channel, and the gate reads empty as "cannot confirm".
+    |
+    */
+    'bale' => [
+        'bot_token' => env('BALE_BOT_TOKEN'),
+        'bot_username' => env('BALE_BOT_USERNAME'),
+        'webhook_secret' => env('BALE_WEBHOOK_SECRET'),
+        'required_channel' => (string) env('BALE_REQUIRED_CHANNEL', ''),
+    ],
+
 ];

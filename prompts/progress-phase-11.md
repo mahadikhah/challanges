@@ -87,3 +87,36 @@ index shape.
 
 **Quality gate:** `sail composer ci:check` green — 1349 passed / 4 skipped / 1 incomplete
 (pre-existing), pint, phpstan lvl 7, eslint, prettier, tsc all clean. `graphify update .` run.
+
+## Task 2 — Bale bot integration
+
+### Capability verification (recorded before any code, per the task's "Before starting")
+
+All answers verified against the official docs at `docs.bale.ai` (fetched via curl, since WebSearch was
+degraded) plus the `bale-payments` skill's vendored contract. These are facts the implementation below
+assumes; if any is wrong, the code built on it is wrong.
+
+1. **Inline keyboards: supported.** `sendMessage.reply_markup` takes `InlineKeyboardMarkup.
+   inline_keyboard` (rows of `InlineKeyboardButton`), `callback_query` updates carry `data`, and
+   `answerCallbackQuery(callback_query_id)` exists. Bale's docs add a wrinkle Telegram doesn't: the
+   answer **must always be sent**, and clients too old to render the answer are detectable by
+   `callback_query_id` starting with `"1"` — our handler already answers unconditionally and ignores the
+   response, so no code change.
+2. **Voice with duration: supported.** `sendVoice` and a `Voice` type (`file_id`, `file_unique_id`,
+   …) exist. The Farsi docs page enumerates `duration` on the message's voice object alongside the file
+   ids; the normalizer reads it defensively (`is_int` guard) so an absent field degrades to null rather
+   than breaking.
+3. **`forward_from_chat`: supported.** Forwarded messages carry `forward_from_chat` as a `Chat`
+   object — creator-chat discovery by forwarding works identically to Telegram.
+4. **Webhook secret: does not exist.** `setWebhook` accepts **only** `url` (HTTPS, ports 443/88; an
+   empty string disables). There is no `secret_token` parameter and no signature header on deliveries.
+   Authenticity therefore rests entirely on an **unguessable URL path secret** plus server-side
+   re-verification of everything the payload claims — the same posture the Telegram route already has
+   via its URL token, minus the header second factor.
+5. **Bonus facts relied on:** `getChatMember` returns ChatMember subtypes with `status` strings
+   `"creator"` (ChatMemberOwner), `"administrator"`, `"member"`, `"restricted"` (with `is_member`
+   boolean) — compatible with `ChatMemberStatus::fromTelegram`. `getFile` (20 MB max) + download at
+   `https://tapi.bale.ai/file/bot<token>/<file_path>`, valid 1 hour. Bot links are
+   `https://ble.ir/<bot_username>?start=<token>`. The SDK runs against Bale with
+   `new Api($token, false, null, 'https://tapi.bale.ai/bot')` (base URL via constructor only —
+   `setBaseBotUrl()` mangles the `/bot` suffix).

@@ -41,6 +41,16 @@ class ShopCommand implements HandlesBotCommand
             return;
         }
 
+        if (! $user->platform->supportsNativePayments()) {
+            // Bale Pay is Phase 11 Task 3; until then the counter is Telegram's
+            // only, and a Bale user tapping into it would meet an invoice their
+            // client cannot open. The guard lives on the enum, so removing it
+            // later is flipping one fact, not hunting branches.
+            $this->messenger->send($user, $this->messenger->line($user, 'bot.shop.unavailable'));
+
+            return;
+        }
+
         $packages = $this->settings->array(SettingKey::StarsPackages);
 
         if ($packages === []) {

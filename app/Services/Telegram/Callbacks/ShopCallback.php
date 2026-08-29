@@ -43,6 +43,15 @@ class ShopCallback implements HandlesCallback
             return;
         }
 
+        if (! $user->platform->supportsNativePayments()) {
+            // Mirror of the ShopCommand guard: an old shop message can still be
+            // sitting in a Bale user's chat, so the tap has to be refused even
+            // though the listing that carried the button never showed them one.
+            $this->messenger->send($user, $this->messenger->line($user, 'bot.shop.unavailable'));
+
+            return;
+        }
+
         $index = $callback->argument(0);
 
         if ($index === null || ! ctype_digit($index)) {

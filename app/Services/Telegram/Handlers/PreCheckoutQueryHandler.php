@@ -3,7 +3,7 @@
 namespace App\Services\Telegram\Handlers;
 
 use App\Actions\Telegram\ResolveTelegramUser;
-use App\Messaging\Contracts\MessengerPlatform;
+use App\Messaging\PlatformRegistry;
 use App\Models\StarPayment;
 use App\Models\TelegramUpdate;
 use App\Models\User;
@@ -40,7 +40,7 @@ class PreCheckoutQueryHandler implements HandlesUpdate
         private readonly ResolveTelegramUser $resolveUser,
         private readonly BotMessenger $messenger,
         private readonly Localization $localization,
-        private readonly MessengerPlatform $platform,
+        private readonly PlatformRegistry $platforms,
     ) {}
 
     public function handle(TelegramUpdate $update): void
@@ -59,13 +59,13 @@ class PreCheckoutQueryHandler implements HandlesUpdate
         $from = $update->value('pre_checkout_query.from');
 
         if (! is_array($from) || $update->value('pre_checkout_query.from.is_bot') === true) {
-            $this->decline($queryId, null);
+            $this->decline($update, $queryId, null);
 
             return;
         }
 
         /** @var array<string, mixed> $from */
-        $user = $this->resolveUser->handle($from);
+        $user = $this->resolveUser->handle($from, $update->platform);
 
         $invoicePayload = $update->value('pre_checkout_query.invoice_payload');
 
@@ -86,7 +86,7 @@ class PreCheckoutQueryHandler implements HandlesUpdate
             && $totalAmount === $payment->stars_amount;
 
         if ($acceptable) {
-            $this->platform->answerPreCheckoutQuery($queryId, ok: true);
+            $this->platforms->for($update->platform)->answerPreCheckoutQuery($queryId, ok: true);
 
             return;
         }
@@ -97,14 +97,14 @@ class PreCheckoutQueryHandler implements HandlesUpdate
             'invoice_payload' => is_string($invoicePayload) ? $invoicePayload : null,
         ]);
 
-        $this->decline($queryId, $user);
+        $this->decline($update, $queryId, $user);
     }
 
     /**
      * Answer "no", with a message in the payer's own language — this is the one
      * string of the payment flow the user reads inside Telegram's sheet.
      */
-    private function decline(string $queryId, ?User $user): void
+    private function decline(TelegramUpdate $update, string $queryId, ?User $user): void
     {
         $locale = $user !== null
             ? $this->messenger->localeFor($user)
@@ -112,7 +112,7 @@ class PreCheckoutQueryHandler implements HandlesUpdate
 
         $line = Lang::get('bot.shop.pre_checkout_error', [], $locale);
 
-        $this->platform->answerPreCheckoutQuery(
+        $this->platforms->for($update->platform)->answerPreCheckoutQuery(
             $queryId,
             ok: false,
             errorMessage: is_string($line) ? $line : 'bot.shop.pre_checkout_error',

@@ -37,6 +37,11 @@ class RegisterChallengeChat
      * admin checks have to pass again — a second link attempt is exactly how
      * a creator recovers from having demoted the bot in between.
      *
+     * The chat's platform is the creator's: the forward arrived in the
+     * creator's DM on the messenger they use, so the chat it names is a chat
+     * on that same messenger — and the row stores the platform so every later
+     * post resolves the right bot.
+     *
      * @throws ChatLinkRefusedException when the actor did not create the
      *                                  challenge
      */
@@ -54,6 +59,7 @@ class RegisterChallengeChat
         return ChallengeChat::query()->updateOrCreate(
             [
                 'challenge_id' => $challenge->getKey(),
+                'platform' => $creator->platform,
                 'telegram_chat_id' => $telegramChatId,
             ],
             [

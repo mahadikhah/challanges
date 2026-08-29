@@ -349,6 +349,7 @@ return [
         'invoice_title' => ':coins coins',
         'invoice_description' => 'Top up your coin balance in :app.',
         'pre_checkout_error' => 'This top-up could not be completed. Please try again from /shop.',
+        'unavailable' => 'Top-ups are not available here yet. They will be soon.',
     ],
 
     'language' => [

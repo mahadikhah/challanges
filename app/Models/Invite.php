@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\InviteStatus;
+use App\Enums\MessagingPlatform;
 use Carbon\CarbonImmutable;
 use Database\Factories\InviteFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -71,12 +72,14 @@ class Invite extends Model
      *
      * `?start=` rather than `?startapp=`, because attribution happens on the
      * bot's first `/start` — before the Mini App is ever opened.
+     *
+     * Like `Challenge::joinLink`, the platform is a required argument: the link
+     * is shown to the inviter, on the inviter's own messenger, and a Telegram
+     * default would hand a Bale user a link their client cannot open.
      */
-    public function deepLink(): string
+    public function deepLink(MessagingPlatform $platform): string
     {
-        $username = ltrim(config()->string('services.telegram.bot_username'), '@');
-
-        return "https://t.me/{$username}?start={$this->code}";
+        return $platform->startLink($this->code);
     }
 
     /**

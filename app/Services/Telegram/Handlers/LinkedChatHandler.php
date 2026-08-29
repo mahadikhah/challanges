@@ -6,7 +6,7 @@ use App\Actions\Challenges\ComposeLeaderboard;
 use App\Enums\SettingKey;
 use App\Jobs\Telegram\PostDailyLeaderboard;
 use App\Messaging\Contracts\MessengerException;
-use App\Messaging\Contracts\MessengerPlatform;
+use App\Messaging\PlatformRegistry;
 use App\Models\ChallengeChat;
 use App\Models\TelegramUpdate;
 use App\Services\Localization;
@@ -40,7 +40,7 @@ use Illuminate\Support\Facades\RateLimiter;
 class LinkedChatHandler
 {
     public function __construct(
-        private readonly MessengerPlatform $platform,
+        private readonly PlatformRegistry $platforms,
         private readonly Settings $settings,
         private readonly Localization $localization,
         private readonly ComposeLeaderboard $boards,
@@ -57,6 +57,7 @@ class LinkedChatHandler
         /** @var ChallengeChat|null $chat */
         $chat = ChallengeChat::query()
             ->active()
+            ->where('platform', $update->platform)
             ->where('telegram_chat_id', $chatId)
             ->first();
 
@@ -65,6 +66,7 @@ class LinkedChatHandler
             // error, and emphatically not something to reply to.
             Log::info('Ignoring a message from a chat no challenge has linked.', [
                 'update_id' => $update->update_id,
+                'platform' => $update->platform->value,
                 'chat_id' => $chatId,
             ]);
 
@@ -99,7 +101,9 @@ class LinkedChatHandler
         // The one question this surface ever asks the platform about a person:
         // are they an administrator of the chat they just typed in. The
         // answer authorizes the reply; nothing else is done with the id.
-        if (! $this->platform->getChatMember($chat->telegram_chat_id, $senderId)->isAdmin()) {
+        // The chat's own platform answers, because the sender id is only
+        // meaningful to the messenger that issued it.
+        if (! $this->platforms->for($chat->platform)->getChatMember($chat->telegram_chat_id, $senderId)->isAdmin()) {
             $this->reply($chat, 'bot.chatpost.leaderboard.not_admin');
 
             return;
@@ -154,7 +158,7 @@ class LinkedChatHandler
         $line = Lang::get($key, $replace, $this->localization->fallback());
 
         try {
-            $this->platform->sendMessage($chat->telegram_chat_id, is_string($line) ? $line : $key);
+            $this->platforms->for($chat->platform)->sendMessage($chat->telegram_chat_id, is_string($line) ? $line : $key);
         } catch (MessengerException $unsendable) {
             Log::info('A linked-chat reply could not be sent.', [
                 'challenge_chat_id' => $chat->getKey(),

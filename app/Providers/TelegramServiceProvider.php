@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Messaging\Contracts\MessengerPlatform as MessengerPlatformContract;
-use App\Messaging\Telegram\TelegramMessengerPlatform;
+use App\Messaging\Bale\BaleMessengerPlatform;
+use App\Messaging\PlatformRegistry;
 use App\Services\Telegram\CallbackRouter;
 use App\Services\Telegram\Callbacks\CheckInCallback;
 use App\Services\Telegram\Callbacks\JoinCallback;
@@ -135,10 +135,23 @@ class TelegramServiceProvider extends ServiceProvider
             );
         });
 
+        /*
+         | The platform seam. There is deliberately no binding from the
+         | `MessengerPlatform` *interface* to a default implementation: with two
+         | platforms, "the platform" is always somebody's — the update's, the
+         | recipient's, the chat's — and a silent default would hand a Bale
+         | user's reply to the Telegram bot. Consumers resolve through
+         | `PlatformRegistry::for()`, which fails loudly for an unmapped case
+         | instead of guessing.
+         */
         $this->app->singleton(
-            MessengerPlatformContract::class,
-            TelegramMessengerPlatform::class,
+            BaleMessengerPlatform::class,
+            fn ($app): BaleMessengerPlatform => new BaleMessengerPlatform(
+                $app->make(LaravelHttpClient::class),
+            ),
         );
+
+        $this->app->singleton(PlatformRegistry::class);
 
         $this->app->singleton(
             UpdateRouter::class,

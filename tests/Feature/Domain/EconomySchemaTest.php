@@ -5,6 +5,7 @@ use App\Enums\ConversationState;
 use App\Enums\EntitlementSource;
 use App\Enums\EntitlementType;
 use App\Enums\InviteStatus;
+use App\Enums\MessagingPlatform;
 use App\Enums\ReminderKind;
 use App\Enums\SettingKey;
 use App\Enums\StarPaymentStatus;
@@ -249,7 +250,7 @@ describe('invites', function () {
 
         // `?start=`, not `?startapp=`: attribution happens on the bot's first
         // /start, before the Mini App is ever opened.
-        expect($invite->deepLink())->toBe('https://t.me/challenges_bot?start=abc123');
+        expect($invite->deepLink(MessagingPlatform::Telegram))->toBe('https://t.me/challenges_bot?start=abc123');
     });
 });
 

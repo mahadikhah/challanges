@@ -8,6 +8,7 @@ use App\Enums\SettingKey;
 use App\Messaging\Contracts\MessengerException;
 use App\Messaging\Contracts\MessengerPlatform;
 use App\Messaging\DTO\SentMessage;
+use App\Messaging\PlatformRegistry;
 use App\Models\ChallengeChat;
 use App\Services\Localization;
 use App\Services\Settings;
@@ -35,7 +36,7 @@ use Illuminate\Support\Facades\Storage;
 class ChatBroadcaster
 {
     public function __construct(
-        private readonly MessengerPlatform $platform,
+        private readonly PlatformRegistry $platforms,
         private readonly VerifyChallengeChat $verifier,
         private readonly Localization $localization,
         private readonly Settings $settings,
@@ -76,7 +77,10 @@ class ChatBroadcaster
     {
         return $this->deliver(
             $chat,
-            fn (): SentMessage => $this->platform->sendMessage($chat->telegram_chat_id, $this->text($lines)),
+            fn (): SentMessage => $this->platformFor($chat)->sendMessage(
+                $chat->telegram_chat_id,
+                $this->text($lines),
+            ),
         );
     }
 
@@ -98,7 +102,7 @@ class ChatBroadcaster
             return $this->sendLines($chat, $lines);
         }
 
-        return $this->deliver($chat, fn (): SentMessage => $this->platform->sendPhoto(
+        return $this->deliver($chat, fn (): SentMessage => $this->platformFor($chat)->sendPhoto(
             $chat->telegram_chat_id,
             // From contents rather than a path: the proof bytes are on our
             // disk, not at a URL the platform can fetch.
@@ -129,6 +133,14 @@ class ChatBroadcaster
             $lines,
             static fn (?string $line): bool => $line !== null && trim($line) !== '',
         ));
+    }
+
+    /**
+     * The platform implementation this chat lives on.
+     */
+    private function platformFor(ChallengeChat $chat): MessengerPlatform
+    {
+        return $this->platforms->for($chat->platform);
     }
 
     /**

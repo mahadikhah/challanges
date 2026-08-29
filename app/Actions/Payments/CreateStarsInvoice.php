@@ -5,7 +5,7 @@ namespace App\Actions\Payments;
 use App\Enums\SettingKey;
 use App\Enums\StarPaymentStatus;
 use App\Messaging\Contracts\MessengerException;
-use App\Messaging\Contracts\MessengerPlatform;
+use App\Messaging\PlatformRegistry;
 use App\Models\StarPayment;
 use App\Models\User;
 use App\Services\Settings;
@@ -35,7 +35,7 @@ class CreateStarsInvoice
 {
     public function __construct(
         private readonly Settings $settings,
-        private readonly MessengerPlatform $platform,
+        private readonly PlatformRegistry $platforms,
     ) {}
 
     /**
@@ -63,7 +63,7 @@ class CreateStarsInvoice
 
         $title = $this->line('bot.shop.invoice_title', ['coins' => $payment->coin_amount], $locale);
 
-        $link = $this->platform->createInvoiceLink(
+        $link = $this->platforms->for($user->platform)->createInvoiceLink(
             $title,
             $this->line('bot.shop.invoice_description', [
                 'app' => $this->line('common.app_name', [], $locale),

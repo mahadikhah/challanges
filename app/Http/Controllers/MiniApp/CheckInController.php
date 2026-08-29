@@ -51,7 +51,7 @@ class CheckInController extends Controller
                 // Null for a numeric channel id: there is genuinely no public
                 // URL to join with, and the client says so rather than
                 // offering a broken button.
-                'join_url' => $this->gate->joinUrl(),
+                'join_url' => $this->gate->joinUrl($request->user()),
             ], 403);
         }
 

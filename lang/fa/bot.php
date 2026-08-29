@@ -347,6 +347,7 @@ return [
         'invoice_title' => ':coins سکه',
         'invoice_description' => 'شارژ موجودی سکه‌هایت در :app.',
         'pre_checkout_error' => 'این شارژ کامل نشد. از /shop دوباره امتحان کن.',
+        'unavailable' => 'شارژ حساب اینجا هنوز ممکن نیست؛ به‌زودی می‌شود.',
     ],
 
     'language' => [

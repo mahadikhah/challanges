@@ -43,6 +43,7 @@ enum SettingKey: string
     | remain overridable at runtime without a redeploy.
     */
     case RequiredChannel = 'required_channel';
+    case RequiredChannelBale = 'required_channel_bale';
     case ChannelVerificationTtlMinutes = 'channel_verification_ttl_minutes';
     case MiniAppTokenTtlMinutes = 'miniapp_token_ttl_minutes';
     case InitDataMaxAgeSeconds = 'initdata_max_age_seconds';
@@ -76,7 +77,7 @@ enum SettingKey: string
     {
         return match ($this) {
             self::StarsPackages => SettingType::Json,
-            self::RequiredChannel => SettingType::Text,
+            self::RequiredChannel, self::RequiredChannelBale => SettingType::Text,
             default => SettingType::Integer,
         };
     }
@@ -117,6 +118,14 @@ enum SettingKey: string
             self::DefaultChallengeFreezes => 1,
 
             self::RequiredChannel => Config::string('services.telegram.required_channel'),
+
+            /*
+            | The gate's channel for Bale users — a different channel on a
+            | different messenger, seeded the same way from env through config.
+            | Empty until a deployment actually opens the Bale side, which the
+            | gate treats as "cannot confirm" rather than "confirmed".
+            */
+            self::RequiredChannelBale => Config::string('services.bale.required_channel'),
 
             /*
             | How long a confirmed channel membership is trusted before the gate

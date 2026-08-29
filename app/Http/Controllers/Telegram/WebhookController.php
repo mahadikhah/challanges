@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Telegram;
 
 use App\Actions\Telegram\IngestTelegramUpdate;
+use App\Enums\MessagingPlatform;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Telegram\WebhookRequest;
 use Illuminate\Http\JsonResponse;
@@ -28,7 +29,7 @@ class WebhookController extends Controller
 {
     public function __invoke(WebhookRequest $request, IngestTelegramUpdate $ingest): JsonResponse
     {
-        $ingest->handle($request->integer('update_id'), $request->all());
+        $ingest->handle(MessagingPlatform::Telegram, $request->integer('update_id'), $request->all());
 
         return response()->json(['ok' => true]);
     }

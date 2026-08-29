@@ -4,7 +4,7 @@ namespace App\Actions\Payments;
 
 use App\Enums\CoinTransactionReason;
 use App\Enums\StarPaymentStatus;
-use App\Messaging\Contracts\MessengerPlatform;
+use App\Messaging\PlatformRegistry;
 use App\Models\StarPayment;
 use App\Services\CoinLedger;
 use Illuminate\Support\Facades\DB;
@@ -28,7 +28,7 @@ use LogicException;
 class RefundStarsPayment
 {
     public function __construct(
-        private readonly MessengerPlatform $platform,
+        private readonly PlatformRegistry $platforms,
         private readonly CoinLedger $ledger,
     ) {}
 
@@ -58,8 +58,10 @@ class RefundStarsPayment
 
             // Telegram first, database second — deliberately. If the call fails
             // the row stays `Paid` and the whole thing is retryable; the other
-            // order would leave a refund Telegram never performed.
-            $this->platform->refundPayment($row->telegram_payment_charge_id, $platformUserId);
+            // order would leave a refund Telegram never performed. The platform
+            // is the payer's own — only the messenger that took the payment can
+            // return it.
+            $this->platforms->for($row->user->platform)->refundPayment($row->telegram_payment_charge_id, $platformUserId);
 
             $row->forceFill([
                 'status' => StarPaymentStatus::Refunded,

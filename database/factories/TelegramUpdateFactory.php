@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\MessagingPlatform;
 use App\Models\TelegramUpdate;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -11,17 +12,33 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class TelegramUpdateFactory extends Factory
 {
     /**
-     * Define the model's default state: an unprocessed `/start` message.
+     * Define the model's default state: an unprocessed `/start` message, as
+     * Telegram delivers it.
      *
      * @return array<string, mixed>
      */
     public function definition(): array
     {
         return [
+            'platform' => MessagingPlatform::Telegram,
             'update_id' => fake()->unique()->numberBetween(1_000_000, 9_999_999),
             'payload' => $this->messagePayload('/start'),
             'processed_at' => null,
         ];
+    }
+
+    /**
+     * The same shapes, arriving on Bale.
+     *
+     * `update_id` and chat ids are platform-issued and can collide numerically
+     * across messengers, which is exactly what the `(platform, update_id)`
+     * uniqueness exists for; this state lets a test prove it.
+     */
+    public function bale(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'platform' => MessagingPlatform::Bale,
+        ]);
     }
 
     /**

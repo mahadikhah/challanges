@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\ChallengeVisibility;
+use App\Enums\MessagingPlatform;
 use App\Enums\PeriodType;
 use App\Enums\ProofType;
 use App\Enums\SettingKey;
@@ -166,7 +167,7 @@ describe('posting a public challenge', function () {
         $button = channelPostButtons()[0];
 
         expect($button['text'])->toBe(botCopy('bot.announce.join_button'))
-            ->and($button['url'])->toBe($challenge->refresh()->joinLink());
+            ->and($button['url'])->toBe($challenge->refresh()->joinLink(MessagingPlatform::Telegram));
     });
 
     it('leaves no blank paragraph where a description was skipped', function () {

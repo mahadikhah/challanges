@@ -85,6 +85,22 @@ class UserFactory extends Factory
     }
 
     /**
+     * A bot user on Bale: same shape as `telegram()`, different messenger.
+     *
+     * Composes after `telegram()` in tests (`User::factory()->telegram()->bale()`)
+     * rather than repeating the credential-nulling this state has nothing to do
+     * with — platform_user_id stays whatever `telegram()` drew, because the two
+     * messengers' id spaces are independent and a collision is a legitimate
+     * test fixture, not a bug.
+     */
+    public function bale(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'platform' => MessagingPlatform::Bale,
+        ]);
+    }
+
+    /**
      * Grant the admin flag. Not fillable on the model, so this is the only
      * convenient way to get one — which is the point.
      */

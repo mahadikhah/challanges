@@ -1,6 +1,7 @@
 <?php
 
 use App\Actions\Telegram\IngestTelegramUpdate;
+use App\Enums\MessagingPlatform;
 use App\Jobs\Telegram\ProcessTelegramUpdate;
 use App\Models\TelegramUpdate;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -95,7 +96,7 @@ describe('answering Telegram', function () {
 
         app()->bind(IngestTelegramUpdate::class, fn () => new class extends IngestTelegramUpdate
         {
-            public function handle(int $updateId, array $payload): TelegramUpdate
+            public function handle(MessagingPlatform $platform, int $updateId, array $payload): TelegramUpdate
             {
                 throw new RuntimeException('the database is down');
             }

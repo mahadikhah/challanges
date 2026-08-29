@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\MessagingPlatform;
 use Carbon\CarbonImmutable;
 use Database\Factories\TelegramUpdateFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -14,14 +15,20 @@ use Illuminate\Support\Arr;
 /**
  * A webhook update, recorded before anything acts on it.
  *
+ * The table name says Telegram and the rows no longer have to: `platform`
+ * names the messenger that delivered the payload, because `update_id` is
+ * unique per platform, not globally — the two platforms number their updates
+ * independently and can collide numerically without sharing anything.
+ *
  * @property int $id
+ * @property MessagingPlatform $platform
  * @property int $update_id
  * @property array<string, mixed> $payload
  * @property CarbonImmutable|null $processed_at
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */
-#[Fillable(['update_id', 'payload', 'processed_at'])]
+#[Fillable(['platform', 'update_id', 'payload', 'processed_at'])]
 class TelegramUpdate extends Model
 {
     /** @use HasFactory<TelegramUpdateFactory> */
@@ -113,6 +120,7 @@ class TelegramUpdate extends Model
     protected function casts(): array
     {
         return [
+            'platform' => MessagingPlatform::class,
             'update_id' => 'integer',
             'payload' => 'array',
             'processed_at' => 'datetime',

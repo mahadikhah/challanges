@@ -5,6 +5,7 @@ use App\Actions\Invites\IssueInviteCode;
 use App\Enums\CoinTransactionReason;
 use App\Enums\InviteRejection;
 use App\Enums\InviteStatus;
+use App\Enums\MessagingPlatform;
 use App\Enums\SettingKey;
 use App\Exceptions\InviteNotClaimableException;
 use App\Models\Invite;
@@ -46,7 +47,7 @@ describe('minting a code', function () {
         expect($invite->inviter_id)->toBe($this->inviter->id)
             ->and($invite->status)->toBe(InviteStatus::Pending)
             ->and($invite->invited_user_id)->toBeNull()
-            ->and($invite->deepLink())->toBe("https://t.me/challengebot?start={$invite->code}");
+            ->and($invite->deepLink(MessagingPlatform::Telegram))->toBe("https://t.me/challengebot?start={$invite->code}");
     });
 
     it('hands back the same link when asked again', function () {

@@ -6,6 +6,7 @@ use App\Enums\ApprovalMode;
 use App\Enums\ChallengeStatus;
 use App\Enums\ChallengeVisibility;
 use App\Enums\FlowType;
+use App\Enums\MessagingPlatform;
 use App\Enums\PeriodType;
 use App\Enums\ProofType;
 use Carbon\CarbonImmutable;
@@ -152,12 +153,15 @@ class Challenge extends Model
      * `?start=` rather than `?startapp=`: joining is a bot conversation — it can
      * refuse for want of a slot, and it has to be able to offer the channel gate —
      * and a Mini App cannot be relied on to have been opened at all.
+     *
+     * The platform is the caller's fact to name — a public announcement goes to
+     * the creator's messenger — which is why it is a required argument rather
+     * than a Telegram default. A silent default would print a t.me link inside
+     * a Bale channel post.
      */
-    public function joinLink(): string
+    public function joinLink(MessagingPlatform $platform): string
     {
-        $username = ltrim(config()->string('services.telegram.bot_username'), '@');
-
-        return "https://t.me/{$username}?start={$this->joinPayload()}";
+        return $platform->startLink($this->joinPayload());
     }
 
     /**

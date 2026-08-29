@@ -171,11 +171,11 @@ class SessionStepFlow
         try {
             if ($wants === StepInputType::Image) {
                 /** @var array<array-key, mixed> $photo */
-                $submission = ['proof_path' => $this->files->downloadPhoto($photo)];
+                $submission = ['proof_path' => $this->files->downloadPhoto($user->platform, $photo)];
             } else {
                 /** @var array<array-key, mixed> $voice */
                 $submission = [
-                    'proof_path' => $this->files->downloadVoice($voice),
+                    'proof_path' => $this->files->downloadVoice($user->platform, $voice),
                     'voice_seconds' => (int) ($voice['duration'] ?? 0),
                 ];
             }
