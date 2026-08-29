@@ -12,11 +12,14 @@ class DatabaseSeeder extends Seeder
 
     /**
      * Seed the application's database.
+     *
+     * There is deliberately no settings seeder: a `settings` row means "an admin
+     * overrode this", so seeding one per SettingKey would freeze today's shipped
+     * defaults into every install and stop a later release from ever improving
+     * them. Defaults live in the enum; see App\Services\Settings.
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',

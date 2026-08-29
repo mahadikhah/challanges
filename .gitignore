@@ -28,3 +28,5 @@ yarn-error.log
 /.vscode
 /.zed
 /graphify-out/cache
+/graphify-out/????-??-??
+.claude/*.tmp.*

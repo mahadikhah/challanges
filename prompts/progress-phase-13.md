@@ -1,0 +1,288 @@
+# Phase 13 — observability & production hardening (in progress)
+
+Task-by-task record. Conventions and the operating loop live in `CLAUDE.md`; the phase's task
+definitions live in `prompts/phase-13.md`.
+
+---
+
+## Task 1 — Telescope, production-safe (`64be469`)
+
+**What shipped.** `laravel/telescope` **v5.22.1** (verified against the installed Laravel 13 —
+`composer.json` pins `^5.22`), database driver only — the package default, confirmed, since no Redis
+exists on the production host. `app/Providers/TelescopeServiceProvider.php`:
+
+- **Gate.** `Gate::define('viewTelescope', fn (User $user) => $user->is_admin)` — literally the same
+  check `EnsureUserIsAdmin` makes on every admin-panel request, with a docblock saying divergence
+  between the two is a bug. UI sits behind `['web', 'auth', EnsureUserIsAdmin::class, Authorize::class]`
+  (config/telescope.php), so guests are redirected to login and non-admins get 403 before Telescope's
+  own `Authorize` runs.
+- **Environment split.** `local` → unfiltered. Every other environment → `Telescope::filter()` keeping
+  exceptions, requests ≥ 400 (Telescope's own `isFailedRequest()` covers only 5xx — the 4xx half is
+  ours), slow queries, and **all job entries** (see below). Dropped at `record()` time — the rows are
+  never written, not merely hidden in the UI.
+- **Jobs — the one deliberate broadening of §2.10's list, and why.** A job's outcome is only known
+  after dispatch: `Queue::createPayloadUsing` records the *pending* row when the job is queued, and the
+  failed/processed status arrives later as an `EntryUpdate` against that row. A filter keyed on
+  `isFailedJob()` (as the docs' example tempts) can never pass at record time — the status is always
+  `pending` then — so it drops the base row, orphans every update, records **nothing** for failed jobs,
+  and makes Telescope re-dispatch a `ProcessPendingUpdates` job per failure that retries an update
+  destined never to land. Discovered by test, verified against vendor source (`Telescope::record()`,
+  `JobWatcher`, `DatabaseEntriesRepository::update()`). Keeping every job entry costs one row per
+  dispatched job, bounded by the prune window.
+- **Redaction — every environment, not just production.** `hideRequestHeaders`: authorization, cookie,
+  CSRF, `x-telegram-bot-api-secret-token`. `hideRequestParameters`: `_token`, `provider_token`,
+  `telegram_payment_charge_id`. Both HTTP watchers (`RequestWatcher`, `ClientRequestWatcher`) capped at
+  `TELESCOPE_RESPONSE_SIZE_LIMIT` (default **4 KB**, was 64/absent) so proof-media bytes are stored as
+  `"Purged By Telescope"` rather than duplicated — uploads already arrive as name+size metadata, and
+  the media itself lives in proof storage with its own access control.
+- **Slow-query threshold** is a Setting (`telescope_slow_query_ms`, default 500, read at filter time so
+  an admin change takes effect without a restart) and **the retention window** is a Setting too
+  (`telescope_prune_hours`, default 72). Both live in a new `observability` group in the admin panel
+  (SettingsController::GROUPS + lang/en + lang/fa + Settings.tsx GROUPS; the registry pattern meant no
+  request-validation changes).
+
+**Prune scheduling — a trap worth remembering.** The first attempt resolved the Setting at
+`routes/console.php` load: `Schedule::command('telescope:prune', ['--hours' => app(Settings::class)->…])`.
+Console routes load on **every application boot**, so that warmed the settings cache
+(`Cache::rememberForever('settings.overrides')`) before anything else ran, freezing the memoised
+overrides for the whole process — caught by `SettingsTest`'s "prefers a stored override over the shipped
+default" failing (factory-written rows are invisible to a warmed cache; only `set()`/`forget()` flush).
+Fix: `observability:prune-telescope` (app/Console/Commands/Observability/PruneTelescope.php) reads the
+Setting in `handle()`, once a day, at prune time — the same pattern as `PruneProofMediaCommand`.
+
+**Tests** (`tests/Feature/Observability/TelescopeTest.php`, 10): guest redirect + non-admin 403 + admin
+200 on `/telescope`; a 200 records nothing; 4xx recorded; 5xx + exception recorded; a failed job lands
+`failed` and a successful one `processed` (both statuses asserted — a missing `failed` means the update
+chain is broken); slow query kept / fast dropped (SLEEP past the threshold between two requests); the
+webhook secret header stored as `********`; an oversized body stored as `Purged By Telescope`; the
+prune command honours the retention Setting (stale row gone, fresh row kept).
+
+Test-environment traps the file documents in its header: phpunit.xml sets `TELESCOPE_ENABLED=false`,
+and the vendor provider registers watchers/routes/recording **only at boot when enabled** — so
+beforeEach flips `$_ENV['TELESCOPE_ENABLED']` then `refreshApplication()` (restored in afterEach). That
+mid-test refresh escapes RefreshDatabase's transaction, so the file uses **DatabaseTruncation**. And
+the in-process `queue:work` must run with `--memory 1024`: the worker shares the suite's PHP process,
+whose usage is far above the worker's default 128M limit by then — at the default it stops after the
+first job and the second is never processed (only reproducible in a full-suite run).
+
+`SettingsPanelTest` count 23 → 25 for the two new keys.
+
+**Green:** `sail composer ci:check` — pint, phpstan (lvl 7), 1566 tests + 4 pre-existing skips, eslint,
+prettier, `tsc --noEmit`.
+
+**Next:** Phase 13 Task 2 — Log Viewer + structured logging conventions.
+
+## Task 2 — Log Viewer + structured logging conventions
+
+**Status: complete** (commit `feat(observability): log viewer + structured logging conventions`)
+
+### What landed
+
+**Log Viewer** (`opcodesio/log-viewer` v3.24.2), published config at `config/log-viewer.php`:
+
+- mounted at **`admin/logs`**, inside the panel's URL space rather than a second door
+- route middleware `['web','auth',EnsureUserIsAdmin,AuthorizeLogViewer]`; API middleware adds
+  `EnsureFrontendRequestsAreStateful` — the SPA-side fetches ride the same session
+- `Gate::define('viewLogViewer', fn (User $user) => $user->is_admin)` in `AppServiceProvider` — the **same
+  check** the Inertia panel middleware and the Telescope `viewTelescope` gate use; divergence between the
+  three would be a bug
+- pre-built assets committed under `public/vendor/log-viewer/`
+- PHPStan rejected the published config's raw `env()` uses (`explode(',', env(...))`, `ucfirst(env(...))` —
+  `env()` answers `string|true|null`); narrowed with `is_string()` on config-local variables rather than
+  suppressing
+
+**Structured logging (addendum-4 §2.10)** — one info line per move a human comes back for, carrying the
+identifiers a Log Viewer search needs:
+
+| Site | Level | Line |
+|---|---|---|
+| `SettleCheckIn` | info | `A check-in was settled.` — check_in_id, challenge_id, participant_id, status, score, streak |
+| `CoinLedger::write` | info | `A coin ledger entry was written.` — full ledger identity incl. idempotency_key; **replays log nothing** (they return before the log), so line count reconciles against the ledger |
+| `ApplyAiVerdict` | info | `An AI verdict settled a proof.` — check_in_id, approved, confidence |
+| `ReviewProofWithAi` | warning | `An AI verdict fell below the confidence threshold and went to the manual queue.` |
+| `VerifyChallengeChat` | warning | `A linked chat failed re-verification against a creator the bot cannot message.` |
+| `ShopCallback` (×2) | warning | stale/unpriced package tap — user_id, platform, package_index |
+| `ShopCommand` | warning | empty/unpriced shelf for the payer's rail |
+| `RefundStarsPayment` | error / info | provider refusal (`reason` included) / refund success (coins_clawed_back, idempotency_key) |
+
+### Tests
+
+- `tests/Feature/Observability/LogViewerTest.php` — guest → login redirect, non-admin → 403, admin → 200
+- `tests/Feature/Observability/StructuredLoggingTest.php` — settlement line, ledger line + replay-silence,
+  AI verdict info + below-threshold warning (verdict served through a closure reading `test()->verdictContent`
+  because Http::fake merges first-match-wins), refund refusal error
+
+### Traps recorded
+
+- **Mockery spy chain order:** on a `Log::spy()`, every chained call (`once()`, `withArgs()`) clones the
+  expectation **and verifies immediately**. `->once()->withArgs(f)` therefore verifies the count with no arg
+  filter — "the method was called exactly once, total" — which fails whenever the code path logs two info
+  lines (e.g. the AI approval also travelling `SettleCheckIn`, which logs its own line). The matcher must
+  come first: **`->withArgs(f)->once()`**. (Verified against Mockery's `VerificationDirector::cloneApplyAndVerify`
+  and `ReceivedMethodCalls::verify`.)
+- **`Challenge::periods()` composite ordering:** the relation carries its own `orderBy('index')`, so
+  `->orderByDesc('index')` on top yields `order by index asc, index desc` — **ASC wins**. Load the collection
+  and use `->first()`/`->last()` instead of composing a second order.
+
+## Task 3 — Scheduler heartbeat + optional external dead-man's-switch
+
+**Status: complete**
+
+### What landed
+
+- **`scheduler_heartbeats` table + `SchedulerHeartbeat` model** — one row (`key` unique, default
+  `scheduler`), `last_ran_at` stamped every minute. A dedicated table, deliberately not a cache entry
+  (the database cache driver loses rows on any `cache:clear` — exactly when someone is debugging and a
+  false "cron never ran" alarm hurts most) and not a `settings` override (that registry is admin
+  tunables, not runtime state).
+- **`observability:heartbeat` command** (`app/Console/Commands/Observability/RecordHeartbeat.php`) →
+  `RecordSchedulerHeartbeat` action, scheduled `everyMinute()` in `routes/console.php`. Only cron can
+  run it, so its success *is* the evidence cron is alive.
+- **`QueueHealth`** (`app/Actions/Observability/QueueHealth.php`) — read-only snapshot over Laravel's own
+  `jobs`/`failed_jobs` tables: pending count, oldest-pending age (a backlog five seconds old is a busy
+  minute; one job four hours old is a stuck worker), failed count; plus the scheduler's last stamp.
+- **Optional external ping** — `services.healthcheck.ping_url` from `HEALTHCHECK_PING_URL`
+  (`.env`/`.env.example`, unset by default = strict no-op, asserted with `Http::preventStrayRequests`).
+  Fires **after** the stamp; non-2xx or unreachable logs a §2.10 warning (`ping_url`, `status`/`reason`)
+  and never breaks the stamp or the command's exit code. The only mechanism that can detect **total
+  cron failure**, documented in the action's docblock: a dead cron silences every schedule entry
+  including the heartbeat itself, so only an outside monitor noticing the pings stopped can say so.
+- **`heartbeat_staleness_minutes` Setting** (default 5) wired into the admin panel's observability
+  group (enum case + default, controller group, en/fa labels); `SettingsPanelTest` count 25 → 26.
+
+### Tests
+
+`tests/Feature/Observability/SchedulerHeartbeatTest.php` — stamp advances across two `travel()`ed runs
+and stays **one row**; no outbound call when unset (plus the staleness default comes from the registry);
+a 500 from the monitor leaves the stamp written, the command successful, and a warning logged;
+`QueueHealth` reads seeded `jobs`/`failed_jobs` exactly; empty tables answer zeros/null (never-ran
+scheduler is null, which every reader treats as stale — not healthy).
+
+### Notes
+
+- `jobs.available_at` is a raw Unix-integer column; `QueueHealth` converts to a `CarbonInterval` so
+  callers never touch the integer.
+- The model stamps its `key` default via `booted()`; factory carries a `ranMinutesAgo()` state for
+  Task 4/5 staleness tests.
+
+## Task 4 — System health page + external-call counters
+
+**Status: complete**
+
+### What landed
+
+- **`external_call_stats` table** (migration `2026_08_29_180000`) — one row per **(provider, day,
+  outcome)**, `count` unsigned. `ExternalCallStat` model with enum casts + `immutable_date` day;
+  provider/outcome are the backed enums `ExternalCallProvider`
+  (telegram|bale|telegram_stars|bale_pay|ai_provider, with `forMessaging()`/`forPayment()` mapping from
+  the platform/rail enums) and `ExternalCallOutcome` (success|failure).
+- **`RecordExternalCall`** action — `handle()` increments the row via update-then-create (create inside
+  a try/catch on the unique violation to lose the race, not the increment); `attempt(provider, callable)`
+  wraps a live call: failure records Failure and **rethrows verbatim**, success records Success. Both
+  recording paths are themselves try/catch-silent — the counter is best-effort and can never become the
+  reason a real send fails.
+- **`RecordingMessengerPlatform` decorator** — implements `MessengerPlatform`, forwards every method
+  verbatim, and counts messaging calls as the platform's provider and payment calls as the rail's
+  provider. Applied at the **single resolution point** (`PlatformRegistry::for()`), so every surface
+  that talks to Telegram/Bale/Stars/Bale Pay is counted with zero call-site changes. The AI chain
+  (not behind the registry) counts itself in `ReviewProofWithAi` — success after a verdict is read
+  (a hedged answer still reached a provider), failure in the catch.
+- **`SystemHealthSnapshot`** — assembles the page: scheduler (heartbeat last-ran + staleness Setting;
+  **never-ran reads as unhealthy** — a fresh install and a dead cron look identical and the safe
+  reading is the alarming one), queue (pending/oldest-pending-minutes/failed from `QueueHealth`),
+  exceptions (Telescope entries type `exception`, last 24h, grouped by `family_hash` with the class
+  extracted inside `MAX()` for `only_full_group_by`; **degrades to `available: false`** when Telescope
+  is disabled or unmigrated rather than rendering an empty table that reads as "no exceptions ever"),
+  and `providers(days)` — every enum case listed **zeros included**, over a rolling day window.
+- **Admin page** `GET /admin/system-health` (`SystemHealthController` + `Admin/SystemHealth.tsx`,
+  sidebar entry, en/fa i18n): the snapshot cards, a failed-jobs list (uuid, queue, payload
+  `displayName`, first line of the trace, newest first, limit 25) with **retry/discard** levers that
+  call Laravel's own `queue:retry`/`queue:forget` — the page can never drift from what a worker on the
+  host would do with the same rows — a Telescope deep-link, manual refresh, and a 30s `router.reload`
+  polling only the two props.
+
+### Tests
+
+`tests/Feature/Observability/SystemHealthTest.php` (12) — admin gate; heartbeat staleness judgments
+including the 30-minute Setting override; retry re-queues (row moves back to `jobs`) and discard
+removes; per-provider increment dataset over all five providers × both outcomes; the counting skin
+(one `Http::fake` closure reading `test()->telegramOk` — a second `Http::fake()` merges
+first-match-wins — proving a refusal both counts as failure **and survives the decorator**);
+AI review success + failure through the real chain; Telescope degrade states; provider window
+(10-day-old row excluded, zeros present for every case).
+
+### Traps recorded
+
+- **`Collection::all()` is `array<int, T>`, not `list<T>`** under PHPStan lvl 7 — even after
+  `->values()`. The repo-clean fix is `array_values($collection->all())` (or `array_values($rows->all())`)
+  at the return boundary; same for `failedJobRows()` in the controller.
+- **Admin route names carry the `admin.` prefix** (group prefix + name prefix):
+  `admin.system-health.index`, `admin.system-health.failed-jobs.retry`. Route definitions must also
+  point at the real method names (`retryFailedJob`/`discardFailedJob`) — `route:list` fails at
+  request time otherwise, not at boot.
+- **`router.reload({only: [...]})` has no `preserveScroll`** in Inertia v3's `ReloadOptions` (only
+  post/visit options do) — dropped from the 30s poll.
+- JSON column extraction under MySQL `only_full_group_by` needs the extraction wrapped in an
+  aggregate: `MAX(JSON_UNQUOTE(JSON_EXTRACT(content, "$.class")))`.
+
+## Task 5 — Critical alerts via the existing bot
+
+**Status: complete**
+
+### What landed
+
+- **`SendCriticalAlert`** (`app/Actions/Observability/`) — the one choke point every
+  trigger routes through. Three gates, each a silent no-op: the `alerts_enabled` kill
+  switch (default off), a resolvable ops platform + non-zero chat id (half-configured
+  reads as unconfigured — `alert_ops_platform` is Text validated `in:telegram,bale`,
+  `alert_ops_chat_id` is Integer with 0 = unset), and the debounce: `Cache::add` claims
+  the key `critical-alert:{kind}` atomically (the database cache driver's `add` loses
+  the insert race to a duplicate key, so concurrent failures still produce one
+  message). The message is a closure built only after the gates pass. A refused send
+  (MessengerException or anything else) logs a §2.10 warning and returns false — and
+  the debounce mark **stays** claimed, so a messenger outage cannot turn a burst into
+  a retry storm. Cooldown is the `alert_cooldown_minutes` Setting (default 15).
+- **Failed-job trigger** — `AlertOnFailedJob` listener on Laravel's `JobFailed`
+  (registered in AppServiceProvider beside the AI failover listeners). Message names
+  the job class, the first line of the failure, and the System Health failed-jobs
+  link. Debounced per job class: a batch of the same job failing is one problem.
+- **Exception trigger** — `SendExceptionAlert` wired as `reportable()` in
+  `bootstrap/app.php`. **Signal choice (as the task asked): the exception handler, not
+  Telescope** — Telescope is a sample (can be disabled/pruned/unmigrated; Task 1
+  deliberately keeps it cheap in production), while `report()` fires for every
+  unhandled exception the app sees. Debounced per exception class; the reportable
+  closure returns nothing, so default file logging continues beside it.
+- **Stale-heartbeat trigger** — `observability:alert-stale-heartbeat` command
+  scheduled every minute **after** the heartbeat stamp (this minute's stamp should
+  exist before anyone judges its age). Never-ran reads as stale, same judgment as the
+  System Health page. Repeats once per cooldown window while the condition persists —
+  silence must not read as "fixed itself". Its docblock restates §2.10's bound: a
+  totally dead cron silences this check too; only the external dead-man's switch can
+  detect total cron death.
+- **Settings + i18n** — four new keys in the admin observability group (en/fa
+  labels); alert message strings in `admin.alerts` (en/fa) with :job/:class/:reason/
+  :minutes/:threshold/:link placeholders, sent as plain text (no parse_mode, per the
+  MessengerPlatform contract).
+
+### Tests
+
+`tests/Feature/Observability/CriticalAlertsTest.php` (8) — JobFailed alert carries
+job class + reason + link to the right chat id; same exception class debounced to one
+alert inside the cooldown and re-alerts after it (`travel(16)` past the default 15);
+a burst of the same failed job class costs one message; stale-heartbeat alert fires
+past the bar and not before (fresh stamp → zero requests); a dataset of all three
+triggers × all three gate states (kill switch off / unknown platform / chat id 0,
+each with everything else fully configured, under `Http::preventStrayRequests`)
+produces **zero** recorded requests; and a refusing messenger (ok:false 5xx) leaves
+`report()` intact.
+
+### Traps recorded
+
+- **`Http::assertSent` fails on zero requests** — it asserts *at least one* matching
+  request was sent, so it cannot back a "nothing was sent" expectation. Count with
+  `count(Http::recorded())` instead.
+- A `use RuntimeException;` (or any non-compound name) in a namespace-less Pest file
+  is a PHP warning, not a no-op silence — drop the import; the global name resolves.
+- `Exceptions::reportable()` closures run **beside** default logging (verified in
+  Handler::report: a callback short-circuits the default only by returning `false`),
+  so the exception hook needs no `->stop(false)` dance.

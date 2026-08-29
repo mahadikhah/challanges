@@ -1,5 +1,16 @@
-import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import {
+    Activity,
+    BookOpen,
+    Coins,
+    FolderGit2,
+    Image,
+    LayoutGrid,
+    Mail,
+    Trophy,
+    Users,
+    Wrench,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -13,16 +24,16 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { useTranslation } from '@/hooks/use-translation';
 import { dashboard } from '@/routes';
+import { index as adminChallenges } from '@/routes/admin/challenges';
+import { index as adminInvites } from '@/routes/admin/invites';
+import { index as adminPayments } from '@/routes/admin/payments';
+import { index as adminReviews } from '@/routes/admin/reviews';
+import { index as adminSettings } from '@/routes/admin/settings';
+import { index as adminSystemHealth } from '@/routes/admin/system-health';
+import { index as adminUsers } from '@/routes/admin/users';
 import type { NavItem } from '@/types';
-
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
-];
 
 const footerNavItems: NavItem[] = [
     {
@@ -38,8 +49,68 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
+    const { auth } = usePage().props;
+    const { t, isRtl } = useTranslation();
+
+    const mainNavItems: NavItem[] = [
+        {
+            title: 'Dashboard',
+            href: dashboard(),
+            icon: LayoutGrid,
+        },
+    ];
+
+    // The admin links are offered, not relied on — the panel re-checks
+    // `is_admin` server-side on every request.
+    if (auth.user.is_admin) {
+        mainNavItems.push(
+            {
+                title: t('admin.users.title'),
+                href: adminUsers.url(),
+                icon: Users,
+            },
+            {
+                title: t('admin.challenges.title'),
+                href: adminChallenges.url(),
+                icon: Trophy,
+            },
+            {
+                title: t('admin.reviews.title'),
+                href: adminReviews.url(),
+                icon: Image,
+            },
+            {
+                title: t('admin.payments.title'),
+                href: adminPayments.url(),
+                icon: Coins,
+            },
+            {
+                title: t('admin.invites.title'),
+                href: adminInvites.url(),
+                icon: Mail,
+            },
+            {
+                title: t('admin.settings.title'),
+                href: adminSettings.url(),
+                icon: Wrench,
+            },
+            {
+                title: t('admin.system_health.title'),
+                href: adminSystemHealth.url(),
+                icon: Activity,
+            },
+        );
+    }
+
     return (
-        <Sidebar collapsible="icon" variant="inset">
+        // The sidebar component is side-aware: handing it the start side of
+        // the active direction mirrors the panel, its border, its mobile
+        // sheet and the trigger chevron in one move.
+        <Sidebar
+            collapsible="icon"
+            variant="inset"
+            side={isRtl ? 'right' : 'left'}
+        >
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>

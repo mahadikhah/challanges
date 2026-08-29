@@ -1,0 +1,59 @@
+@import 'tailwindcss';
+
+/*
+ * The Mini App's own stylesheet — deliberately not the admin bundle's
+ * app.css. The two entries theme differently: the admin panel runs its own
+ * dark/light cookie system, while the Mini App's colours come from Telegram's
+ * themeParams, written onto these custom properties by theme.ts. Sharing
+ * app.css would drag that system (and its fonts) into a bundle that can never
+ * use it.
+ *
+ * Sources are pinned to this directory so the Mini App bundle carries only
+ * its own classes — the admin bundle is on a mobile network's budget too.
+ */
+
+@source '.';
+@source './screens';
+
+:root {
+    /* Telegram's default light palette — the fallback when themeParams is
+       absent (a plain browser) or a param is missing. */
+    --tg-bg: #ffffff;
+    --tg-text: #000000;
+    --tg-hint: #999999;
+    --tg-link: #2481cc;
+    --tg-button: #2481cc;
+    --tg-button-text: #ffffff;
+    --tg-secondary-bg: #f0f0f0;
+    --tg-section-bg: #ffffff;
+    --tg-separator: #e0e0e0;
+}
+
+body {
+    background-color: var(--tg-bg);
+    color: var(--tg-text);
+    font-family:
+        'Instrument Sans',
+        'Vazirmatn',
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        'Segoe UI',
+        Roboto,
+        sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Farsi reads in Vazirmatn, Latin keeps Instrument Sans — mirrored from the
+   Inertia shell's app.css so both surfaces render Farsi identically. */
+:lang(fa) {
+    font-family:
+        'Vazirmatn',
+        'Instrument Sans',
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        'Segoe UI',
+        Roboto,
+        sans-serif;
+}

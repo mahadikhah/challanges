@@ -1,0 +1,392 @@
+<?php
+
+namespace App\Actions\CheckIns;
+
+use App\Actions\Ai\ApplyAiVerdict;
+use App\Enums\CheckInStatus;
+use App\Enums\ProofType;
+use App\Exceptions\CheckInRejectedException;
+use App\Models\Challenge;
+use App\Models\ChallengeParticipant;
+use App\Models\ChallengePeriod;
+use App\Models\CheckIn;
+use App\Models\User;
+use Carbon\CarbonImmutable;
+use Carbon\CarbonInterface;
+use Illuminate\Support\Facades\DB;
+
+/**
+ * The one place a participant submits proof, whatever surface they are on.
+ *
+ * The bot's tapped button, a phrase typed into the Mini App and a photo uploaded
+ * through the admin panel all land here. There is one copy of "is this person
+ * allowed to check in, into which period, and does this proof count" — the rule
+ * cannot be right in the bot and wrong in the API.
+ *
+ * **Nothing is taken from the caller except the proof itself.** The signature
+ * asks for the *verified actor* and a challenge, and resolves the participant row
+ * and the open period server-side. A surface cannot pass a `participant_id`
+ * because there is nowhere to put one, so a client cannot check in as somebody
+ * else by editing a number — the class of bug this shape exists to make
+ * unwritable.
+ *
+ * **A returned `CheckIn` always means the proof was accepted.** Everything else
+ * throws `CheckInRejectedException` with a reason. That is deliberate: a wrong
+ * phrase leaves the row `Pending` and a second tap leaves it `Approved`, and a
+ * surface that had to tell those apart by reading a status would eventually
+ * render "checked in!" for a typo. The reason enum makes each outcome a separate,
+ * unmissable branch.
+ *
+ * The three entry points are named for what the participant *did*, and each one
+ * asserts the challenge actually asks for that kind of proof. A photo handler
+ * therefore cannot satisfy a `text_autogen` challenge even if it wants to.
+ */
+class SubmitCheckIn
+{
+    public function __construct(
+        private readonly OpenCheckIn $open,
+        private readonly IssueCheckInPhrase $phrases,
+        private readonly SettleCheckIn $settle,
+        private readonly ApplyAiVerdict $aiVerdict,
+    ) {}
+
+    /**
+     * One tap. Auto-approved — the honesty model for `button` challenges is
+     * social, not technical.
+     *
+     * `$reportedValue` is the quantity a `quantity` challenge collects on top of
+     * the tap; it rides to the settlement, which decides whether it clears the
+     * bar.
+     *
+     *
+     * @throws CheckInRejectedException
+     */
+    public function tap(User $actor, Challenge $challenge, ?CarbonInterface $now = null, int|float|string|null $reportedValue = null): CheckIn
+    {
+        $this->assertQuantityValue($challenge, $reportedValue);
+
+        $checkIn = $this->openSubmittable($actor, $challenge, ProofType::Button, $now);
+
+        return $this->approved($checkIn, $reportedValue);
+    }
+
+    /**
+     * The participant's own phrase for this period, typed back.
+     *
+     * Compared with `matchesExpectedPhrase()`, which normalises both sides — so
+     * capitals, stray whitespace, Persian digits and an Arabic yeh all pass, and
+     * somebody else's phrase does not.
+     *
+     * @param  int|float|string|null  $reportedValue  the quantity report that rides
+     *                                                along on a quantity challenge
+     *
+     * @throws CheckInRejectedException
+     */
+    public function typePhrase(User $actor, Challenge $challenge, string $text, ?CarbonInterface $now = null, int|float|string|null $reportedValue = null): CheckIn
+    {
+        $this->assertQuantityValue($challenge, $reportedValue);
+
+        if (trim($text) === '') {
+            throw CheckInRejectedException::proofMissing($challenge);
+        }
+
+        $checkIn = $this->openSubmittable($actor, $challenge, ProofType::TextAutogen, $now);
+
+        // Issue on demand. A participant can reach this before any reminder went
+        // out — they opened the Mini App on their own — and comparing against a
+        // null phrase would refuse a correct answer nobody could have known.
+        $this->phrases->handle($checkIn);
+
+        if (! $checkIn->matchesExpectedPhrase($text)) {
+            // The wrong text is deliberately not stored. `submitted_text` means
+            // "the proof this row was settled on"; filling it with a typo would
+            // put a submission time on a row that was never submitted.
+            throw CheckInRejectedException::phraseMismatch($checkIn);
+        }
+
+        return DB::transaction(function () use ($checkIn, $text, $reportedValue): CheckIn {
+            $checkIn->update([
+                'submitted_text' => $text,
+                'submitted_at' => now(),
+            ]);
+
+            // In one transaction so that a settlement lost to the rollover takes
+            // the recorded submission down with it, rather than leaving a `Missed`
+            // row that claims the participant submitted on time.
+            return $this->approved($checkIn, $reportedValue);
+        });
+    }
+
+    /**
+     * A photo, stored and handed to the creator. **Not** auto-approved — the
+     * creator decides, via `ReviewCheckIn`.
+     *
+     * `$path` is a stored path, not an upload: resolving a Telegram `file_id` or
+     * moving an `UploadedFile` belongs to the surface, and keeping it out of here
+     * is what lets the bot and the API share this method.
+     *
+     * `$reportedValue` is the quantity a `quantity` challenge asks for; it is
+     * written onto the row *before* the AI verdict runs, because a verdict that
+     * approves settles on the spot and must find the number already stored.
+     *
+     *
+     * @throws CheckInRejectedException
+     */
+    public function uploadPhoto(User $actor, Challenge $challenge, string $path, ?CarbonInterface $now = null, int|float|string|null $reportedValue = null): CheckIn
+    {
+        if (trim($path) === '') {
+            throw CheckInRejectedException::proofMissing($challenge);
+        }
+
+        $this->assertQuantityValue($challenge, $reportedValue);
+
+        $checkIn = $this->openSubmittable($actor, $challenge, ProofType::ImageApproval, $now);
+
+        $checkIn->update($this->submissionUpdate($path, $reportedValue));
+
+        // An `approval_mode = ai` challenge reviews itself here: the router
+        // asks the model and either settles through the ordinary path or
+        // leaves the row in this same `Submitted` state for the manual
+        // queue. Called after the write so the photo is stored before anyone
+        // — model or human — is asked to look at it.
+        $this->aiVerdict->handle($checkIn);
+
+        return $checkIn->refresh();
+    }
+
+    /**
+     * A voice message, stored and handed to the creator — the audio mirror
+     * of `uploadPhoto`, and reviewed the same way.
+     *
+     * `$seconds` is the duration the *surface* read off the payload (the
+     * bot from Telegram's `voice.duration`, the Mini App from the recorded
+     * file), and `$sizeKb` the size it measured. Both are checked against the
+     * challenge's own caps before anything is written, so an over-cap
+     * recording never becomes a submission the creator is asked to look at.
+     *
+     * @param  int|null  $sizeKb  null when the surface could not measure; the
+     *                            surface's own pre-download check is then the
+     *                            only size gate, which is why surfaces should
+     *                            always send it when they can
+     * @param  int|float|string|null  $reportedValue  the quantity report, stored
+     *                                                on the row before any verdict
+     *
+     * @throws CheckInRejectedException
+     */
+    public function uploadVoice(User $actor, Challenge $challenge, string $path, int $seconds, ?int $sizeKb = null, ?CarbonInterface $now = null, int|float|string|null $reportedValue = null): CheckIn
+    {
+        return $this->uploadRecording($actor, $challenge, ProofType::VoiceApproval, $path, $seconds, $sizeKb, $now, $reportedValue);
+    }
+
+    /**
+     * A video message — same shape, same caps, heavier bytes.
+     *
+     *
+     * @throws CheckInRejectedException
+     */
+    public function uploadVideo(User $actor, Challenge $challenge, string $path, int $seconds, ?int $sizeKb = null, ?CarbonInterface $now = null, int|float|string|null $reportedValue = null): CheckIn
+    {
+        return $this->uploadRecording($actor, $challenge, ProofType::VideoApproval, $path, $seconds, $sizeKb, $now, $reportedValue);
+    }
+
+    /**
+     * The shared recording path: cap the media, then submit it for review.
+     *
+     * Voice and video both hand themselves to the AI reviewer when the
+     * challenge asked for it (Phases 14 Task 3 and Task 4) — every gate the
+     * verdict router checks (admin switches, the video environment check)
+     * is checked inside it, so this call is always safe to make.
+     *
+     *
+     * @throws CheckInRejectedException
+     */
+    private function uploadRecording(
+        User $actor,
+        Challenge $challenge,
+        ProofType $offered,
+        string $path,
+        int $seconds,
+        ?int $sizeKb,
+        ?CarbonInterface $now,
+        int|float|string|null $reportedValue = null,
+    ): CheckIn {
+        if (trim($path) === '') {
+            throw CheckInRejectedException::proofMissing($challenge);
+        }
+
+        $this->assertQuantityValue($challenge, $reportedValue);
+
+        if ($seconds > (int) $challenge->proof_media_max_seconds) {
+            throw CheckInRejectedException::mediaTooLong($challenge, $seconds);
+        }
+
+        if ($sizeKb !== null && $sizeKb > (int) $challenge->proof_media_max_size_kb) {
+            throw CheckInRejectedException::mediaTooLarge($challenge, $sizeKb);
+        }
+
+        $checkIn = $this->openSubmittable($actor, $challenge, $offered, $now);
+
+        $checkIn->update($this->submissionUpdate($path, $reportedValue));
+
+        // Same rule as `uploadPhoto`: the recording is stored before anyone
+        // — model or human — is asked to look at it.
+        if ($offered->supportsAiReview()) {
+            $this->aiVerdict->handle($checkIn);
+        }
+
+        return $checkIn->refresh();
+    }
+
+    /**
+     * Settle as approved — or, on a quantity challenge, as whatever the report
+     * earned.
+     *
+     * `SettleCheckIn::approve()` returns an already-settled row untouched by
+     * design. For a *submission* that means one of two very different things:
+     * the rollover closed the period between the guard in `openSubmittable()`
+     * and this call (the participant was a moment too late, and saying so beats
+     * handing back a `Missed` row a caller will read as success), or the report
+     * genuinely fell short of the target — the submission was accepted and
+     * judged, and the caller owes the participant the outcome rather than a
+     * refusal. The two are told apart by whether the row carries the value this
+     * call settled on: a settlement that took writes it, a rollover's row does
+     * not.
+     *
+     * @throws CheckInRejectedException
+     */
+    private function approved(CheckIn $checkIn, int|float|string|null $reportedValue = null): CheckIn
+    {
+        $settled = $this->settle->approve($checkIn, $reportedValue);
+
+        $judgedBelowTarget = $reportedValue !== null
+            && $settled->reported_value !== null
+            && (float) $settled->reported_value === (float) $reportedValue;
+
+        if ($settled->status !== CheckInStatus::Approved && ! $judgedBelowTarget) {
+            throw CheckInRejectedException::alreadySettled($settled);
+        }
+
+        return $settled;
+    }
+
+    /**
+     * Resolve everything from the verified actor, and hand back a row that can
+     * actually accept proof right now.
+     *
+     * @throws CheckInRejectedException
+     */
+    private function openSubmittable(User $actor, Challenge $challenge, ProofType $offered, ?CarbonInterface $now): CheckIn
+    {
+        if ($challenge->proof_type !== $offered) {
+            throw CheckInRejectedException::wrongProofType($challenge, $offered->value);
+        }
+
+        if (! $challenge->status->acceptsCheckIns()) {
+            throw CheckInRejectedException::challengeClosed($challenge);
+        }
+
+        $at = CarbonImmutable::instance($now ?? now());
+        $participant = $this->participant($actor, $challenge);
+        $period = $this->openPeriod($challenge, $at);
+
+        if (! $participant->owesPeriod($period)) {
+            // Reachable only for a participant who is no longer active: the open
+            // period cannot predate a join that has already happened.
+            throw CheckInRejectedException::notAParticipant($challenge);
+        }
+
+        $checkIn = $this->open->handle($participant, $period);
+
+        if ($checkIn->status->isSettled()) {
+            throw CheckInRejectedException::alreadySettled($checkIn);
+        }
+
+        if (! $checkIn->status->allowsSubmission()) {
+            throw CheckInRejectedException::awaitingReview($checkIn);
+        }
+
+        return $checkIn;
+    }
+
+    /**
+     * The actor's own participant row on this challenge.
+     *
+     * Resolved by `user_id` from the verified actor and scoped to the challenge,
+     * which is the whole point: there is no path here for a client-supplied
+     * participant id to reach a query.
+     *
+     * @throws CheckInRejectedException
+     */
+    private function participant(User $actor, Challenge $challenge): ChallengeParticipant
+    {
+        /** @var ChallengeParticipant|null $participant */
+        $participant = $challenge->participants()->where('user_id', $actor->getKey())->first();
+
+        if ($participant === null) {
+            throw CheckInRejectedException::notAParticipant($challenge);
+        }
+
+        return $participant;
+    }
+
+    /**
+     * The period this moment falls inside.
+     *
+     * Resolved rather than accepted, so a stale callback button from last week's
+     * reminder cannot backdate a check-in into a period that has closed.
+     *
+     * @throws CheckInRejectedException
+     */
+    private function openPeriod(Challenge $challenge, CarbonImmutable $at): ChallengePeriod
+    {
+        /** @var ChallengePeriod|null $period */
+        $period = $challenge->periods()->containing($at)->first();
+
+        if ($period === null) {
+            throw CheckInRejectedException::noOpenPeriod($challenge);
+        }
+
+        return $period;
+    }
+
+    /**
+     * A quantity challenge is judged on a number, so a submission without one
+     * is refused outright rather than scored as a below-target report.
+     *
+     * @throws CheckInRejectedException
+     */
+    private function assertQuantityValue(Challenge $challenge, int|float|string|null $reportedValue): void
+    {
+        if ($challenge->scoring_type->isQuantity() && $reportedValue === null) {
+            throw CheckInRejectedException::valueRequired($challenge);
+        }
+    }
+
+    /**
+     * The write that turns accepted media into a submission awaiting verdict.
+     *
+     * A resubmission after a rejection starts a fresh review, for the same
+     * reason a re-sent photo does. The quantity report rides along when there
+     * is one, normalised to the row's two-decimal scale so a later settlement
+     * — or a creator reviewing hours later — scores the same number the
+     * participant saw confirmed.
+     *
+     * @return array<string, mixed>
+     */
+    private function submissionUpdate(string $path, int|float|string|null $reportedValue): array
+    {
+        $update = [
+            'status' => CheckInStatus::Submitted,
+            'proof_path' => $path,
+            'submitted_at' => now(),
+            'reviewed_by' => null,
+            'reviewed_at' => null,
+        ];
+
+        if ($reportedValue !== null) {
+            $update['reported_value'] = number_format((float) $reportedValue, 2, '.', '');
+        }
+
+        return $update;
+    }
+}

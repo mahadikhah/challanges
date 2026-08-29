@@ -2,11 +2,14 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\Localization;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
 {
+    public function __construct(private readonly Localization $localization) {}
+
     /**
      * The root template that's loaded on the first page visit.
      *
@@ -37,6 +40,9 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
+            // locale, direction, locales and translations — the same payload the
+            // Mini App shell embeds, so both frontends consume one shape.
+            ...$this->localization->payload(),
             'name' => config('app.name'),
             'auth' => [
                 'user' => $request->user(),

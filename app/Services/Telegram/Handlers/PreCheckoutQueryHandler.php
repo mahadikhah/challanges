@@ -1,0 +1,123 @@
+<?php
+
+namespace App\Services\Telegram\Handlers;
+
+use App\Actions\Telegram\ResolveTelegramUser;
+use App\Messaging\PlatformRegistry;
+use App\Models\StarPayment;
+use App\Models\TelegramUpdate;
+use App\Models\User;
+use App\Services\Localization;
+use App\Services\Telegram\BotMessenger;
+use App\Services\Telegram\HandlesUpdate;
+use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\Log;
+
+/**
+ * The checkpoint before the money moves: Telegram's `pre_checkout_query`.
+ *
+ * Telegram holds the payment sheet open for ten seconds and demands an answer,
+ * so this handler does one indexed lookup and answers — it never sends a
+ * message, never credits anything, and never declines *silently*, because an
+ * unanswered query is a payment that hangs until it times out.
+ *
+ * What it checks, in the order that matters:
+ *
+ * 1. **Whose invoice this is.** The payer is resolved from `from` against our
+ *    own rows, and the invoice is looked up scoped to that user — a payload
+ *    learned from somebody else's link is declined, not credited to its owner.
+ * 2. **What it costs.** The currency must be the row's own rail's tag (`XTR`
+ *    for Stars, `IRR` for Bale Pay) and the total must equal the row's own
+ *    price, the price we set when the invoice was issued.
+ *
+ * A decline is not a judgement on the row: the invoice stays `Pending`, because
+ * a decline at pre-checkout proves nothing about the invoice itself (the query
+ * may be stale, replayed, or malformed) and marking it `Failed` would kill a
+ * link the user could still legitimately pay.
+ */
+class PreCheckoutQueryHandler implements HandlesUpdate
+{
+    public function __construct(
+        private readonly ResolveTelegramUser $resolveUser,
+        private readonly BotMessenger $messenger,
+        private readonly Localization $localization,
+        private readonly PlatformRegistry $platforms,
+    ) {}
+
+    public function handle(TelegramUpdate $update): void
+    {
+        $queryId = $update->value('pre_checkout_query.id');
+
+        if (! is_string($queryId) || $queryId === '') {
+            // Nothing to answer, so nothing to do but notice it happened.
+            Log::info('A pre_checkout_query arrived without a query id.', [
+                'update_id' => $update->update_id,
+            ]);
+
+            return;
+        }
+
+        $from = $update->value('pre_checkout_query.from');
+
+        if (! is_array($from) || $update->value('pre_checkout_query.from.is_bot') === true) {
+            $this->decline($update, $queryId, null);
+
+            return;
+        }
+
+        /** @var array<string, mixed> $from */
+        $user = $this->resolveUser->handle($from, $update->platform);
+
+        $invoicePayload = $update->value('pre_checkout_query.invoice_payload');
+
+        $payment = is_string($invoicePayload) && $invoicePayload !== ''
+            ? StarPayment::query()
+                ->where('invoice_payload', $invoicePayload)
+                ->where('user_id', $user->getKey())
+                ->first()
+            : null;
+
+        $currency = $update->value('pre_checkout_query.currency');
+        $totalAmount = $update->value('pre_checkout_query.total_amount');
+
+        // The row decides what an acceptable answer is: its own rail's currency
+        // tag and its own price (`XTR`/Stars on Telegram, `IRR`/Rial on Bale).
+        $acceptable = $payment !== null
+            && $payment->status->isPaid() === false
+            && $payment->status->isTerminal() === false
+            && $payment->acceptsPreCheckout($currency, $totalAmount);
+
+        if ($acceptable) {
+            $this->platforms->for($update->platform)->answerPreCheckoutQuery($queryId, ok: true);
+
+            return;
+        }
+
+        Log::warning('A pre_checkout_query was declined.', [
+            'update_id' => $update->update_id,
+            'user_id' => $user->getKey(),
+            'invoice_payload' => is_string($invoicePayload) ? $invoicePayload : null,
+        ]);
+
+        $this->decline($update, $queryId, $user);
+    }
+
+    /**
+     * Answer "no", with a message in the payer's own language — this is the one
+     * string of the payment flow the user reads inside Telegram's sheet.
+     */
+    private function decline(TelegramUpdate $update, string $queryId, ?User $user): void
+    {
+        $locale = $user !== null
+            ? $this->messenger->localeFor($user)
+            : $this->localization->fallback();
+
+        $line = Lang::get('bot.shop.pre_checkout_error', [], $locale);
+
+        $this->platforms->for($update->platform)->answerPreCheckoutQuery(
+            $queryId,
+            ok: false,
+            errorMessage: is_string($line) ? $line : 'bot.shop.pre_checkout_error',
+        );
+    }
+}
