@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\Mime\MimeTypes;
 use Telegram\Bot\Exceptions\TelegramSDKException;
 
 /**
@@ -103,6 +104,11 @@ class ReviewQueueController extends Controller
             'total_periods' => $checkIn->participant->challenge->total_periods,
             'submitted_at' => optional($checkIn->submitted_at)->toIso8601String(),
             'proof_url' => route('admin.reviews.proof', $checkIn->getKey()),
+            // How the admin must experience the proof: an <img> would happily
+            // render a broken frame for an .ogg. Derived from the stored path,
+            // because a session's evidence need not match the challenge's
+            // proof type.
+            'proof_kind' => $checkIn->proofKind() ?? 'image',
             'ai_decision' => $this->aiDecision($checkIn),
             'status' => $checkIn->status->value,
         ];
@@ -135,6 +141,12 @@ class ReviewQueueController extends Controller
 
     /**
      * One stored proof, streamed to an authenticated admin only.
+     *
+     * The content type comes from the stored extension — the downloader fixed
+     * it and `proofKind()` reads it back — rather than a sniff of bytes a
+     * participant produced: the browser then plays an .ogg in an `<audio>` and
+     * an .mp4 in a `<video>` instead of offering an unnamed download, and the
+     * kind picks which family of type the extension's list should answer with.
      */
     public function proof(CheckIn $checkIn): BinaryFileResponse|Response
     {
@@ -144,7 +156,24 @@ class ReviewQueueController extends Controller
             abort(404);
         }
 
-        return response()->file(Storage::disk('local')->path($path));
+        $response = response()->file(Storage::disk('local')->path($path));
+
+        $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        $candidates = (new MimeTypes)->getMimeTypes($extension);
+
+        if ($candidates !== []) {
+            $prefix = match ($checkIn->proofKind()) {
+                'voice' => 'audio/',
+                'video' => 'video/',
+                default => 'image/',
+            };
+
+            $response->headers->set('Content-Type', collect($candidates)->first(
+                fn (string $mime): bool => str_starts_with($mime, $prefix),
+            ) ?? $candidates[0]);
+        }
+
+        return $response;
     }
 
     public function approve(

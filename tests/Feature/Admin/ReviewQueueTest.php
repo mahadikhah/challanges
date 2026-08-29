@@ -110,6 +110,90 @@ it('lists submitted photos with their challenge, participant and proof url', fun
     );
 });
 
+/**
+ * A pending recording proof — the queue's voice and video cousins of the photo
+ * above. The kind is read from the stored extension, so the proof type on the
+ * challenge is kept honest against the file that actually sits there.
+ *
+ * @return array{0: ChallengeParticipant, 1: CheckIn}
+ */
+function aQueuedRecording(ProofType $proofType, string $extension, int $telegramId = 777_004_0): array
+{
+    Storage::disk('local')->put("check-in-proofs/queue/proof.{$extension}", "recording-bytes-{$extension}");
+
+    $challenge = Challenge::factory()
+        ->active()
+        ->provenBy($proofType)
+        ->create([
+            'title' => 'Evening stretch',
+            'proof_media_max_seconds' => 120,
+            'proof_media_max_size_kb' => 4096,
+        ]);
+
+    app(MaterialiseChallengePeriods::class)->handle($challenge);
+
+    $participantUser = User::factory()->telegram($telegramId)->preferring('en')->create();
+    $participant = ChallengeParticipant::factory()->for($challenge)->for($participantUser)->create();
+
+    /** @var ChallengePeriod $period */
+    $period = $challenge->periods()->orderBy('index')->first();
+
+    $checkIn = CheckIn::factory()
+        ->on($participant, $period)
+        ->submitted()
+        ->create(['proof_path' => "check-in-proofs/queue/proof.{$extension}"]);
+
+    return [$participant, $checkIn];
+}
+
+it('lists a pending voice and video with the kind that plays them', function (): void {
+    Queue::fake();
+    [, $voice] = aQueuedRecording(ProofType::VoiceApproval, 'ogg');
+    [, $video] = aQueuedRecording(ProofType::VideoApproval, 'mp4', 777_005_0);
+
+    // Distinct timestamps, so the queue's submitted_at ordering — and therefore
+    // the row positions asserted below — is not a coin flip within one second.
+    $voice->update(['submitted_at' => now()->subMinute()]);
+
+    $this->actingAs(anAdminPanelReviewer())->get('/admin/reviews')->assertOk()->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->has('reviews', 2)
+            ->where('reviews.0.proof_kind', 'voice')
+            ->where('reviews.1.proof_kind', 'video')
+    );
+
+    // The gated route names what it streams, so the panel's <audio> and
+    // <video> play instead of offering an unnamed download.
+    $this->actingAs(anAdminPanelReviewer())
+        ->get("/admin/reviews/{$voice->getKey()}/proof")
+        ->assertOk()
+        ->assertHeader('Content-Type', 'audio/ogg');
+    $this->actingAs(anAdminPanelReviewer())
+        ->get("/admin/reviews/{$video->getKey()}/proof")
+        ->assertOk()
+        ->assertHeader('Content-Type', 'video/mp4');
+});
+
+it('approves a pending voice and rejects a pending video through the shared action', function (): void {
+    Queue::fake();
+    [$voiceParticipant, $voice] = aQueuedRecording(ProofType::VoiceApproval, 'ogg');
+    [$videoParticipant, $video] = aQueuedRecording(ProofType::VideoApproval, 'mp4', 777_005_0);
+
+    $admin = anAdminPanelReviewer();
+
+    $this->actingAs($admin)->from('/admin/reviews')
+        ->post("/admin/reviews/{$voice->getKey()}/approve")
+        ->assertRedirect('/admin/reviews');
+    $this->actingAs($admin)->from('/admin/reviews')
+        ->post("/admin/reviews/{$video->getKey()}/reject")
+        ->assertRedirect('/admin/reviews');
+
+    expect($voice->refresh()->status)->toBe(CheckInStatus::Approved)
+        ->and($voiceParticipant->refresh()->current_streak)->toBe(1)
+        ->and($video->refresh()->status)->toBe(CheckInStatus::Rejected)
+        ->and($videoParticipant->refresh()->current_streak)->toBe(0);
+});
+
 it('serves a stored proof only to an authenticated admin', function (): void {
     Queue::fake();
     [, , $checkIn] = aQueuedProof();

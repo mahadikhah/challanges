@@ -39,7 +39,12 @@ class NotifyCheckInVerdict
         $participant = $checkIn->participant;
         $user = $participant->user;
 
-        $this->messenger->send($user, $this->messenger->line($user, 'bot.checkin.review_rejected', [
+        // The sentence names what to replace: "send another photo" would be
+        // wrong advice for a voice note. The kind comes from the stored path,
+        // the same source the review queue previews by.
+        $kind = $checkIn->proofKind() ?? 'image';
+
+        $this->messenger->send($user, $this->messenger->line($user, "bot.checkin.review_rejected_{$kind}", [
             'title' => $participant->challenge->title,
         ]));
     }

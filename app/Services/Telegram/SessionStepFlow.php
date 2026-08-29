@@ -133,7 +133,7 @@ class SessionStepFlow
     }
 
     /**
-     * A photo or voice message that may belong to an open session.
+     * A photo, voice or video message that may belong to an open session.
      *
      * Returns whether it did, so the caller knows the message was answered.
      * Only the message kinds a step can actually want are ever claimed — a
@@ -144,10 +144,12 @@ class SessionStepFlow
     {
         $photo = $update->value('message.photo');
         $voice = $update->value('message.voice');
+        $video = $update->value('message.video');
 
         $wants = match (true) {
             is_array($photo) && $photo !== [] => StepInputType::Image,
             is_array($voice) && isset($voice['file_id']) => StepInputType::Voice,
+            is_array($video) && isset($video['file_id']) => StepInputType::Video,
             default => null,
         };
 
@@ -170,15 +172,30 @@ class SessionStepFlow
         }
 
         try {
-            if ($wants === StepInputType::Image) {
-                /** @var array<array-key, mixed> $photo */
-                $submission = ['proof_path' => $this->files->downloadPhoto($user->platform, $photo)];
-            } else {
-                /** @var array<array-key, mixed> $voice */
-                $submission = [
+            $submission = match ($wants) {
+                StepInputType::Image => [
+                    /** @var array<array-key, mixed> $photo */
+                    'proof_path' => $this->files->downloadPhoto($user->platform, $photo),
+                ],
+                StepInputType::Voice => [
+                    /** @var array<array-key, mixed> $voice */
                     'proof_path' => $this->files->downloadVoice($user->platform, $voice),
                     'voice_seconds' => (int) ($voice['duration'] ?? 0),
-                ];
+                ],
+                default => [
+                    /** @var array<array-key, mixed> $video */
+                    'proof_path' => $this->files->downloadVideo($user->platform, $video),
+                    'video_seconds' => (int) ($video['duration'] ?? 0),
+                ],
+            };
+
+            // The challenge's size cap spans voice and video alike whenever the
+            // messenger stated the bytes; `AdvanceCheckInStep` refuses the
+            // submission when they overrun.
+            $payload = $wants === StepInputType::Image ? null : ($wants === StepInputType::Voice ? $voice : $video);
+
+            if (is_array($payload) && isset($payload['file_size']) && (is_int($payload['file_size']) || is_string($payload['file_size']) && ctype_digit((string) $payload['file_size']))) {
+                $submission['media_size_kb'] = intdiv((int) $payload['file_size'], 1024);
             }
         } catch (Throwable $failure) {
             // Telegram or storage trouble is ours, not theirs, and the session
@@ -231,7 +248,12 @@ class SessionStepFlow
             'total' => $challenge->steps()->count(),
             'label' => $step->label,
             'wait' => CompactDuration::format($step->min_wait_seconds),
-            'max' => $step->voice_max_seconds,
+            // A voice step carries its own cap; a video step's lives on the
+            // challenge, alongside the size cap the whole flow shares.
+            'max' => match ($step->input_type) {
+                StepInputType::Video => $challenge->proof_media_max_seconds,
+                default => $step->voice_max_seconds,
+            },
         ];
 
         $keyboard = match ($step->input_type) {

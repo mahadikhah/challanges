@@ -433,6 +433,8 @@ class CreateChallengeWizard
             ConversationState::AwaitingCreateConfirmation,
             ConversationState::AwaitingCheckInText,
             ConversationState::AwaitingCheckInPhoto,
+            ConversationState::AwaitingCheckInVoice,
+            ConversationState::AwaitingCheckInVideo,
             ConversationState::AwaitingChatForward => throw new LogicException(
                 "The create-challenge wizard has no step after {$state->value}.",
             ),

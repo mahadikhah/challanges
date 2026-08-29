@@ -92,6 +92,32 @@ class CheckIn extends Model
     }
 
     /**
+     * What kind of media the stored proof is, from the storage convention the
+     * downloaders write (`jpg` photos, `ogg` voice, `mp4` video).
+     *
+     * The *stored path* is the truth here, not the challenge's proof type: a
+     * timed session's evidence is whatever its last proof-bearing step
+     * collected, which need not match the challenge-level type. Consumers that
+     * only need "is there media" keep using `proof_path`.
+     *
+     * @return 'image'|'voice'|'video'|null null when no proof is stored (or
+     *                                      one with an unknown extension)
+     */
+    public function proofKind(): ?string
+    {
+        if ($this->proof_path === null) {
+            return null;
+        }
+
+        return match (strtolower(pathinfo($this->proof_path, PATHINFO_EXTENSION))) {
+            'jpg', 'jpeg', 'png', 'webp' => 'image',
+            'ogg', 'oga', 'mp3', 'm4a' => 'voice',
+            'mp4', 'mov', 'webm' => 'video',
+            default => null,
+        };
+    }
+
+    /**
      * Whether the submitted text is the phrase that was issued to this
      * participant for this period.
      *

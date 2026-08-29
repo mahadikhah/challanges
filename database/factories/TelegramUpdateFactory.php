@@ -128,9 +128,9 @@ class TelegramUpdateFactory extends Factory
      *
      * @param  array<string, mixed>  $from  merged over Telegram's `from` object
      */
-    public function voiceFrom(array $from, int $duration = 30, string $fileId = 'AwVoice-file-id'): static
+    public function voiceFrom(array $from, int $duration = 30, string $fileId = 'AwVoice-file-id', ?int $fileSize = null): static
     {
-        return $this->state(function (array $attributes) use ($from, $duration, $fileId): array {
+        return $this->state(function (array $attributes) use ($from, $duration, $fileId, $fileSize): array {
             $payload = $this->messagePayload('', null, $from);
             unset($payload['message']['text']);
             $payload['message']['voice'] = [
@@ -138,6 +138,38 @@ class TelegramUpdateFactory extends Factory
                 'mime_type' => 'audio/ogg',
                 'file_id' => $fileId,
             ];
+
+            if ($fileSize !== null) {
+                $payload['message']['voice']['file_size'] = $fileSize;
+            }
+
+            return ['payload' => $payload];
+        });
+    }
+
+    /**
+     * A video message from a sender described field by field.
+     *
+     * Same shape as voice: `file_id` for the download, `duration` and
+     * `file_size` for the caps — both measured by the messenger, which is the
+     * point of taking them as parameters.
+     *
+     * @param  array<string, mixed>  $from  merged over Telegram's `from` object
+     */
+    public function videoFrom(array $from, int $duration = 20, string $fileId = 'BaVideo-file-id', ?int $fileSize = null): static
+    {
+        return $this->state(function (array $attributes) use ($from, $duration, $fileId, $fileSize): array {
+            $payload = $this->messagePayload('', null, $from);
+            unset($payload['message']['text']);
+            $payload['message']['video'] = [
+                'duration' => $duration,
+                'mime_type' => 'video/mp4',
+                'file_id' => $fileId,
+            ];
+
+            if ($fileSize !== null) {
+                $payload['message']['video']['file_size'] = $fileSize;
+            }
 
             return ['payload' => $payload];
         });

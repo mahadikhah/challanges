@@ -65,18 +65,34 @@ function telegramServesTheLot(): void
 
 /**
  * A running challenge with a real timeline, pinned to a known token and proof
- * mechanic.
+ * mechanic. Recording-proof challenges pass their caps through `$attributes`:
+ * the columns are nullable and the factory writes no defaults, and a cap of
+ * null reads as zero — refusing every recording as over the limit.
+ *
+ * @param  array<string, mixed>  $attributes
  */
-function checkinChallenge(ProofType $proofType, string $token = 'checkintoken'): Challenge
+function checkinChallenge(ProofType $proofType, string $token = 'checkintoken', array $attributes = []): Challenge
 {
     $challenge = Challenge::factory()
         ->active()
         ->provenBy($proofType)
-        ->create(['join_token' => $token, 'title' => 'Morning run', 'total_periods' => 10]);
+        ->create(array_merge(['join_token' => $token, 'title' => 'Morning run', 'total_periods' => 10], $attributes));
 
     app(MaterialiseChallengePeriods::class)->handle($challenge);
 
     return $challenge;
+}
+
+/**
+ * The caps a recording-proof challenge tests run under: generous enough that
+ * the happy paths are happy, tight enough that an overlong or oversized test
+ * fixture visibly exceeds them.
+ *
+ * @return array<string, int>
+ */
+function recordingCaps(): array
+{
+    return ['proof_media_max_seconds' => 120, 'proof_media_max_size_kb' => 4096];
 }
 
 /**
@@ -130,6 +146,32 @@ function sendsPhoto(int $telegramId, string $fileId = 'AgACbig'): void
 {
     $update = TelegramUpdate::factory()
         ->photoFrom(['id' => $telegramId, 'first_name' => 'Sara'], $fileId)
+        ->create();
+
+    dispatch_sync(new ProcessTelegramUpdate($update));
+}
+
+/**
+ * A voice message, through the whole inbound path. Duration and size are what
+ * Telegram itself measured, so a test that cares about the caps says so here
+ * rather than the server re-deriving anything.
+ */
+function sendsVoice(int $telegramId, int $duration = 30, string $fileId = 'AwVoice-file-id', ?int $fileSize = null): void
+{
+    $update = TelegramUpdate::factory()
+        ->voiceFrom(['id' => $telegramId, 'first_name' => 'Sara'], $duration, $fileId, $fileSize)
+        ->create();
+
+    dispatch_sync(new ProcessTelegramUpdate($update));
+}
+
+/**
+ * A video message, through the whole inbound path — same shape as voice.
+ */
+function sendsVideo(int $telegramId, int $duration = 20, string $fileId = 'BaVideo-file-id', ?int $fileSize = null): void
+{
+    $update = TelegramUpdate::factory()
+        ->videoFrom(['id' => $telegramId, 'first_name' => 'Sara'], $duration, $fileId, $fileSize)
         ->create();
 
     dispatch_sync(new ProcessTelegramUpdate($update));
@@ -394,7 +436,7 @@ describe('photo proof', function () {
         // The participant hears the photo landed; the creator hears it is theirs
         // to judge, with the verdict buttons riding on that same message.
         expect(lastBotReply()['text'])
-            ->toContain(botCopy('bot.checkin.review_prompt', ['name' => 'Sara', 'title' => 'Morning run']))
+            ->toContain(botCopy('bot.checkin.review_prompt_image', ['name' => 'Sara', 'title' => 'Morning run']))
             ->and(lastBotKeyboard())->toBe([[
                 [
                     'text' => botCopy('bot.checkin.approve_button'),
@@ -447,6 +489,119 @@ describe('photo proof', function () {
     });
 });
 
+describe('recording proof', function () {
+    it('asks for the voice message, with its caps, and opens the conversation', function () {
+        telegramServesTheLot();
+        $challenge = checkinChallenge(ProofType::VoiceApproval, attributes: recordingCaps());
+        [$user, $participant] = aParticipantIn($challenge, 888_100_1);
+
+        taps(BotCallback::encode(CheckInCallback::ACTION, $challenge->join_token), 888_100_1);
+
+        expect(soleBotMessage()['text'])->toBe(botCopy('bot.checkin.voice_prompt', [
+            'title' => 'Morning run', 'max' => 120, 'size' => 4096,
+        ]))
+            ->and(BotConversation::query()->where('user_id', $user->getKey())->sole()->state)
+            ->toBe(ConversationState::AwaitingCheckInVoice);
+    });
+
+    it('stores the voice message and points the creator at the queue', function () {
+        telegramServesTheLot();
+        $challenge = checkinChallenge(ProofType::VoiceApproval, attributes: recordingCaps());
+        theCreatorOf($challenge, 888_200_2);
+        [$user, $participant] = aParticipantIn($challenge, 888_100_1);
+
+        taps(BotCallback::encode(CheckInCallback::ACTION, $challenge->join_token), 888_100_1);
+        sendsVoice(888_100_1, duration: 45, fileSize: 204_800);
+
+        $checkIn = CheckIn::query()->where('challenge_participant_id', $participant->getKey())->sole();
+
+        expect($checkIn->status)->toBe(CheckInStatus::Submitted)
+            ->and($checkIn->proofKind())->toBe('voice')
+            ->and(Storage::disk('local')->exists($checkIn->proof_path))->toBeTrue()
+            ->and(BotConversation::query()->where('user_id', $user->getKey())->exists())->toBeFalse();
+
+        // The participant hears it landed; the creator is pointed at the queue —
+        // there is nothing to show inline, the verdict lives in the review list.
+        expect(lastBotReply()['text'])
+            ->toBe(botCopy('bot.checkin.review_prompt_voice', ['name' => 'Sara', 'title' => 'Morning run']))
+            ->and(botMessages()[count(botMessages()) - 2]['text'])
+            ->toBe(botCopy('bot.checkin.voice_sent', ['title' => 'Morning run']));
+    });
+
+    it('stores a video the same way, under the same caps', function () {
+        telegramServesTheLot();
+        $challenge = checkinChallenge(ProofType::VideoApproval, attributes: recordingCaps());
+        theCreatorOf($challenge, 888_200_2);
+        [$user, $participant] = aParticipantIn($challenge, 888_100_1);
+
+        taps(BotCallback::encode(CheckInCallback::ACTION, $challenge->join_token), 888_100_1);
+
+        expect(soleBotMessage()['text'])->toBe(botCopy('bot.checkin.video_prompt', [
+            'title' => 'Morning run', 'max' => 120, 'size' => 4096,
+        ]))
+            ->and(BotConversation::query()->where('user_id', $user->getKey())->sole()->state)
+            ->toBe(ConversationState::AwaitingCheckInVideo);
+
+        sendsVideo(888_100_1, duration: 60, fileSize: 3_000_000);
+
+        $checkIn = CheckIn::query()->where('challenge_participant_id', $participant->getKey())->sole();
+
+        expect($checkIn->status)->toBe(CheckInStatus::Submitted)
+            ->and($checkIn->proofKind())->toBe('video')
+            ->and(lastBotReply()['text'])
+            ->toBe(botCopy('bot.checkin.review_prompt_video', ['name' => 'Sara', 'title' => 'Morning run']));
+    });
+
+    it('refuses an overlong recording before storing anything, and keeps the flow open', function () {
+        telegramServesTheLot();
+        $challenge = checkinChallenge(ProofType::VoiceApproval, attributes: recordingCaps());
+        [$user, $participant] = aParticipantIn($challenge, 888_100_1);
+
+        taps(BotCallback::encode(CheckInCallback::ACTION, $challenge->join_token), 888_100_1);
+        sendsVoice(888_100_1, duration: 121, fileSize: 204_800);
+
+        // Refused on Telegram's own measurement, before a byte is kept: the
+        // participant can send a shorter one into the same open flow.
+        expect(lastBotReply()['text'])
+            ->toBe(botCopy('bot.checkin.refused.media_too_long', ['title' => 'Morning run']))
+            ->and(CheckIn::query()->where('challenge_participant_id', $participant->getKey())->count())->toBe(0)
+            ->and(BotConversation::query()->where('user_id', $user->getKey())->sole()->state)
+            ->toBe(ConversationState::AwaitingCheckInVoice);
+
+        sendsVoice(888_100_1, duration: 90, fileSize: 204_800);
+
+        expect(CheckIn::query()->where('challenge_participant_id', $participant->getKey())->sole()->status)
+            ->toBe(CheckInStatus::Submitted);
+    });
+
+    it('refuses an oversized recording the same way', function () {
+        telegramServesTheLot();
+        $challenge = checkinChallenge(ProofType::VideoApproval, attributes: recordingCaps());
+        [$user, $participant] = aParticipantIn($challenge, 888_100_1);
+
+        taps(BotCallback::encode(CheckInCallback::ACTION, $challenge->join_token), 888_100_1);
+        sendsVideo(888_100_1, duration: 60, fileSize: 5_000_000); // ~4883 KB > 4096
+
+        expect(lastBotReply()['text'])
+            ->toBe(botCopy('bot.checkin.refused.media_too_large', ['title' => 'Morning run']))
+            ->and(CheckIn::query()->where('challenge_participant_id', $participant->getKey())->count())->toBe(0)
+            ->and(BotConversation::query()->where('user_id', $user->getKey())->exists())->toBeTrue();
+    });
+
+    it('re-asks when text arrives where a recording was due', function () {
+        telegramServesTheLot();
+        $challenge = checkinChallenge(ProofType::VoiceApproval, attributes: recordingCaps());
+        [$user, $participant] = aParticipantIn($challenge, 888_100_1);
+
+        taps(BotCallback::encode(CheckInCallback::ACTION, $challenge->join_token), 888_100_1);
+        typesIn(888_100_1, 'here is my proof');
+
+        expect(lastBotReply()['text'])->toBe(botCopy('bot.checkin.voice_expected'))
+            ->and(BotConversation::query()->where('user_id', $user->getKey())->sole()->state)
+            ->toBe(ConversationState::AwaitingCheckInVoice);
+    });
+});
+
 describe('the verdict', function () {
     it('approves on the creator’s tap and tells the participant their streak', function () {
         telegramServesTheLot();
@@ -482,7 +637,7 @@ describe('the verdict', function () {
         expect($checkIn->refresh()->status)->toBe(CheckInStatus::Rejected)
             ->and($participant->refresh()->current_streak)->toBe(0)
             ->and($messages[count($messages) - 1]['text'])
-            ->toBe(botCopy('bot.checkin.review_rejected', ['title' => 'Morning run']));
+            ->toBe(botCopy('bot.checkin.review_rejected_image', ['title' => 'Morning run']));
 
         // A rejection is not an ending: the same photo flow accepts another one.
         taps(BotCallback::encode(CheckInCallback::ACTION, $challenge->join_token), 888_100_1);

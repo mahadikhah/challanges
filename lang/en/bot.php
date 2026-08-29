@@ -74,7 +74,7 @@ return [
         'nothing_due' => 'Nothing is due from you right now. Check back when the next period opens.',
         'todo' => '“:title” — period :index of :total is open.',
         'done' => '“:title” — already checked in. Streak: :streak',
-        'awaiting_review' => '“:title” — your photo is with the creator, waiting on a verdict.',
+        'awaiting_review' => '“:title” — your proof is with the creator, waiting on a verdict.',
         'button' => 'Check in: :title',
         'not_found' => 'That check-in button no longer belongs to a challenge.',
 
@@ -87,15 +87,29 @@ return [
         'photo_sent' => 'Your photo for “:title” is in. You will hear back once the creator has reviewed it.',
         'photo_error' => 'That photo could not be received. Please send it again.',
 
+        'voice_prompt' => 'Send a voice message of up to :max seconds (:size KB max) to check in for “:title”. The creator will take a look.',
+        'voice_expected' => 'Send the proof as a voice message.',
+        'voice_sent' => 'Your voice message for “:title” is in. You will hear back once the creator has reviewed it.',
+
+        'video_prompt' => 'Send a video of up to :max seconds (:size KB max) to check in for “:title”. The creator will take a look.',
+        'video_expected' => 'Send the proof as a video.',
+        'video_sent' => 'Your video for “:title” is in. You will hear back once the creator has reviewed it.',
+
+        'recording_error' => 'That recording could not be received. Please send it again.',
+
         'confirmed' => 'Checked in for “:title”. Streak: :streak',
 
-        'review_prompt' => ':name has sent a photo for “:title”.',
+        'review_prompt_image' => ':name has sent a photo for “:title”.',
+        'review_prompt_voice' => ':name has sent a voice message for “:title”. Listen to it in the review queue before deciding.',
+        'review_prompt_video' => ':name has sent a video for “:title”. Watch it in the review queue before deciding.',
         'approve_button' => 'Approve',
         'reject_button' => 'Reject',
         'review_approved_ack' => 'Approved.',
         'review_rejected_ack' => 'Rejected.',
         'review_approved' => 'Your check-in for “:title” was approved. Streak: :streak',
-        'review_rejected' => 'Your photo for “:title” was turned down. Send another before the period ends.',
+        'review_rejected_image' => 'Your photo for “:title” was turned down. Send another before the period ends.',
+        'review_rejected_voice' => 'Your voice message for “:title” was turned down. Send another before the period ends.',
+        'review_rejected_video' => 'Your video for “:title” was turned down. Send another before the period ends.',
 
         'refused' => [
             'challenge_closed' => '“:title” is no longer running.',
@@ -112,7 +126,7 @@ return [
         'review_refused' => [
             'not_the_reviewer' => 'Only the creator of that challenge can review it.',
             'already_settled' => 'That period has already closed, so the verdict can no longer change.',
-            'not_awaiting_review' => 'There is no photo waiting on you for that one.',
+            'not_awaiting_review' => 'There is no proof waiting on you for that one.',
         ],
     ],
 
@@ -136,6 +150,7 @@ return [
         'step_button' => 'Step :step of :total in “:title” — tap Next once :wait has passed since the step before it.',
         'step_image' => 'Step :step of :total in “:title” — send a photo once :wait has passed since the step before it.',
         'step_voice' => 'Step :step of :total in “:title” — send a voice message of up to :max seconds once :wait has passed since the step before it.',
+        'step_video' => 'Step :step of :total in “:title” — send a video of up to :max seconds once :wait has passed since the step before it.',
 
         'refused' => [
             'not_a_timed_challenge' => '“:title” does not check in through a session.',

@@ -21,6 +21,7 @@ type ReviewRow = {
     total_periods: number;
     submitted_at: string | null;
     proof_url: string;
+    proof_kind: 'image' | 'voice' | 'video';
     ai_decision: AiDecision | null;
     status: string;
 };
@@ -192,14 +193,7 @@ function ReviewCard({
                     </p>
                 </div>
 
-                <a href={review.proof_url} target="_blank" rel="noopener">
-                    <img
-                        src={review.proof_url}
-                        alt={t('admin.reviews.proof')}
-                        loading="lazy"
-                        className="max-h-64 w-full rounded-md border object-contain"
-                    />
-                </a>
+                <Proof review={review} />
 
                 {review.ai_decision !== null && (
                     <AiDecisionNote decision={review.ai_decision} />
@@ -229,6 +223,50 @@ function ReviewCard({
                 </div>
             </CardContent>
         </Card>
+    );
+}
+
+/**
+ * The proof itself, experienced the way its kind demands: a photo is an
+ * image, a voice note is an audio player, a video is a video player. Native
+ * elements over any JS player — the browser already knows how to play, seek
+ * and stay RTL-safe, and the gated route streams with a content type the
+ * extension names.
+ */
+function Proof({ review }: { review: ReviewRow }) {
+    const { t } = useTranslation();
+
+    if (review.proof_kind === 'voice') {
+        return (
+            <audio
+                controls
+                preload="metadata"
+                src={review.proof_url}
+                className="w-full"
+            />
+        );
+    }
+
+    if (review.proof_kind === 'video') {
+        return (
+            <video
+                controls
+                preload="metadata"
+                src={review.proof_url}
+                className="max-h-64 w-full rounded-md border"
+            />
+        );
+    }
+
+    return (
+        <a href={review.proof_url} target="_blank" rel="noopener">
+            <img
+                src={review.proof_url}
+                alt={t('admin.reviews.proof')}
+                loading="lazy"
+                className="max-h-64 w-full rounded-md border object-contain"
+            />
+        </a>
     );
 }
 

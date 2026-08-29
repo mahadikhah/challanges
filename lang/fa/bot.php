@@ -74,7 +74,7 @@ return [
         'nothing_due' => 'در حال حاضر چیزی از تو مطالبه نمی‌شود. وقتی دورهٔ بعدی باز شد برگرد.',
         'todo' => '«:title» — دورهٔ :index از :total باز است.',
         'done' => '«:title» — از قبل ثبت شده است. زنجیره: :streak',
-        'awaiting_review' => '«:title» — عکس تو دست سازنده است و منتظر تصمیم اوست.',
+        'awaiting_review' => '«:title» — مدرک تو دست سازنده است و منتظر تصمیم اوست.',
         'button' => 'ثبت: :title',
         'not_found' => 'آن دکمهٔ ثبت دیگر به چالشی تعلق ندارد.',
 
@@ -87,15 +87,29 @@ return [
         'photo_sent' => 'عکست برای «:title» رسید. وقتی سازنده بازبینیش کرد خبرت می‌کنیم.',
         'photo_error' => 'آن عکس دریافت نشد. لطفاً دوباره بفرستش.',
 
+        'voice_prompt' => 'برای ثبت «:title» یک پیام صوتی حداکثر :max ثانیه‌ای (حداکثر :size کیلوبایت) بفرست. سازنده آن را می‌شنود.',
+        'voice_expected' => 'مدرک را به‌صورت پیام صوتی بفرست.',
+        'voice_sent' => 'پیام صوتی‌ات برای «:title» رسید. وقتی سازنده بازبینیش کرد خبرت می‌کنیم.',
+
+        'video_prompt' => 'برای ثبت «:title» یک ویدیوی حداکثر :max ثانیه‌ای (حداکثر :size کیلوبایت) بفرست. سازنده آن را می‌بیند.',
+        'video_expected' => 'مدرک را به‌صورت ویدیو بفرست.',
+        'video_sent' => 'ویدیویت برای «:title» رسید. وقتی سازنده بازبینیش کرد خبرت می‌کنیم.',
+
+        'recording_error' => 'آن ضبط دریافت نشد. لطفاً دوباره بفرستش.',
+
         'confirmed' => 'برای «:title» ثبت شدی. زنجیره: :streak',
 
-        'review_prompt' => ':name برای «:title» عکس فرستاده است.',
+        'review_prompt_image' => ':name برای «:title» عکس فرستاده است.',
+        'review_prompt_voice' => ':name برای «:title» پیام صوتی فرستاده است. پیش از تصمیم، در صف بازبینی گوشش بده.',
+        'review_prompt_video' => ':name برای «:title» ویدیو فرستاده است. پیش از تصمیم، در صف بازبینی تماشایش کن.',
         'approve_button' => 'تأیید',
         'reject_button' => 'رد',
         'review_approved_ack' => 'تأیید شد.',
         'review_rejected_ack' => 'رد شد.',
         'review_approved' => 'ثبنت برای «:title» تأیید شد. زنجیره: :streak',
-        'review_rejected' => 'عکست برای «:title» رد شد. پیش از پایان دوره یکی دیگر بفرست.',
+        'review_rejected_image' => 'عکست برای «:title» رد شد. پیش از پایان دوره یکی دیگر بفرست.',
+        'review_rejected_voice' => 'پیام صوتی‌ات برای «:title» رد شد. پیش از پایان دوره یکی دیگر بفرست.',
+        'review_rejected_video' => 'ویدیویت برای «:title» رد شد. پیش از پایان دوره یکی دیگر بفرست.',
 
         'refused' => [
             'challenge_closed' => '«:title» دیگر در جریان نیست.',
@@ -112,7 +126,7 @@ return [
         'review_refused' => [
             'not_the_reviewer' => 'فقط سازندهٔ آن چالش می‌تواند آن را بازبینی کند.',
             'already_settled' => 'آن دوره از گذشته است، پس دیگر نظر نمی‌تواند تغییری بدهد.',
-            'not_awaiting_review' => 'عکسی که منتظر تو باشد وجود ندارد.',
+            'not_awaiting_review' => 'مدرکی که منتظر تو باشد وجود ندارد.',
         ],
     ],
 
@@ -136,6 +150,7 @@ return [
         'step_button' => 'گام :step از :total در «:title» — پس از :wait از گامِ قبلی، «بعدی» را بزن.',
         'step_image' => 'گام :step از :total در «:title» — پس از :wait از گامِ قبلی، یک عکس بفرست.',
         'step_voice' => 'گام :step از :total در «:title» — پس از :wait از گامِ قبلی، پیام صوتی‌ای تا :max ثانیه بفرست.',
+        'step_video' => 'گام :step از :total در «:title» — پس از :wait از گامِ قبلی، ویدیویی تا :max ثانیه بفرست.',
 
         'refused' => [
             'not_a_timed_challenge' => '«:title» از طریق نشست ثبت‌کردن انجام نمی‌دهد.',

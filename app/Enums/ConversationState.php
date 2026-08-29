@@ -38,6 +38,8 @@ enum ConversationState: string
 
     case AwaitingCheckInText = 'awaiting_check_in_text';
     case AwaitingCheckInPhoto = 'awaiting_check_in_photo';
+    case AwaitingCheckInVoice = 'awaiting_check_in_voice';
+    case AwaitingCheckInVideo = 'awaiting_check_in_video';
 
     case AwaitingChatForward = 'awaiting_chat_forward';
 
@@ -58,7 +60,8 @@ enum ConversationState: string
     public function isCheckInStep(): bool
     {
         return match ($this) {
-            self::AwaitingCheckInText, self::AwaitingCheckInPhoto => true,
+            self::AwaitingCheckInText, self::AwaitingCheckInPhoto,
+            self::AwaitingCheckInVoice, self::AwaitingCheckInVideo => true,
             default => false,
         };
     }
@@ -105,11 +108,30 @@ enum ConversationState: string
     }
 
     /**
+     * Whether a voice message is the expected next input.
+     */
+    public function expectsVoice(): bool
+    {
+        return $this === self::AwaitingCheckInVoice;
+    }
+
+    /**
+     * Whether a video message is the expected next input.
+     */
+    public function expectsVideo(): bool
+    {
+        return $this === self::AwaitingCheckInVideo;
+    }
+
+    /**
      * Whether the answer arrives as an inline-keyboard callback rather than a
-     * typed message.
+     * typed or recorded message.
      */
     public function expectsCallback(): bool
     {
-        return ! $this->expectsText() && ! $this->expectsPhoto();
+        return ! $this->expectsText()
+            && ! $this->expectsPhoto()
+            && ! $this->expectsVoice()
+            && ! $this->expectsVideo();
     }
 }

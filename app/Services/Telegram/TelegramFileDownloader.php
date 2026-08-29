@@ -86,6 +86,33 @@ class TelegramFileDownloader
     }
 
     /**
+     * Download a video message off a message and store it.
+     *
+     * Duration and size stay the surface's facts, exactly as with voice: they
+     * ride the payload the messenger measured, and the submission action — not
+     * a re-fetch here — is what compares them against the challenge's caps.
+     *
+     * @param  MessagingPlatform  $platform  which messenger issued the `file_id`
+     * @param  array<array-key, mixed>  $video  the message's `video`, as it arrived
+     *
+     * @throws LogicException when the video object carries no usable `file_id`
+     * @throws MessengerException when the platform refuses the `getFile`
+     * @throws RuntimeException when the bytes cannot be fetched or written
+     */
+    public function downloadVideo(MessagingPlatform $platform, array $video): string
+    {
+        $fileId = $video['file_id'] ?? null;
+
+        if (! is_string($fileId) || $fileId === '') {
+            throw new LogicException('The video object carries no file_id.');
+        }
+
+        // Telegram transcodes whatever was sent into MP4/H.264, so the
+        // extension is fixed rather than parsed out of `mime_type`.
+        return $this->store($this->platforms->for($platform)->downloadFile($fileId), 'mp4');
+    }
+
+    /**
      * Store fetched bytes under the proof-storage convention.
      *
      * One directory per day keeps any single folder from growing without

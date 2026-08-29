@@ -307,7 +307,7 @@ describe('a participant running a session', function () {
     });
 });
 
-describe('a photo or voice with nowhere conversation-shaped to land', function () {
+describe('a photo, voice or video with nowhere conversation-shaped to land', function () {
     it('answers an open session waiting for that kind of message', function () {
         $challenge = runningTimedChallenge();
         [$user, $participant] = theParticipantIn($challenge);
@@ -379,6 +379,56 @@ describe('a photo or voice with nowhere conversation-shaped to land', function (
             ->and($session->submissions()->count())->toBe(0);
     });
 
+    it('answers an open session waiting for a video the same way', function () {
+        // The mirror run with a video step: the video's caps live on the
+        // challenge, so they travel with it here.
+        $challenge = Challenge::factory()
+            ->active()
+            ->timedSession()
+            ->provenBy(ProofType::Button)
+            ->create([
+                'join_token' => 'sessiontoken',
+                'title' => 'Evening stretch',
+                'total_periods' => 5,
+                'proof_media_max_seconds' => 120,
+                'proof_media_max_size_kb' => 4096,
+            ]);
+
+        app(MaterialiseChallengePeriods::class)->handle($challenge);
+
+        ChallengeStep::factory()->for($challenge)->atOrder(1)->waiting(60)->create(['label' => 'Start']);
+        ChallengeStep::factory()->for($challenge)->atOrder(2)->video()->waiting(120)->create(['label' => null]);
+
+        [, $participant] = theParticipantIn($challenge->fresh());
+
+        sessionTaps(BotCallback::encode(CheckInCallback::ACTION, $challenge->join_token), SESSION_TELEGRAM_ID);
+
+        CarbonImmutable::setTestNow(CarbonImmutable::now()->addMinutes(3));
+
+        sessionTaps(BotCallback::encode(SessionStepCallback::ACTION, $challenge->join_token, '1'), SESSION_TELEGRAM_ID);
+
+        expect(latestBotMessage(2)['text'])->toContain(botCopy('bot.session.step_video', [
+            'title' => 'Evening stretch',
+            'step' => 2,
+            'total' => 2,
+            'wait' => CompactDuration::format(120),
+            'max' => 120,
+        ]));
+
+        CarbonImmutable::setTestNow(CarbonImmutable::now()->addSeconds(120));
+
+        sessionSendsVideo(SESSION_TELEGRAM_ID, 45, file_size: 2_000_000);
+
+        // The video found the session with no conversation's help, its duration
+        // and size were checked against the challenge's caps, and the last step
+        // settling completes the session into an approved check-in.
+        expect(theSessionOf($participant)->status)->toBe(CheckInSessionStatus::Completed)
+            ->and(CheckIn::query()->where('challenge_participant_id', $participant->getKey())->sole()->status)
+            ->toBe(CheckInStatus::Approved);
+
+        CarbonImmutable::setTestNow();
+    });
+
     it('leaves a message with no session and no conversation to the fallback', function () {
         User::factory()->telegram(SESSION_TELEGRAM_ID)->preferring('en')->create(['channel_verified_at' => now()]);
 
@@ -423,6 +473,18 @@ function sessionSendsVoice(int $telegramId, int $duration, string $fileId = 'AwS
 {
     $update = TelegramUpdate::factory()
         ->voiceFrom(['id' => $telegramId, 'first_name' => 'Sara'], $duration, $fileId)
+        ->create();
+
+    dispatch_sync(new ProcessTelegramUpdate($update));
+}
+
+/**
+ * A video message, through the whole inbound path.
+ */
+function sessionSendsVideo(int $telegramId, int $duration, string $fileId = 'BaSessionVideo', ?int $file_size = null): void
+{
+    $update = TelegramUpdate::factory()
+        ->videoFrom(['id' => $telegramId, 'first_name' => 'Sara'], $duration, $fileId, $file_size)
         ->create();
 
     dispatch_sync(new ProcessTelegramUpdate($update));

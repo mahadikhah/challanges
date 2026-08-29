@@ -160,20 +160,17 @@ class CheckInFlow
             return;
         }
 
-        // Voice/video check-in conversations arrive with Phase 14 Task 5's
-        // capture flow; until then a recording-proof challenge reached through
-        // the bot gets the same honest "not proven that way" sentence rather
-        // than an unanswered match. The Mini App and admin panel submit through
-        // `SubmitCheckIn::uploadVoice()/uploadVideo()` regardless — the rule
-        // lives in the action, not in this surface.
+        // A recording-proof challenge opens the conversation its recording
+        // arrives through — voice and video share the review fate a photo has,
+        // so they share this flow's shape: the prompt names the cap, the
+        // recording lands in `SubmitCheckIn::uploadVoice()/uploadVideo()`, and
+        // the creator gets the verdict buttons on the message after.
         match ($challenge->proof_type) {
             ProofType::Button => $this->tap($user, $challenge),
             ProofType::TextAutogen => $this->askPhrase($user, $challenge),
             ProofType::ImageApproval => $this->askPhoto($user, $challenge),
-            ProofType::VoiceApproval, ProofType::VideoApproval => $this->messenger->send(
-                $user,
-                $this->messenger->line($user, 'bot.checkin.refused.wrong_proof_type', ['title' => $challenge->title]),
-            ),
+            ProofType::VoiceApproval => $this->askVoice($user, $challenge),
+            ProofType::VideoApproval => $this->askVideo($user, $challenge),
         };
     }
 
@@ -276,6 +273,120 @@ class CheckInFlow
     }
 
     /**
+     * The voice message, answering the challenge the conversation holds.
+     *
+     * @param  array<array-key, mixed>|null  $voice  the message's `voice` object
+     */
+    public function receiveVoice(User $user, BotConversation $conversation, ?array $voice): void
+    {
+        $this->receiveRecording($user, $conversation, ConversationState::AwaitingCheckInVoice, $voice, 'voice');
+    }
+
+    /**
+     * The video message, answering the challenge the conversation holds.
+     *
+     * @param  array<array-key, mixed>|null  $video  the message's `video` object
+     */
+    public function receiveVideo(User $user, BotConversation $conversation, ?array $video): void
+    {
+        $this->receiveRecording($user, $conversation, ConversationState::AwaitingCheckInVideo, $video, 'video');
+    }
+
+    /**
+     * The recording — voice or video — that answers the conversation's
+     * challenge. The photo's mirror with two additions the caps demand: the
+     * duration and size the messenger itself measured ride along to
+     * `SubmitCheckIn`, which refuses an over-cap recording before anything is
+     * written.
+     *
+     * @param  array<array-key, mixed>|null  $payload  the message's `voice`/`video` object
+     * @param  'voice'|'video'  $kind
+     */
+    private function receiveRecording(User $user, BotConversation $conversation, ConversationState $state, ?array $payload, string $kind): void
+    {
+        $this->assertOwnState($conversation, $state);
+
+        if (! is_array($payload) || ! is_string($payload['file_id'] ?? null) || $payload['file_id'] === '') {
+            $this->reask($user, $conversation, "bot.checkin.{$kind}_expected");
+
+            return;
+        }
+
+        $challenge = $this->challengeOf($conversation);
+
+        if ($challenge === null) {
+            $this->abandon($user, $conversation, 'bot.fallback.stale_button');
+
+            return;
+        }
+
+        try {
+            $path = $kind === 'voice'
+                ? $this->files->downloadVoice($user->platform, $payload)
+                : $this->files->downloadVideo($user->platform, $payload);
+
+            $checkIn = $this->submit->{$kind === 'voice' ? 'uploadVoice' : 'uploadVideo'}(
+                $user,
+                $challenge,
+                $path,
+                (int) ($payload['duration'] ?? 0),
+                $this->sizeInKb($payload),
+            );
+        } catch (CheckInRejectedException $refused) {
+            if ($refused->reason === CheckInRejection::MediaTooLong || $refused->reason === CheckInRejection::MediaTooLarge) {
+                // A cap refusal is the mechanic working, not the flow failing:
+                // a shorter or smaller recording is one message away, so the
+                // conversation stays open exactly as a mismatched phrase does.
+                $this->reask($user, $conversation, "bot.checkin.refused.{$refused->reason->value}", [
+                    'title' => $challenge->title,
+                ]);
+
+                return;
+            }
+
+            $this->abandon($user, $conversation, "bot.checkin.refused.{$refused->reason->value}", [
+                'title' => $challenge->title,
+            ]);
+
+            return;
+        } catch (Throwable $failure) {
+            // A Telegram or storage failure is ours, not theirs — same doctrine
+            // as the photo: the conversation stays open for the retry.
+            Log::error("A check-in {$kind} could not be stored.", [
+                'user_id' => $user->getKey(),
+                'challenge_id' => $challenge->getKey(),
+                'reason' => $failure->getMessage(),
+            ]);
+
+            $this->messenger->send($user, $this->messenger->line($user, 'bot.checkin.recording_error'));
+
+            return;
+        }
+
+        $this->abandon($user, $conversation);
+        $this->messenger->send($user, $this->messenger->line($user, "bot.checkin.{$kind}_sent", [
+            'title' => $challenge->title,
+        ]));
+
+        $this->notifyReviewer($user, $challenge, $checkIn);
+    }
+
+    /**
+     * The payload's `file_size` — bytes, the messenger's own count — as whole
+     * kilobytes, or null when the messenger did not state one.
+     *
+     * @param  array<array-key, mixed>  $payload
+     */
+    private function sizeInKb(array $payload): ?int
+    {
+        $bytes = $payload['file_size'] ?? null;
+
+        return is_int($bytes) || is_string($bytes) && ctype_digit($bytes)
+            ? intdiv((int) $bytes, 1024)
+            : null;
+    }
+
+    /**
      * One tap, one approved check-in.
      */
     private function tap(User $user, Challenge $challenge): void
@@ -338,6 +449,45 @@ class CheckInFlow
 
         $this->messenger->send($user, $this->messenger->line($user, 'bot.checkin.photo_prompt', [
             'title' => $challenge->title,
+        ]));
+    }
+
+    /**
+     * Ask for the voice recording and open the flow that answers it. The cap
+     * is named up front: an honest prompt is cheaper than a refusal.
+     */
+    private function askVoice(User $user, Challenge $challenge): void
+    {
+        $this->askRecording($user, $challenge, ConversationState::AwaitingCheckInVoice, 'voice');
+    }
+
+    /**
+     * Ask for the video recording and open the flow that answers it.
+     */
+    private function askVideo(User $user, Challenge $challenge): void
+    {
+        $this->askRecording($user, $challenge, ConversationState::AwaitingCheckInVideo, 'video');
+    }
+
+    /**
+     * @param  'voice'|'video'  $kind
+     */
+    private function askRecording(User $user, Challenge $challenge, ConversationState $state, string $kind): void
+    {
+        try {
+            $this->obligation($user, $challenge);
+        } catch (CheckInRejectedException $refused) {
+            $this->refuse($user, $refused, $challenge);
+
+            return;
+        }
+
+        $this->openConversation($user, $state, $challenge);
+
+        $this->messenger->send($user, $this->messenger->line($user, "bot.checkin.{$kind}_prompt", [
+            'title' => $challenge->title,
+            'max' => $challenge->proof_media_max_seconds,
+            'size' => $challenge->proof_media_max_size_kb,
         ]));
     }
 
@@ -417,7 +567,12 @@ class CheckInFlow
     }
 
     /**
-     * Hand a submitted photo to the creator, with the verdict buttons on it.
+     * Hand a submitted proof to the creator, with the verdict buttons on it.
+     *
+     * The message names what kind of thing to review; the thing itself is
+     * previewed in the admin panel's review queue — the bot has no way to
+     * attach a stored recording to a message without re-uploading it, and the
+     * queue is where a verdict can be considered anyway.
      */
     private function notifyReviewer(User $participant, Challenge $challenge, CheckIn $checkIn): void
     {
@@ -426,8 +581,8 @@ class CheckInFlow
         if ($creator->platform_user_id === null) {
             // An email-only admin created this (an import, say). BotMessenger
             // cannot reach them and must not try — the queue is already on the
-            // photo, so this is a log line rather than a lost review.
-            Log::info('A check-in photo awaits a creator the bot cannot message.', [
+            // submission, so this is a log line rather than a lost review.
+            Log::info('A check-in proof awaits a creator the bot cannot message.', [
                 'check_in_id' => $checkIn->getKey(),
                 'creator_id' => $creator->getKey(),
             ]);
@@ -435,8 +590,10 @@ class CheckInFlow
             return;
         }
 
+        $kind = $checkIn->proofKind() ?? 'image';
+
         $this->messenger->paragraphs($creator, [
-            $this->messenger->line($creator, 'bot.checkin.review_prompt', [
+            $this->messenger->line($creator, "bot.checkin.review_prompt_{$kind}", [
                 'name' => $participant->first_name ?? $participant->name,
                 'title' => $challenge->title,
             ]),
@@ -494,12 +651,14 @@ class CheckInFlow
      * Re-ask the proof without re-issuing anything: the phrase was generated
      * once and the photo prompt needs no state, so the conversation row is all
      * there is to say again.
+     *
+     * @param  array<string, string>  $replace
      */
-    private function reask(User $user, BotConversation $conversation, string $line): void
+    private function reask(User $user, BotConversation $conversation, string $line, array $replace = []): void
     {
         $conversation->forceFill(['expires_at' => now()->addMinutes($this->settings->integer(SettingKey::ConversationTtlMinutes))])->save();
 
-        $this->messenger->send($user, $this->messenger->line($user, $line));
+        $this->messenger->send($user, $this->messenger->line($user, $line, $replace));
     }
 
     /**

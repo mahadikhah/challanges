@@ -83,7 +83,7 @@ class ConversationRouter
     }
 
     /**
-     * A check-in answer: text for the phrase step, a photo for the photo step.
+     * A check-in answer: text for the phrase step, media for the media steps.
      *
      * The flow itself decides what a non-matching message means — a photo sent to
      * the phrase step is re-asked, not refused — so this only picks the entry
@@ -103,7 +103,32 @@ class ConversationRouter
             return;
         }
 
+        if ($conversation->state->expectsVoice()) {
+            $this->checkIns->receiveVoice($user, $conversation, $this->mediaObject($update, 'voice'));
+
+            return;
+        }
+
+        if ($conversation->state->expectsVideo()) {
+            $this->checkIns->receiveVideo($user, $conversation, $this->mediaObject($update, 'video'));
+
+            return;
+        }
+
         $this->checkIns->receiveText($user, $conversation, $this->text($update));
+    }
+
+    /**
+     * A message's `voice`/`video` object, or null when the message carries
+     * none — which is the flow's to re-ask about, not the router's.
+     *
+     * @return array<array-key, mixed>|null
+     */
+    private function mediaObject(TelegramUpdate $update, string $field): ?array
+    {
+        $object = $update->value("message.{$field}");
+
+        return is_array($object) ? $object : null;
     }
 
     /**

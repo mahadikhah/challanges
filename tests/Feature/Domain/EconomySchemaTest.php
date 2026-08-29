@@ -598,23 +598,29 @@ describe('economy enum behaviour', function () {
         ConversationState $state,
         bool $text,
         bool $photo,
+        bool $voice,
+        bool $video,
     ) {
         expect($state->expectsText())->toBe($text)
             ->and($state->expectsPhoto())->toBe($photo)
-            ->and($state->expectsCallback())->toBe(! $text && ! $photo);
+            ->and($state->expectsVoice())->toBe($voice)
+            ->and($state->expectsVideo())->toBe($video)
+            ->and($state->expectsCallback())->toBe(! $text && ! $photo && ! $voice && ! $video);
     })->with([
-        'title' => [ConversationState::AwaitingChallengeTitle, true, false],
-        'description' => [ConversationState::AwaitingChallengeDescription, true, false],
-        'period type' => [ConversationState::AwaitingPeriodType, false, false],
-        'custom days' => [ConversationState::AwaitingCustomPeriodDays, true, false],
-        'start date' => [ConversationState::AwaitingStartDate, true, false],
-        'total periods' => [ConversationState::AwaitingTotalPeriods, true, false],
-        'timezone' => [ConversationState::AwaitingTimezone, false, false],
-        'proof type' => [ConversationState::AwaitingProofType, false, false],
-        'visibility' => [ConversationState::AwaitingVisibility, false, false],
-        'confirmation' => [ConversationState::AwaitingCreateConfirmation, false, false],
-        'check-in text' => [ConversationState::AwaitingCheckInText, true, false],
-        'check-in photo' => [ConversationState::AwaitingCheckInPhoto, false, true],
+        'title' => [ConversationState::AwaitingChallengeTitle, true, false, false, false],
+        'description' => [ConversationState::AwaitingChallengeDescription, true, false, false, false],
+        'period type' => [ConversationState::AwaitingPeriodType, false, false, false, false],
+        'custom days' => [ConversationState::AwaitingCustomPeriodDays, true, false, false, false],
+        'start date' => [ConversationState::AwaitingStartDate, true, false, false, false],
+        'total periods' => [ConversationState::AwaitingTotalPeriods, true, false, false, false],
+        'timezone' => [ConversationState::AwaitingTimezone, false, false, false, false],
+        'proof type' => [ConversationState::AwaitingProofType, false, false, false, false],
+        'visibility' => [ConversationState::AwaitingVisibility, false, false, false, false],
+        'confirmation' => [ConversationState::AwaitingCreateConfirmation, false, false, false, false],
+        'check-in text' => [ConversationState::AwaitingCheckInText, true, false, false, false],
+        'check-in photo' => [ConversationState::AwaitingCheckInPhoto, false, true, false, false],
+        'check-in voice' => [ConversationState::AwaitingCheckInVoice, false, false, true, false],
+        'check-in video' => [ConversationState::AwaitingCheckInVideo, false, false, false, true],
     ]);
 
     it('splits the wizard steps from the check-in steps with no state left over', function () {
@@ -623,7 +629,7 @@ describe('economy enum behaviour', function () {
         $chatLink = array_filter(ConversationState::cases(), fn (ConversationState $s) => $s->isChatLinkStep());
 
         expect(count($wizard) + count($checkIn) + count($chatLink))->toBe(count(ConversationState::cases()))
-            ->and($checkIn)->toHaveCount(2)
+            ->and($checkIn)->toHaveCount(4)
             ->and($chatLink)->toHaveCount(1);
     });
 });
