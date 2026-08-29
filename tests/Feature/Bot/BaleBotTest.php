@@ -116,18 +116,6 @@ function arrivesAtBale(string $text = '/start', array $from = []): TelegramUpdat
     return $update;
 }
 
-/**
- * The requests that went to Bale's host, as URL strings.
- *
- * @return list<string>
- */
-function baleRequests(): array
-{
-    return Http::recorded(fn ($request): bool => str_contains($request->url(), 'tapi.bale.ai'))
-        ->map(fn (array $call): string => $call[0]->url())
-        ->values()->all();
-}
-
 describe('the Bale webhook', function () {
     it('records the update on the Bale platform, queues the work and answers 200', function () {
         Queue::fake();
@@ -246,19 +234,34 @@ describe('a first arrival on Bale', function () {
 });
 
 describe('the Bale bot surface', function () {
-    it('refuses the shop until Bale Pay is wired, and asks Bale for nothing', function () {
+    it('lists the Rial-priced packages on Bale, and only those', function () {
         baleAnswers('member');
-        $this->settings->set(SettingKey::StarsPackages, [['stars' => 25, 'coins' => 250]]);
+        $this->settings->set(SettingKey::StarsPackages, [
+            ['stars' => 25, 'coins' => 250, 'rial' => 250_000],
+            ['stars' => 50, 'coins' => 500],
+        ]);
 
         arrivesAtBale('/shop');
 
         $message = soleBotMessage();
 
-        expect($message['text'])->toBe(botCopy('bot.shop.unavailable'))
-            // No invoice, no Telegram call either — just the refusal, sent to
-            // the Bale user over Bale.
-            ->and(collect(baleRequests())->every(fn (string $url): bool => str_contains($url, 'tapi.bale.ai')))->toBeTrue()
-            ->and(collect(baleRequests())->some(fn (string $url): bool => str_contains($url, 'createInvoiceLink')))->toBeFalse();
+        // The second row has no Rial price, so it is not on Bale's shelves —
+        // the button indexes still name the shared table's rows.
+        expect($message['text'])->toContain(botCopy('bot.shop.package_rial', ['rial' => 250000, 'coins' => 250]))
+            ->and($message['text'])->not->toContain(botCopy('bot.shop.package', ['stars' => 50, 'coins' => 500]))
+            ->and(keyboardOn($message))->toBe([[[
+                'text' => botCopy('bot.shop.button', ['coins' => 250]),
+                'callback_data' => 'sp:0',
+            ]]]);
+    });
+
+    it('says so when no package is priced in Rial', function () {
+        baleAnswers('member');
+        $this->settings->set(SettingKey::StarsPackages, [['stars' => 25, 'coins' => 250]]);
+
+        arrivesAtBale('/shop');
+
+        expect(soleBotMessage()['text'])->toBe(botCopy('bot.shop.no_packages'));
     });
 
     it('opens the create-challenge wizard on Bale like on Telegram', function () {

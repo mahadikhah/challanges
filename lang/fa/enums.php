@@ -63,6 +63,7 @@ return [
 
     'coin_transaction_reason' => [
         'stars_purchase' => 'خرید سکه با استارز',
+        'bale_pay_purchase' => 'خرید سکه با پرداخت بله',
         'invite_credit' => 'پاداش دعوت',
         'challenge_completion' => 'تکمیل چالش',
         'admin_credit' => 'افزوده‌شده توسط مدیر',
@@ -95,6 +96,11 @@ return [
         'paid' => 'پرداخت شد',
         'refunded' => 'بازگشت داده شد',
         'failed' => 'ناموفق',
+    ],
+
+    'payment_provider' => [
+        'telegram_stars' => 'ستاره‌های تلگرام',
+        'bale_pay' => 'پرداخت بله',
     ],
 
     'reminder_kind' => [

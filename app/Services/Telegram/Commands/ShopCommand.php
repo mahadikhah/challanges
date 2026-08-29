@@ -3,6 +3,7 @@
 namespace App\Services\Telegram\Commands;
 
 use App\Actions\Telegram\VerifyChannelMembership;
+use App\Enums\PaymentProvider;
 use App\Enums\SettingKey;
 use App\Models\User;
 use App\Services\Settings;
@@ -42,10 +43,6 @@ class ShopCommand implements HandlesBotCommand
         }
 
         if (! $user->platform->supportsNativePayments()) {
-            // Bale Pay is Phase 11 Task 3; until then the counter is Telegram's
-            // only, and a Bale user tapping into it would meet an invoice their
-            // client cannot open. The guard lives on the enum, so removing it
-            // later is flipping one fact, not hunting branches.
             $this->messenger->send($user, $this->messenger->line($user, 'bot.shop.unavailable'));
 
             return;
@@ -53,23 +50,27 @@ class ShopCommand implements HandlesBotCommand
 
         $packages = $this->settings->array(SettingKey::StarsPackages);
 
-        if ($packages === []) {
-            // An empty table is a misconfiguration, and the worst thing to do
-            // with one is show a shop with nothing on the shelves.
-            $this->messenger->send($user, $this->messenger->line($user, 'bot.shop.no_packages'));
-
-            return;
-        }
+        // One package table, two rails: a row is on this payer's shelves only
+        // when it carries this rail's price (`stars` for Telegram, `rial` for
+        // Bale). Filtering here keeps the button's index meaningful on both
+        // rails — it names the row in the shared table, not a position in a
+        // per-rail view of it.
+        $provider = PaymentProvider::forPlatform($user->platform);
+        $priceKey = $provider->priceKey();
 
         $lines = [];
         $buttons = [];
 
         foreach ($packages as $index => $package) {
-            $stars = (int) ($package['stars'] ?? 0);
+            $price = is_numeric($package[$priceKey] ?? null) ? (int) $package[$priceKey] : 0;
             $coins = (int) ($package['coins'] ?? 0);
 
-            $lines[] = $this->messenger->line($user, 'bot.shop.package', [
-                'stars' => $stars,
+            if ($price <= 0) {
+                continue;
+            }
+
+            $lines[] = $this->messenger->line($user, $provider->packageLabelKey(), [
+                $priceKey => $price,
                 'coins' => $coins,
             ]);
 
@@ -79,6 +80,14 @@ class ShopCommand implements HandlesBotCommand
                 'text' => $this->messenger->line($user, 'bot.shop.button', ['coins' => $coins]),
                 'callback_data' => BotCallback::encode(ShopCallback::ACTION, (string) $index),
             ]];
+        }
+
+        if ($lines === []) {
+            // No rows carry this rail's price — an unpriced shelf is as empty
+            // as an unconfigured one, and gets the same honest answer.
+            $this->messenger->send($user, $this->messenger->line($user, 'bot.shop.no_packages'));
+
+            return;
         }
 
         $this->messenger->paragraphs(

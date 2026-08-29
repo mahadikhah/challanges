@@ -18,6 +18,7 @@ enum CoinTransactionReason: string implements HasTranslatedLabelContract
     use HasTranslatedLabel;
 
     case StarsPurchase = 'stars_purchase';
+    case BalePayPurchase = 'bale_pay_purchase';
     case InviteCredit = 'invite_credit';
     case ChallengeCompletion = 'challenge_completion';
     case AdminCredit = 'admin_credit';
@@ -35,6 +36,7 @@ enum CoinTransactionReason: string implements HasTranslatedLabelContract
     {
         return match ($this) {
             self::StarsPurchase,
+            self::BalePayPurchase,
             self::InviteCredit,
             self::ChallengeCompletion,
             self::AdminCredit => true,

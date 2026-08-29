@@ -76,3 +76,8 @@ A single paste runs until this context fills. Because state lives in git + `prom
 this prompt again to resume — or run it on an interval with `/loop 15m prompts/goal.md` so it re-invokes
 itself automatically. No prompt can literally guarantee zero stops (permission prompts and context limits are
 real), but the progress ledger makes every resume seamless.
+
+## Phase order override (user instruction, 2026-08-29)
+Phases 12 (logging/observation) and 13 (README/documentation) are **deferred**: when Phase 11 finishes,
+proceed directly to `prompts/phase-14.md`, then `prompts/phase-15.md`, and only then return to
+`prompts/phase-12.md` and `prompts/phase-13.md`.

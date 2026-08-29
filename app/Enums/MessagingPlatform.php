@@ -102,16 +102,17 @@ enum MessagingPlatform: string implements HasTranslatedLabelContract
     /**
      * Whether this platform's native payment rail is wired into the platform.
      *
-     * Telegram Stars is; Bale Pay arrives in Phase 11 Task 3. The shop reads
-     * this before offering packages, so a user on a platform without a rail
-     * hears "not available yet" rather than tapping a button that can only
-     * fail.
+     * Both are: Telegram Stars since Phase 4, Bale Pay since Phase 11 Task 3.
+     * The shop reads this before offering packages, so a user on a platform
+     * without a rail hears "not available yet" rather than tapping a button
+     * that can only fail. (A rail being *wired* is not the same as *priced*:
+     * Bale shelves exist only while the package table carries Rial prices and
+     * `BALE_PROVIDER_TOKEN` is set — both checked when the shelves are built.)
      */
     public function supportsNativePayments(): bool
     {
         return match ($this) {
-            self::Telegram => true,
-            self::Bale => false,
+            self::Telegram, self::Bale => true,
         };
     }
 }

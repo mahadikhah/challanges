@@ -332,20 +332,23 @@ return [
     ],
 
     /*
-    | The coin shop. `package` is one shelf of it, `pay_prompt`/`pay_button` the
-    | message that carries Telegram's invoice link, and `invoice_title` /
-    | `invoice_description` what Telegram itself shows in the payment sheet —
-    | the title is capped at 32 characters by Telegram, so it stays terse.
+    | The coin shop. `package` and `package_rial` are one shelf of it, priced in
+    | the payer's own rail — Stars on Telegram, Rial on Bale — and
+    | `pay_prompt`/`pay_button` the message that carries Telegram's invoice link.
+    | `invoice_title`/`invoice_description` are what the payment sheet itself
+    | shows — the title is capped at 32 characters by Telegram, so it stays terse.
     */
     'shop' => [
-        'prompt' => 'Coins pay for extra challenge slots and freezes. Top up with Telegram Stars:',
+        'prompt' => 'Coins pay for extra challenge slots and freezes. Top up:',
         'package' => ':stars Stars → :coins coins',
+        'package_rial' => ':rial Rial → :coins coins',
         'button' => 'Buy :coins coins',
         'no_packages' => 'Top-ups are unavailable right now. Please try again later.',
         'pay_prompt' => 'Tap the button to pay :stars Stars for :coins coins.',
         'pay_button' => 'Pay :stars Stars',
         'credited' => 'Paid — :coins coins added. Balance: :balance',
         'not_credited' => 'Your payment arrived, but it could not be matched to a top-up. It has been logged and somebody will look at it.',
+        'pending_confirmation' => 'Your payment is on its way through. The coins land as soon as it settles — no need to do anything.',
         'invoice_title' => ':coins coins',
         'invoice_description' => 'Top up your coin balance in :app.',
         'pre_checkout_error' => 'This top-up could not be completed. Please try again from /shop.',

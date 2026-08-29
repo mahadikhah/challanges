@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\MessagingPlatform;
+use App\Enums\PaymentTransactionStatus;
 use App\Messaging\Bale\BaleMessengerPlatform;
 use App\Messaging\Contracts\MessengerException;
 use App\Services\Telegram\LaravelHttpClient;
@@ -193,12 +194,89 @@ it('refuses to exist without a bot token, loudly', function () {
         ->toThrow(MessengerException::class);
 });
 
-it('refuses invoice creation and refunds until Bale Pay is wired', function () {
-    expect(fn () => $this->platform->createInvoiceLink('t', 'd', 'p', 'XTR', [['label' => 't', 'amount' => 1]]))
-        ->toThrow(MessengerException::class, 'Bale Pay is not wired yet')
-        ->and(fn () => $this->platform->refundPayment('charge', 1))
-        ->toThrow(MessengerException::class, 'Bale Pay is not wired yet');
+it('refuses an invoice link, because Bale has none to give', function () {
+    // The bale-payments skill's trap #1: `createInvoiceLink` on Bale returns a
+    // mini-app invoice *id*, not a payable URL, so there is no button to be
+    // built from it. Refusing loudly beats handing back something unpayable.
+    expect(fn () => $this->platform->createInvoiceLink('t', 'd', 'p', 'IRR', [['label' => 't', 'amount' => 1]]))
+        ->toThrow(MessengerException::class, 'no payable invoice link');
 
-    // And nothing was sent to Bale while refusing.
     expect(Http::recorded())->toBeEmpty();
+});
+
+it('refuses a refund, because Bale documents no refund path', function () {
+    expect(fn () => $this->platform->refundPayment('charge', 1))
+        ->toThrow(MessengerException::class, 'no refund path');
+
+    expect(Http::recorded())->toBeEmpty();
+});
+
+it('sends an invoice into the chat, priced in Rial with the wallet token and no currency parameter', function () {
+    config(['services.bale.provider_token' => 'WALLET-TEST-1111111111111111']);
+
+    Http::fake(['*sendInvoice*' => Http::response(['ok' => true, 'result' => ['message_id' => 41]])]);
+
+    $sent = $this->platform->sendInvoice(9001, '50 coins', 'Top up your balance.', 'coins:abc', [
+        ['label' => '50 coins', 'amount' => 50_000],
+    ]);
+
+    expect($sent->messageId)->toBe(41);
+
+    $calls = Http::recorded()->values();
+    expect($calls)->toHaveCount(1)
+        ->and($calls[0][0]->url())->toBe('https://tapi.bale.ai/bot123456:BALE-TEST-TOKEN/sendInvoice');
+
+    $sentParams = [];
+    parse_str($calls[0][0]->body(), $sentParams);
+
+    expect($sentParams['chat_id'])->toBe('9001')
+        ->and($sentParams['payload'])->toBe('coins:abc')
+
+        // The wallet token from @botfather, not the bot token (trap #2).
+        ->and($sentParams['provider_token'])->toBe('WALLET-TEST-1111111111111111')
+
+        // Bale Pay prices in Rial and takes no currency parameter at all.
+        ->and($sentParams)->not->toHaveKey('currency')
+        ->and(json_decode($sentParams['prices'], true, 512, JSON_THROW_ON_ERROR))
+        ->toBe([['label' => '50 coins', 'amount' => 50_000]]);
+});
+
+it('refuses to send an invoice when the wallet token is not configured', function () {
+    expect(fn () => $this->platform->sendInvoice(9001, 't', 'd', 'coins:abc', [['label' => 't', 'amount' => 1]]))
+        ->toThrow(MessengerException::class, 'BALE_PROVIDER_TOKEN is not set');
+
+    expect(Http::recorded())->toBeEmpty();
+});
+
+it('maps an inquireTransaction answer onto the shared transaction shape', function () {
+    Http::fake(['*inquireTransaction*' => Http::response(['ok' => true, 'result' => [
+        'id' => 'charge-1',
+        'status' => 'paid',
+        'userID' => 9001,
+        'amount' => 50_000,
+    ]])]);
+
+    $transaction = $this->platform->inquireTransaction('charge-1');
+
+    expect($transaction->id)->toBe('charge-1')
+        ->and($transaction->status)->toBe(PaymentTransactionStatus::Paid)
+        ->and($transaction->amount)->toBe(50_000)
+        ->and($transaction->userId)->toBe(9001);
+});
+
+it('reads an unknown inquireTransaction status as unknown, never as paid', function () {
+    Http::fake(['*inquireTransaction*' => Http::response(['ok' => true, 'result' => [
+        'id' => 'charge-2',
+        'status' => 'settling-somehow',
+    ]])]);
+
+    expect($this->platform->inquireTransaction('charge-2')->status)
+        ->toBe(PaymentTransactionStatus::Unknown);
+});
+
+it('refuses an inquiry that answered no transaction', function () {
+    Http::fake(['*inquireTransaction*' => Http::response(['ok' => true, 'result' => true])]);
+
+    expect(fn () => $this->platform->inquireTransaction('charge-3'))
+        ->toThrow(MessengerException::class, 'no transaction');
 });

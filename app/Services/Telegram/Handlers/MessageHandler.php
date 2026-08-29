@@ -4,6 +4,7 @@ namespace App\Services\Telegram\Handlers;
 
 use App\Actions\Payments\CompleteStarsPayment;
 use App\Actions\Telegram\ResolveTelegramUser;
+use App\Enums\StarPaymentStatus;
 use App\Models\TelegramUpdate;
 use App\Models\User;
 use App\Services\CoinLedger;
@@ -108,13 +109,18 @@ class MessageHandler implements HandlesUpdate
     }
 
     /**
-     * Credit a completed Stars purchase, if this message carries one.
+     * Credit a completed purchase, if this message carries one.
      *
      * Returns whether it did, so the caller knows the message was answered. The
      * reply rides after the credit inside the same job: if sending it fails,
-     * the update stays unprocessed and is retried, where `CompleteStarsPayment`
+     * the update stays unprocessed and is retried, where the completion action
      * finds the row already paid and credits nothing twice — the reply is the
      * only thing the retry can still do.
+     *
+     * A payment whose rail has not confirmed the money yet (Bale's inquiry can
+     * answer "pending") keeps its row pending and gets its own line: telling
+     * the payer their money "could not be matched" when it merely has not
+     * settled would be a lie about the wrong thing.
      */
     private function settlePayment(User $user, TelegramUpdate $update): bool
     {
@@ -126,7 +132,7 @@ class MessageHandler implements HandlesUpdate
 
         $payment = $this->completePayment->handle($user, $successfulPayment);
 
-        if ($payment === null || ! $payment->isPaid()) {
+        if ($payment === null) {
             // Money arrived that matches no invoice we issued. The row is
             // logged inside the action; what is left is to tell the payer, and
             // to make sure the failure is visible to somebody watching.
@@ -136,6 +142,22 @@ class MessageHandler implements HandlesUpdate
             ]);
 
             $this->messenger->send($user, $this->messenger->line($user, 'bot.shop.not_credited'));
+
+            return true;
+        }
+
+        if (! $payment->isPaid()) {
+            $key = $payment->status === StarPaymentStatus::Pending
+                ? 'bot.shop.pending_confirmation'
+                : 'bot.shop.not_credited';
+
+            Log::error('A successful_payment could not be credited.', [
+                'user_id' => $user->getKey(),
+                'star_payment_id' => $payment->getKey(),
+                'status' => $payment->status->value,
+            ]);
+
+            $this->messenger->send($user, $this->messenger->line($user, $key));
 
             return true;
         }

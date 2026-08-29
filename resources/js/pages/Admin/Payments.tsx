@@ -9,13 +9,17 @@ import { refund } from '@/routes/admin/payments';
 type LabeledEnum = { value: string; label: string };
 
 /**
- * One Stars purchase as the audit sees it — see Admin\PaymentsController::rows().
+ * One coin purchase as the audit sees it, over either payment rail — see
+ * Admin\PaymentsController::rows(). Exactly one of `stars_amount` /
+ * `rial_amount` is set, per the row's provider.
  */
 type PaymentRow = {
     id: number;
     user: string;
     telegram_payment_charge_id: string | null;
-    stars_amount: number;
+    provider: LabeledEnum;
+    stars_amount: number | null;
+    rial_amount: number | null;
     coin_amount: number;
     status: LabeledEnum;
     refundable: boolean;
@@ -67,7 +71,10 @@ export default function Payments({
                                             {t('admin.payments.user')}
                                         </th>
                                         <th className="px-3 py-2 text-center font-medium">
-                                            {t('admin.payments.stars')}
+                                            {t('admin.payments.provider')}
+                                        </th>
+                                        <th className="px-3 py-2 text-center font-medium">
+                                            {t('admin.payments.price')}
                                         </th>
                                         <th className="px-3 py-2 text-center font-medium">
                                             {t('admin.payments.coins')}
@@ -95,11 +102,17 @@ export default function Payments({
                                                 {payment.user}
                                             </td>
 
+                                            <td className="px-3 py-2">
+                                                <Badge variant="secondary">
+                                                    {payment.provider.label}
+                                                </Badge>
+                                            </td>
+
                                             <td
                                                 dir="ltr"
                                                 className="px-3 py-2 text-center"
                                             >
-                                                {payment.stars_amount}
+                                                {formatPrice(payment)}
                                             </td>
 
                                             <td
@@ -186,6 +199,18 @@ export default function Payments({
 }
 
 /**
+ * The row's price in its own rail's unit — Stars on Telegram, Rial on Bale —
+ * so the column never mixes currencies on one line.
+ */
+function formatPrice(payment: PaymentRow): string {
+    if (payment.provider.value === 'bale_pay') {
+        return `${payment.rial_amount ?? '—'} IRR`;
+    }
+
+    return `${payment.stars_amount ?? '—'} XTR`;
+}
+
+/**
  * The most meaningful clock on the row: when it was refunded, then when it was
  * paid, then when the invoice was created.
  */
@@ -205,7 +230,7 @@ Payments.layout = {
             href: '/admin/settings',
         },
         {
-            title: 'Star payments',
+            title: 'Payments',
             href: '/admin/payments',
         },
     ],

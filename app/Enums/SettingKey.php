@@ -101,15 +101,19 @@ enum SettingKey: string
             self::ChallengeCompletionCoinReward => 100,
 
             /*
-            | Stars -> coins. Larger packages carry a bonus, which is why this is
-            | a table rather than a single rate. `stars` is the XTR amount charged
-            | and `coins` is what gets credited on successful_payment.
+            | Coins -> price, one row per purchasable package. Each row is priced
+            | per rail: `stars` is the XTR amount Telegram charges, `rial` the
+            | optional IRR amount Bale charges — a row without a `rial` price is
+            | simply not offered to Bale payers, and vice versa, so one table
+            | serves both rails. Larger packages carry a bonus, which is why
+            | this is a table rather than a single rate. The rial figures are
+            | placeholder defaults an admin is expected to replace.
             */
             self::StarsPackages => [
-                ['stars' => 50, 'coins' => 50],
-                ['stars' => 100, 'coins' => 110],
-                ['stars' => 250, 'coins' => 290],
-                ['stars' => 500, 'coins' => 620],
+                ['stars' => 50, 'coins' => 50, 'rial' => 50_000],
+                ['stars' => 100, 'coins' => 110, 'rial' => 100_000],
+                ['stars' => 250, 'coins' => 290, 'rial' => 250_000],
+                ['stars' => 500, 'coins' => 620, 'rial' => 500_000],
             ],
 
             // The free baseline every user gets: one challenge created, one joined.

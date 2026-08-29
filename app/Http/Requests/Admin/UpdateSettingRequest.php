@@ -93,8 +93,12 @@ class UpdateSettingRequest extends FormRequest
     }
 
     /**
-     * The Stars→coins package table. Each row is one purchasable package;
-     * stars are what Telegram charges (XTR), coins what we credit.
+     * The coins package table. Each row is one purchasable package; `stars` is
+     * what Telegram charges (XTR) and `coins` what we credit. `rial` is the
+     * optional Bale-side price — absent or zero means the package is not sold
+     * to Bale payers, which is why it is `sometimes` where its siblings are
+     * `required`. Its cap is higher because Rial magnitudes are their own
+     * order of magnitude.
      *
      * @return array<string, list<string>>
      */
@@ -105,6 +109,7 @@ class UpdateSettingRequest extends FormRequest
             'value.*' => ['required', 'array'],
             'value.*.stars' => ['required', 'integer', 'min:1', 'max:1000000'],
             'value.*.coins' => ['required', 'integer', 'min:0', 'max:1000000'],
+            'value.*.rial' => ['sometimes', 'integer', 'min:0', 'max:100000000'],
         ];
     }
 }

@@ -641,6 +641,7 @@ describe('economy enum values are stable', function () {
     })->with([
         'coin transaction reason' => [CoinTransactionReason::class, [
             'stars_purchase',
+            'bale_pay_purchase',
             'invite_credit',
             'challenge_completion',
             'admin_credit',

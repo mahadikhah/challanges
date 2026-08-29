@@ -63,6 +63,7 @@ return [
 
     'coin_transaction_reason' => [
         'stars_purchase' => 'Coins purchased with Stars',
+        'bale_pay_purchase' => 'Coins purchased with Bale Pay',
         'invite_credit' => 'Invite reward',
         'challenge_completion' => 'Challenge completed',
         'admin_credit' => 'Added by an admin',
@@ -95,6 +96,11 @@ return [
         'paid' => 'Paid',
         'refunded' => 'Refunded',
         'failed' => 'Failed',
+    ],
+
+    'payment_provider' => [
+        'telegram_stars' => 'Telegram Stars',
+        'bale_pay' => 'Bale Pay',
     ],
 
     'reminder_kind' => [

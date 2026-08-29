@@ -93,6 +93,15 @@ return [
         'bot_username' => env('BALE_BOT_USERNAME'),
         'webhook_secret' => env('BALE_WEBHOOK_SECRET'),
         'required_channel' => (string) env('BALE_REQUIRED_CHANNEL', ''),
+
+        /*
+        | The wallet payment token from @botfather — NOT the bot token. Bale
+        | Pay invoices refuse without it; `WALLET-TEST-1111111111111111`
+        | behaves like a real one while moving no money. Empty means Bale
+        | Pay is disabled on this deploy, and the shop's Bale shelves are
+        | refused loudly rather than issuing invoices that cannot charge.
+        */
+        'provider_token' => env('BALE_PROVIDER_TOKEN'),
     ],
 
 ];

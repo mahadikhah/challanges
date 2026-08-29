@@ -3,10 +3,12 @@
 namespace App\Messaging\Bale;
 
 use App\Enums\MessagingPlatform;
+use App\Enums\PaymentTransactionStatus;
 use App\Messaging\Contracts\MessengerException;
 use App\Messaging\Contracts\MessengerPlatform;
 use App\Messaging\DTO\BotUpdate;
 use App\Messaging\DTO\ChatMemberSnapshot;
+use App\Messaging\DTO\PaymentTransaction;
 use App\Messaging\DTO\SentMessage;
 use App\Services\Telegram\LaravelHttpClient;
 use Closure;
@@ -39,9 +41,11 @@ use Throwable;
  *   way, which is already the correct posture.
  * - File downloads go to `tapi.bale.ai/file/bot<token>/<file_path>`, valid
  *   one hour, 20 MB max.
- * - The native payment rail (`sendInvoice` + `inquireTransaction`) is Task 3;
- *   the invoice methods here exist to satisfy the contract and refuse with a
- *   clear message rather than pretending to work.
+ * - Bale Pay has **no payable link** — an invoice exists only as a message in
+ *   a chat (`sendInvoice`), is priced in Rial with no currency parameter, and
+ *   carries a wallet `provider_token` that is a different secret from the bot
+ *   token. What a payment update *said* is verified with `inquireTransaction`
+ *   before anything is credited. No refund method exists on the rail.
  *
  * Failures are wrapped in `MessengerException` exactly as the Telegram
  * implementation wraps them — one family for shared code to catch.
@@ -297,19 +301,107 @@ class BaleMessengerPlatform implements MessengerPlatform
         string $currency,
         array $prices,
     ): string {
-        // Bale Pay is Phase 11 Task 3. The shop refuses Bale users before it
-        // can reach here (`MessagingPlatform::supportsNativePayments()`), so
-        // arriving means a caller bypassed the guard — say so rather than
-        // issuing something against a rail that is not wired.
+        // The bale-payments skill's trap #1: there is no payable payment link
+        // on Bale. `createInvoiceLink` exists but returns an invoice *id* for
+        // mini-apps to open with `openInvoice` — not a URL — so no button can
+        // be built from it. An invoice lives in a chat, via `sendInvoice`.
         throw new MessengerException(
-            'Bale Pay is not wired yet (Phase 11 Task 3); no Bale invoice can be created.'
+            'Bale Pay has no payable invoice link; an invoice exists only as a message sent into a chat.'
+        );
+    }
+
+    /**
+     * @param  list<array{label: string, amount: int}>  $prices
+     */
+    public function sendInvoice(
+        int|string $chatId,
+        string $title,
+        string $description,
+        string $payload,
+        array $prices,
+    ): SentMessage {
+        try {
+            return $this->sent(fn (): int => (int) $this->api()->sendInvoice([
+                'chat_id' => $chatId,
+                'title' => $title,
+                'description' => $description,
+
+                // Bot-defined, opaque to the user, and what ties the later
+                // `successful_payment` back to this row.
+                'payload' => $payload,
+
+                // The wallet payment token from @botfather — a *different*
+                // secret from the bot token this client carries (the
+                // bale-payments skill's trap #2). No `currency` key at all:
+                // Bale Pay prices in Rial and the method takes no currency
+                // parameter.
+                'provider_token' => $this->providerToken(),
+
+                'prices' => $prices,
+            ])->get('message_id'));
+        } catch (TelegramSDKException $failure) {
+            throw MessengerException::fromTelegram($failure);
+        }
+    }
+
+    /**
+     * The wallet token Bale Pay invoices are issued against, refused loudly
+     * when unconfigured: an invoice without it cannot charge, and pretending
+     * otherwise would sell a button that only errors.
+     */
+    private function providerToken(): string
+    {
+        $token = trim((string) config('services.bale.provider_token'));
+
+        if ($token === '') {
+            throw new MessengerException(
+                'BALE_PROVIDER_TOKEN is not set, so no Bale Pay invoice can be sent.'
+            );
+        }
+
+        return $token;
+    }
+
+    public function inquireTransaction(string $transactionId): PaymentTransaction
+    {
+        try {
+            // `inquireTransaction` is absent from Telegram SDKs (the skill
+            // documents this), so it travels as a raw post over the same
+            // fakeable transport as every other call — exactly the posture
+            // `refundStarPayment` already has on the Telegram side.
+            $result = $this->api()->post('inquireTransaction', [
+                'transaction_id' => $transactionId,
+            ])->getResult();
+        } catch (TelegramSDKException $failure) {
+            throw MessengerException::fromTelegram($failure);
+        }
+
+        if (! is_array($result)) {
+            throw new MessengerException('inquireTransaction returned no transaction.');
+        }
+
+        return new PaymentTransaction(
+            id: is_string($result['id'] ?? null) ? $result['id'] : $transactionId,
+            status: PaymentTransactionStatus::fromRail($result['status'] ?? null),
+
+            // Rial. An amount that did not arrive as an integer stays null —
+            // the caller compares against the row's price and a null amount
+            // is a disagreement, which is the safe reading.
+            amount: is_int($result['amount'] ?? null) ? $result['amount'] : null,
+            userId: is_int($result['userID'] ?? null) ? $result['userID'] : null,
         );
     }
 
     public function refundPayment(string $platformPaymentChargeId, int $platformUserId): void
     {
+        // Bale documents no refund method on its payment rail (verified
+        // against docs.bale.ai; recorded in progress-phase-11.md). Refusing
+        // loudly is the honest answer, and `StarPayment::isRefundable()`
+        // hides the lever, so arriving here means a caller bypassed the
+        // check — say so rather than approximate an endpoint that does not
+        // exist.
         throw new MessengerException(
-            'Bale Pay is not wired yet (Phase 11 Task 3); no Bale payment can be refunded.'
+            'Bale Pay documents no refund path, so a Bale purchase cannot be reversed through the API.'
         );
     }
 

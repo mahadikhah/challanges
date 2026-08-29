@@ -41,6 +41,7 @@ return [
         'reset_done' => 'Setting reverted to its default.',
         'invalid_value' => 'That value does not fit this setting.',
         'stars' => 'Stars',
+        'rial' => 'Rial (optional)',
         'coins' => 'Coins',
         'add_package' => 'Add package',
         'remove_package' => 'Remove',
@@ -164,11 +165,12 @@ return [
     ],
 
     'payments' => [
-        'title' => 'Star payments',
-        'description' => 'Every Telegram Stars purchase, with the refund lever.',
+        'title' => 'Coin payments',
+        'description' => 'Every coin purchase over either rail, with the refund lever. Bale Pay documents no refund path, so its rows can only be watched.',
 
         'user' => 'User',
-        'stars' => 'Stars',
+        'provider' => 'Rail',
+        'price' => 'Price',
         'coins' => 'Coins',
         'status' => 'Status',
         'charge' => 'Charge id',

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\PaymentProvider;
 use App\Enums\StarPaymentStatus;
 use App\Models\StarPayment;
 use App\Models\User;
@@ -14,8 +15,9 @@ use Illuminate\Support\Str;
 class StarPaymentFactory extends Factory
 {
     /**
-     * Define the model's default state: an invoice created but not yet paid,
-     * which is where every purchase starts and where most of them stay.
+     * Define the model's default state: a Telegram Stars invoice created but
+     * not yet paid, which is where every purchase starts and where most of
+     * them stay.
      *
      * @return array<string, mixed>
      */
@@ -25,15 +27,33 @@ class StarPaymentFactory extends Factory
 
         return [
             'user_id' => User::factory()->telegram(),
+            'provider' => PaymentProvider::TelegramStars,
             'telegram_payment_charge_id' => null,
             'invoice_payload' => 'coins:'.Str::lower(Str::random(16)),
             'stars_amount' => $stars,
+            'rial_amount' => null,
             'coin_amount' => $stars,
             'status' => StarPaymentStatus::Pending,
             'payload' => null,
             'paid_at' => null,
             'refunded_at' => null,
         ];
+    }
+
+    /**
+     * A Bale Pay purchase instead: Rial-priced, Stars column empty.
+     *
+     * The user stays whoever the caller set with `for()`; a stand-in Bale user
+     * is drawn only when nobody was named.
+     */
+    public function bale(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'user_id' => $attributes['user_id'] ?? User::factory()->telegram()->bale(),
+            'provider' => PaymentProvider::BalePay,
+            'stars_amount' => null,
+            'rial_amount' => $attributes['rial_amount'] ?? fake()->randomElement([100_000, 250_000, 500_000]),
+        ]);
     }
 
     /**
@@ -44,6 +64,17 @@ class StarPaymentFactory extends Factory
         return $this->state(fn (array $attributes): array => [
             'coin_amount' => $coins,
             'stars_amount' => $stars ?? $coins,
+        ]);
+    }
+
+    /**
+     * Price a Bale purchase: how many Rial buy how many coins.
+     */
+    public function buyingRial(int $coins, int $rial): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'coin_amount' => $coins,
+            'rial_amount' => $rial,
         ]);
     }
 

@@ -186,7 +186,7 @@ class TelegramUpdateFactory extends Factory
         });
     }
 
-    public function preCheckoutQuery(string $invoicePayload, int $stars = 25, ?int $fromTelegramId = null): static
+    public function preCheckoutQuery(string $invoicePayload, int $stars = 25, ?int $fromTelegramId = null, string $currency = 'XTR'): static
     {
         return $this->state(fn (array $attributes): array => [
             'payload' => [
@@ -197,7 +197,7 @@ class TelegramUpdateFactory extends Factory
                         'is_bot' => false,
                         'first_name' => fake()->firstName(),
                     ],
-                    'currency' => 'XTR',
+                    'currency' => $currency,
                     'total_amount' => $stars,
                     'invoice_payload' => $invoicePayload,
                 ],
@@ -211,9 +211,9 @@ class TelegramUpdateFactory extends Factory
      *
      * @param  array<string, mixed>  $from  merged over the default sender
      */
-    public function successfulPaymentFrom(array $from, string $invoicePayload, string $chargeId, int $stars): static
+    public function successfulPaymentFrom(array $from, string $invoicePayload, string $chargeId, int $stars, string $currency = 'XTR'): static
     {
-        return $this->state(function (array $attributes) use ($from, $invoicePayload, $chargeId, $stars): array {
+        return $this->state(function (array $attributes) use ($from, $invoicePayload, $chargeId, $stars, $currency): array {
             $telegramId = is_int($from['id'] ?? null) ? $from['id'] : fake()->numberBetween(1, 999_999);
 
             return [
@@ -228,7 +228,7 @@ class TelegramUpdateFactory extends Factory
                         'chat' => ['id' => $telegramId, 'type' => 'private'],
                         'date' => 1_760_000_000,
                         'successful_payment' => [
-                            'currency' => 'XTR',
+                            'currency' => $currency,
                             'total_amount' => $stars,
                             'invoice_payload' => $invoicePayload,
                             'telegram_payment_charge_id' => $chargeId,

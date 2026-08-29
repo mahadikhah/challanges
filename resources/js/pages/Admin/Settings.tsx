@@ -25,9 +25,16 @@ type SettingRow = {
     overridden: boolean;
 };
 
+/**
+ * One purchasable package: what each rail charges and what we credit. `rial`
+ * is the Bale-side price and is optional — a row without one is simply not
+ * offered to Bale payers, so a fresh Telegram-only deployment never has to
+ * think about it.
+ */
 type PackageRow = {
     stars: number;
     coins: number;
+    rial?: number;
 };
 
 const GROUPS = ['economy', 'baseline', 'access', 'reminders'] as const;
@@ -216,7 +223,11 @@ function PackagesEditor({
 }) {
     const { t } = useTranslation();
 
-    const updateRow = (row: number, field: 'stars' | 'coins', raw: string) => {
+    const updateRow = (
+        row: number,
+        field: 'stars' | 'coins' | 'rial',
+        raw: string,
+    ) => {
         onChange(
             packages.map((pkg, index) =>
                 index === row ? { ...pkg, [field]: raw } : pkg,
@@ -242,6 +253,9 @@ function PackagesEditor({
                                 {t('admin.settings.stars')}
                             </th>
                             <th className="px-3 py-2 text-start font-medium">
+                                {t('admin.settings.rial')}
+                            </th>
+                            <th className="px-3 py-2 text-start font-medium">
                                 {t('admin.settings.coins')}
                             </th>
                             <th className="w-12" />
@@ -261,6 +275,25 @@ function PackagesEditor({
                                             updateRow(
                                                 row,
                                                 'stars',
+                                                event.target.value,
+                                            )
+                                        }
+                                        disabled={disabled}
+                                        dir="ltr"
+                                    />
+                                </td>
+
+                                <td className="px-3 py-1.5">
+                                    <Input
+                                        type="number"
+                                        min={0}
+                                        className="h-8 w-32"
+                                        value={pkg.rial ?? ''}
+                                        placeholder="—"
+                                        onChange={(event) =>
+                                            updateRow(
+                                                row,
+                                                'rial',
                                                 event.target.value,
                                             )
                                         }
@@ -325,7 +358,11 @@ function PackagesEditor({
 function describeDefault(setting: SettingRow): string {
     if (setting.type === 'json') {
         return (setting.default as PackageRow[])
-            .map((pkg) => `${pkg.stars} → ${pkg.coins}`)
+            .map(
+                (pkg) =>
+                    `${pkg.stars} → ${pkg.coins}` +
+                    (pkg.rial !== undefined ? ` (${pkg.rial} IRR)` : ''),
+            )
             .join(', ');
     }
 

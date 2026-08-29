@@ -26,8 +26,9 @@ use Illuminate\Support\Facades\Log;
  * 1. **Whose invoice this is.** The payer is resolved from `from` against our
  *    own rows, and the invoice is looked up scoped to that user — a payload
  *    learned from somebody else's link is declined, not credited to its owner.
- * 2. **What it costs.** The currency must be `XTR` and the total must equal the
- *    row's own `stars_amount`, the price we set when the link was issued.
+ * 2. **What it costs.** The currency must be the row's own rail's tag (`XTR`
+ *    for Stars, `IRR` for Bale Pay) and the total must equal the row's own
+ *    price, the price we set when the invoice was issued.
  *
  * A decline is not a judgement on the row: the invoice stays `Pending`, because
  * a decline at pre-checkout proves nothing about the invoice itself (the query
@@ -79,11 +80,12 @@ class PreCheckoutQueryHandler implements HandlesUpdate
         $currency = $update->value('pre_checkout_query.currency');
         $totalAmount = $update->value('pre_checkout_query.total_amount');
 
+        // The row decides what an acceptable answer is: its own rail's currency
+        // tag and its own price (`XTR`/Stars on Telegram, `IRR`/Rial on Bale).
         $acceptable = $payment !== null
             && $payment->status->isPaid() === false
             && $payment->status->isTerminal() === false
-            && $currency === 'XTR'
-            && $totalAmount === $payment->stars_amount;
+            && $payment->acceptsPreCheckout($currency, $totalAmount);
 
         if ($acceptable) {
             $this->platforms->for($update->platform)->answerPreCheckoutQuery($queryId, ok: true);

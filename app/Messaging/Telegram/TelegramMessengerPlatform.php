@@ -7,6 +7,7 @@ use App\Messaging\Contracts\MessengerException;
 use App\Messaging\Contracts\MessengerPlatform;
 use App\Messaging\DTO\BotUpdate;
 use App\Messaging\DTO\ChatMemberSnapshot;
+use App\Messaging\DTO\PaymentTransaction;
 use App\Messaging\DTO\SentMessage;
 use App\Services\Telegram\BotIdentity;
 use Closure;
@@ -306,6 +307,48 @@ class TelegramMessengerPlatform implements MessengerPlatform
         }
 
         return $link;
+    }
+
+    /**
+     * @param  list<array{label: string, amount: int}>  $prices
+     */
+    public function sendInvoice(
+        int|string $chatId,
+        string $title,
+        string $description,
+        string $payload,
+        array $prices,
+    ): SentMessage {
+        try {
+            return new SentMessage((int) $this->telegram->sendInvoice([
+                'chat_id' => $chatId,
+                'title' => $title,
+                'description' => $description,
+
+                // Bot-defined, opaque to the user, and what ties a later
+                // `successful_payment` back to this row.
+                'payload' => $payload,
+
+                // CLAUDE.md, verified against core.telegram.org: XTR is the
+                // Stars currency tag, and the provider token is an *empty
+                // string* for Stars — not null, not omitted.
+                'currency' => 'XTR',
+                'provider_token' => '',
+
+                'prices' => $prices,
+            ])->get('message_id'));
+        } catch (TelegramSDKException $failure) {
+            throw MessengerException::fromTelegram($failure);
+        }
+    }
+
+    public function inquireTransaction(string $transactionId): PaymentTransaction
+    {
+        // Stars confirms a payment inside `successful_payment` itself, signed
+        // by the same webhook secret as everything else — there is no inquiry
+        // step to delegate to, and inventing one would be a no-op pretending
+        // to be a verification.
+        throw new MessengerException('Telegram Stars has no transaction inquiry; a successful_payment is its own confirmation.');
     }
 
     public function refundPayment(string $platformPaymentChargeId, int $platformUserId): void

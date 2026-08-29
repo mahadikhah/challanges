@@ -5,6 +5,7 @@ namespace App\Messaging\Contracts;
 use App\Enums\MessagingPlatform;
 use App\Messaging\DTO\BotUpdate;
 use App\Messaging\DTO\ChatMemberSnapshot;
+use App\Messaging\DTO\PaymentTransaction;
 use App\Messaging\DTO\SentMessage;
 
 /**
@@ -111,8 +112,9 @@ interface MessengerPlatform
     /**
      * Answer the platform's pre-checkout checkpoint for a native payment.
      *
-     * The sheet hangs until answered, so implementations must always answer —
-     * a decline with `$ok = false` and a reason, never silence.
+     * The sheet hangs until answered (Bale cancels after ten seconds), so
+     * implementations must always answer — a decline with `$ok = false` and a
+     * reason, never silence.
      *
      * @throws MessengerException
      */
@@ -121,9 +123,13 @@ interface MessengerPlatform
     /**
      * Create a payment invoice link on the platform's native payment rail.
      *
+     * Only rails whose payment sheet opens from a URL can honour this; a rail
+     * with no payable link refuses here rather than returning something a
+     * button could not open.
+     *
      * @param  list<array{label: string, amount: int}>  $prices  one line for Stars invoices
      *
-     * @throws MessengerException
+     * @throws MessengerException when the platform refuses or has no payable link
      */
     public function createInvoiceLink(
         string $title,
@@ -132,6 +138,41 @@ interface MessengerPlatform
         string $currency,
         array $prices,
     ): string;
+
+    /**
+     * Send a payment invoice as a message into a chat.
+     *
+     * The currency and payment-provider credentials are facts of the platform's
+     * own rail (Stars' `XTR` + empty provider token; Bale's Rial prices +
+     * wallet token), resolved inside the implementation — callers state intent
+     * and a price, never a wire format.
+     *
+     * @param  int|string  $chatId  the payer's chat, which the invoice must
+     *                              already live in on rails with no payable link
+     * @param  list<array{label: string, amount: int}>  $prices  amounts in the rail's own currency
+     * @return SentMessage the invoice message, when the platform reports one
+     *
+     * @throws MessengerException when the platform refuses or cannot be reached
+     */
+    public function sendInvoice(
+        int|string $chatId,
+        string $title,
+        string $description,
+        string $payload,
+        array $prices,
+    ): SentMessage;
+
+    /**
+     * Ask the platform's rail what became of one payment.
+     *
+     * The `verify()` of a request-then-verify rail: what the webhook *said*
+     * about money is display data until this answers. Rails that confirm a
+     * payment synchronously in the payment update itself have no inquiry to
+     * make and refuse here.
+     *
+     * @throws MessengerException when the rail has no inquiry step, or cannot be reached
+     */
+    public function inquireTransaction(string $transactionId): PaymentTransaction;
 
     /**
      * Refund a completed payment on the platform's rail.
