@@ -166,3 +166,33 @@ value_required on the wire, negative refused, settle + full `scoring`/`score`/
 `total_score` response shape, binary carries `scoring: null`. `ChallengesSurfaceTest`'s
 exact-shape assertion gained `scoring`/`total_score`. Gate: **1550 passed,
 4 skipped**, PHPStan 0, lint/format/types clean.
+
+## Task 4 — Leaderboard integration (`feat(scoring)`, 2026-08-29)
+
+The board's ranking *is* the challenge's scoring design, so the branch lives in
+one place: `ComposeLeaderboard::handle()` picks the column
+(`current_streak`/`total_score`), the filter (`> 0` on that column), and the
+copy keys (`headline`/`headline_scored`, `row`/`row_scored`) from
+`scoring_type`. The query shape, top-N setting, `joined_at` tie-break, the
+null-when-nobody-qualifies contract, and both posting jobs' idempotency claims
+are untouched — binary boards are byte-identical, which the existing Phase 8
+suite pins by passing unchanged. On-demand `/leaderboard` shares the action, so
+it inherited the branch for free. Check-in announcements pick
+`bot.chatpost.checkin_scored` only when the challenge is quantity *and* the row
+carried a score — a below-target frozen/missed row never announces (it does not
+`incrementsStreak()`), and a quantity row with a null score falls back to the
+plain line rather than a "0 pts" tease. Stored decimals are trimmed
+(`800.00` → `800`) at the copy boundary, matching `CheckInConfirmation`'s
+presentation rule.
+
+**Tests.** Four in `ChallengeChatPostingTest`'s new quantity describe (own
+challenge/chat fixtures at chat `-1005555`, leaving the shared binary fixtures
+alone): score-ordering beats streak-ordering on a deliberately inverted
+fixture with exact row/headline copy and no "in a row" leakage; all-zero
+scores post nothing; the scored announcement asserted verbatim; a
+below-target freeze posts nothing. The binary regression bar is the existing
+eleven posting tests passing untouched. Gate: **1554 passed, 4 skipped**,
+PHPStan 0, lint/format/types clean.
+
+**Phase 15 complete.** Per the standing ordering, next is Phase 12 (logging),
+then Phase 13 (README/docs).
