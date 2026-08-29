@@ -71,3 +71,55 @@ first job and the second is never processed (only reproducible in a full-suite r
 prettier, `tsc --noEmit`.
 
 **Next:** Phase 13 Task 2 — Log Viewer + structured logging conventions.
+
+## Task 2 — Log Viewer + structured logging conventions
+
+**Status: complete** (commit `feat(observability): log viewer + structured logging conventions`)
+
+### What landed
+
+**Log Viewer** (`opcodesio/log-viewer` v3.24.2), published config at `config/log-viewer.php`:
+
+- mounted at **`admin/logs`**, inside the panel's URL space rather than a second door
+- route middleware `['web','auth',EnsureUserIsAdmin,AuthorizeLogViewer]`; API middleware adds
+  `EnsureFrontendRequestsAreStateful` — the SPA-side fetches ride the same session
+- `Gate::define('viewLogViewer', fn (User $user) => $user->is_admin)` in `AppServiceProvider` — the **same
+  check** the Inertia panel middleware and the Telescope `viewTelescope` gate use; divergence between the
+  three would be a bug
+- pre-built assets committed under `public/vendor/log-viewer/`
+- PHPStan rejected the published config's raw `env()` uses (`explode(',', env(...))`, `ucfirst(env(...))` —
+  `env()` answers `string|true|null`); narrowed with `is_string()` on config-local variables rather than
+  suppressing
+
+**Structured logging (addendum-4 §2.10)** — one info line per move a human comes back for, carrying the
+identifiers a Log Viewer search needs:
+
+| Site | Level | Line |
+|---|---|---|
+| `SettleCheckIn` | info | `A check-in was settled.` — check_in_id, challenge_id, participant_id, status, score, streak |
+| `CoinLedger::write` | info | `A coin ledger entry was written.` — full ledger identity incl. idempotency_key; **replays log nothing** (they return before the log), so line count reconciles against the ledger |
+| `ApplyAiVerdict` | info | `An AI verdict settled a proof.` — check_in_id, approved, confidence |
+| `ReviewProofWithAi` | warning | `An AI verdict fell below the confidence threshold and went to the manual queue.` |
+| `VerifyChallengeChat` | warning | `A linked chat failed re-verification against a creator the bot cannot message.` |
+| `ShopCallback` (×2) | warning | stale/unpriced package tap — user_id, platform, package_index |
+| `ShopCommand` | warning | empty/unpriced shelf for the payer's rail |
+| `RefundStarsPayment` | error / info | provider refusal (`reason` included) / refund success (coins_clawed_back, idempotency_key) |
+
+### Tests
+
+- `tests/Feature/Observability/LogViewerTest.php` — guest → login redirect, non-admin → 403, admin → 200
+- `tests/Feature/Observability/StructuredLoggingTest.php` — settlement line, ledger line + replay-silence,
+  AI verdict info + below-threshold warning (verdict served through a closure reading `test()->verdictContent`
+  because Http::fake merges first-match-wins), refund refusal error
+
+### Traps recorded
+
+- **Mockery spy chain order:** on a `Log::spy()`, every chained call (`once()`, `withArgs()`) clones the
+  expectation **and verifies immediately**. `->once()->withArgs(f)` therefore verifies the count with no arg
+  filter — "the method was called exactly once, total" — which fails whenever the code path logs two info
+  lines (e.g. the AI approval also travelling `SettleCheckIn`, which logs its own line). The matcher must
+  come first: **`->withArgs(f)->once()`**. (Verified against Mockery's `VerificationDirector::cloneApplyAndVerify`
+  and `ReceivedMethodCalls::verify`.)
+- **`Challenge::periods()` composite ordering:** the relation carries its own `orderBy('index')`, so
+  `->orderByDesc('index')` on top yields `order by index asc, index desc` — **ASC wins**. Load the collection
+  and use `->first()`/`->last()` instead of composing a second order.
