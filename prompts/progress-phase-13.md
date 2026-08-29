@@ -224,3 +224,65 @@ AI review success + failure through the real chain; Telescope degrade states; pr
   post/visit options do) — dropped from the 30s poll.
 - JSON column extraction under MySQL `only_full_group_by` needs the extraction wrapped in an
   aggregate: `MAX(JSON_UNQUOTE(JSON_EXTRACT(content, "$.class")))`.
+
+## Task 5 — Critical alerts via the existing bot
+
+**Status: complete**
+
+### What landed
+
+- **`SendCriticalAlert`** (`app/Actions/Observability/`) — the one choke point every
+  trigger routes through. Three gates, each a silent no-op: the `alerts_enabled` kill
+  switch (default off), a resolvable ops platform + non-zero chat id (half-configured
+  reads as unconfigured — `alert_ops_platform` is Text validated `in:telegram,bale`,
+  `alert_ops_chat_id` is Integer with 0 = unset), and the debounce: `Cache::add` claims
+  the key `critical-alert:{kind}` atomically (the database cache driver's `add` loses
+  the insert race to a duplicate key, so concurrent failures still produce one
+  message). The message is a closure built only after the gates pass. A refused send
+  (MessengerException or anything else) logs a §2.10 warning and returns false — and
+  the debounce mark **stays** claimed, so a messenger outage cannot turn a burst into
+  a retry storm. Cooldown is the `alert_cooldown_minutes` Setting (default 15).
+- **Failed-job trigger** — `AlertOnFailedJob` listener on Laravel's `JobFailed`
+  (registered in AppServiceProvider beside the AI failover listeners). Message names
+  the job class, the first line of the failure, and the System Health failed-jobs
+  link. Debounced per job class: a batch of the same job failing is one problem.
+- **Exception trigger** — `SendExceptionAlert` wired as `reportable()` in
+  `bootstrap/app.php`. **Signal choice (as the task asked): the exception handler, not
+  Telescope** — Telescope is a sample (can be disabled/pruned/unmigrated; Task 1
+  deliberately keeps it cheap in production), while `report()` fires for every
+  unhandled exception the app sees. Debounced per exception class; the reportable
+  closure returns nothing, so default file logging continues beside it.
+- **Stale-heartbeat trigger** — `observability:alert-stale-heartbeat` command
+  scheduled every minute **after** the heartbeat stamp (this minute's stamp should
+  exist before anyone judges its age). Never-ran reads as stale, same judgment as the
+  System Health page. Repeats once per cooldown window while the condition persists —
+  silence must not read as "fixed itself". Its docblock restates §2.10's bound: a
+  totally dead cron silences this check too; only the external dead-man's switch can
+  detect total cron death.
+- **Settings + i18n** — four new keys in the admin observability group (en/fa
+  labels); alert message strings in `admin.alerts` (en/fa) with :job/:class/:reason/
+  :minutes/:threshold/:link placeholders, sent as plain text (no parse_mode, per the
+  MessengerPlatform contract).
+
+### Tests
+
+`tests/Feature/Observability/CriticalAlertsTest.php` (8) — JobFailed alert carries
+job class + reason + link to the right chat id; same exception class debounced to one
+alert inside the cooldown and re-alerts after it (`travel(16)` past the default 15);
+a burst of the same failed job class costs one message; stale-heartbeat alert fires
+past the bar and not before (fresh stamp → zero requests); a dataset of all three
+triggers × all three gate states (kill switch off / unknown platform / chat id 0,
+each with everything else fully configured, under `Http::preventStrayRequests`)
+produces **zero** recorded requests; and a refusing messenger (ok:false 5xx) leaves
+`report()` intact.
+
+### Traps recorded
+
+- **`Http::assertSent` fails on zero requests** — it asserts *at least one* matching
+  request was sent, so it cannot back a "nothing was sent" expectation. Count with
+  `count(Http::recorded())` instead.
+- A `use RuntimeException;` (or any non-compound name) in a namespace-less Pest file
+  is a PHP warning, not a no-op silence — drop the import; the global name resolves.
+- `Exceptions::reportable()` closures run **beside** default logging (verified in
+  Handler::report: a callback short-circuits the default only by returning `false`),
+  so the exception hook needs no `->stop(false)` dance.
