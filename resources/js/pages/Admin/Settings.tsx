@@ -59,6 +59,7 @@ const GROUPS = [
     'reminders',
     'proofs',
     'ai',
+    'observability',
 ] as const;
 
 /**

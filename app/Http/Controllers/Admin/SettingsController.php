@@ -71,6 +71,10 @@ class SettingsController extends Controller
             SettingKey::AiApprovalAllowedVideo,
             SettingKey::AiApprovalConfidenceThreshold,
         ],
+        'observability' => [
+            SettingKey::TelescopeSlowQueryMs,
+            SettingKey::TelescopePruneHours,
+        ],
     ];
 
     public function __construct(private readonly Settings $settings) {}

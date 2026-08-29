@@ -93,6 +93,15 @@ enum SettingKey: string
     case ProofMediaMaxSizeKb = 'proof_media_max_size_kb';
     case ProofMediaRetentionDays = 'proof_media_retention_days';
 
+    /*
+    | Observability (§2.10). Telescope runs everywhere including production, so
+    | its knobs must be tunable without a redeploy: the slow-query bar decides
+    | which queries are worth a row once the record-everything default is off,
+    | and the prune window bounds the database the rows land in.
+    */
+    case TelescopeSlowQueryMs = 'telescope_slow_query_ms';
+    case TelescopePruneHours = 'telescope_prune_hours';
+
     /**
      * The value shape this setting accepts.
      */
@@ -254,6 +263,21 @@ enum SettingKey: string
             self::AiApprovalAllowedImage,
             self::AiApprovalAllowedVoice,
             self::AiApprovalAllowedVideo => false,
+
+            /*
+            | A query worth a Telescope row in production once the
+            | record-everything default is off. Half a second: fast enough to
+            | catch the queries that hurt on shared hosting, quiet enough that
+            | the table stays a signal rather than a mirror of the database.
+            */
+            self::TelescopeSlowQueryMs => 500,
+
+            /*
+            | How long Telescope rows live. Three days is §2.10's "recent
+            | enough to debug yesterday, short enough to forget on a host with
+            | a disk quota".
+            */
+            self::TelescopePruneHours => 72,
         };
     }
 }

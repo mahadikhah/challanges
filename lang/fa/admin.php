@@ -17,6 +17,7 @@ return [
             'reminders' => 'یادآورها',
             'proofs' => 'رسانه‌های اثبات',
             'ai' => 'بازبینی با هوش مصنوعی',
+            'observability' => 'مشاهده‌پذیری',
         ],
 
         'keys' => [
@@ -44,6 +45,8 @@ return [
             'ai_approval_allowed_voice' => 'بازبینی هوشمند مدرک صوتی',
             'ai_approval_allowed_video' => 'بازبینی هوشمند مدرک ویدیویی',
             'ai_approval_confidence_threshold' => 'آستانه اطمینان تصمیم هوش مصنوعی (٪)',
+            'telescope_slow_query_ms' => 'آستانه کوئری کندِ Telescope (میلی‌ثانیه)',
+            'telescope_prune_hours' => 'نگهداشت Telescope (ساعت)',
         ],
 
         'capability_available' => 'قابلیت زیربنایی ارائه‌دهنده: موجود است.',

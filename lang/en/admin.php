@@ -13,6 +13,7 @@ return [
             'reminders' => 'Reminders',
             'proofs' => 'Proof media',
             'ai' => 'AI approval',
+            'observability' => 'Observability',
         ],
 
         'keys' => [
@@ -40,6 +41,8 @@ return [
             'ai_approval_allowed_voice' => 'AI review for voice proof',
             'ai_approval_allowed_video' => 'AI review for video proof',
             'ai_approval_confidence_threshold' => 'AI decision confidence threshold (%)',
+            'telescope_slow_query_ms' => 'Telescope slow-query bar (milliseconds)',
+            'telescope_prune_hours' => 'Telescope retention (hours)',
         ],
 
         'capability_available' => 'Underlying provider capability: available.',

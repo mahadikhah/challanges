@@ -100,8 +100,8 @@
     "semantic_hash": ""
   },
   "bootstrap/providers.php": {
-    "mtime": 1787945171.4479632,
-    "ast_hash": "4fd24689cc9795ef9991e4c559f132a6",
+    "mtime": 1788010950.800926,
+    "ast_hash": "6b8d3f597190f63664bf965477298001",
     "semantic_hash": ""
   },
   "components.json": {
@@ -110,8 +110,8 @@
     "semantic_hash": "c78a304d2e8f73ae0051a56276bfe9a4"
   },
   "composer.json": {
-    "mtime": 1787949705.4037619,
-    "ast_hash": "c7fe201d1519b8c6b94349fdcb625d45",
+    "mtime": 1788008655.3452826,
+    "ast_hash": "103863750630553b3057bc952fb6e28f",
     "semantic_hash": ""
   },
   "config/app.php": {
@@ -620,8 +620,8 @@
     "semantic_hash": ""
   },
   "routes/console.php": {
-    "mtime": 1787982912.0451176,
-    "ast_hash": "af5fec18f0660e3a3882ee6dfb941723",
+    "mtime": 1788011740.922529,
+    "ast_hash": "bf730a9c6449df5c32d86cbd03c844f2",
     "semantic_hash": ""
   },
   "routes/settings.php": {
@@ -1185,8 +1185,8 @@
     "semantic_hash": ""
   },
   "app/Enums/SettingKey.php": {
-    "mtime": 1787990805.7073615,
-    "ast_hash": "402910b36a21eda4812797066778de3d",
+    "mtime": 1788009127.9884171,
+    "ast_hash": "602b6b5303818263b2c5ff2d1b230fbd",
     "semantic_hash": ""
   },
   "app/Enums/SettingType.php": {
@@ -2250,8 +2250,8 @@
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/SettingsController.php": {
-    "mtime": 1787998278.5601697,
-    "ast_hash": "172a27ebf090fb7088f17f6668136eda",
+    "mtime": 1788009257.5434666,
+    "ast_hash": "36b66e9ea80708f74863133aa3d0a6d2",
     "semantic_hash": ""
   },
   "app/Http/Middleware/EnsureUserIsAdmin.php": {
@@ -2265,23 +2265,23 @@
     "semantic_hash": ""
   },
   "lang/en/admin.php": {
-    "mtime": 1787998278.5611696,
-    "ast_hash": "1991ef0cabd9337b505462136095a0cd",
+    "mtime": 1788009266.8566885,
+    "ast_hash": "39743e0e80b770a87823321837b40b61",
     "semantic_hash": ""
   },
   "lang/fa/admin.php": {
-    "mtime": 1787998278.5621696,
-    "ast_hash": "f4f571661b3361402a4377bba88322c1",
+    "mtime": 1788009285.0302138,
+    "ast_hash": "9ce7bc0a8663d201a74ea885faaf8ee3",
     "semantic_hash": ""
   },
   "resources/js/pages/Admin/Settings.tsx": {
-    "mtime": 1787998278.5621696,
-    "ast_hash": "e100cd70d62be28d18f9b307bf33dad4",
+    "mtime": 1788009296.1973357,
+    "ast_hash": "f3d146e480fc3557c24a16519f7463da",
     "semantic_hash": ""
   },
   "tests/Feature/Admin/SettingsPanelTest.php": {
-    "mtime": 1787998278.5621696,
-    "ast_hash": "8f3ab2e098529701b68c34f7b7120d02",
+    "mtime": 1788010877.5696385,
+    "ast_hash": "db596b34c3d9f75b71e78f41dd2760a3",
     "semantic_hash": ""
   },
   "app/Actions/Challenges/CancelChallenge.php": {
@@ -3330,8 +3330,8 @@
     "semantic_hash": ""
   },
   "prompts/progress-phase-15.md": {
-    "mtime": 1788006262.1144612,
-    "ast_hash": "23b05b5f5560896974120d8939586ba5",
+    "mtime": 1788006942.022585,
+    "ast_hash": "580b7ea00b4e8776b6fb13da0e9d2c4e",
     "semantic_hash": ""
   },
   "app/Services/Telegram/CheckInConfirmation.php": {
@@ -3342,6 +3342,76 @@
   "app/Services/Telegram/ReportedValue.php": {
     "mtime": 1788002563.8039334,
     "ast_hash": "abf708e1fcd003e45a9c47b6bdb77a18",
+    "semantic_hash": ""
+  },
+  "app/Console/Commands/Observability/PruneTelescope.php": {
+    "mtime": 1788011691.8181958,
+    "ast_hash": "662dff96a864cc4126b2b8fa7a183dba",
+    "semantic_hash": ""
+  },
+  "app/Providers/TelescopeServiceProvider.php": {
+    "mtime": 1788010821.4594452,
+    "ast_hash": "9ce0ed4073de04e20eba522e9aaa21bf",
+    "semantic_hash": ""
+  },
+  "config/telescope.php": {
+    "mtime": 1788009802.3787613,
+    "ast_hash": "d3ef346593d2bbeca0fc0ecdf812418e",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_29_130458_create_telescope_entries_table.php": {
+    "mtime": 1788008697.6010818,
+    "ast_hash": "5fad04f87276c2bc78dcad2cb5226122",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Observability/TelescopeTest.php": {
+    "mtime": 1788011818.059059,
+    "ast_hash": "b9e81d01bfcafa1a481b114bb352c954",
+    "semantic_hash": ""
+  },
+  "README.fa.md": {
+    "mtime": 1788007304.3349428,
+    "ast_hash": "89fd43bac9ceeb218ac253113388fcde",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1788007229.4249501,
+    "ast_hash": "962242e95025ccbb38411fe2c0f4f367",
+    "semantic_hash": ""
+  },
+  "docs/setup-cpanel.fa.md": {
+    "mtime": 1788007775.3716562,
+    "ast_hash": "7b226c0cc28ac40cbf5b8f32dfa48efd",
+    "semantic_hash": ""
+  },
+  "docs/setup-cpanel.md": {
+    "mtime": 1788007659.1802878,
+    "ast_hash": "78e4ec5c892803b92a3cbf8e04ce7879",
+    "semantic_hash": ""
+  },
+  "docs/setup-vps.fa.md": {
+    "mtime": 1788007803.2230153,
+    "ast_hash": "a9e23368794dc05a32608e001458ff47",
+    "semantic_hash": ""
+  },
+  "docs/setup-vps.md": {
+    "mtime": 1788007715.043918,
+    "ast_hash": "ade961685df1568faea2adbf0764ad89",
+    "semantic_hash": ""
+  },
+  "docs/user-flows.fa.md": {
+    "mtime": 1788008354.6427574,
+    "ast_hash": "b764883b587aacb2eb58cf7b27f275a0",
+    "semantic_hash": ""
+  },
+  "docs/user-flows.md": {
+    "mtime": 1788008352.1547132,
+    "ast_hash": "91bf4082fad833252a70fff81ef1bd62",
+    "semantic_hash": ""
+  },
+  "prompts/progress-phase-12.md": {
+    "mtime": 1788008510.819587,
+    "ast_hash": "bf2fe4a96b4220e4bb64befafb400917",
     "semantic_hash": ""
   }
 }

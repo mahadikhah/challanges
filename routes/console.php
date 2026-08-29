@@ -44,3 +44,9 @@ Schedule::command('payments:sweep-abandoned')->daily();
 // proof is the platform's heaviest stored bytes, and shared hosting has a
 // disk quota.
 Schedule::command('challenges:prune-proof-media')->daily();
+
+// Keep Telescope's database rows inside their retention window (default 72h,
+// a Setting, so an admin can widen it during an investigation). The command
+// reads the Setting itself, at prune time — see its docblock for why it must
+// not be resolved here.
+Schedule::command('observability:prune-telescope')->daily();
