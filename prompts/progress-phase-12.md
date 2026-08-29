@@ -103,3 +103,50 @@ Commit `8275d23`. `sail composer ci:check` green after (state confirmation only,
 **Next:** Phase 12 Task 3 per `prompts/phase-12.md` — `docs/user-flows.md` + `.fa.md` sibling
 (participant/creator/admin flows, worked timed-session + AI-approval examples, one Mermaid diagram
 per section), re-reading main-addendum-2.md §2.7–§2.8 first.
+
+## Task 3 — Application flow document
+
+Commit `bcdf024`. `sail composer ci:check` green after (state confirmation only).
+
+### What shipped
+
+- `docs/user-flows.md` + `user-flows.fa.md` sibling — participant/creator/admin walkthroughs, one
+  Mermaid diagram per section (participant join sequence, timed-session flowchart, AI-vs-manual
+  review sequence, admin-panel flowchart). Farsi diagrams keep Farsi node labels inline (the spec's
+  "if that reads more clearly" branch) — they read clearly; no parallel diagrams needed.
+
+### Facts verified against code before writing
+
+- **Addendum-2 §2.7/§2.8 re-read in full** (per "Before starting") — the timed-session walkthrough
+  and AI-approval section follow its examples closely: 3-step stretch→workout→cooldown, refuse-early-
+  with-seconds-remaining, authoritative voice duration, sum-of-waits ≤ period length, platform-
+  authored prompt + criteria-as-data + locked schema, ~500-char screened criteria, confidence
+  threshold → manual queue.
+- **Wizard order** pulled from `CreateChallengeWizard`'s actual state-advance map (L393–453): title →
+  description → period type (→ custom days) → **timezone → start date → total periods** → scoring
+  (target/unit/base/partial when quantity) → proof type → approval mode (image only) → criteria
+  (AI only) → visibility → flow type → step loop (timed only) → confirmation. First draft followed
+  CLAUDE.md's older four-step sketch; corrected. **Freezes are NOT asked** — the wizard reads
+  `SettingKey::DefaultChallengeFreezes` (L708).
+- **Bot command surface** from `TelegramServiceProvider::BOT_COMMANDS`: `start, create, checkin,
+  chatlink, shop, language, cancel` + in-chat `/leaderboard` (LinkedChatHandler, admin-gated,
+  RateLimiter cooldown).
+- **Mini App screens**: challenge-list, challenge-detail (matches what the doc claims the status
+  screen shows). **Admin pages**: Challenges(+Show), Users(+Show), Invites, Payments, Reviews,
+  Settings.
+- **Mermaid render check**: node labels containing `>` (the `>=` waits) quoted — bare `>` inside
+  `[]` breaks flowchart parsing; sequence-diagram `alt`/`else` with `=` labels and Persian
+  participant aliases are fine as-is.
+
+### Scope decisions
+
+- Timed-session example is the addendum's own 5/10/5-minute design, concretely walked with what the
+  bot shows at each point — per the spec's "real worked examples, not schema descriptions".
+- The "I've joined" re-verify button appears in the Mermaid join sequence (it shipped with the
+  callback work in Bot Core Task 4, after the early deferral noted in progress.md L1500).
+- No API reference, no developer content (out of scope per spec); payments paragraph states the
+  both-rails picture including Bale-no-refund once, without re-litigating the limitations list.
+
+**Phase 12 complete.** **Next:** Phase 13 per `prompts/phase-13.md` (observability hardening), then
+the release close-out the user requested after 13: push to origin, merge to master (local + origin),
+tag an alpha release.
