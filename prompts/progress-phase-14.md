@@ -235,3 +235,90 @@ idempotent shape) instead of `firstOrFail`.
   ffmpeg frame sampling); feeds the video capability readout; the video toggle must
   disable honestly when neither path works.
 - Task 5: bot/Mini App capture & review UI for voice/video.
+
+## Task 4 — AI review for video proof, environment-capability-aware
+
+Commit `bf076b2`. Prompts `prompts/phase-14.md` L145-199.
+
+**The leg is the environment's to choose.** A video review needs a way to get the
+recording to a model, and there are exactly two: a provider whose gateway maps video
+bytes into a chat attachment, or ffmpeg on the host turning the recording into stills.
+Verified against the vendored SDK rather than assumed: only Gemini's and OpenRouter's
+`MapsAttachments` handle `StoredVideo`/`Base64Video`/`LocalVideo` — and neither driver
+is in `AiDriverCatalog`. So the native path is unreachable with today's catalog, and
+frame sampling is the only live leg. `AiDriverCatalog` carries the truth as a
+per-driver `supports_video` flag on `DRIVERS` (all false today); the day a
+video-mapping driver joins the catalog, its flag flips and the native path lights up
+alongside the sampling one. (It is a flag on the driver row rather than a
+`VIDEO_DRIVERS` list because PHPStan correctly proves `in_array` against a constant
+empty array can never be true — the flag keeps the lookup honest and analysable.)
+
+**The combination rule: one call, one verdict, over the set.** `VideoFrameSampler`
+extracts four evenly-spaced frames (ffprobe reads the duration; `ffmpeg -ss <t>
+-frames:v 1` grabs each still into a scratch temp dir that a `finally` removes) and
+`ReviewProofWithAi` sends **one** provider request with all frames attached as
+`LocalImage`s — they are absolute paths that exist only for this call, which is exactly
+what `LocalImage` (not `StoredImage`) is for. One budget reservation, one decision row,
+one locked `{approved, confidence, reason}` schema — a video is one submission, not
+four images. The video system prompt says so explicitly: the frames are slices of one
+recording, not independent submissions; a frame that shows less is a moment between
+actions; judge the set, not the worst frame. `AiReviewPath::Frames` records the leg
+taken.
+
+**Sampling runs inside the chain's attempt closure** — same account lease, same budget
+reservation, same account rotation as the prompt itself. An unreadable video therefore
+behaves like a provider outage: the attempt fails, rotation gets its chance, and the
+exhausted chain falls back to the manual queue with a decision row whose `approved` is
+null and zero `chat/completions` calls made.
+
+**The toggle must not lie.** `VideoReviewCapability` answers one question — can this
+environment review a video at all — with a reason: `no_provider` (no active, configured
+moderation account) or `no_toolchain` (accounts exist but no native-video driver and no
+ffmpeg; `FfmpegDetector` caches its probe for 15 minutes so the settings page isn't
+spawning processes per request). Three places enforce it independently: the settings
+panel shows the readout under the toggle and greys the checkbox when unavailable; the
+update endpoint *refuses* to turn the gate on (`ValidationException`, message names
+both remedies) — a switch that looks on and silently routes everything to the manual
+queue is worse than no switch; and `ApplyAiVerdict` re-checks on every submission, so
+a challenge created while the capability existed, or a host that lost ffmpeg since,
+still routes to the manual queue rather than erroring.
+
+**Trap: the router memoizes the controller, so constructor injection froze the first
+detector swap.** The settings panel tests swap `FfmpegDetector` for a stub between two
+requests in one test — and the second request kept the *first* capability object,
+because Laravel memoizes the controller instance on the route object for the process's
+lifetime (`spl_object_id` proved it). Moving `VideoReviewCapability` to **method
+injection** on `index()`/`update()` resolves it per request from the live container.
+Same lesson as the session-flow re-read: anything a test (or a deployment) swaps
+mid-process must be resolved at call time, not captured at construction.
+
+**Tests.** New `tests/Feature/Ai/VideoProofModerationTest.php` (9): the frame leg —
+video system prompt, frame count stated in the user turn, criteria fenced, exactly
+`FRAME_COUNT` image parts (counted from the decoded parts: one image part's JSON
+spells `image_url` twice), `review_path = frames`, no transcript; approve = manual
+downstream; reject + resubmit round-trip; below-threshold → `FellBack`; sampling
+failure → manual queue with zero chat calls; environment cannot review → zero provider
+calls and zero decision rows (gate enabled but ffmpeg gone — the runtime re-check is
+what protects); the toggle refusal (`assertInvalid` + setting stays off, `forget()`
+first because the `beforeEach` had enabled it); the panel readout across all three
+states (`no_provider` / `no_toolchain` / available); and the timed-session video step
+riding the same router to completion. ffmpeg presence is *always* a swapped stub
+(`theEnvironmentHasFfmpeg`) — the suite's verdicts must never depend on whether the
+container ships the binary. `SettingsPanelTest` now asserts video `available: false,
+reason: no_provider` (deterministic: no accounts fires before ffmpeg is even asked).
+`VoiceProofModerationTest`'s last test renamed to cover the neither-available case.
+
+**Also fixed while here:** `ChallengeStepDesignTest`'s "refuses a timed-session
+challenge with no steps at all" was a `->throws()` chain on a closure-less body — Pest
+counted it incomplete and never ran it (pre-existing at HEAD, verified by stashing).
+Given a closure, it passes for real: the validator does say "at least one step".
+
+**Out of scope, as specified:** no bundling/installing ffmpeg (the panel names the
+remedy instead), and no audio-track transcription fallback for video — a video whose
+frames say nothing is a human's to watch.
+
+### Left for later tasks
+
+- Task 5: bot/Mini App capture & review UI for voice/video. Feeds on Task 3/4's
+  review legs; needs video routed through `AdvanceCheckInStep`, review-queue preview,
+  and the Mini App upload surface.
