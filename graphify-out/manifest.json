@@ -1550,8 +1550,8 @@
     "semantic_hash": ""
   },
   "app/Actions/CheckIns/SettleCheckIn.php": {
-    "mtime": 1787944689.6965337,
-    "ast_hash": "4ba133bf21ed62b67be6ac6a92e36ac7",
+    "mtime": 1788001278.2481122,
+    "ast_hash": "d314d65e821494d0d949dcc96f281c93",
     "semantic_hash": ""
   },
   "app/Exceptions/PeriodNotEndedException.php": {
@@ -1655,8 +1655,8 @@
     "semantic_hash": ""
   },
   "app/Actions/CheckIns/SubmitCheckIn.php": {
-    "mtime": 1787998278.5601697,
-    "ast_hash": "1545b3cc5792d6735ff2d63b5b05d61e",
+    "mtime": 1788001278.461113,
+    "ast_hash": "b82dca3064fda6fb7f298b3018f06dff",
     "semantic_hash": ""
   },
   "app/Enums/CheckInRejection.php": {
@@ -2660,8 +2660,8 @@
     "semantic_hash": ""
   },
   "app/Actions/CheckIns/CompleteCheckInSession.php": {
-    "mtime": 1787946845.1232429,
-    "ast_hash": "10ab38ce3db8b52aa62a9c242c8c556a",
+    "mtime": 1788001278.137112,
+    "ast_hash": "a5ea58e1aecbfd3692f61a68e67e5fad",
     "semantic_hash": ""
   },
   "app/Actions/CheckIns/ExpireStaleCheckInSessions.php": {
@@ -3317,6 +3317,21 @@
   "database/migrations/2026_08_29_160000_add_quantity_scoring_schema.php": {
     "mtime": 1788000183.3707678,
     "ast_hash": "8ebb2a5ccc8e930e74a7f7a26b7f2017",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Domain/QuantityScoringConcurrencyTest.php": {
+    "mtime": 1788001219.868944,
+    "ast_hash": "aa24702c41e44b40d99a239c951296d1",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Domain/QuantityScoringTest.php": {
+    "mtime": 1788000992.9685657,
+    "ast_hash": "a42ddee987e6cc0afa35692f3c3ebdbe",
+    "semantic_hash": ""
+  },
+  "prompts/progress-phase-15.md": {
+    "mtime": 1788000699.691285,
+    "ast_hash": "d970179b0a86c0f30f022f205dab7dad",
     "semantic_hash": ""
   }
 }

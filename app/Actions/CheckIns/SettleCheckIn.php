@@ -21,7 +21,8 @@ use Illuminate\Support\Facades\DB;
  * settled again, and the status change and the counter updates happen in the same
  * transaction, so a streak can only move on the transition into a settled status —
  * exactly once, however many times the caller is retried. Nothing needs a separate
- * "already counted" flag.
+ * "already counted" flag. The same holds for the score: `total_score` moves only
+ * on that one transition, so a replayed settlement cannot double-credit it.
  *
  * **The participant row is locked first.** `current_streak`, `freezes_used` and
  * `streak_resets_count` are all read-then-write, and two settlements for the same
@@ -33,12 +34,20 @@ use Illuminate\Support\Facades\DB;
  *
  * The rules themselves live on `CheckInStatus`, not here: `incrementsStreak()`,
  * `breaksStreak()`, `consumesFreeze()`. This class decides *which* status a
- * settlement lands on and applies the consequences the status declares.
+ * settlement lands on and applies the consequences the status declares. For a
+ * quantity challenge it also decides whether a report clears the bar — see
+ * `scored()`.
  */
 class SettleCheckIn
 {
     /**
      * Settle as done. The participant checked in.
+     *
+     * For a quantity challenge, `$reportedValue` is what they reported. Reaching
+     * `target_value` (or falling short under the creator's partial opt-in) settles
+     * as done with the strategy's score; falling short without the opt-in is a
+     * miss through the ordinary freeze engine, because reaching the target *is*
+     * the bar — see `scored()`.
      *
      * **The caller must read the returned status rather than assume it.** A row
      * that was already settled is returned untouched, so approving twice is a
@@ -46,9 +55,13 @@ class SettleCheckIn
      * `Missed` row, and a creator reviewing late needs to be told that rather than
      * shown a success message.
      */
-    public function approve(CheckIn $checkIn): CheckIn
+    public function approve(CheckIn $checkIn, int|float|string|null $reportedValue = null): CheckIn
     {
-        return $this->settle($checkIn, fn (): CheckInStatus => CheckInStatus::Approved);
+        return $this->settle(
+            $checkIn,
+            fn (ChallengeParticipant $participant): CheckInStatus => $this->scored($checkIn, $participant, $reportedValue),
+            $reportedValue,
+        );
     }
 
     /**
@@ -69,10 +82,11 @@ class SettleCheckIn
      * Settle the row and apply what the resulting status implies.
      *
      * @param  Closure(ChallengeParticipant): CheckInStatus  $outcome  decided inside the lock, so it sees current counters
+     * @param  int|float|string|null  $reportedValue  stored on the row as evidence of what was reported, whatever the outcome
      */
-    private function settle(CheckIn $checkIn, Closure $outcome): CheckIn
+    private function settle(CheckIn $checkIn, Closure $outcome, int|float|string|null $reportedValue = null): CheckIn
     {
-        return DB::transaction(function () use ($checkIn, $outcome): CheckIn {
+        return DB::transaction(function () use ($checkIn, $outcome, $reportedValue): CheckIn {
             $participant = $this->lockParticipant($checkIn);
 
             // Re-read inside the lock. The caller's instance may have been loaded
@@ -85,9 +99,22 @@ class SettleCheckIn
             }
 
             $status = $outcome($participant);
+            $score = $this->scoreFor($participant, $status, $reportedValue);
 
-            $checkIn->update(['status' => $status]);
-            $this->advance($participant, $status);
+            $update = ['status' => $status];
+
+            // What was reported rides on the row whatever the outcome — a miss
+            // by a whisker is still a fact worth being able to point at.
+            if ($reportedValue !== null) {
+                $update['reported_value'] = number_format((float) $reportedValue, 2, '.', '');
+            }
+
+            if ($score !== null) {
+                $update['score'] = $score;
+            }
+
+            $checkIn->update($update);
+            $this->advance($participant, $status, $score);
 
             // Announce the transition itself, not the call: the event fires
             // only on the one update that moved the row into a settled status,
@@ -97,6 +124,57 @@ class SettleCheckIn
 
             return $checkIn;
         });
+    }
+
+    /**
+     * Whether a quantity report clears the bar, and the status that follows.
+     *
+     * Reaching `target_value` settles as done. Falling short is a miss by
+     * default — reaching the target *is* the bar, exactly as a photo the
+     * creator rejects is — and only the creator's explicit
+     * `quantity_partial_counts_as_done` opt-in lets a partial report keep the
+     * streak alive at a proportionally lower score. A binary challenge is
+     * never asked: the plain `Approved` it always got.
+     */
+    private function scored(CheckIn $checkIn, ChallengeParticipant $participant, int|float|string|null $reportedValue): CheckInStatus
+    {
+        $challenge = $participant->challenge;
+
+        if (! $challenge->scoring_type->isQuantity()) {
+            return CheckInStatus::Approved;
+        }
+
+        $reached = $reportedValue !== null
+            && (float) $reportedValue >= (float) $challenge->target_value;
+
+        if ($reached || $challenge->quantity_partial_counts_as_done) {
+            return CheckInStatus::Approved;
+        }
+
+        // Below the bar with no opt-in: the ordinary miss engine, unchanged.
+        return $participant->hasFreezeAvailable()
+            ? CheckInStatus::Frozen
+            : CheckInStatus::Missed;
+    }
+
+    /**
+     * The score a settlement earns, or null when it earns none.
+     *
+     * Only a *done* quantity settlement scores — a miss or a freeze recorded
+     * nothing worth scoring, and the partial opt-in buys a lower score, not a
+     * free one. The strategy itself is the enum's arithmetic.
+     */
+    private function scoreFor(ChallengeParticipant $participant, CheckInStatus $status, int|float|string|null $reportedValue): ?int
+    {
+        $challenge = $participant->challenge;
+
+        if (! $challenge->scoring_type->isQuantity()
+            || $status !== CheckInStatus::Approved
+            || $reportedValue === null) {
+            return null;
+        }
+
+        return $challenge->scoring_strategy->score($challenge->target_value, $challenge->base_points, $reportedValue);
     }
 
     /**
@@ -130,8 +208,13 @@ class SettleCheckIn
      * bad day is the wrong trade. `streak_resets_count` is recorded so a stricter
      * "N resets and you are out" rule can be layered on later as a counter check,
      * with no schema change and no rewriting of this method.
+     *
+     * The score joins the same write the streak does: `total_score` moves only
+     * inside this lock, on the one transition that also moved the streak, so two
+     * settlements arriving together cannot both read the same total and lose one
+     * increment between them.
      */
-    private function advance(ChallengeParticipant $participant, CheckInStatus $status): void
+    private function advance(ChallengeParticipant $participant, CheckInStatus $status, ?int $score): void
     {
         if ($status->incrementsStreak()) {
             $participant->current_streak++;
@@ -145,6 +228,10 @@ class SettleCheckIn
         if ($status->breaksStreak()) {
             $participant->current_streak = 0;
             $participant->streak_resets_count++;
+        }
+
+        if ($score !== null) {
+            $participant->total_score = number_format((float) $participant->total_score + $score, 2, '.', '');
         }
 
         $participant->save();

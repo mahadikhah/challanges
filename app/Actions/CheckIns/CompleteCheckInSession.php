@@ -32,16 +32,21 @@ class CompleteCheckInSession
     /**
      * Mark the session finished and approve the check-in it was running for.
      *
+     * `$reportedValue` is the quantity a `quantity` challenge asks for once, at
+     * session end — passed straight through to the settlement, which decides
+     * whether it clears the bar.
+     *
+     *
      * @throws SessionRejectedException when the session is not open
      * @throws CheckInRejectedException when the period's check-in is already settled
      */
-    public function handle(CheckInSession $session): CheckInSession
+    public function handle(CheckInSession $session, int|float|string|null $reportedValue = null): CheckInSession
     {
         if (! $session->isOpen()) {
             throw SessionRejectedException::sessionNotOpen($session);
         }
 
-        return DB::transaction(function () use ($session): CheckInSession {
+        return DB::transaction(function () use ($session, $reportedValue): CheckInSession {
             // Marked complete *inside* the settlement's transaction: the
             // `open` generated column goes NULL the moment this lands, which
             // is what frees the (participant, period) pair for a future
@@ -54,7 +59,7 @@ class CompleteCheckInSession
 
             $checkIn = $this->openCheckIn->handle($session->participant, $session->period);
 
-            $settled = $this->settle->approve($checkIn);
+            $settled = $this->settle->approve($checkIn, $reportedValue);
 
             // The rollover can have closed the period between the session's
             // last gate and here. The session stays completed — the steps were

@@ -54,13 +54,18 @@ class SubmitCheckIn
      * One tap. Auto-approved — the honesty model for `button` challenges is
      * social, not technical.
      *
+     * `$reportedValue` is the quantity a `quantity` challenge collects on top of
+     * the tap; it rides to the settlement, which decides whether it clears the
+     * bar.
+     *
+     *
      * @throws CheckInRejectedException
      */
-    public function tap(User $actor, Challenge $challenge, ?CarbonInterface $now = null): CheckIn
+    public function tap(User $actor, Challenge $challenge, ?CarbonInterface $now = null, int|float|string|null $reportedValue = null): CheckIn
     {
         $checkIn = $this->openSubmittable($actor, $challenge, ProofType::Button, $now);
 
-        return $this->approved($checkIn);
+        return $this->approved($checkIn, $reportedValue);
     }
 
     /**
@@ -239,9 +244,12 @@ class SubmitCheckIn
      *
      * @throws CheckInRejectedException
      */
-    private function approved(CheckIn $checkIn): CheckIn
+    /**
+     * @throws CheckInRejectedException
+     */
+    private function approved(CheckIn $checkIn, int|float|string|null $reportedValue = null): CheckIn
     {
-        $settled = $this->settle->approve($checkIn);
+        $settled = $this->settle->approve($checkIn, $reportedValue);
 
         if ($settled->status !== CheckInStatus::Approved) {
             throw CheckInRejectedException::alreadySettled($settled);
