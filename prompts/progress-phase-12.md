@@ -49,3 +49,57 @@ lvl 7, eslint, prettier, tsc — README-only change, so the gate was purely a st
 
 **Next:** Phase 12 Task 2 per `prompts/phase-12.md` — `docs/setup-cpanel.md` + `docs/setup-vps.md`
 (+ `.fa.md` siblings), re-reading main.md §3.4 and the webhook/CSRF setup facts first.
+
+## Task 2 — Setup guides (cPanel + VPS)
+
+Commit `8275d23`. `sail composer ci:check` green after (state confirmation only, docs-only change).
+
+### What shipped
+
+- `docs/setup-cpanel.md` + `.fa.md` sibling — shared-hosting deployment.
+- `docs/setup-vps.md` + `.fa.md` sibling — Ubuntu 24.04 VPS deployment (Nginx, PHP-FPM, Supervisor).
+- All commands copy-pasteable; every placeholder (`yourdomain.com`, `USER`, php binary paths)
+  explicitly called out as replace-me.
+
+### Facts verified against the codebase before writing (per "Before starting")
+
+- **main.md §3.4 re-read** — MySQL/no-Redis constraint and the explicit
+  `queue:work --stop-when-empty --max-time=55` cron pattern both quoted almost verbatim into the
+  cPanel guide's §6, with the *why* (one minute of work per minute ceiling; staggering is a design
+  decision, not a deployment mistake).
+- **Webhook registration, the real surface:**
+  - Telegram: `php artisan telegram:set-webhook` (reads both `TELEGRAM_WEBHOOK_SECRET` and
+    `TELEGRAM_WEBHOOK_HEADER_SECRET`, refuses http:// URLs, `--drop-pending-updates` option) and
+    `php artisan telegram:webhook-info`. The command's own docblock documents the
+    register-by-hand-with-one-secret silent-404 footgun — surfaced in the guide's §7.
+  - Bale: **no artisan command exists** — recorded in progress-phase-11.md as deliberate ("webhook
+    lifecycle is Telegram-only by nature"). The guide ships a copy-pasteable `tinker --execute`
+    snippet building `Telegram\Bot\Api` with `baseBotUrl: 'https://tapi.bale.ai/bot'` +
+    `LaravelHttpClient` (the exact pattern `BaleMessengerPlatform::api()` uses, including the
+    trailing-`/bot` trap the class docblock warns about) and calls `setWebhook(['url' => ...])`
+    with the `bale.webhook` named route. Facts from the Phase 11 capability log: no secret_token
+    param, HTTPS port 443/88 only, path secret is the whole authenticity mechanism.
+- **CSRF/webhook facts** live in `routes/telegram.php` / `routes/bale.php` comments (both routes
+  stateless, CSRF-excluded, 404-not-403 on wrong secret) — reflected in the guides' security notes.
+- **Scheduler contents** pulled from `routes/console.php`: roll-over + reminders + leaderboards
+  every minute; `sanctum:prune-expired`, `payments:sweep-abandoned`, `challenges:prune-proof-media`
+  daily — enumerated in cPanel §6 so a deployer knows what the cron line drives.
+
+### Scope decisions
+
+- cPanel guide's §3 explains the env vars *by purpose* (the spec's requirement) and cross-links
+  README's full table rather than duplicating all of it; VPS guide cross-links cPanel §3 for the
+  bot vars (spec explicitly allows cross-referencing instead of repeating).
+- VPS Supervisor `numprocs=2` with a stated rationale (send stagger is 1/sec/chat; more workers only
+  add database-queue contention) — a number with a reason, not a default parroted from Laravel docs.
+- VPS §9 (headroom: Redis/Horizon, Reverb, more workers, daemons) is informational only and says
+  the codebase today deliberately targets database drivers — per the task's "not instructions to
+  set them up now".
+- Proof-upload size (`client_max_body_size 20m`) matched to the Bale `getFile` 20 MB cap documented
+  in the Phase 11 log; Telegram file downloads sit under the same order.
+- Troubleshooting table maps symptoms to the *specific* failure modes of this design (two-secret
+  webhook, cron-driven queue, Vite manifest upload, Bale provider-token gate).
+
+**Next:** Phase 12 Task 3 per `prompts/phase-12.md` — `docs/user-flows.md` + `.fa.md` sibling
+(participant/creator/admin flows, worked timed-session + AI-approval examples, one Mermaid diagram
+per section), re-reading main-addendum-2.md §2.7–§2.8 first.
