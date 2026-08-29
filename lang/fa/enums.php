@@ -138,4 +138,17 @@ return [
     'scoring_strategy' => [
         'proportional' => 'نسبتی',
     ],
+
+    'external_call_provider' => [
+        'telegram' => 'تلگرام',
+        'bale' => 'بله',
+        'telegram_stars' => 'ستاره‌های تلگرام',
+        'bale_pay' => 'پرداخت بله',
+        'ai_provider' => 'ارائه‌دهنده‌های هوش مصنوعی',
+    ],
+
+    'external_call_outcome' => [
+        'success' => 'فراخوانی‌های موفق',
+        'failure' => 'فراخوانی‌های ناموفق',
+    ],
 ];

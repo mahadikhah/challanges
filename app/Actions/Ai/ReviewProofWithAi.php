@@ -2,8 +2,11 @@
 
 namespace App\Actions\Ai;
 
+use App\Actions\Observability\RecordExternalCall;
 use App\Enums\AiDecisionOutcome;
 use App\Enums\AiReviewPath;
+use App\Enums\ExternalCallOutcome;
+use App\Enums\ExternalCallProvider;
 use App\Enums\ProofType;
 use App\Enums\SettingKey;
 use App\Models\AiApprovalDecision;
@@ -57,6 +60,7 @@ class ReviewProofWithAi
         private readonly BuildProofModerationPrompt $prompt,
         private readonly Settings $settings,
         private readonly VideoFrameSampler $frames,
+        private readonly RecordExternalCall $externalCalls,
     ) {}
 
     /**
@@ -128,6 +132,11 @@ class ReviewProofWithAi
 
             [$approved, $confidence, $reason] = $this->readVerdict($answer->structured);
 
+            // The provider answered — a hedged answer still reached a provider,
+            // so the counter says success; the hedge itself is the threshold's
+            // story, recorded below.
+            $this->externalCalls->handle(ExternalCallProvider::AiProvider, ExternalCallOutcome::Success);
+
             // The below-threshold answer is the one fallback the row itself
             // does not record loudly enough: an admin tuning the threshold
             // needs to see how many verdicts it is diverting to their queue.
@@ -164,6 +173,8 @@ class ReviewProofWithAi
             // Capability off, nothing configured, or every account failed.
             // The submission stays in the manual queue — routing to a human
             // is the only safe answer to a question nobody answered.
+            $this->externalCalls->handle(ExternalCallProvider::AiProvider, ExternalCallOutcome::Failure);
+
             Log::warning('AI proof review could not reach a provider.', [
                 'check_in_id' => $submission->getKey(),
                 'reason' => $unanswered::class,

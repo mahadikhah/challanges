@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\InvitesController;
 use App\Http\Controllers\Admin\PaymentsController;
 use App\Http\Controllers\Admin\ReviewQueueController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\SystemHealthController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use Illuminate\Support\Facades\Route;
@@ -49,4 +50,8 @@ Route::middleware(['auth', EnsureUserIsAdmin::class])->group(function (): void {
     Route::post('/payments/{payment}/refund', [PaymentsController::class, 'refund'])->name('payments.refund');
 
     Route::get('/invites', [InvitesController::class, 'index'])->name('invites.index');
+
+    Route::get('/system-health', [SystemHealthController::class, 'index'])->name('system-health.index');
+    Route::post('/system-health/failed-jobs/{uuid}/retry', [SystemHealthController::class, 'retryFailedJob'])->name('system-health.failed-jobs.retry');
+    Route::post('/system-health/failed-jobs/{uuid}/discard', [SystemHealthController::class, 'discardFailedJob'])->name('system-health.failed-jobs.discard');
 });

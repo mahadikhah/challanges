@@ -2,6 +2,7 @@
 
 namespace App\Messaging;
 
+use App\Actions\Observability\RecordExternalCall;
 use App\Enums\MessagingPlatform;
 use App\Messaging\Bale\BaleMessengerPlatform;
 use App\Messaging\Contracts\MessengerPlatform;
@@ -50,6 +51,12 @@ class PlatformRegistry
             MessagingPlatform::Bale => BaleMessengerPlatform::class,
         };
 
-        return $this->container->make($class);
+        // Dressed in the counting skin: every platform resolved here counts
+        // its outbound calls in the external-call stats, and no consumer can
+        // bypass the counters without also bypassing this registry.
+        return new RecordingMessengerPlatform(
+            $this->container->make($class),
+            $this->container->make(RecordExternalCall::class),
+        );
     }
 }

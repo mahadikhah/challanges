@@ -1,5 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
+    Activity,
     BookOpen,
     Coins,
     FolderGit2,
@@ -30,6 +31,7 @@ import { index as adminInvites } from '@/routes/admin/invites';
 import { index as adminPayments } from '@/routes/admin/payments';
 import { index as adminReviews } from '@/routes/admin/reviews';
 import { index as adminSettings } from '@/routes/admin/settings';
+import { index as adminSystemHealth } from '@/routes/admin/system-health';
 import { index as adminUsers } from '@/routes/admin/users';
 import type { NavItem } from '@/types';
 
@@ -91,6 +93,11 @@ export function AppSidebar() {
                 title: t('admin.settings.title'),
                 href: adminSettings.url(),
                 icon: Wrench,
+            },
+            {
+                title: t('admin.system_health.title'),
+                href: adminSystemHealth.url(),
+                icon: Activity,
             },
         );
     }

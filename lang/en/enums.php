@@ -138,4 +138,17 @@ return [
     'scoring_strategy' => [
         'proportional' => 'Proportional',
     ],
+
+    'external_call_provider' => [
+        'telegram' => 'Telegram',
+        'bale' => 'Bale',
+        'telegram_stars' => 'Telegram Stars',
+        'bale_pay' => 'Bale Pay',
+        'ai_provider' => 'AI providers',
+    ],
+
+    'external_call_outcome' => [
+        'success' => 'Successful calls',
+        'failure' => 'Failed calls',
+    ],
 ];

@@ -260,8 +260,8 @@
     "semantic_hash": ""
   },
   "resources/js/components/app-sidebar.tsx": {
-    "mtime": 1787941483.7880218,
-    "ast_hash": "0f9846be4db0f2f96860ebb8b72dc2c9",
+    "mtime": 1788015613.4381523,
+    "ast_hash": "a21695cb345c781e3a8800dbf1e02413",
     "semantic_hash": ""
   },
   "resources/js/components/appearance-tabs.tsx": {
@@ -775,8 +775,8 @@
     "semantic_hash": ""
   },
   "routes/admin.php": {
-    "mtime": 1787955499.135752,
-    "ast_hash": "a169b6f39c3ef9948458f4fc921a8a79",
+    "mtime": 1788016047.1008139,
+    "ast_hash": "870026dd33e4a0e8d3503bd43be258ac",
     "semantic_hash": ""
   },
   "routes/api.php": {
@@ -1320,13 +1320,13 @@
     "semantic_hash": ""
   },
   "lang/en/enums.php": {
-    "mtime": 1788000158.0155113,
-    "ast_hash": "34940040ddc08a03ab6b6a3be4b1ae34",
+    "mtime": 1788015477.8351834,
+    "ast_hash": "1723c9e98948917daf2abba874a26ec7",
     "semantic_hash": ""
   },
   "lang/fa/enums.php": {
-    "mtime": 1788000173.2676654,
-    "ast_hash": "2c9f876d309b82a985b0e347a1a2c94c",
+    "mtime": 1788015477.8351834,
+    "ast_hash": "a1539b7d0d56b52a5bd4909b353b44a5",
     "semantic_hash": ""
   },
   "tests/Feature/Domain/ChallengeSchemaTest.php": {
@@ -2265,13 +2265,13 @@
     "semantic_hash": ""
   },
   "lang/en/admin.php": {
-    "mtime": 1788014756.2130437,
-    "ast_hash": "f584e0756ffdcb3136a07da8170af075",
+    "mtime": 1788016124.009292,
+    "ast_hash": "82d3b2b01fd4d9e8f1033f7426ee05e6",
     "semantic_hash": ""
   },
   "lang/fa/admin.php": {
-    "mtime": 1788014756.2130437,
-    "ast_hash": "384816ee7269fba25be15eb1a1d8ffa1",
+    "mtime": 1788016124.2072933,
+    "ast_hash": "46054fa4a85a96071dbbd84baf73373d",
     "semantic_hash": ""
   },
   "resources/js/pages/Admin/Settings.tsx": {
@@ -3060,8 +3060,8 @@
     "semantic_hash": ""
   },
   "app/Actions/Ai/ReviewProofWithAi.php": {
-    "mtime": 1788012803.044663,
-    "ast_hash": "6d43ed725294147ba1e1d9de975491fb",
+    "mtime": 1788016124.954298,
+    "ast_hash": "7baf82a04d0b8e19db59abe05ba23436",
     "semantic_hash": ""
   },
   "app/Actions/CheckIns/OverrideCheckInVerdict.php": {
@@ -3160,8 +3160,8 @@
     "semantic_hash": ""
   },
   "app/Messaging/PlatformRegistry.php": {
-    "mtime": 1787975050.6916604,
-    "ast_hash": "751c870d27881c3e13cf221c2eb8a87b",
+    "mtime": 1788015405.4813592,
+    "ast_hash": "e1189a79d5700ea9aa25eba12dd16f58",
     "semantic_hash": ""
   },
   "database/migrations/2026_08_29_120000_scope_telegram_updates_to_platform.php": {
@@ -3435,8 +3435,8 @@
     "semantic_hash": ""
   },
   "prompts/progress-phase-13.md": {
-    "mtime": 1788014444.055855,
-    "ast_hash": "a5f18b9d2c95d15cc32fe6d4489699c8",
+    "mtime": 1788015234.4593396,
+    "ast_hash": "84bbc0843b43799cbf3b2844293c067b",
     "semantic_hash": ""
   },
   "public/vendor/log-viewer/app.js.LICENSE.txt": {
@@ -3492,6 +3492,61 @@
   "tests/Feature/Observability/SchedulerHeartbeatTest.php": {
     "mtime": 1788014906.4054947,
     "ast_hash": "53147981df5b8de0287a50a0b1b19adb",
+    "semantic_hash": ""
+  },
+  "app/Actions/Observability/RecordExternalCall.php": {
+    "mtime": 1788015377.4264622,
+    "ast_hash": "1e04170fc0e20d2586d093462bd82666",
+    "semantic_hash": ""
+  },
+  "app/Actions/Observability/SystemHealthSnapshot.php": {
+    "mtime": 1788016411.9076376,
+    "ast_hash": "91b491a40cca236aaffda93b4adfdb59",
+    "semantic_hash": ""
+  },
+  "app/Enums/ExternalCallOutcome.php": {
+    "mtime": 1788015355.7055562,
+    "ast_hash": "002335136f3a2d0a23c733ebe950603b",
+    "semantic_hash": ""
+  },
+  "app/Enums/ExternalCallProvider.php": {
+    "mtime": 1788015354.1355634,
+    "ast_hash": "3e7c0438fbda55edb39394e83abc384f",
+    "semantic_hash": ""
+  },
+  "app/Http/Controllers/Admin/SystemHealthController.php": {
+    "mtime": 1788016381.94784,
+    "ast_hash": "ba156763d78c4fd0abe05daea123352e",
+    "semantic_hash": ""
+  },
+  "app/Messaging/RecordingMessengerPlatform.php": {
+    "mtime": 1788015395.1093948,
+    "ast_hash": "47c00ab93416c9e3d0e5d9bbab5302d6",
+    "semantic_hash": ""
+  },
+  "app/Models/ExternalCallStat.php": {
+    "mtime": 1788015362.592525,
+    "ast_hash": "a4c3c9a853a74e3cf6cb3f19e3b114e5",
+    "semantic_hash": ""
+  },
+  "database/factories/ExternalCallStatFactory.php": {
+    "mtime": 1788015378.8534565,
+    "ast_hash": "69d7c99c7528cb96ca328ddfb2199aa0",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_29_180000_create_external_call_stats_table.php": {
+    "mtime": 1788015359.0705407,
+    "ast_hash": "1eff095482ebb241ebe04df1b42bf3a9",
+    "semantic_hash": ""
+  },
+  "resources/js/pages/Admin/SystemHealth.tsx": {
+    "mtime": 1788016229.6500075,
+    "ast_hash": "7ae88c7c7452c94a0d09543935011cc4",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Observability/SystemHealthTest.php": {
+    "mtime": 1788016018.3006456,
+    "ast_hash": "7d2138588802bd279e0862df859abf9b",
     "semantic_hash": ""
   }
 }
