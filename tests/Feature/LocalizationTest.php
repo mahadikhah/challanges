@@ -113,6 +113,44 @@ describe('shared props', function () {
                 ->where('translations', fn (Collection $translations): bool => $translations['common.app_name'] === 'چالش‌ها'
                     && $translations['common.actions.save'] === 'ذخیره'));
     });
+
+    /*
+    | The Phase 16 Part A sweep: the starter-kit-derived surfaces (auth pages,
+    | settings, sidebar chrome) must carry translated copy in both locales.
+    */
+    it('serves the auth pages with translated copy in both locales', function (string $locale, string $path) {
+        $this->withoutVite()
+            ->withHeader('Accept-Language', $locale)
+            ->get($path)
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('locale', $locale)
+                ->where('direction', $locale === 'fa' ? 'rtl' : 'ltr')
+                ->where('translations', fn (Collection $t): bool => $t['auth.login.title'] === __('auth.login.title', [], $locale)));
+    })->with([
+        'en login' => ['en', '/login'],
+        'fa login' => ['fa', '/login'],
+        'en forgot password' => ['en', '/forgot-password'],
+        'fa forgot password' => ['fa', '/forgot-password'],
+        'en register' => ['en', '/register'],
+        'fa register' => ['fa', '/register'],
+    ]);
+
+    it('serves the settings pages with translated copy in both locales', function (string $locale) {
+        $user = User::factory()->create();
+
+        $this->withoutVite()
+            ->actingAs($user)
+            ->withCookie('locale', $locale)
+            ->get('/settings/profile')
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('locale', $locale)
+                ->where('direction', $locale === 'fa' ? 'rtl' : 'ltr')
+                ->where('translations', fn (Collection $t): bool => $t['settings.tabs.profile'] === __('settings.tabs.profile', [], $locale)
+                    && $t['common.user_menu.settings'] === __('common.user_menu.settings', [], $locale)
+                    && $t['common.user_menu.logout'] === __('common.user_menu.logout', [], $locale)));
+    })->with(['en', 'fa']);
 });
 
 describe('switching locale', function () {

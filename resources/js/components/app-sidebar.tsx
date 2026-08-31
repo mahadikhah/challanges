@@ -35,26 +35,27 @@ import { index as adminSystemHealth } from '@/routes/admin/system-health';
 import { index as adminUsers } from '@/routes/admin/users';
 import type { NavItem } from '@/types';
 
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: FolderGit2,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-    },
-];
-
 export function AppSidebar() {
     const { auth } = usePage().props;
     const { t, isRtl } = useTranslation();
 
+    // In-component so the labels can go through `t()`.
+    const footerNavItems: NavItem[] = [
+        {
+            title: t('common.sidebar_footer.repository'),
+            href: 'https://github.com/laravel/react-starter-kit',
+            icon: FolderGit2,
+        },
+        {
+            title: t('common.sidebar_footer.documentation'),
+            href: 'https://laravel.com/docs/starter-kits#react',
+            icon: BookOpen,
+        },
+    ];
+
     const mainNavItems: NavItem[] = [
         {
-            title: 'Dashboard',
+            title: t('common.dashboard.title'),
             href: dashboard(),
             icon: LayoutGrid,
         },

@@ -16,4 +16,31 @@ return [
         'back' => 'Back',
     ],
 
+    'dashboard' => [
+        'title' => 'Dashboard',
+    ],
+
+    'nav' => [
+        'platform' => 'Platform',
+    ],
+
+    'user_menu' => [
+        'settings' => 'Settings',
+        'logout' => 'Log out',
+    ],
+
+    'sidebar_footer' => [
+        'repository' => 'Repository',
+        'documentation' => 'Documentation',
+    ],
+
+    'password' => [
+        'show' => 'Show password',
+        'hide' => 'Hide password',
+    ],
+
+    'error' => [
+        'generic' => 'Something went wrong.',
+    ],
+
 ];

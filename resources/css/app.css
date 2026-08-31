@@ -18,9 +18,8 @@
 
 @theme {
     --font-sans:
-        'Archivo', ui-sans-serif, system-ui, sans-serif,
-        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-        'Noto Color Emoji';
+        'Archivo', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
     --font-mono: 'Roboto Mono', ui-monospace, 'SFMono-Regular', monospace;
 
     --radius-lg: var(--radius);

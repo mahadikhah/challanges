@@ -16,4 +16,31 @@ return [
         'back' => 'بازگشت',
     ],
 
+    'dashboard' => [
+        'title' => 'میزکار',
+    ],
+
+    'nav' => [
+        'platform' => 'پلتفرم',
+    ],
+
+    'user_menu' => [
+        'settings' => 'تنظیمات',
+        'logout' => 'خروج',
+    ],
+
+    'sidebar_footer' => [
+        'repository' => 'مخزن کد',
+        'documentation' => 'مستندات',
+    ],
+
+    'password' => [
+        'show' => 'نمایش رمز عبور',
+        'hide' => 'پنهان‌کردن رمز عبور',
+    ],
+
+    'error' => [
+        'generic' => 'مشکلی پیش آمد.',
+    ],
+
 ];
