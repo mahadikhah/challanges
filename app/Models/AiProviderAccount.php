@@ -16,6 +16,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * The rotatable unit: one credential set (encrypted, in `config` — never
  * `.env`) plus what happened last time it was used.
  *
+ * @property array<string, string>|null $config
+ * @property CarbonImmutable|null $unavailable_until
+ * @property CarbonImmutable|null $last_failed_at
+ * @property CarbonImmutable|null $last_succeeded_at
  * @property AiLimitPeriod|null $limit_period
  */
 class AiProviderAccount extends Model
@@ -123,6 +127,30 @@ class AiProviderAccount extends Model
         }
 
         return true;
+    }
+
+    /**
+     * The config as any admin surface may state it: every secret field the
+     * driver flags is replaced by the `__set__` sentinel, everything else
+     * (a base URL, say) passes through. The sentinel is the same value the
+     * edit form submits back to mean "keep the stored credential", so a
+     * round trip through the panel never loses or leaks a key. Raw
+     * `->config` stays server-only.
+     *
+     * @return array<string, string>
+     */
+    public function maskedConfig(): array
+    {
+        $driver = is_string($this->driver) ? trim($this->driver) : '';
+        $config = (array) ($this->config ?? []);
+
+        foreach (AiDriverCatalog::secretKeys($driver) as $secretKey) {
+            if (! blank($config[$secretKey] ?? null)) {
+                $config[$secretKey] = '__set__';
+            }
+        }
+
+        return $config;
     }
 
     /**

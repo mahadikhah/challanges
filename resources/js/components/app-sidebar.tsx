@@ -2,6 +2,8 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     Activity,
     BookOpen,
+    Bot,
+    ChartColumn,
     Coins,
     FolderGit2,
     Image,
@@ -26,6 +28,8 @@ import {
 } from '@/components/ui/sidebar';
 import { useTranslation } from '@/hooks/use-translation';
 import { dashboard } from '@/routes';
+import { index as adminAiAccounts } from '@/routes/admin/ai-accounts';
+import { index as adminAiUsage } from '@/routes/admin/ai-usage';
 import { index as adminChallenges } from '@/routes/admin/challenges';
 import { index as adminInvites } from '@/routes/admin/invites';
 import { index as adminPayments } from '@/routes/admin/payments';
@@ -89,6 +93,16 @@ export function AppSidebar() {
                 title: t('admin.invites.title'),
                 href: adminInvites.url(),
                 icon: Mail,
+            },
+            {
+                title: t('admin.ai_accounts.title'),
+                href: adminAiAccounts.url(),
+                icon: Bot,
+            },
+            {
+                title: t('admin.ai_usage.title'),
+                href: adminAiUsage.url(),
+                icon: ChartColumn,
             },
             {
                 title: t('admin.settings.title'),

@@ -205,9 +205,9 @@
     "semantic_hash": "ecb97dfbdde96234761d89d3857e570c"
   },
   "package.json": {
-    "mtime": 1787590263.337378,
-    "ast_hash": "84bd80b10bb1eac085e5a3f28ddf3b99",
-    "semantic_hash": "84bd80b10bb1eac085e5a3f28ddf3b99"
+    "mtime": 1788177856.7115388,
+    "ast_hash": "a4430b69bb61d7d7aabc5c7c2ad779c4",
+    "semantic_hash": ""
   },
   "pint.json": {
     "mtime": 1787315451.0,
@@ -260,8 +260,8 @@
     "semantic_hash": ""
   },
   "resources/js/components/app-sidebar.tsx": {
-    "mtime": 1788165758.9963777,
-    "ast_hash": "580a05dba892554b860ba4783b3f3e62",
+    "mtime": 1788178435.73739,
+    "ast_hash": "4ce2e5f9d6ed44c031d1a8f059faec90",
     "semantic_hash": ""
   },
   "resources/js/components/appearance-tabs.tsx": {
@@ -775,8 +775,8 @@
     "semantic_hash": ""
   },
   "routes/admin.php": {
-    "mtime": 1788176529.747986,
-    "ast_hash": "e1be60649c0fe93570eda33db2b61ce4",
+    "mtime": 1788178035.0974798,
+    "ast_hash": "b03106b53f2cac2d5063906d29c79efd",
     "semantic_hash": ""
   },
   "routes/api.php": {
@@ -2265,13 +2265,13 @@
     "semantic_hash": ""
   },
   "lang/en/admin.php": {
-    "mtime": 1788176543.6353242,
-    "ast_hash": "4654988aaaf0c4462b6b825f9e6d5a14",
+    "mtime": 1788178446.8481085,
+    "ast_hash": "614d16ac18a871f3c0957a0fe5f7cbad",
     "semantic_hash": ""
   },
   "lang/fa/admin.php": {
-    "mtime": 1788176567.730911,
-    "ast_hash": "811d1497053a2f9681587481581b4f23",
+    "mtime": 1788178448.480606,
+    "ast_hash": "93abeb4bcec04054aa72f82b0f4eb2b7",
     "semantic_hash": ""
   },
   "tests/Feature/Admin/SettingsPanelTest.php": {
@@ -2780,8 +2780,8 @@
     "semantic_hash": ""
   },
   "app/Models/AiProviderAccount.php": {
-    "mtime": 1788017770.596619,
-    "ast_hash": "aa9d73909ae2ad855c95e91da57ed927",
+    "mtime": 1788179297.2600985,
+    "ast_hash": "de9c95d928f750badd08bd6f26b42ea3",
     "semantic_hash": ""
   },
   "app/Models/AiUsageRecord.php": {
@@ -2810,8 +2810,8 @@
     "semantic_hash": ""
   },
   "app/Services/Ai/AiDriverCatalog.php": {
-    "mtime": 1788017770.6026187,
-    "ast_hash": "6d18a3f4a0aad723a5cff75f07f32e57",
+    "mtime": 1788177866.2717743,
+    "ast_hash": "eaeebd2d15790dac74b8b1b243864bfb",
     "semantic_hash": ""
   },
   "app/Services/Ai/AiLimit.php": {
@@ -3627,6 +3627,61 @@
   "resources/js/pages/Admin/Settings/setting-card.tsx": {
     "mtime": 1788176650.3519258,
     "ast_hash": "7065c47df90a367b800fc82955814baa",
+    "semantic_hash": ""
+  },
+  "app/Actions/Ai/SaveAiProviderAccount.php": {
+    "mtime": 1788179298.3796065,
+    "ast_hash": "f0235aff94340b085fdbb2da788be111",
+    "semantic_hash": ""
+  },
+  "app/Http/Controllers/Admin/AiAccountsController.php": {
+    "mtime": 1788178676.6657965,
+    "ast_hash": "ff478488f545c74631ddd0cd4fa80a86",
+    "semantic_hash": ""
+  },
+  "app/Http/Controllers/Admin/AiUsageController.php": {
+    "mtime": 1788178155.2321184,
+    "ast_hash": "d710fcd0f18d074ae1a430f60c1d831a",
+    "semantic_hash": ""
+  },
+  "app/Http/Requests/Admin/SaveAiProviderAccountRequest.php": {
+    "mtime": 1788177940.0496101,
+    "ast_hash": "1ef6849daae13ae92e99cb270430f695",
+    "semantic_hash": ""
+  },
+  "resources/js/pages/Admin/AiAccounts.tsx": {
+    "mtime": 1788179490.038381,
+    "ast_hash": "234f1b386c4edce2b2c149bb6b84fcec",
+    "semantic_hash": ""
+  },
+  "resources/js/pages/Admin/AiAccounts/Create.tsx": {
+    "mtime": 1788179485.8097587,
+    "ast_hash": "71b534d70eba0416b8347f90ef0b1ba2",
+    "semantic_hash": ""
+  },
+  "resources/js/pages/Admin/AiAccounts/Edit.tsx": {
+    "mtime": 1788179490.2163656,
+    "ast_hash": "7f6b91e174c0d53ed5570526b43f8e08",
+    "semantic_hash": ""
+  },
+  "resources/js/pages/Admin/AiAccounts/account-form.tsx": {
+    "mtime": 1788179531.214373,
+    "ast_hash": "24564d0278dcd2301ec6454ace7d6960",
+    "semantic_hash": ""
+  },
+  "resources/js/pages/Admin/AiUsage.tsx": {
+    "mtime": 1788179490.27936,
+    "ast_hash": "3ffa08183d8b7440edd00b8c3a870e4e",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Admin/AiAccountsPanelTest.php": {
+    "mtime": 1788179218.189483,
+    "ast_hash": "65ec8a7714f54ad0ef108dff7b150264",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Admin/AiUsagePanelTest.php": {
+    "mtime": 1788178949.095654,
+    "ast_hash": "00acef94f343ce1194598deeb4a2ed17",
     "semantic_hash": ""
   }
 }

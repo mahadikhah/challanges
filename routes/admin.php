@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\AiAccountsController;
+use App\Http\Controllers\Admin\AiUsageController;
 use App\Http\Controllers\Admin\ChallengesController;
 use App\Http\Controllers\Admin\InvitesController;
 use App\Http\Controllers\Admin\PaymentsController;
@@ -55,6 +57,17 @@ Route::middleware(['auth', EnsureUserIsAdmin::class])->group(function (): void {
     Route::post('/payments/{payment}/refund', [PaymentsController::class, 'refund'])->name('payments.refund');
 
     Route::get('/invites', [InvitesController::class, 'index'])->name('invites.index');
+
+    // AI provider credentials and where the tokens went. Writes go through
+    // SaveAiProviderAccount; secrets are write-only from the browser.
+    Route::get('/ai-accounts', [AiAccountsController::class, 'index'])->name('ai-accounts.index');
+    Route::get('/ai-accounts/create', [AiAccountsController::class, 'create'])->name('ai-accounts.create');
+    Route::post('/ai-accounts', [AiAccountsController::class, 'store'])->name('ai-accounts.store');
+    Route::get('/ai-accounts/{account}/edit', [AiAccountsController::class, 'edit'])->name('ai-accounts.edit');
+    Route::put('/ai-accounts/{account}', [AiAccountsController::class, 'update'])->name('ai-accounts.update');
+    Route::delete('/ai-accounts/{account}', [AiAccountsController::class, 'destroy'])->name('ai-accounts.destroy');
+
+    Route::get('/ai-usage', [AiUsageController::class, 'index'])->name('ai-usage.index');
 
     Route::get('/system-health', [SystemHealthController::class, 'index'])->name('system-health.index');
     Route::post('/system-health/failed-jobs/{uuid}/retry', [SystemHealthController::class, 'retryFailedJob'])->name('system-health.failed-jobs.retry');

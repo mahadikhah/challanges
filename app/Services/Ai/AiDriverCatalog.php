@@ -153,4 +153,19 @@ final class AiDriverCatalog
             static fn (array $field): bool => ($field['required'] ?? false) === true,
         ), 'key');
     }
+
+    /**
+     * The config keys that must never reach the browser, derived from the
+     * same `'secret' => true` flags that drive the form — the only secret
+     * markers in the codebase, so the mask and the form cannot disagree.
+     *
+     * @return list<string>
+     */
+    public static function secretKeys(string $driver): array
+    {
+        return array_column(array_filter(
+            self::fieldsFor($driver),
+            static fn (array $field): bool => ($field['secret'] ?? false) === true,
+        ), 'key');
+    }
 }

@@ -269,4 +269,94 @@ return [
         'next_page' => 'Older',
     ],
 
+    'ai_accounts' => [
+        'title' => 'AI providers',
+        'description' => 'Credentials for the AI reviewers, grouped by what they are for. Secrets are write-only: leaving the field empty keeps the stored key.',
+
+        'new' => 'New provider account',
+        'edit' => 'Edit',
+        'save' => 'Save account',
+        'saved' => 'Provider account saved.',
+        'delete' => 'Delete',
+        'delete_confirm' => 'Delete this account? Its usage history is kept — only the credential goes.',
+        'deleted' => 'Provider account deleted.',
+        'cancel' => 'Cancel',
+        'empty' => 'No provider accounts yet.',
+
+        'name' => 'Name',
+        'capability' => 'Capability',
+        'driver' => 'Driver',
+        'model' => 'Model',
+        'active' => 'Active in the rotation',
+        'sort_order' => 'Sort order',
+        'connection' => 'Connection',
+        'limits' => 'Token limits (optional)',
+        'prices' => 'Prices per million tokens, minor units (optional)',
+        'limit_period' => 'Limit window',
+        'limit_timezone' => 'Limit timezone',
+        'input_token_limit' => 'Input tokens',
+        'output_token_limit' => 'Output tokens',
+        'total_token_limit' => 'Total tokens',
+        'input_token_price_per_million' => 'Input price',
+        'output_token_price_per_million' => 'Output price',
+
+        'fields' => [
+            'key' => 'API key',
+            'url' => 'Base URL',
+        ],
+
+        'set_hint' => 'A credential is stored. Leave the field empty to keep it; type a new value to replace it.',
+
+        'periods' => [
+            'daily' => 'Daily',
+            'monthly' => 'Monthly',
+        ],
+
+        'status' => [
+            'active' => 'Active',
+            'inactive' => 'Off',
+            'configured' => 'Configured',
+            'unconfigured' => 'Missing credentials',
+            'cooling_down' => 'Cooling down',
+            'last_failed' => 'Last failure',
+            'last_succeeded' => 'Last succeeded',
+        ],
+    ],
+
+    'ai_usage' => [
+        'title' => 'AI usage',
+        'description' => 'Where the AI tokens went, counted the way the budget gate counts them — in-flight and reconciled reservations included.',
+
+        'windows' => [
+            'today' => 'Today',
+            '7d' => 'Last 7 days',
+            '30d' => 'Last 30 days',
+        ],
+
+        'totals' => 'Window totals',
+        'input_tokens' => 'Input tokens',
+        'output_tokens' => 'Output tokens',
+        'total_tokens' => 'Total tokens',
+        'cost' => 'Estimated cost',
+
+        'per_account' => 'Tokens per account',
+        'chart_empty' => 'No usage in this window.',
+
+        'recent' => 'Recent calls',
+        'recent_description' => 'The last 50 ledger rows, newest first.',
+        'operation' => 'Operation',
+        'outcome' => 'Outcome',
+        'driver' => 'Driver',
+        'model' => 'Model',
+        'when' => 'When',
+
+        'outcomes' => [
+            'completed' => 'Completed',
+            'provider_failed' => 'Provider failed',
+            'parse_failed' => 'Parse failed',
+            'missing_usage' => 'Usage not reported',
+            'retry' => 'Retried',
+        ],
+    ],
+
 ];
