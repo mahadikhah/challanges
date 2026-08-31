@@ -71,3 +71,57 @@ it('still renders for a signed-in user', function (): void {
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page->component('welcome'));
 });
+
+/*
+ * Every string the redesigned landing renders — the showcase cards and the
+ * footer doc links — must ship in both locales in the same commit, or the
+ * page would fall back to raw keys for half its visitors.
+ */
+it('ships every landing string in both locales', function (string $key): void {
+    config(['services.telegram.bot_username' => 'ChallengesBot']);
+
+    foreach (['en', 'fa'] as $locale) {
+        $this->withHeaders(['Accept-Language' => $locale])
+            ->get('/')
+            ->assertOk()
+            ->assertInertia(
+                fn (AssertableInertia $page) => $page->where(
+                    'translations',
+                    fn (Collection $translations): bool => is_string($translations->get($key))
+                        && $translations->get($key) !== ''
+                        && $translations->get($key) !== $key,
+                ),
+            );
+    }
+})->with([
+    'website.showcase.title',
+    'website.showcase.note',
+    'website.showcase.streak',
+    'website.showcase.freezes_left',
+    'website.showcase.morning.title',
+    'website.showcase.morning.meta',
+    'website.showcase.morning.progress',
+    'website.showcase.reading.title',
+    'website.showcase.reading.meta',
+    'website.showcase.reading.progress',
+    'website.showcase.language.title',
+    'website.showcase.language.meta',
+    'website.showcase.language.progress',
+    'website.docs.readme',
+    'website.docs.setup_vps',
+    'website.docs.setup_cpanel',
+    'website.docs.user_flows',
+]);
+
+it('lands without admin chrome', function (): void {
+    config(['services.telegram.bot_username' => 'ChallengesBot']);
+
+    $html = $this->get('/')->assertOk()->getContent();
+
+    // The landing is the one chrome-free surface: if the sidebar ever leaks
+    // in through a layout or shared component, a stranger's first page would
+    // carry the admin panel's furniture.
+    expect($html)
+        ->not->toContain('data-sidebar')
+        ->not->toContain('data-slot="sidebar"');
+});

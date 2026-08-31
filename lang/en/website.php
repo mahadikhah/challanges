@@ -79,6 +79,41 @@ return [
         ],
     ],
 
+    // The illustrative challenge showcase — three example cards in the Mini
+    // App's idiom. The numbers are baked into the component; only the copy
+    // lives here.
+    'showcase' => [
+        'title' => 'What a challenge looks like',
+        'note' => 'Illustrative examples — the real ones live in the bot.',
+        'streak' => 'streak',
+        'freezes_left' => 'freezes left',
+
+        'morning' => [
+            'title' => 'Morning run',
+            'meta' => 'Daily · 12 participants',
+            'progress' => 'Day 34 of 60',
+        ],
+        'reading' => [
+            'title' => 'A book a week',
+            'meta' => 'Weekly · 6 participants',
+            'progress' => 'Week 9 of 12',
+        ],
+        'language' => [
+            'title' => 'Language, every day',
+            'meta' => 'Monthly · 21 participants',
+            'progress' => 'Month 2 of 6',
+        ],
+    ],
+
+    // Footer links into the repository's markdown, at the blob URL of the
+    // default branch. The Farsi page links the `.fa` sibling of each doc.
+    'docs' => [
+        'readme' => 'About the project',
+        'setup_vps' => 'Self-host on a VPS',
+        'setup_cpanel' => 'Self-host on cPanel',
+        'user_flows' => 'User flows',
+    ],
+
     'footer' => 'Built on Telegram. English and Farsi, from day one.',
 
 ];
