@@ -2656,3 +2656,46 @@ tsc ✓, tests **1222 (1218 pass, 4 skipped)**, 3832 assertions.
 **Next:** Phase 9 Task 3 per `prompts/phase-9.md` — bot wizard step loop + step-by-step UI (Start button,
 step instructions, remaining-time answers), routing session photos/voice without colliding with the
 `image_approval` flow.
+
+---
+
+## Phase 16 — Polish pass
+
+### Task 1 — i18n gaps, settings tabs, AI-account admin, landing redesign ✅
+
+**What shipped** (five commits, `92588fa`…`3d3ef25`):
+- **Theme first** (`92588fa`) — Forge design tokens in `resources/css/app.css` (Archivo/Roboto Mono, fiery
+  primary, dark-mode-forward), Vazirmatn `:lang(fa)` override kept; every later part builds on these tokens.
+- **Part A** (`3b93cb1`) — full Farsi coverage for the starter-kit-derived UI (~107 literals): new `auth` and
+  `settings` lang groups (added to `client_groups`), `titleKey` breadcrumb opt-in for static `.layout`
+  objects, RTL fixes (`ms/pe/e/end` logical utilities replacing `ml/pr/right`), and a `UiCopyTest` source-scan
+  guard over the audited file list.
+- **Part B** (`7523ed3`) — admin settings redesigned from one flat page into **five routed tabs**
+  (`economy` / `challenges` / `access` / `ai` / `observability`), mirroring the starter-kit `/settings`
+  pattern (sub-routes + aside, not a tab component). All **35 registry keys** surfaced — including the five
+  previously invisible ones. `TABS` in `SettingsController` is the single source of truth and a
+  registry-coverage test fails the build on drift; persistence behaviour untouched.
+- **Part C** (`66faaac`) — admin CRUD for `AiProviderAccount` credentials plus a token-usage page.
+  **Credentials are write-only by construction:** every admin response carries only `maskedConfig()`
+  (`__set__` sentinel + derived booleans) — never raw `config`; blank-or-sentinel keeps the stored secret; a
+  driver switch drops stored keys even between same-named fields; the column is `encrypted:array` (pinned by
+  test against the raw DB value, not the decrypted cast). Usage totals come only from
+  `AiQuotaService::consumedBetween()` — reconciled reservations counted once, in-flight included — charted
+  with **Recharts** (new dependency) over a today/7d/30d window selector. Models: `AiProviderAccount`,
+  `AiCapability`, `AiUsageRecord`, `AiUsageReservation`; tables `ai_provider_accounts`, `ai_usage_records`,
+  `ai_usage_reservations` — all pre-existing from Phase 10, no schema change.
+- **Part D** (`3d3ef25`) — landing rebuilt on the Forge tokens in the Mini App's idiom (rounded-2xl cards,
+  rounded-full pills, emoji iconography 🔥❄️, big streak numbers, `h-2` progress bars, no gradients), with an
+  illustrative challenge showcase (`website.showcase.*`) and a footer of GitHub blob links on
+  `github.com/mahadikhah/challanges` — the Farsi page links each doc's `.fa` sibling. `resources/js/miniapp/`
+  untouched.
+- Every touched string shipped en+fa in its own commit; en/fa key parity pinned by tests throughout.
+
+**Tests:** `AiAccountsPanelTest` (14, incl. the credential-never-leaks test asserting plaintext absent from
+full response HTML **and** the raw DB column), `AiUsagePanelTest` (7, totals-equal-quota-service,
+honest-window with reconciled + in-flight reservations), rewritten `SettingsPanelTest` (22, 5-tab dataset +
+registry coverage), extended `LandingTest` (24 total: both-locale dataset over every new landing string,
+admin-chrome-absent), `UiCopyTest` + `LocalizationServiceTest`/`LocalizationTest` extensions from Part A.
+
+**Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓,
+tsc ✓, tests **1672 (1668 pass, 4 skipped)**, 6159 assertions.
