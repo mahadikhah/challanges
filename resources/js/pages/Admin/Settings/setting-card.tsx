@@ -1,6 +1,5 @@
-import { Head, router, useForm } from '@inertiajs/react';
+import { router, useForm } from '@inertiajs/react';
 import { Plus, RotateCcw, X } from 'lucide-react';
-import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,14 +7,14 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useTranslation } from '@/hooks/use-translation';
-import { destroy, index, update } from '@/routes/admin/settings';
+import { destroy, update } from '@/routes/admin/settings';
 
 /**
  * One admin-tunable row as the server states it. The list is generated from the
  * `SettingKey` registry, so this shape is the registry's, not the page's — see
  * Admin\SettingsController::settingRows().
  */
-type SettingRow = {
+export type SettingRow = {
     key: string;
     type: 'text' | 'integer' | 'boolean' | 'json';
     group: string;
@@ -33,12 +32,12 @@ type SettingRow = {
  * the environment (no video-accepting provider, no ffmpeg), which the panel
  * must name and the toggle must honour by refusing to switch on.
  */
-type AiCapability = {
+export type AiCapability = {
     available: boolean | null;
     reason?: 'no_provider' | 'no_toolchain';
 };
 
-type AiCapabilities = Record<string, AiCapability>;
+export type AiCapabilities = Record<string, AiCapability>;
 
 /**
  * One purchasable package: what each rail charges and what we credit. `rial`
@@ -46,21 +45,11 @@ type AiCapabilities = Record<string, AiCapability>;
  * offered to Bale payers, so a fresh Telegram-only deployment never has to
  * think about it.
  */
-type PackageRow = {
+export type PackageRow = {
     stars: number;
     coins: number;
     rial?: number;
 };
-
-const GROUPS = [
-    'economy',
-    'baseline',
-    'access',
-    'reminders',
-    'proofs',
-    'ai',
-    'observability',
-] as const;
 
 /**
  * Per-media-type allow toggles that carry a capability readout beneath them.
@@ -71,57 +60,7 @@ const AI_MEDIA_TOGGLE_KEYS = [
     'ai_approval_allowed_video',
 ] as const;
 
-export default function Settings({
-    settings,
-    aiCapabilities = {},
-}: {
-    settings: SettingRow[];
-    aiCapabilities?: AiCapabilities;
-}) {
-    const { t } = useTranslation();
-
-    return (
-        <>
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <Head title={t('admin.settings.title')} />
-
-                <h1 className="sr-only">{t('admin.settings.title')}</h1>
-
-                <div className="space-y-8">
-                    <Heading
-                        variant="small"
-                        title={t('admin.settings.title')}
-                        description={t('admin.settings.description')}
-                    />
-
-                    {GROUPS.map((group) => (
-                        <section key={group} className="space-y-3">
-                            <h2 className="text-lg font-medium tracking-tight">
-                                {t(`admin.settings.groups.${group}`)}
-                            </h2>
-
-                            <div className="space-y-3">
-                                {settings
-                                    .filter(
-                                        (setting) => setting.group === group,
-                                    )
-                                    .map((setting) => (
-                                        <SettingCard
-                                            key={setting.key}
-                                            setting={setting}
-                                            aiCapabilities={aiCapabilities}
-                                        />
-                                    ))}
-                            </div>
-                        </section>
-                    ))}
-                </div>
-            </div>
-        </>
-    );
-}
-
-function SettingCard({
+export function SettingCard({
     setting,
     aiCapabilities = {},
 }: {
@@ -447,16 +386,3 @@ function describeDefault(setting: SettingRow): string {
 
     return String(setting.default);
 }
-
-Settings.layout = {
-    breadcrumbs: [
-        {
-            title: 'Admin',
-            href: index.url(),
-        },
-        {
-            title: 'Settings',
-            href: index.url(),
-        },
-    ],
-};

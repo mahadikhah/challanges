@@ -6,12 +6,10 @@ return [
         'title' => 'Settings',
         'description' => 'Every rate and price the platform runs on. An empty value reverts to the default.',
 
-        'groups' => [
+        'tabs' => [
             'economy' => 'Economy',
-            'baseline' => 'Free baseline & defaults',
+            'challenges' => 'Challenges',
             'access' => 'Access & tokens',
-            'reminders' => 'Reminders',
-            'proofs' => 'Proof media',
             'ai' => 'AI approval',
             'observability' => 'Observability',
         ],
@@ -32,6 +30,10 @@ return [
             'miniapp_token_ttl_minutes' => 'Mini App token lifetime (minutes)',
             'initdata_max_age_seconds' => 'initData maximum age (seconds)',
             'conversation_ttl_minutes' => 'Bot wizard lifetime (minutes)',
+            'chat_verification_ttl_hours' => 'Linked-chat verification freshness (hours)',
+            'chat_command_cooldown_seconds' => 'On-demand leaderboard cooldown (seconds)',
+            'leaderboard_hour' => 'Daily leaderboard hour (challenge timezone)',
+            'leaderboard_top_size' => 'Daily leaderboard size (top N streaks)',
             'reminder_ending_lead_hours' => '“Period ending” lead (hours)',
             'proof_media_max_seconds' => 'Recording duration ceiling (seconds)',
             'proof_media_max_size_kb' => 'Recording size ceiling (KB)',

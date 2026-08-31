@@ -220,8 +220,8 @@
     "semantic_hash": "d8eda274115af5fd2aaa8230af329ef7"
   },
   "resources/js/app.tsx": {
-    "mtime": 1788017770.7056189,
-    "ast_hash": "ebf3ea24a0911d4f154f226b64d4d539",
+    "mtime": 1788177166.5165668,
+    "ast_hash": "c5d4b8ee4002ce3ffbb8539f1335797a",
     "semantic_hash": ""
   },
   "resources/js/components/alert-error.tsx": {
@@ -295,8 +295,8 @@
     "semantic_hash": "fd6e1f918479834e9e7561a64fb44ce7"
   },
   "resources/js/components/nav-main.tsx": {
-    "mtime": 1788165734.974651,
-    "ast_hash": "1478aa686e5b61b352f5d4574d9cac5f",
+    "mtime": 1788176701.679179,
+    "ast_hash": "1c5985386b85d2e154ce494a53a27936",
     "semantic_hash": ""
   },
   "resources/js/components/nav-user.tsx": {
@@ -775,8 +775,8 @@
     "semantic_hash": ""
   },
   "routes/admin.php": {
-    "mtime": 1788017770.7126188,
-    "ast_hash": "870026dd33e4a0e8d3503bd43be258ac",
+    "mtime": 1788176529.747986,
+    "ast_hash": "e1be60649c0fe93570eda33db2b61ce4",
     "semantic_hash": ""
   },
   "routes/api.php": {
@@ -2250,8 +2250,8 @@
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/SettingsController.php": {
-    "mtime": 1788017770.5896187,
-    "ast_hash": "6c81a419a2441f7498757f27e00f0fe1",
+    "mtime": 1788176506.9114304,
+    "ast_hash": "fb38d561cc74e06f3ccf0e516a70799c",
     "semantic_hash": ""
   },
   "app/Http/Middleware/EnsureUserIsAdmin.php": {
@@ -2265,23 +2265,18 @@
     "semantic_hash": ""
   },
   "lang/en/admin.php": {
-    "mtime": 1788017770.6826189,
-    "ast_hash": "5bfb1eb779703af6747ed1bf3e5f26ff",
+    "mtime": 1788176543.6353242,
+    "ast_hash": "4654988aaaf0c4462b6b825f9e6d5a14",
     "semantic_hash": ""
   },
   "lang/fa/admin.php": {
-    "mtime": 1788017770.684619,
-    "ast_hash": "2b4b92f309f6d70836ed2252adb4629d",
-    "semantic_hash": ""
-  },
-  "resources/js/pages/Admin/Settings.tsx": {
-    "mtime": 1788017770.710619,
-    "ast_hash": "f3d146e480fc3557c24a16519f7463da",
+    "mtime": 1788176567.730911,
+    "ast_hash": "811d1497053a2f9681587481581b4f23",
     "semantic_hash": ""
   },
   "tests/Feature/Admin/SettingsPanelTest.php": {
-    "mtime": 1788017770.714619,
-    "ast_hash": "92a3146b358f378eb2567f18376f3ded",
+    "mtime": 1788176846.526721,
+    "ast_hash": "75a89c1de8bc2a8381b7c6420ebb13c7",
     "semantic_hash": ""
   },
   "app/Actions/Challenges/CancelChallenge.php": {
@@ -3300,8 +3295,8 @@
     "semantic_hash": ""
   },
   "tests/Feature/Ai/VideoProofModerationTest.php": {
-    "mtime": 1788017770.7156188,
-    "ast_hash": "3554aac5e1ba46a1f812574b1c0bd6bb",
+    "mtime": 1788177016.440884,
+    "ast_hash": "d70409851fefb970f376506cf5b45f6a",
     "semantic_hash": ""
   },
   "app/Enums/ScoringStrategy.php": {
@@ -3597,6 +3592,41 @@
   "tests/Feature/UiCopyTest.php": {
     "mtime": 1788166691.9687586,
     "ast_hash": "fc3571a007aa8ac5d797529433b5cd4a",
+    "semantic_hash": ""
+  },
+  "resources/js/layouts/admin/settings-layout.tsx": {
+    "mtime": 1788177190.5001557,
+    "ast_hash": "6bc293575191026f6a0861e1d4843956",
+    "semantic_hash": ""
+  },
+  "resources/js/pages/Admin/Settings/Access.tsx": {
+    "mtime": 1788177191.1351714,
+    "ast_hash": "552753842403b31ca02abee99975b641",
+    "semantic_hash": ""
+  },
+  "resources/js/pages/Admin/Settings/Ai.tsx": {
+    "mtime": 1788177191.158172,
+    "ast_hash": "ef0a7ff950127ca06ee1270422ece860",
+    "semantic_hash": ""
+  },
+  "resources/js/pages/Admin/Settings/Challenges.tsx": {
+    "mtime": 1788177191.1711721,
+    "ast_hash": "c07930b9e51df8a3e2f305b9ed4d5c76",
+    "semantic_hash": ""
+  },
+  "resources/js/pages/Admin/Settings/Economy.tsx": {
+    "mtime": 1788177191.1861725,
+    "ast_hash": "65fc5e5449fdb1f7e747da7f76012c1f",
+    "semantic_hash": ""
+  },
+  "resources/js/pages/Admin/Settings/Observability.tsx": {
+    "mtime": 1788177191.2011728,
+    "ast_hash": "2df33e6232c23af33e0e8c037c2f7529",
+    "semantic_hash": ""
+  },
+  "resources/js/pages/Admin/Settings/setting-card.tsx": {
+    "mtime": 1788176650.3519258,
+    "ast_hash": "7065c47df90a367b800fc82955814baa",
     "semantic_hash": ""
   }
 }

@@ -11,7 +11,9 @@ import { useTranslation } from '@/hooks/use-translation';
 import type { NavItem } from '@/types';
 
 export function NavMain({ items = [] }: { items: NavItem[] }) {
-    const { isCurrentUrl } = useCurrentUrl();
+    // Parent-match so a section stays lit on its sub-routes — e.g. the
+    // settings item while any of its tabs is open.
+    const { isCurrentOrParentUrl } = useCurrentUrl();
     const { t } = useTranslation();
 
     return (
@@ -22,7 +24,7 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                     <SidebarMenuItem key={item.title}>
                         <SidebarMenuButton
                             asChild
-                            isActive={isCurrentUrl(item.href)}
+                            isActive={isCurrentOrParentUrl(item.href)}
                             tooltip={{ children: item.title }}
                         >
                             <Link href={item.href} prefetch>

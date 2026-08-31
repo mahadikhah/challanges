@@ -26,9 +26,14 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware(['auth', EnsureUserIsAdmin::class])->group(function (): void {
-    Route::redirect('/', '/admin/settings')->name('home');
+    Route::redirect('/', '/admin/settings/economy')->name('home');
 
-    Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+    // The panel is tabbed (mirroring the user-facing /settings): each tab is
+    // its own route, and the bare URL lands on the first one. The write
+    // routes are per-setting and tab-agnostic on purpose — an update or
+    // reset never has to know which tab its key is presented on.
+    Route::redirect('/settings', '/admin/settings/economy')->name('settings.index');
+    Route::get('/settings/{tab}', [SettingsController::class, 'show'])->name('settings.show');
     Route::put('/settings/{setting}', [SettingsController::class, 'update'])->name('settings.update');
     Route::delete('/settings/{setting}', [SettingsController::class, 'destroy'])->name('settings.destroy');
 

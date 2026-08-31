@@ -363,7 +363,7 @@ it('refuses to enable the video toggle the environment cannot honour', function 
     $admin = User::factory()->admin()->create();
 
     $this->actingAs($admin)
-        ->from('/admin/settings')
+        ->from('/admin/settings/ai')
         ->put('/admin/settings/ai_approval_allowed_video', ['value' => true])
         ->assertInvalid('value');
 
@@ -376,7 +376,7 @@ it('reports the video capability honestly in the settings panel', function (): v
     // No provider at all: the remedy an admin can act on.
     theEnvironmentHasFfmpeg(true);
 
-    $this->actingAs($admin)->get('/admin/settings')->assertInertia(
+    $this->actingAs($admin)->get('/admin/settings/ai')->assertInertia(
         fn ($page) => $page
             ->where('aiCapabilities.video.available', false)
             ->where('aiCapabilities.video.reason', 'no_provider'),
@@ -386,7 +386,7 @@ it('reports the video capability honestly in the settings panel', function (): v
     videoModerationCapability();
     theEnvironmentHasFfmpeg(false);
 
-    $this->actingAs($admin)->get('/admin/settings')->assertInertia(
+    $this->actingAs($admin)->get('/admin/settings/ai')->assertInertia(
         fn ($page) => $page
             ->where('aiCapabilities.video.available', false)
             ->where('aiCapabilities.video.reason', 'no_toolchain'),
@@ -395,7 +395,7 @@ it('reports the video capability honestly in the settings panel', function (): v
     // Both halves present: available.
     theEnvironmentHasFfmpeg(true);
 
-    $this->actingAs($admin)->get('/admin/settings')->assertInertia(
+    $this->actingAs($admin)->get('/admin/settings/ai')->assertInertia(
         fn ($page) => $page->where('aiCapabilities.video.available', true),
     );
 });

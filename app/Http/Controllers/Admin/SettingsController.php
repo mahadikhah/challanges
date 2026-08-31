@@ -30,12 +30,13 @@ use Inertia\Response;
 class SettingsController extends Controller
 {
     /**
-     * Which registry keys belong to which panel section. Presentation only —
-     * the registry itself is deliberately order-free.
+     * Which registry keys belong to which panel tab. Presentation only —
+     * the registry itself is deliberately order-free. Every case must
+     * appear exactly once: the tests assert the union equals the registry.
      *
      * @var array<string, list<SettingKey>>
      */
-    private const GROUPS = [
+    private const TABS = [
         'economy' => [
             SettingKey::InviteCoinReward,
             SettingKey::CreateSlotCoinPrice,
@@ -44,25 +45,26 @@ class SettingsController extends Controller
             SettingKey::ChallengeCompletionCoinReward,
             SettingKey::StarsPackages,
         ],
-        'baseline' => [
+        'challenges' => [
             SettingKey::FreeCreateSlots,
             SettingKey::FreeJoinSlots,
             SettingKey::DefaultChallengeFreezes,
-        ],
-        'access' => [
-            SettingKey::RequiredChannel,
-            SettingKey::ChannelVerificationTtlMinutes,
-            SettingKey::MiniAppTokenTtlMinutes,
-            SettingKey::InitDataMaxAgeSeconds,
-            SettingKey::ConversationTtlMinutes,
-        ],
-        'reminders' => [
             SettingKey::ReminderEndingLeadHours,
-        ],
-        'proofs' => [
             SettingKey::ProofMediaMaxSeconds,
             SettingKey::ProofMediaMaxSizeKb,
             SettingKey::ProofMediaRetentionDays,
+        ],
+        'access' => [
+            SettingKey::RequiredChannel,
+            SettingKey::RequiredChannelBale,
+            SettingKey::ChannelVerificationTtlMinutes,
+            SettingKey::ChatVerificationTtlHours,
+            SettingKey::ChatCommandCooldownSeconds,
+            SettingKey::MiniAppTokenTtlMinutes,
+            SettingKey::InitDataMaxAgeSeconds,
+            SettingKey::ConversationTtlMinutes,
+            SettingKey::LeaderboardHour,
+            SettingKey::LeaderboardTopSize,
         ],
         'ai' => [
             SettingKey::AiApprovalGloballyEnabled,
@@ -84,12 +86,23 @@ class SettingsController extends Controller
 
     public function __construct(private readonly Settings $settings) {}
 
-    public function index(VideoReviewCapability $videoReview): Response
+    /**
+     * One tab of the panel. The capability readout travels only with the
+     * `ai` tab — it exists to sit beside the allow-toggles it describes.
+     */
+    public function show(string $tab, VideoReviewCapability $videoReview): Response
     {
-        return Inertia::render('Admin/Settings', [
-            'settings' => $this->settingRows(),
-            'aiCapabilities' => $this->aiCapabilities($videoReview),
-        ]);
+        abort_unless(isset(self::TABS[$tab]), 404);
+
+        $props = [
+            'settings' => $this->settingRows($tab),
+        ];
+
+        if ($tab === 'ai') {
+            $props['aiCapabilities'] = $this->aiCapabilities($videoReview);
+        }
+
+        return Inertia::render('Admin/Settings/'.ucfirst($tab), $props);
     }
 
     public function update(UpdateSettingRequest $request, string $setting, VideoReviewCapability $videoReview): RedirectResponse
@@ -143,27 +156,26 @@ class SettingsController extends Controller
     }
 
     /**
-     * Every tunable as the panel states it: what it is, what applies now,
-     * what would apply without an override, and whether one exists.
+     * Every tunable on the tab as the panel states it: what it is, what
+     * applies now, what would apply without an override, and whether one
+     * exists.
      *
      * @return list<array<string, mixed>>
      */
-    private function settingRows(): array
+    private function settingRows(string $tab): array
     {
         $rows = [];
 
-        foreach (self::GROUPS as $group => $keys) {
-            foreach ($keys as $key) {
-                $rows[] = [
-                    'key' => $key->value,
-                    'type' => $key->type()->value,
-                    'group' => $group,
-                    'label' => __("admin.settings.keys.{$key->value}"),
-                    'value' => $this->current($key),
-                    'default' => $key->default(),
-                    'overridden' => $this->settings->isOverridden($key),
-                ];
-            }
+        foreach (self::TABS[$tab] as $key) {
+            $rows[] = [
+                'key' => $key->value,
+                'type' => $key->type()->value,
+                'group' => $tab,
+                'label' => __("admin.settings.keys.{$key->value}"),
+                'value' => $this->current($key),
+                'default' => $key->default(),
+                'overridden' => $this->settings->isOverridden($key),
+            ];
         }
 
         return $rows;

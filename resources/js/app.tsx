@@ -3,6 +3,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
 import { DirectionLayout } from '@/hooks/use-document-direction';
+import AdminSettingsLayout from '@/layouts/admin/settings-layout';
 import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
 import SettingsLayout from '@/layouts/settings/layout';
@@ -20,6 +21,10 @@ createInertiaApp({
                     return [AuthLayout];
                 case name.startsWith('settings/'):
                     return [AppLayout, SettingsLayout];
+                // The admin settings tabs get the same tabbed shell the
+                // user-facing settings pages use.
+                case name.startsWith('Admin/Settings/'):
+                    return [AppLayout, AdminSettingsLayout];
                 default:
                     return [AppLayout];
             }

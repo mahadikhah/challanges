@@ -10,12 +10,10 @@ return [
         'title' => 'تنظیمات',
         'description' => 'تمام نرخ‌ها و قیمت‌هایی که پلتفرم روی آن‌ها اجرا می‌شود. مقدار خالی به پیش‌فرض برمی‌گردد.',
 
-        'groups' => [
+        'tabs' => [
             'economy' => 'اقتصاد',
-            'baseline' => 'پایه رایگان و پیش‌فرض‌ها',
+            'challenges' => 'چالش‌ها',
             'access' => 'دسترسی و توکن‌ها',
-            'reminders' => 'یادآورها',
-            'proofs' => 'رسانه‌های اثبات',
             'ai' => 'بازبینی با هوش مصنوعی',
             'observability' => 'مشاهده‌پذیری',
         ],
@@ -36,6 +34,10 @@ return [
             'miniapp_token_ttl_minutes' => 'عمر توکن مینی‌اپ (دقیقه)',
             'initdata_max_age_seconds' => 'حداکثر عمر initData (ثانیه)',
             'conversation_ttl_minutes' => 'عمر ویزارد ربات (دقیقه)',
+            'chat_verification_ttl_hours' => 'تازگی تأیید گفت‌وگوی متصل (ساعت)',
+            'chat_command_cooldown_seconds' => 'فاصله‌ی تکرار درخواست تابلوی روزانه (ثانیه)',
+            'leaderboard_hour' => 'ساعت تابلوی روزانه (به وقت منطقه‌ی زمانی چالش)',
+            'leaderboard_top_size' => 'اندازه‌ی تابلوی روزانه (N رشته‌ی برتر)',
             'reminder_ending_lead_hours' => 'پیش‌گرفتی «نزدیک پایان دوره» (ساعت)',
             'proof_media_max_seconds' => 'سقف مدت ضبط (ثانیه)',
             'proof_media_max_size_kb' => 'سقف حجم ضبط (کیلوبایت)',
