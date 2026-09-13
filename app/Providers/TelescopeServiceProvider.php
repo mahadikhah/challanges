@@ -5,7 +5,6 @@ namespace App\Providers;
 use App\Enums\SettingKey;
 use App\Models\User;
 use App\Services\Settings;
-use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Gate;
 use Laravel\Telescope\EntryType;
 use Laravel\Telescope\IncomingEntry;
@@ -26,12 +25,6 @@ use Laravel\Telescope\TelescopeApplicationServiceProvider;
  */
 class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
 {
-    /**
-     * Set once the settings/cache tables are found to be absent, so a fresh
-     * `migrate` does not re-issue a failing SELECT per query.
-     */
-    private bool $schemaMissing = false;
-
     /**
      * Register any application services.
      */
@@ -124,53 +117,15 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
      * The slow-query bar, read at filter time so a settings change takes
      * effect without a restart.
      *
-     * Falls back to the registry default when the schema is not there yet.
-     * This filter runs on the *first* query of a fresh `migrate --force`, and
-     * reading a Setting needs both the `settings` table and — because the cache
-     * store is the `database` driver — the `cache` table, neither of which
-     * exists until the migration it is inspecting has run. Letting that escape
-     * aborted the whole command with zero migrations applied, on every
-     * documented install path (docs/setup-vps.md §3, docs/setup-vm-docker.md
-     * §4, `deploy/dev.sh setup`).
-     *
-     * Only a missing table is tolerated. A connection refused, a bad password
-     * or any other QueryException still propagates: an admin-tuned threshold
-     * must not silently revert to the default because the database is down.
+     * No missing-schema handling is needed here: this filter runs on the
+     * *first* query of a fresh `migrate --force`, and `Settings::overrides()`
+     * itself answers the registry default when the tables do not exist yet —
+     * the pre-migration behaviour is owned in one place, not re-derived per
+     * caller. A genuinely broken database still propagates, so an admin-tuned
+     * threshold never silently reverts to the default because the DB is down.
      */
     private function slowQueryThreshold(): float
     {
-        $default = (float) (is_int($fallback = SettingKey::TelescopeSlowQueryMs->default()) ? $fallback : 0);
-
-        if ($this->schemaMissing) {
-            return $default;
-        }
-
-        try {
-            return (float) $this->app->make(Settings::class)->integer(SettingKey::TelescopeSlowQueryMs);
-        } catch (QueryException $e) {
-            if (! $this->isMissingTable($e)) {
-                throw $e;
-            }
-
-            // Memoised for the life of the process: without this, every query
-            // in a 39-migration run would re-issue a SELECT that is known to
-            // fail. Only ever true before the tables exist, and the process
-            // that creates them is short-lived, so nothing caches a stale
-            // threshold into a running app.
-            $this->schemaMissing = true;
-
-            return $default;
-        }
-    }
-
-    /**
-     * MySQL reports a missing table as 42S02/1146, SQLite as HY000 with the
-     * message below — the test suite and the asset build both run on SQLite,
-     * so both spellings are load-bearing.
-     */
-    private function isMissingTable(QueryException $e): bool
-    {
-        return $e->getCode() === '42S02'
-            || str_contains($e->getMessage(), 'no such table');
+        return (float) $this->app->make(Settings::class)->integer(SettingKey::TelescopeSlowQueryMs);
     }
 }

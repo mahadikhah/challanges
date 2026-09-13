@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\SettingKey;
 use App\Enums\SettingType;
 use App\Models\Setting;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Cache;
 use InvalidArgumentException;
 use LogicException;
@@ -15,7 +16,10 @@ use LogicException;
  * A `settings` row is an override; the SettingKey case carries the default. So
  * `get()` answers correctly against an empty table, which means a forgotten
  * seeder can never take pricing down and a newly added tunable needs no
- * backfill migration.
+ * backfill migration. The same contract holds one step earlier — against a
+ * schema that has not been migrated yet — because reading a tunable happens
+ * during `key:generate`, the first queries of `migrate --force`, and exception
+ * reporting on a fresh database, none of which may abort. See overrides().
  *
  * Reads go through a single cache entry holding every override, because the
  * cache store is the `database` driver (no Redis on the production host) and
@@ -205,10 +209,40 @@ class Settings
      */
     private function overrides(): array
     {
-        return $this->overrides ??= Cache::rememberForever(
-            self::CACHE_KEY,
-            fn (): array => $this->load(),
-        );
+        if ($this->overrides !== null) {
+            return $this->overrides;
+        }
+
+        try {
+            return $this->overrides = Cache::rememberForever(
+                self::CACHE_KEY,
+                fn (): array => $this->load(),
+            );
+        } catch (QueryException $e) {
+            if (! $this->isMissingTable($e)) {
+                throw $e;
+            }
+
+            // The schema has not been migrated yet. The answer is "no
+            // overrides": the registry default each key carries IS the
+            // fallback. Memoised in memory only — the memo dies with the
+            // process, so the `migrate` run that creates these tables is not
+            // left serving defaults afterwards, and nothing is written through
+            // rememberForever, whose entry WOULD outlive the migration and
+            // hide admin overrides until a cache flush.
+            return $this->overrides = [];
+        }
+    }
+
+    /**
+     * MySQL reports a missing table as 42S02/1146, SQLite as HY000 with the
+     * message below — the test suite runs on both, so both spellings are
+     * load-bearing.
+     */
+    private function isMissingTable(QueryException $e): bool
+    {
+        return $e->getCode() === '42S02'
+            || str_contains($e->getMessage(), 'no such table');
     }
 
     /**

@@ -162,3 +162,19 @@ it('keeps reporting an exception when the messenger refuses the alert', function
 
     expect(true)->toBeTrue();
 });
+
+it('never lets a failure inside the alert path replace the exception being reported', function (): void {
+    // CI proved this matters: on a fresh database Telescope could not store
+    // its first entry, the failure was routed here for reporting, and the
+    // alert path's own missing-table QueryException escaped instead — Laravel
+    // does not shield reportable callbacks, so the original error vanished
+    // behind the alerter's failure. Whatever the alert path throws, report()
+    // must survive it.
+    $this->mock(Settings::class)
+        ->shouldReceive('boolean')
+        ->andThrow(new RuntimeException('the settings table is gone'));
+
+    report(new RuntimeException('the original failure'));
+
+    expect(true)->toBeTrue();
+});

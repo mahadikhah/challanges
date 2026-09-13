@@ -2,6 +2,7 @@
 
 namespace App\Actions\Observability;
 
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 /**
@@ -24,14 +25,28 @@ class SendExceptionAlert
     {
         $class = $exception::class;
 
-        $this->alerts->send(
-            "exception:{$class}",
-            fn (): string => __('admin.alerts.exception', [
-                'class' => $class,
-                'reason' => $this->firstLine($exception->getMessage()),
-                'link' => route('admin.system-health.index'),
-            ]),
-        );
+        try {
+            $this->alerts->send(
+                "exception:{$class}",
+                fn (): string => __('admin.alerts.exception', [
+                    'class' => $class,
+                    'reason' => $this->firstLine($exception->getMessage()),
+                    'link' => route('admin.system-health.index'),
+                ]),
+            );
+        } catch (Throwable $alertFailure) {
+            // Laravel does not shield reportable callbacks: an exception thrown
+            // while alerting REPLACES the one being reported, and the original
+            // error disappears. That exact mask hid two real failures already
+            // (a missing Blade cache path during the image build, and
+            // Telescope's first entry insert on a fresh database in CI). Same
+            // discipline as SendCriticalAlert: the alert path never takes down
+            // the code that noticed the failure.
+            Log::warning('An exception alert could not be dispatched.', [
+                'exception' => $class,
+                'reason' => $alertFailure::class,
+            ]);
+        }
     }
 
     /**
