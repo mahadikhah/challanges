@@ -1200,8 +1200,8 @@
     "semantic_hash": ""
   },
   "app/Services/Settings.php": {
-    "mtime": 1788017770.606619,
-    "ast_hash": "1f5e611e4f43f17977279c53b3d8d0c6",
+    "mtime": 1789315525.4571373,
+    "ast_hash": "e022014a0e5087b3077ea85bffdba9f9",
     "semantic_hash": ""
   },
   "database/factories/SettingFactory.php": {
@@ -3345,8 +3345,8 @@
     "semantic_hash": ""
   },
   "app/Providers/TelescopeServiceProvider.php": {
-    "mtime": 1789303466.0013316,
-    "ast_hash": "69122821967954c1c3cf2dbc8b7f195a",
+    "mtime": 1789315551.1505804,
+    "ast_hash": "52e6ba6b02ccb20f628b6bca8492c914",
     "semantic_hash": ""
   },
   "config/telescope.php": {
@@ -3550,8 +3550,8 @@
     "semantic_hash": ""
   },
   "app/Actions/Observability/SendExceptionAlert.php": {
-    "mtime": 1788017770.5716188,
-    "ast_hash": "8d27ee5291be1b121243c2130b7dd824",
+    "mtime": 1789315562.1117692,
+    "ast_hash": "12ac641019238e847236cd97f8c5c990",
     "semantic_hash": ""
   },
   "app/Console/Commands/Observability/AlertOnStaleHeartbeat.php": {
@@ -3565,8 +3565,8 @@
     "semantic_hash": ""
   },
   "tests/Feature/Observability/CriticalAlertsTest.php": {
-    "mtime": 1788017770.733619,
-    "ast_hash": "5ea4e64025051ed7c6a8e75470b3699d",
+    "mtime": 1789315687.9259348,
+    "ast_hash": "ce46a3ff24f75774d3c81484f3cebf74",
     "semantic_hash": ""
   },
   "lang/en/auth.php": {
@@ -3704,14 +3704,9 @@
     "ast_hash": "c5373d6ddec419b90494dd309317ff0a",
     "semantic_hash": ""
   },
-  "tests/Feature/MockProbeTest.php": {
-    "mtime": 1789306624.135392,
-    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
-    "semantic_hash": ""
-  },
   "tests/Feature/TelescopeFilterTest.php": {
-    "mtime": 1789307359.241452,
-    "ast_hash": "edb4f47aee24b38ab7497331ca4e03ee",
+    "mtime": 1789315662.9055047,
+    "ast_hash": "441d5e945b194d5310bcd2d2cf6301e0",
     "semantic_hash": ""
   },
   "tests/Feature/TrustedProxiesTest.php": {
@@ -3747,6 +3742,11 @@
   "docs/setup-vm-docker.md": {
     "mtime": 1789300011.0815847,
     "ast_hash": "30c5f76ff0ffe576e0a158a8bc40acba",
+    "semantic_hash": ""
+  },
+  "tests/Feature/SettingsMissingSchemaTest.php": {
+    "mtime": 1789315680.2778034,
+    "ast_hash": "0b35566eff096f6ac42f299f4cd39483",
     "semantic_hash": ""
   }
 }
