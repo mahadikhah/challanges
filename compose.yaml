@@ -1,3 +1,15 @@
+# Laravel Sail's own compose file, for a machine that already has `vendor/`
+# installed and uses the `sail` binary. Leave it as Sail generates it.
+#
+# It cannot start from a bare clone: it builds its PHP image from
+# ./vendor/laravel/sail/runtimes/8.5 and bind-mounts a MySQL init script from
+# ./vendor/laravel/sail/database/, and `vendor/` is gitignored. For a
+# Docker-only machine with no PHP to install vendor/ with, use the published
+# image instead:
+#
+#   deploy/dev.sh setup       # → deploy/compose.dev.yml
+#
+# See docs/setup-vm-docker.md §8.
 services:
     laravel.test:
         build:

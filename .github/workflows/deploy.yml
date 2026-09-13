@@ -1,0 +1,239 @@
+name: deploy
+
+# Build once, deploy the exact bytes that were tested.
+#
+#   push to master  → build + publish + deploy to STAGING
+#   push tag v*     → build + publish + deploy to PRODUCTION
+#   workflow_dispatch → either, on demand (for rollbacks and re-deploys)
+#
+# Production is promotion-gated on purpose: a tag is a deliberate act, a merge
+# to master is not.
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Which environment to deploy
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      tag:
+        description: Image tag to deploy (blank = build from this ref)
+        required: false
+        type: string
+
+# Two pushes to master must not deploy out of order — the second would race the
+# first and could leave the older image running.
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  REGISTRY: ghcr.io
+  # Lowercased owner/repo. GHCR rejects uppercase, and the repo name itself is
+  # `challanges` — that spelling is intentional here, it matches the remote.
+  IMAGE_NAMESPACE: ghcr.io/mahadikhah/challanges
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Gate: never publish an image that has not passed the full quality gate.
+  # ---------------------------------------------------------------------------
+  tests:
+    # Skipped for a manual deploy of an already-published tag — those bytes
+    # were tested when they were built.
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.tag == ''
+    uses: ./.github/workflows/tests.yml
+
+  # ---------------------------------------------------------------------------
+  # Build and publish app + web images.
+  # ---------------------------------------------------------------------------
+  build:
+    needs: tests
+    # `always()` plus an explicit result check: this must run when `tests` was
+    # skipped (manual deploy of an existing tag) but not when it failed.
+    if: always() && (needs.tests.result == 'success' || needs.tests.result == 'skipped')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image_tag: ${{ steps.meta.outputs.image_tag }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Resolve image tag
+        id: meta
+        env:
+          INPUT_TAG: ${{ github.event.inputs.tag }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          SHA: ${{ github.sha }}
+        run: |
+          # A manually supplied tag means "deploy what already exists" — skip
+          # the build entirely rather than rebuilding different bytes under a
+          # tag someone already tested.
+          if [ -n "$INPUT_TAG" ]; then
+            echo "image_tag=$INPUT_TAG" >> "$GITHUB_OUTPUT"
+            echo "should_build=false" >> "$GITHUB_OUTPUT"
+          elif [ "$REF_TYPE" = "tag" ]; then
+            echo "image_tag=$REF_NAME" >> "$GITHUB_OUTPUT"
+            echo "should_build=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "image_tag=sha-${SHA:0:7}" >> "$GITHUB_OUTPUT"
+            echo "should_build=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Buildx
+        if: steps.meta.outputs.should_build == 'true'
+        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+
+      - name: Log in to GHCR
+        if: steps.meta.outputs.should_build == 'true'
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # The app image. Runs composer install, wayfinder:generate and the Vite
+      # build inside the image — none of those outputs are in git.
+      - name: Build and push app
+        if: steps.meta.outputs.should_build == 'true'
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+        with:
+          context: .
+          file: docker/Dockerfile
+          target: app
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAMESPACE }}/app:${{ steps.meta.outputs.image_tag }}
+            ${{ env.IMAGE_NAMESPACE }}/app:latest
+          build-args: |
+            VITE_APP_NAME=Challenges
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push web
+        if: steps.meta.outputs.should_build == 'true'
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+        with:
+          context: .
+          file: docker/Dockerfile
+          target: web
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAMESPACE }}/web:${{ steps.meta.outputs.image_tag }}
+            ${{ env.IMAGE_NAMESPACE }}/web:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ---------------------------------------------------------------------------
+  # Publish the Sail dev image.
+  # ---------------------------------------------------------------------------
+  # Its build context lives inside vendor/, which is gitignored — so composer
+  # has to run here first. This is what makes `deploy/dev.sh setup` work on a
+  # VM with no PHP: the image it needs is already built.
+  #
+  # Only on master. A version tag is a production release and has nothing to do
+  # with the dev image.
+  build-sail:
+    needs: tests
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.5'
+          tools: composer:v2
+          coverage: none
+
+      # Only to materialise vendor/laravel/sail/runtimes/8.5, which is the
+      # build context below. Dev dependencies are required: laravel/sail is one.
+      - name: Install composer dependencies
+        run: composer install --no-interaction --no-progress
+
+      - name: Log in to GHCR
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push sail-8.5
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+        with:
+          context: vendor/laravel/sail/runtimes/8.5
+          push: true
+          tags: ${{ env.IMAGE_NAMESPACE }}/sail-8.5:latest
+          build-args: |
+            WWWGROUP=1000
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ---------------------------------------------------------------------------
+  # Deploy.
+  # ---------------------------------------------------------------------------
+  # SSH secrets are per-environment (STAGING_* / PRODUCTION_*) even though both
+  # stacks share one VM today. When they split, only the secret values change —
+  # this workflow does not.
+  deploy-staging:
+    needs: build
+    if: |
+      (github.ref == 'refs/heads/master' && github.event_name == 'push') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@2ead5e36573f08b82fbfce1504f1a4b05a647c6f # v1.2.2
+        with:
+          host: ${{ secrets.STAGING_SSH_HOST }}
+          username: ${{ secrets.STAGING_SSH_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          script_stop: true
+          script: |
+            cd ${{ secrets.STAGING_DEPLOY_PATH }}
+            deploy/deploy.sh staging ${{ needs.build.outputs.image_tag }}
+
+  deploy-production:
+    needs: build
+    if: |
+      (github.ref_type == 'tag' && github.event_name == 'push') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    runs-on: ubuntu-latest
+    # Attach a required reviewer to this environment in repo settings if you
+    # want production deploys to pause for approval.
+    environment: production
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@2ead5e36573f08b82fbfce1504f1a4b05a647c6f # v1.2.2
+        with:
+          host: ${{ secrets.PRODUCTION_SSH_HOST }}
+          username: ${{ secrets.PRODUCTION_SSH_USER }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          script_stop: true
+          script: |
+            cd ${{ secrets.PRODUCTION_DEPLOY_PATH }}
+            deploy/deploy.sh production ${{ needs.build.outputs.image_tag }}

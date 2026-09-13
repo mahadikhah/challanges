@@ -3,8 +3,10 @@ name: tests
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
+  # Called by deploy.yml, which gates image publication on this passing.
+  workflow_call:
 
 permissions:
   contents: read
@@ -12,6 +14,39 @@ permissions:
 jobs:
   ci:
     runs-on: ubuntu-latest
+
+    # `composer setup` runs `artisan migrate --force`, and phpunit.xml points the
+    # suite at a `testing` database over DB_CONNECTION=mysql. Both need a real
+    # MySQL, so the suite cannot run without this service.
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: challenges
+          MYSQL_USER: sail
+          MYSQL_PASSWORD: password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -ppassword"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      # Real environment variables beat .env: Laravel's dotenv loader does not
+      # overwrite what is already set. `.env.example` says DB_HOST=mysql for the
+      # Sail network, which is not reachable here.
+      #
+      # DB_DATABASE is deliberately NOT set. phpunit.xml points the suite at a
+      # database named `testing`, and a job-level value here could take
+      # precedence over that — running the tests (and RefreshDatabase's wipe)
+      # against the development database instead.
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_USERNAME: sail
+      DB_PASSWORD: password
 
     steps:
       - name: Checkout code
@@ -22,7 +57,9 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
         with:
-          php-version: '8.3'
+          # Matches the Sail dev runtime (compose.yaml) and the production image
+          # (docker/Dockerfile). Keep all three in step.
+          php-version: '8.5'
           tools: composer:v2
           coverage: none
 
@@ -30,6 +67,18 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '22'
+
+      # phpunit.xml runs the suite against a database literally named `testing`.
+      # Sail's MySQL image creates it from an init script (see
+      # deploy/dev/create-testing-database.sh); a service container has no such
+      # hook, so it is created here — including the grant, since the suite
+      # connects as `sail`, not root.
+      - name: Create testing database
+        run: |
+          mysql -h 127.0.0.1 -u root -ppassword -e \
+            "CREATE DATABASE IF NOT EXISTS testing;
+             GRANT ALL PRIVILEGES ON \`testing%\`.* TO 'sail'@'%';
+             FLUSH PRIVILEGES;"
 
       - name: Setup Application
         run: composer setup

@@ -1,0 +1,157 @@
+# Application stack — one file, both environments.
+#
+# Staging and production differ only by compose project name and env file:
+#
+#   docker compose -p challenges-staging \
+#       -f deploy/compose.app.yml --env-file deploy/staging.env up -d
+#
+# Nothing here names an environment, which is what makes the eventual
+# one-VM → two-VM split a config move rather than a code change. Drive this
+# with deploy/deploy.sh rather than by hand.
+#
+# Two env mechanisms are in play and they are NOT interchangeable:
+#   --env-file    → values for ${...} interpolation in THIS file (DB_DATABASE …)
+#   env_file:     → variables injected INTO the container (what Laravel reads)
+# Both must point at the same per-environment file. deploy.sh exports
+# APP_ENV_FILE for the second one; shell values win over --env-file, so the
+# export is what selects it.
+#
+# Deliberately absent:
+#   - No `deploy.replicas` for queue workers. Compose v1 ignores that key and
+#     would silently give you one worker; deploy.sh passes `--scale queue=N`,
+#     which both versions honour.
+#   - No Redis. Queue, cache and session are all `database` by design
+#     (docs/setup-vps.md §3). Do not "upgrade" them.
+#   - No published ports on `web`. The Caddy edge reaches it over the shared
+#     `edge` network, so only the edge binds host ports.
+
+x-app-common: &app-common
+    # app, scheduler and queue are one image with three commands; this anchor is
+    # the single place their shared runtime wiring lives. Kept deliberately flat
+    # (no nested `<<`) — nested merge keys are not reliably supported across
+    # compose implementations.
+    image: '${IMAGE_REGISTRY:-ghcr.io/mahadikhah/challanges}/app:${IMAGE_TAG:-latest}'
+    restart: unless-stopped
+    env_file:
+        # Absolute path, exported by deploy.sh. Relative paths here resolve
+        # against different base directories depending on the compose version.
+        - '${APP_ENV_FILE:?set APP_ENV_FILE to the absolute path of the per-environment env file}'
+    depends_on:
+        mysql:
+            condition: service_healthy
+    volumes:
+        # Only paths that genuinely need to outlive a container are mounted.
+        # storage/framework and bootstrap/cache are deliberately image-local:
+        # sharing them would have four containers racing on config:cache at boot.
+        - 'storage-app:/var/www/html/storage/app'
+        - 'storage-logs:/var/www/html/storage/logs'
+    networks:
+        - internal
+
+services:
+    web:
+        image: '${IMAGE_REGISTRY:-ghcr.io/mahadikhah/challanges}/web:${IMAGE_TAG:-latest}'
+        restart: unless-stopped
+        depends_on:
+            app:
+                condition: service_started
+        networks:
+            internal: {}
+            edge:
+                # Caddy addresses this alias, never the container name: compose
+                # v1 names containers `project_web_1` and v2 `project-web-1`,
+                # and the edge config must not depend on which one is installed.
+                aliases:
+                    - '${EDGE_ALIAS:?set EDGE_ALIAS, e.g. staging-web — it is what the Caddyfile proxies to}'
+        healthcheck:
+            # Exercises the whole nginx → fastcgi → Laravel path, so a healthy
+            # web container means the stack actually serves requests.
+            test: ['CMD', 'curl', '-fsS', '-o', '/dev/null', 'http://localhost/up']
+            interval: 15s
+            timeout: 10s
+            retries: 5
+            start_period: 30s
+
+    app:
+        <<: *app-common
+        healthcheck:
+            # php-fpm speaks FastCGI, not HTTP, so there is nothing to curl.
+            # Proving the socket accepts connections is the useful signal, and
+            # PHP itself is the only client guaranteed to be in this image.
+            test:
+                [
+                    'CMD',
+                    'php',
+                    '-r',
+                    'exit(@fsockopen("127.0.0.1", 9000) ? 0 : 1);',
+                ]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 30s
+
+    scheduler:
+        <<: *app-common
+        # Replaces the host cron line from docs/setup-vps.md §6. `schedule:work`
+        # is a foreground every-minute ticker — no crond, no log redirection.
+        command: ['php', 'artisan', 'schedule:work']
+
+    queue:
+        <<: *app-common
+        # Same flags as the Supervisor program in docs/setup-vps.md §5.
+        # --max-time recycles the worker hourly to release memory. A deploy is
+        # picked up without `queue:restart`: `up -d` recreates this container on
+        # the new image, so it starts on new code already.
+        command:
+            [
+                'php',
+                'artisan',
+                'queue:work',
+                '--sleep=1',
+                '--tries=3',
+                '--max-time=3600',
+            ]
+
+    mysql:
+        image: 'mysql:8.4'
+        restart: unless-stopped
+        environment:
+            # MYSQL_USER must not be "root" — the image refuses to create it.
+            # Laravel connects as this user; root exists only for maintenance.
+            MYSQL_DATABASE: '${DB_DATABASE:?required}'
+            MYSQL_USER: '${DB_USERNAME:?required}'
+            MYSQL_PASSWORD: '${DB_PASSWORD:?required}'
+            MYSQL_ROOT_PASSWORD: '${DB_ROOT_PASSWORD:?required}'
+        command:
+            - '--character-set-server=utf8mb4'
+            - '--collation-server=utf8mb4_unicode_ci'
+        volumes:
+            - 'mysql-data:/var/lib/mysql'
+        networks:
+            - internal
+        healthcheck:
+            test: ['CMD', 'mysqladmin', 'ping', '-h', '127.0.0.1', '-p${DB_PASSWORD}']
+            interval: 10s
+            timeout: 5s
+            retries: 10
+            start_period: 40s
+
+volumes:
+    # The only irreplaceable data in the stack.
+    mysql-data:
+        driver: local
+    # Proof media (photo/voice submissions) on the `local` filesystem disk.
+    storage-app:
+        driver: local
+    storage-logs:
+        driver: local
+
+networks:
+    # Stack-private: MySQL is reachable from app/scheduler/queue and nothing else.
+    internal:
+        driver: bridge
+    # Created once per VM by deploy/edge/. Shared by both environments' `web`
+    # containers so one Caddy can route to both by hostname.
+    edge:
+        external: true
+        name: '${EDGE_NETWORK:-challenges-edge}'

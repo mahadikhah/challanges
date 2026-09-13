@@ -15,6 +15,14 @@
 .env
 .env.backup
 .env.production
+# Per-environment deploy config: holds bot tokens and DB passwords.
+# The .example templates beside them stay tracked.
+/deploy/*.env
+/deploy/edge/*.env
+# Deploy bookkeeping written by deploy.sh on the VM.
+/deploy/*.tag
+/deploy/*.last-good
+/deploy/*.failed
 .phpactor.json
 .phpunit.result.cache
 Homestead.json

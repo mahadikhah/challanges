@@ -1,0 +1,62 @@
+# TLS edge — one Caddy for the whole VM.
+#
+# Brought up once, independently of any application deploy:
+#
+#   docker network create challenges-edge
+#   cd deploy/edge
+#   cp edge.env.example edge.env   # fill in the two domains + ACME email
+#   docker compose -f compose.edge.yml --env-file edge.env up -d
+#
+# It then stays up across every app deploy. deploy.sh never restarts it, which
+# is the point: certificates and the public listeners survive application
+# rollouts, so a failed deploy cannot take the domains offline with it.
+#
+# Caddy was chosen over nginx + certbot because it obtains and renews
+# certificates itself, with no cron entry and no renewal hook — and cron is
+# exactly what a Docker-only VM does not have.
+#
+# WHEN STAGING AND PRODUCTION SPLIT ONTO SEPARATE VMs:
+# copy this directory to each VM and delete the other environment's site block
+# from the Caddyfile. Nothing in the app stack changes — each VM then runs one
+# edge serving one domain. The shared `challenges-edge` network keeps its name.
+
+services:
+    caddy:
+        image: 'caddy:2.8'
+        restart: unless-stopped
+        # The only host ports bound anywhere in this deployment.
+        # 80 is required even though the app is HTTPS-only: ACME's HTTP-01
+        # challenge and the HTTP→HTTPS redirect both need it.
+        ports:
+            - '80:80'
+            - '443:443'
+            # QUIC/HTTP3. Harmless if the provider firewall drops UDP.
+            - '443:443/udp'
+        environment:
+            STAGING_DOMAIN: '${STAGING_DOMAIN:?required}'
+            PRODUCTION_DOMAIN: '${PRODUCTION_DOMAIN:?required}'
+            # Let's Encrypt sends expiry warnings here.
+            ACME_EMAIL: '${ACME_EMAIL:?required}'
+        volumes:
+            - './Caddyfile:/etc/caddy/Caddyfile:ro'
+            # Certificates and ACME account keys. Losing this volume means
+            # re-requesting every certificate, which is how a VM rebuild walks
+            # into Let's Encrypt's rate limit (5 per domain per week).
+            - 'caddy-data:/data'
+            - 'caddy-config:/config'
+        networks:
+            - edge
+
+volumes:
+    caddy-data:
+        driver: local
+    caddy-config:
+        driver: local
+
+networks:
+    # Created by hand (see the header) so both app stacks can join it as an
+    # external network. Not owned by this compose project — tearing the edge
+    # down must not delete the network the app stacks are attached to.
+    edge:
+        external: true
+        name: '${EDGE_NETWORK:-challenges-edge}'

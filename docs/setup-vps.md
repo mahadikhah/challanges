@@ -6,6 +6,11 @@ This guide deploys the Challenges platform to a fresh Ubuntu 24.04 VPS with Ngin
 Supervisor — a **real long-running queue worker**, which is the main thing this environment offers over
 the cron-bounded shared-hosting deployment in [setup-cpanel.md](setup-cpanel.md).
 
+> **Only have Docker on the box?** [setup-vm-docker.md](setup-vm-docker.md) runs the same stack in
+> containers — no PHP, Composer, Node, Supervisor or cron on the host — and adds staging/production
+> side by side with CI deploys. Use one guide or the other, not both on one machine: they compete for
+> ports 80 and 443.
+
 ## 1. Prerequisites
 
 - Ubuntu 24.04, root or sudo access

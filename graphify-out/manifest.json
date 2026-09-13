@@ -95,8 +95,8 @@
     "semantic_hash": "e66bb13691f6184c762c196427d8e685"
   },
   "bootstrap/app.php": {
-    "mtime": 1788017770.6166189,
-    "ast_hash": "08e26ca31f455ffbfd701891f6b3efd0",
+    "mtime": 1789299365.9072335,
+    "ast_hash": "1937ade151a9cb8ea7d3565200e09dde",
     "semantic_hash": ""
   },
   "bootstrap/providers.php": {
@@ -710,9 +710,9 @@
     "semantic_hash": "2d1dafbc9ecfd469752dbd29e997d413"
   },
   ".github/workflows/tests.yml": {
-    "mtime": 1787315451.0,
-    "ast_hash": "6b598f402144fb54c048212679f35ffe",
-    "semantic_hash": "6b598f402144fb54c048212679f35ffe"
+    "mtime": 1789298696.8780518,
+    "ast_hash": "a49aeb8bd6b222f80745cd4ef6edb35e",
+    "semantic_hash": ""
   },
   "CLAUDE.md": {
     "mtime": 1787596713.659777,
@@ -720,8 +720,8 @@
     "semantic_hash": ""
   },
   "compose.yaml": {
-    "mtime": 1788017770.6176188,
-    "ast_hash": "1bd256630e7fa1ab38b3fa47fd9887d2",
+    "mtime": 1789298848.06675,
+    "ast_hash": "b9d1755ed7d73d376930ab6899b01ade",
     "semantic_hash": ""
   },
   "prompts/main.md": {
@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "prompts/progress.md": {
-    "mtime": 1788017770.6966188,
-    "ast_hash": "ca82c04a96857bd22384ca6a788d4aa6",
+    "mtime": 1788180199.9385307,
+    "ast_hash": "e23d0b7800e922eaec1ed8483b655fa3",
     "semantic_hash": ""
   },
   "prompts/task-01-setup.md": {
@@ -3345,8 +3345,8 @@
     "semantic_hash": ""
   },
   "app/Providers/TelescopeServiceProvider.php": {
-    "mtime": 1788017770.6016188,
-    "ast_hash": "9ce0ed4073de04e20eba522e9aaa21bf",
+    "mtime": 1789303466.0013316,
+    "ast_hash": "69122821967954c1c3cf2dbc8b7f195a",
     "semantic_hash": ""
   },
   "config/telescope.php": {
@@ -3385,13 +3385,13 @@
     "semantic_hash": ""
   },
   "docs/setup-vps.fa.md": {
-    "mtime": 1788017770.6366189,
-    "ast_hash": "a9e23368794dc05a32608e001458ff47",
+    "mtime": 1789300196.8868923,
+    "ast_hash": "225e704b0d359841f4ecc86934c4de1b",
     "semantic_hash": ""
   },
   "docs/setup-vps.md": {
-    "mtime": 1788017770.6376188,
-    "ast_hash": "ade961685df1568faea2adbf0764ad89",
+    "mtime": 1789300180.0525863,
+    "ast_hash": "9a55776d24623bac746277f2027a6e95",
     "semantic_hash": ""
   },
   "docs/user-flows.fa.md": {
@@ -3682,6 +3682,71 @@
   "tests/Feature/Admin/AiUsagePanelTest.php": {
     "mtime": 1788178949.095654,
     "ast_hash": "00acef94f343ce1194598deeb4a2ed17",
+    "semantic_hash": ""
+  },
+  "deploy/deploy.sh": {
+    "mtime": 1789298400.639864,
+    "ast_hash": "4a5d2c75eb371e7e28308ff298b635cd",
+    "semantic_hash": ""
+  },
+  "deploy/dev.sh": {
+    "mtime": 1789298541.359279,
+    "ast_hash": "e7f94c9ea68734023ec8e786f03c2747",
+    "semantic_hash": ""
+  },
+  "deploy/dev/create-testing-database.sh": {
+    "mtime": 1789298468.3165066,
+    "ast_hash": "2765502504b22b6b96d76c10a0fecc16",
+    "semantic_hash": ""
+  },
+  "docker/entrypoint.sh": {
+    "mtime": 1789297710.2644546,
+    "ast_hash": "c5373d6ddec419b90494dd309317ff0a",
+    "semantic_hash": ""
+  },
+  "tests/Feature/MockProbeTest.php": {
+    "mtime": 1789306624.135392,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "tests/Feature/TelescopeFilterTest.php": {
+    "mtime": 1789307359.241452,
+    "ast_hash": "edb4f47aee24b38ab7497331ca4e03ee",
+    "semantic_hash": ""
+  },
+  "tests/Feature/TrustedProxiesTest.php": {
+    "mtime": 1789299394.6765342,
+    "ast_hash": "c4094b3b7d6d97ac321ca40994ac33e4",
+    "semantic_hash": ""
+  },
+  ".github/workflows/deploy.yml": {
+    "mtime": 1789298771.9734735,
+    "ast_hash": "8ede7992c7010b62572d8ad7d7809c2d",
+    "semantic_hash": ""
+  },
+  "deploy/compose.app.yml": {
+    "mtime": 1789299942.57741,
+    "ast_hash": "f914b63b8cdf99637d8bf022d679981d",
+    "semantic_hash": ""
+  },
+  "deploy/compose.dev.yml": {
+    "mtime": 1789298511.0585437,
+    "ast_hash": "85b6e37c941e294631446513b0f45297",
+    "semantic_hash": ""
+  },
+  "deploy/edge/compose.edge.yml": {
+    "mtime": 1789298179.6734908,
+    "ast_hash": "88ca7e68fa553d9f761eae134d72f39b",
+    "semantic_hash": ""
+  },
+  "docs/setup-vm-docker.fa.md": {
+    "mtime": 1789300157.9591866,
+    "ast_hash": "4ca4310f49715fa119f3bcbb1ff4d190",
+    "semantic_hash": ""
+  },
+  "docs/setup-vm-docker.md": {
+    "mtime": 1789300011.0815847,
+    "ast_hash": "30c5f76ff0ffe576e0a158a8bc40acba",
     "semantic_hash": ""
   }
 }

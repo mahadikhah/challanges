@@ -1,0 +1,84 @@
+# Development stack for a Docker-only VM.
+#
+#   deploy/dev.sh up
+#
+# Why this exists alongside the root compose.yaml: that file is Sail's own, and
+# on a fresh clone it cannot start. It builds its PHP image from
+# ./vendor/laravel/sail/runtimes/8.5 and bind-mounts a MySQL init script from
+# ./vendor/laravel/sail/database/ — and `vendor/` is gitignored, so neither path
+# exists until composer has run. Which it cannot, because composer is what this
+# stack is meant to provide. This file breaks that circle by using the PUBLISHED
+# sail image and a committed copy of the init script.
+#
+# The root compose.yaml stays the file a laptop with vendor/ installed uses via
+# the normal `sail` binary. Nothing here replaces it.
+#
+# This is a DEVELOPMENT stack: the source tree is bind-mounted, so edits on the
+# VM take effect immediately and `npm run dev` can serve HMR. It is not what
+# staging or production run — those use deploy/compose.app.yml and immutable
+# images built in CI.
+#
+# The relative volume paths below ('.', './deploy/dev/…') are resolved against
+# the PROJECT directory, which defaults to this file's own directory. They are
+# written relative to the repo root, so this file must always be invoked with
+# `--project-directory <repo root>`. deploy/dev.sh does that; running
+# `docker compose -f deploy/compose.dev.yml up` by hand would bind-mount
+# deploy/ as the application and fail confusingly.
+
+services:
+    laravel.test:
+        image: '${IMAGE_REGISTRY:-ghcr.io/mahadikhah/challanges}/sail-8.5:${SAIL_TAG:-latest}'
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        ports:
+            - '${APP_PORT:-80}:80'
+            - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+        environment:
+            # Sail's entrypoint creates a container user with this uid so files
+            # written inside the container stay editable on the host.
+            WWWUSER: '${WWWUSER:-1000}'
+            LARAVEL_SAIL: 1
+            XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
+            XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - sail
+        depends_on:
+            mysql:
+                condition: service_healthy
+
+    mysql:
+        image: 'mysql:8.4'
+        ports:
+            - '${FORWARD_DB_PORT:-3306}:3306'
+        environment:
+            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD:-password}'
+            MYSQL_ROOT_HOST: '%'
+            MYSQL_DATABASE: '${DB_DATABASE:-challenges}'
+            MYSQL_USER: '${DB_USERNAME:-sail}'
+            MYSQL_PASSWORD: '${DB_PASSWORD:-password}'
+            MYSQL_ALLOW_EMPTY_PASSWORD: 1
+        volumes:
+            - 'dev-mysql:/var/lib/mysql'
+            # The committed copy — see the header for why this is not the
+            # vendor/ path the root compose.yaml uses.
+            - './deploy/dev/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
+        networks:
+            - sail
+        healthcheck:
+            test:
+                - CMD
+                - mysqladmin
+                - ping
+                - '-p${DB_PASSWORD:-password}'
+            retries: 3
+            timeout: 5s
+
+networks:
+    sail:
+        driver: bridge
+
+volumes:
+    dev-mysql:
+        driver: local

@@ -39,6 +39,27 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        /*
+        | Every deployment sits behind a reverse proxy that terminates TLS —
+        | Caddy in the Docker stack (deploy/edge/), Nginx on the VPS. Without
+        | this, Laravel reads the proxy's own address as the client and the
+        | connection as plain HTTP, which breaks three things at once:
+        |
+        |   - `url()`/`route()` emit http:// links. Telegram Mini App webviews
+        |     refuse to load mixed content, so the SPA's own assets fail.
+        |   - Rate limiters bucket every user under the proxy's single IP, so
+        |     one noisy client throttles everyone.
+        |   - `$request->ip()` is useless for abuse investigation.
+        |
+        | `at: '*'` trusts whatever forwarded the request, which is correct here
+        | precisely because the app is never reachable directly: in the Docker
+        | stack `web` publishes no host ports and is only routed to over the
+        | internal `edge` network, and on the VPS php-fpm listens on a unix
+        | socket. A narrower CIDR would have to track Docker's bridge subnet,
+        | which is assigned dynamically per host.
+        */
+        $middleware->trustProxies(at: '*');
+
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
         // The bot webhook and the Mini App JSON API are stateless and must not

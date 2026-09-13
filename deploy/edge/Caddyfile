@@ -1,0 +1,82 @@
+# Caddy edge config. Two domains, two upstreams, one certificate store.
+#
+# Upstream names (`staging-web`, `production-web`) are the network ALIASES set
+# in deploy/compose.app.yml, not container names — compose v1 and v2 name
+# containers differently and this file must not care which is installed.
+#
+# Upstream DNS is resolved per request, not at startup, so this config loads
+# even when one environment has never been deployed. That environment's domain
+# simply returns 502 until its stack comes up.
+
+{
+	email {$ACME_EMAIL}
+
+	# Uncomment to use Let's Encrypt's staging CA while testing DNS or the
+	# firewall. Its certificates are untrusted by browsers, but its rate limits
+	# are generous — unlike production's 5 certificates per domain per week.
+	# acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+}
+
+# Shared by both sites.
+(app_common) {
+	encode zstd gzip
+
+	# Proof uploads (photo/voice). nginx enforces 20m inside the web container
+	# (docker/nginx.conf) and PHP 20M/24M in docker/php.ini; this is the outer
+	# bound of the same limit. Raising one without the others just moves which
+	# layer produces the confusing error.
+	request_body {
+		max_size 24MB
+	}
+
+	header {
+		# HSTS. Only meaningful once the domain is known-good over HTTPS —
+		# browsers honour it for a year and it cannot be retracted quickly.
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+}
+
+{$PRODUCTION_DOMAIN} {
+	import app_common
+
+	reverse_proxy production-web:80 {
+		# Laravel reads these to reconstruct the original request. Without the
+		# proto header the app would generate http:// URLs behind this proxy.
+		header_up X-Forwarded-Proto {scheme}
+		header_up X-Forwarded-Host {host}
+
+		# Telegram retries any non-2xx webhook delivery, so a brief 502 during
+		# a deploy is recoverable — but passive health checks keep Caddy from
+		# hammering a container that is still booting.
+		health_uri /up
+		health_interval 10s
+		health_timeout 5s
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}
+
+{$STAGING_DOMAIN} {
+	import app_common
+
+	reverse_proxy staging-web:80 {
+		header_up X-Forwarded-Proto {scheme}
+		header_up X-Forwarded-Host {host}
+
+		health_uri /up
+		health_interval 10s
+		health_timeout 5s
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}
