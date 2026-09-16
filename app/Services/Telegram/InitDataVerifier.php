@@ -61,10 +61,6 @@ class InitDataVerifier
                 throw InvalidInitDataException::malformed('a field name is not a string');
             }
 
-            if ($key === 'signature') {
-                continue;
-            }
-
             if ($key === 'hash') {
                 if (! is_string($value) || $value === '') {
                     throw InvalidInitDataException::malformed('no hash');
