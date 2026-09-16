@@ -136,6 +136,71 @@ function lastBotReply(): array
 }
 
 /**
+ * Every media send the bot made: the endpoint it went to and its fields.
+ *
+ * `botMessages()` reads form-encoded bodies, and a media send is multipart —
+ * `parse_str` would see one boundary blob and read nothing — so these come out
+ * of the raw body instead.
+ *
+ * `endpoint` is the SDK method's own suffix, lower-cased: `photo`, `voice` or
+ * `video`, matching `CheckIn::proofKind()`'s vocabulary.
+ *
+ * @return list<array{endpoint: string, fields: array<string, string>}>
+ */
+function botMediaMessages(): array
+{
+    return Http::recorded(
+        fn (Request $request): bool => preg_match('#/send(Photo|Voice|Video)$#', $request->url()) === 1,
+    )->map(function (array $call): array {
+        /** @var Request $request */
+        $request = $call[0];
+
+        $matched = preg_match('#/send(Photo|Voice|Video)$#', $request->url(), $matches);
+
+        return [
+            'endpoint' => $matched === 1 ? strtolower($matches[1]) : '',
+            'fields' => multipartFields($request),
+        ];
+    })->values()->all();
+}
+
+/**
+ * Every part of a multipart body, as the wire carried it — field name to value.
+ *
+ * The part's own headers are skipped rather than named, because a file part
+ * carries `Content-Type` and a scalar part does not. Values are read literally
+ * rather than through Laravel's parsed view of them: for a media send the thing
+ * under test is the bytes that left the process.
+ *
+ * @return array<string, string>
+ */
+function multipartFields(Request $request): array
+{
+    preg_match_all(
+        '/name="([^"]+)"[^\r\n]*\r\n(?:[^\r\n]*\r\n)*?\r\n(.*?)\r\n--/s',
+        $request->body(),
+        $matches,
+        PREG_SET_ORDER,
+    );
+
+    $fields = [];
+
+    foreach ($matches as $match) {
+        $fields[$match[1]] = $match[2];
+    }
+
+    return $fields;
+}
+
+/**
+ * One part of a multipart body, or null when the send carried no such part.
+ */
+function multipartField(Request $request, string $name): ?string
+{
+    return multipartFields($request)[$name] ?? null;
+}
+
+/**
  * A line of bot copy, so assertions compare against the translation files rather
  * than English pasted into a test and left behind by the next copy change.
  *

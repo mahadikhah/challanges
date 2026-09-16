@@ -805,8 +805,8 @@
     "semantic_hash": ""
   },
   "tests/Pest.php": {
-    "mtime": 1788017770.737619,
-    "ast_hash": "b83c4dcb99b2df924960def314dd1abe",
+    "mtime": 1789518704.9249675,
+    "ast_hash": "259bafd6ad8f34b5afd76d7261c632b6",
     "semantic_hash": ""
   },
   "tests/Unit/SanityTest.php": {
@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "prompts/progress.md": {
-    "mtime": 1788180199.9385307,
-    "ast_hash": "e23d0b7800e922eaec1ed8483b655fa3",
+    "mtime": 1789518600.8073676,
+    "ast_hash": "b4198d8362d8df101b8b4b7912b22e55",
     "semantic_hash": ""
   },
   "prompts/task-01-setup.md": {
@@ -1775,8 +1775,8 @@
     "semantic_hash": ""
   },
   "app/Services/Telegram/BotMessenger.php": {
-    "mtime": 1788017770.6076188,
-    "ast_hash": "5121ffdd3f2d87334801e7190528e6ea",
+    "mtime": 1789518673.4762232,
+    "ast_hash": "3adfb407bb65ec35b70821c8f56828d5",
     "semantic_hash": ""
   },
   "app/Services/Telegram/CommandRouter.php": {
@@ -2015,8 +2015,8 @@
     "semantic_hash": ""
   },
   "app/Services/Telegram/CheckInFlow.php": {
-    "mtime": 1788017770.6106188,
-    "ast_hash": "2a5b2ba5c038f1625431b4fdaf129be0",
+    "mtime": 1789518690.2095478,
+    "ast_hash": "1ab3b09e2084b663a1f8c8cac08d43ec",
     "semantic_hash": ""
   },
   "app/Services/Telegram/Commands/CheckInCommand.php": {
@@ -2030,8 +2030,8 @@
     "semantic_hash": ""
   },
   "tests/Feature/Bot/CheckInFlowTest.php": {
-    "mtime": 1788017770.7186189,
-    "ast_hash": "0ba9effeb5852f0aef5f66450d224523",
+    "mtime": 1789519145.3931568,
+    "ast_hash": "65bb0550d03d1a31ed353f4669f6c0db",
     "semantic_hash": ""
   },
   "app/Actions/Reminders/DispatchDueReminders.php": {
@@ -3755,8 +3755,8 @@
     "semantic_hash": ""
   },
   "tests/Feature/Messaging/MessengerMediaSendingTest.php": {
-    "mtime": 1789518366.539404,
-    "ast_hash": "d41ae56f4767d5e94f998730b550a59c",
+    "mtime": 1789518709.7887785,
+    "ast_hash": "6e80ecc0378bb61b10799ad60cabe12c",
     "semantic_hash": ""
   },
   "prompts/goal-phase-17.md": {

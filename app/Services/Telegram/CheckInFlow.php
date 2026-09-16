@@ -11,6 +11,7 @@ use App\Enums\ConversationState;
 use App\Enums\ProofType;
 use App\Enums\SettingKey;
 use App\Exceptions\CheckInRejectedException;
+use App\Messaging\Contracts\MessengerException;
 use App\Models\BotConversation;
 use App\Models\Challenge;
 use App\Models\ChallengeParticipant;
@@ -22,6 +23,7 @@ use App\Services\Telegram\Callbacks\CheckInCallback;
 use App\Services\Telegram\Callbacks\ReviewCheckInCallback;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use LogicException;
 use Throwable;
 
@@ -784,10 +786,18 @@ class CheckInFlow
     /**
      * Hand a submitted proof to the creator, with the verdict buttons on it.
      *
-     * The message names what kind of thing to review; the thing itself is
-     * previewed in the admin panel's review queue — the bot has no way to
-     * attach a stored recording to a message without re-uploading it, and the
-     * queue is where a verdict can be considered anyway.
+     * The proof itself rides along: a photo, a voice note or a video goes out
+     * as the media message, with the approve/reject buttons on its caption, so
+     * the creator decides from the thing rather than from a description of it.
+     * One send, not two — the messenger allows roughly a message a second per
+     * chat, and the second send is the one that gets refused.
+     *
+     * When the media cannot go out — no file stored, an extension the upload
+     * pipeline does not write, the file gone from disk, or the platform
+     * refusing the upload — the creator still gets the sentence and the
+     * buttons, because a creator who can approve from a text message is
+     * strictly better served than one who hears nothing. The admin review queue
+     * remains the backstop either way.
      */
     private function notifyReviewer(User $participant, Challenge $challenge, CheckIn $checkIn): void
     {
@@ -807,12 +817,14 @@ class CheckInFlow
 
         $kind = $checkIn->proofKind() ?? 'image';
 
-        $this->messenger->paragraphs($creator, [
+        $lines = [
             $this->messenger->line($creator, "bot.checkin.review_prompt_{$kind}", [
                 'name' => $participant->first_name ?? $participant->name,
                 'title' => $challenge->title,
             ]),
-        ], [
+        ];
+
+        $keyboard = [
             [
                 [
                     'text' => $this->messenger->line($creator, 'bot.checkin.approve_button'),
@@ -823,7 +835,67 @@ class CheckInFlow
                     'callback_data' => BotCallback::encode(ReviewCheckInCallback::ACTION, (string) $checkIn->getKey(), ReviewCheckInCallback::REJECT),
                 ],
             ],
-        ]);
+        ];
+
+        if (! $this->sendProofMedia($creator, $checkIn, $lines, $keyboard)) {
+            $this->messenger->paragraphs($creator, $lines, $keyboard);
+        }
+    }
+
+    /**
+     * Send the stored proof to the creator as media, buttons on the caption.
+     *
+     * @param  list<string|null>  $lines
+     * @param  list<list<array<string, string>>>  $keyboard
+     * @return bool false when the media could not go out and the caller should fall back to text
+     */
+    private function sendProofMedia(User $creator, CheckIn $checkIn, array $lines, array $keyboard): bool
+    {
+        $path = $checkIn->proof_path;
+
+        if ($path === null) {
+            // A tap or a typed phrase: there is no file, and none was expected.
+            return false;
+        }
+
+        $kind = $checkIn->proofKind();
+
+        if ($kind === null) {
+            Log::warning('A check-in proof has an extension the bot cannot send; the creator got the text instead.', [
+                'check_in_id' => $checkIn->getKey(),
+                'proof_path' => $path,
+            ]);
+
+            return false;
+        }
+
+        $bytes = Storage::disk('local')->get($path);
+
+        if ($bytes === null) {
+            Log::warning('A check-in proof is missing from disk; the creator got the text instead.', [
+                'check_in_id' => $checkIn->getKey(),
+                'proof_path' => $path,
+            ]);
+
+            return false;
+        }
+
+        try {
+            // `basename` keeps the stored extension, which is what the platform
+            // reads to pick a content type; the stored name is a random hash, so
+            // nothing about the sender travels with it.
+            $this->messenger->sendMedia($creator, $kind, $bytes, basename($path), $lines, $keyboard);
+
+            return true;
+        } catch (MessengerException $failure) {
+            Log::warning('A check-in proof could not be sent to its creator; the text went instead.', [
+                'check_in_id' => $checkIn->getKey(),
+                'proof_path' => $path,
+                'reason' => $failure->getMessage(),
+            ]);
+
+            return false;
+        }
     }
 
     /**

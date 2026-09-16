@@ -18,8 +18,12 @@ use App\Services\Settings;
 use App\Services\Telegram\BotCallback;
 use App\Services\Telegram\Callbacks\CheckInCallback;
 use App\Services\Telegram\Callbacks\ReviewCheckInCallback;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\Response;
+use Illuminate\Http\Client\ResponseSequence;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
@@ -51,16 +55,46 @@ beforeEach(function () {
 /**
  * Telegram's answers: files fetched, membership confirmed when asked, taps
  * acknowledged, messages accepted.
+ *
+ * `$overrides` replaces a stub by pattern, so a test that needs one endpoint to
+ * refuse does not have to restate the lot — `Http::fake()` appends and the
+ * first matching pattern wins, so a second call would be shadowed by this one.
+ *
+ * @param  array<string, Response|ResponseSequence>  $overrides
  */
-function telegramServesTheLot(): void
+function telegramServesTheLot(array $overrides = []): void
 {
-    Http::fake([
+    Http::fake($overrides + [
         '*getChatMember*' => Http::response(['ok' => true, 'result' => ['status' => 'member']]),
         '*answerCallbackQuery*' => Http::response(['ok' => true, 'result' => true]),
         '*sendMessage*' => Http::response(['ok' => true, 'result' => ['message_id' => 11]]),
+        // The creator's proof notifications are media sends, and a multipart
+        // upload with no stub raises a stray-request failure that the flow
+        // swallows as "the media could not go out" — so an unstubbed endpoint
+        // would make every media assertion below pass for the wrong reason.
+        '*sendPhoto*' => Http::response(['ok' => true, 'result' => ['message_id' => 12]]),
+        '*sendVoice*' => Http::response(['ok' => true, 'result' => ['message_id' => 13]]),
+        '*sendVideo*' => Http::response(['ok' => true, 'result' => ['message_id' => 14]]),
         '*getFile*' => Http::response(['ok' => true, 'result' => ['file_id' => 'x', 'file_path' => 'photos/proof.jpg']]),
         'https://api.telegram.org/file/*' => Http::response('jpeg-bytes'),
     ]);
+}
+
+/**
+ * A proof disk that accepts the download but cannot hand the bytes back.
+ *
+ * The one condition the flow cannot reach by ordinary means: `TelegramFileDownloader`
+ * writes the file and `CheckInFlow` reads it back inside the same update, so the
+ * only way to lose it in between is to make the disk lose it.
+ */
+function proofsVanishAfterTheyAreStored(): void
+{
+    $disk = Mockery::mock(Filesystem::class);
+    $disk->shouldReceive('put')->andReturnTrue();
+    $disk->shouldReceive('get')->andReturnNull();
+    $disk->shouldReceive('exists')->andReturnFalse();
+
+    Storage::set('local', $disk);
 }
 
 /**
@@ -433,11 +467,25 @@ describe('photo proof', function () {
         expect($getFile)->not->toBeNull()
             ->and($getFile[0]->url())->toContain('file_id=AgACbig');
 
-        // The participant hears the photo landed; the creator hears it is theirs
-        // to judge, with the verdict buttons riding on that same message.
-        expect(lastBotReply()['text'])
-            ->toContain(botCopy('bot.checkin.review_prompt_image', ['name' => 'Sara', 'title' => 'Morning run']))
-            ->and(lastBotKeyboard())->toBe([[
+        // The participant hears the photo landed; the creator gets the photo
+        // itself, with the verdict buttons riding on that same message's caption.
+        // Before Phase 17 this asserted the review line was the last *text*
+        // message — it is now a media send, so the assertion moved there rather
+        // than being dropped.
+        $messages = botMessages();
+
+        expect($messages)->toHaveCount(2)
+            ->and($messages[1]['text'])->toBe(botCopy('bot.checkin.photo_sent', ['title' => 'Morning run']));
+
+        $media = botMediaMessages();
+
+        expect($media)->toHaveCount(1)
+            ->and($media[0]['endpoint'])->toBe('photo')
+            ->and($media[0]['fields']['chat_id'])->toBe('8882002')
+            ->and($media[0]['fields']['photo'])->toBe('jpeg-bytes')
+            ->and($media[0]['fields']['caption'])
+            ->toBe(botCopy('bot.checkin.review_prompt_image', ['name' => 'Sara', 'title' => 'Morning run']))
+            ->and(keyboardOn($media[0]['fields']))->toBe([[
                 [
                     'text' => botCopy('bot.checkin.approve_button'),
                     'callback_data' => BotCallback::encode(ReviewCheckInCallback::ACTION, (string) $checkIn->getKey(), ReviewCheckInCallback::APPROVE),
@@ -447,9 +495,6 @@ describe('photo proof', function () {
                     'callback_data' => BotCallback::encode(ReviewCheckInCallback::ACTION, (string) $checkIn->getKey(), ReviewCheckInCallback::REJECT),
                 ],
             ]]);
-
-        expect(botMessages()[count(botMessages()) - 2]['text'])
-            ->toBe(botCopy('bot.checkin.photo_sent', ['title' => 'Morning run']));
     });
 
     it('re-asks when text arrives where a photo was due', function () {
@@ -504,7 +549,7 @@ describe('recording proof', function () {
             ->toBe(ConversationState::AwaitingCheckInVoice);
     });
 
-    it('stores the voice message and points the creator at the queue', function () {
+    it('stores the voice message and hands the creator the recording', function () {
         telegramServesTheLot();
         $challenge = checkinChallenge(ProofType::VoiceApproval, attributes: recordingCaps());
         theCreatorOf($challenge, 888_200_2);
@@ -520,12 +565,30 @@ describe('recording proof', function () {
             ->and(Storage::disk('local')->exists($checkIn->proof_path))->toBeTrue()
             ->and(BotConversation::query()->where('user_id', $user->getKey())->exists())->toBeFalse();
 
-        // The participant hears it landed; the creator is pointed at the queue —
-        // there is nothing to show inline, the verdict lives in the review list.
-        expect(lastBotReply()['text'])
+        // The participant hears it landed; the creator gets the recording — the
+        // queue is no longer the only place a voice proof can be heard.
+        $messages = botMessages();
+
+        expect($messages)->toHaveCount(2)
+            ->and($messages[1]['text'])->toBe(botCopy('bot.checkin.voice_sent', ['title' => 'Morning run']));
+
+        $media = botMediaMessages();
+
+        expect($media)->toHaveCount(1)
+            ->and($media[0]['endpoint'])->toBe('voice')
+            ->and($media[0]['fields']['chat_id'])->toBe('8882002')
+            ->and($media[0]['fields']['caption'])
             ->toBe(botCopy('bot.checkin.review_prompt_voice', ['name' => 'Sara', 'title' => 'Morning run']))
-            ->and(botMessages()[count(botMessages()) - 2]['text'])
-            ->toBe(botCopy('bot.checkin.voice_sent', ['title' => 'Morning run']));
+            ->and(keyboardOn($media[0]['fields']))->toBe([[
+                [
+                    'text' => botCopy('bot.checkin.approve_button'),
+                    'callback_data' => BotCallback::encode(ReviewCheckInCallback::ACTION, (string) $checkIn->getKey(), ReviewCheckInCallback::APPROVE),
+                ],
+                [
+                    'text' => botCopy('bot.checkin.reject_button'),
+                    'callback_data' => BotCallback::encode(ReviewCheckInCallback::ACTION, (string) $checkIn->getKey(), ReviewCheckInCallback::REJECT),
+                ],
+            ]]);
     });
 
     it('stores a video the same way, under the same caps', function () {
@@ -547,8 +610,13 @@ describe('recording proof', function () {
         $checkIn = CheckIn::query()->where('challenge_participant_id', $participant->getKey())->sole();
 
         expect($checkIn->status)->toBe(CheckInStatus::Submitted)
-            ->and($checkIn->proofKind())->toBe('video')
-            ->and(lastBotReply()['text'])
+            ->and($checkIn->proofKind())->toBe('video');
+
+        $media = botMediaMessages();
+
+        expect($media)->toHaveCount(1)
+            ->and($media[0]['endpoint'])->toBe('video')
+            ->and($media[0]['fields']['caption'])
             ->toBe(botCopy('bot.checkin.review_prompt_video', ['name' => 'Sara', 'title' => 'Morning run']));
     });
 
@@ -882,5 +950,83 @@ describe('quantity scoring', function () {
             ->toBe(botCopy('bot.checkin.review_approved_scored', [
                 'title' => 'Morning run', 'value' => '20', 'unit' => 'pushups', 'score' => 67, 'streak' => 1,
             ]));
+    });
+});
+
+describe('the creator notification when the proof cannot be sent', function () {
+    it('hands over the text and the buttons when the proof has vanished from disk', function () {
+        // A creator who can still approve from a sentence is better served than
+        // one who hears nothing, so the media failing is a downgrade, not a
+        // dropped review.
+        telegramServesTheLot();
+        Log::spy();
+        proofsVanishAfterTheyAreStored();
+
+        $challenge = checkinChallenge(ProofType::ImageApproval);
+        theCreatorOf($challenge, 888_200_2);
+        aParticipantIn($challenge, 888_100_1);
+
+        taps(BotCallback::encode(CheckInCallback::ACTION, $challenge->join_token), 888_100_1);
+        sendsPhoto(888_100_1);
+
+        expect(botMediaMessages())->toBeEmpty()
+            ->and(lastBotReply()['text'])
+            ->toBe(botCopy('bot.checkin.review_prompt_image', ['name' => 'Sara', 'title' => 'Morning run']))
+            ->and(lastBotKeyboard()[0])->toHaveCount(2);
+
+        Log::shouldHaveReceived('warning')
+            ->withArgs(fn (string $message): bool => str_contains($message, 'missing from disk'))
+            ->once();
+    });
+
+    it('hands over the text and the buttons when the platform refuses the upload', function () {
+        telegramServesTheLot([
+            '*sendPhoto*' => Http::response([
+                'ok' => false,
+                'error_code' => 400,
+                'description' => 'Bad Request: PHOTO_INVALID_DIMENSIONS',
+            ], 400),
+        ]);
+        Log::spy();
+
+        $challenge = checkinChallenge(ProofType::ImageApproval);
+        theCreatorOf($challenge, 888_200_2);
+        aParticipantIn($challenge, 888_100_1);
+
+        taps(BotCallback::encode(CheckInCallback::ACTION, $challenge->join_token), 888_100_1);
+        sendsPhoto(888_100_1);
+
+        // The submission itself still stands — only the notification degraded.
+        expect(CheckIn::query()->sole()->status)->toBe(CheckInStatus::Submitted)
+            ->and(lastBotReply()['text'])
+            ->toBe(botCopy('bot.checkin.review_prompt_image', ['name' => 'Sara', 'title' => 'Morning run']))
+            ->and(lastBotKeyboard()[0])->toHaveCount(2);
+
+        Log::shouldHaveReceived('warning')
+            ->withArgs(fn (string $message): bool => str_contains($message, 'could not be sent to its creator'))
+            ->once();
+    });
+
+    it('logs rather than sending when the creator has no messenger identity', function () {
+        telegramServesTheLot();
+        Log::spy();
+
+        $challenge = checkinChallenge(ProofType::ImageApproval);
+
+        // An email-only admin created this challenge — an import, say. There is
+        // no chat to send to, and the review queue already holds the submission.
+        $admin = User::factory()->create(['channel_verified_at' => now()]);
+        $challenge->forceFill(['creator_id' => $admin->getKey()])->save();
+
+        aParticipantIn($challenge, 888_100_1);
+
+        taps(BotCallback::encode(CheckInCallback::ACTION, $challenge->join_token), 888_100_1);
+        sendsPhoto(888_100_1);
+
+        expect(botMediaMessages())->toBeEmpty();
+
+        Log::shouldHaveReceived('info')
+            ->withArgs(fn (string $message): bool => str_contains($message, 'awaits a creator the bot cannot message'))
+            ->once();
     });
 });

@@ -2756,3 +2756,43 @@ tsc ✓, tests **1701 (1697 pass, 4 skipped)**, 6228 assertions.
 
 **Next:** Task 2 — `notifyReviewer()` reads `proof_path` off disk and sends it with the verdict buttons, one
 send, honest text-only fallback.
+
+### Task 2 — The creator receives the actual proof (simple flow) ✅
+
+**Why.** Issue 2, and the other half of the root cause Task 1 measured: with the capability in place,
+`notifyReviewer()` still sent only a sentence, so a creator reviewing an `image_approval` photo was deciding
+from a description of it. The docblock's justification ("the bot has no way to attach a stored recording")
+is gone — the method now does.
+
+**What shipped:**
+- **`BotMessenger::sendMedia()`** — the one new seam. It resolves the platform and chat id from our own
+  `users` row (never from a payload, the same rule `send()` follows), then dispatches to
+  `sendPhoto`/`sendVoice`/`sendVideo` by `CheckIn::proofKind()`'s vocabulary. A `kind` outside those three is a
+  `LogicException` — a caller bug, not a user-facing state.
+- **`CheckInFlow::notifyReviewer()`** builds the caption and the verdict buttons once, then tries the media;
+  `sendProofMedia()` returns false and the method falls back to `paragraphs()` with the *same* lines and the
+  *same* keyboard. **One send either way** — the buttons ride on the media message's caption.
+- **Degradation is honest and logged**, per branch: no `proof_path` (a tap or a typed phrase — nothing was
+  expected, no log), an extension the upload pipeline does not write, the file gone from disk, or the platform
+  refusing the upload. The admin review queue stays the backstop.
+- `basename($path)` names the upload — the stored name is a random hash, so the extension survives and nothing
+  about the sender travels with it.
+
+**Tests.** `CheckInFlowTest` now has a `the creator notification when the proof cannot be sent` block (3) plus
+the rewritten media assertions. `telegramServesTheLot()` gained an `$overrides` parameter and, more
+importantly, **stubs `sendPhoto`/`sendVoice`/`sendVideo`** — without that the multipart upload raised a stray
+request, `sent()` wrapped it in `MessengerException`, and the fallback swallowed it: every media assertion
+would have passed for the wrong reason. The three pinned text-only assertions at the old `~439/~442`, `~526`
+and `~552` were **moved to the media send, not deleted**, and the permission test's name changed from "points
+the creator at the queue" to "hands the creator the recording".
+
+**Reachability note (recorded).** `TelegramFileDownloader` fixes the stored extension (`jpg`/`ogg`/`mp4`), so
+the `proofKind() === null` branch is defensive and cannot be produced by the bot flow — it is left in place as
+a guard, and its fallback behaviour is the same one the missing-file and refused-upload branches exercise.
+Task 3 revisits it if session step submissions can hold a caller-supplied extension.
+
+**Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓,
+tsc ✓, tests **1704 (1700 pass, 4 skipped)**, 6250 assertions.
+
+**Next:** Task 3 — the timed-session gap: copy the session's latest proof-bearing submission onto
+`check_ins.proof_path`, extract a shared `ProofReviewNotifier`, notify after commit.

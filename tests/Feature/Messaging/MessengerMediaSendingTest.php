@@ -82,44 +82,13 @@ function soleMediaRequest(string $endpoint): Request
 }
 
 /**
- * One field of a multipart body, exactly as the wire carried it.
- *
- * Read out of the raw body rather than through Laravel's parsed view of it: the
- * SDK uploads with `attach()`, and the thing under test is the bytes that left
- * the process, not a summary of them. The part's own headers are skipped rather
- * than named, because a file part carries `Content-Type` and a scalar part does
- * not.
- */
-function multipartField(Request $request, string $name): ?string
-{
-    $matched = preg_match(
-        '/name="'.preg_quote($name, '/').'"[^\r\n]*\r\n(?:[^\r\n]*\r\n)*?\r\n(.*?)\r\n--/s',
-        $request->body(),
-        $matches,
-    );
-
-    return $matched === 1 ? $matches[1] : null;
-}
-
-/**
  * The decoded inline keyboard a multipart send carried, or an empty list.
  *
  * @return list<list<array<string, string>>>
  */
 function keyboardInMultipart(Request $request): array
 {
-    $markup = multipartField($request, 'reply_markup');
-
-    if ($markup === null) {
-        return [];
-    }
-
-    $decoded = json_decode($markup, true, 512, JSON_THROW_ON_ERROR);
-
-    /** @var list<list<array<string, string>>> $keyboard */
-    $keyboard = is_array($decoded) ? ($decoded['inline_keyboard'] ?? []) : [];
-
-    return $keyboard;
+    return keyboardOn(multipartFields($request));
 }
 
 /**

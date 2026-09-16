@@ -104,6 +104,45 @@ class BotMessenger
     }
 
     /**
+     * Send one media message to the user's private chat, keyboard optional.
+     *
+     * The bytes travel rather than a platform file id: the platform's id is
+     * short-lived and per-bot, and `proof_path` is this codebase's one storage
+     * convention — a second one pointing at somebody else's storage would be a
+     * second source of truth for where a proof lives.
+     *
+     * @param  string  $kind  `CheckIn::proofKind()`'s vocabulary —
+     *                        `image`, `voice` or `video`. Anything else is a
+     *                        caller bug, not a user-facing state, so it refuses
+     *                        rather than guessing at a field.
+     * @param  string  $filename  names the upload; the platform reads its
+     *                            extension to pick a content type
+     * @param  list<string|null>  $captionLines  blank-line separated, nulls dropped
+     * @param  list<list<array<string, string>>>|null  $inlineKeyboard  rows of buttons
+     *
+     * @throws LogicException when the user has no messenger identity, or `$kind` is not one of the three
+     * @throws MessengerException when the platform refuses or cannot be reached
+     */
+    public function sendMedia(
+        User $user,
+        string $kind,
+        string $bytes,
+        string $filename,
+        array $captionLines,
+        ?array $inlineKeyboard = null,
+    ): SentMessage {
+        $platform = $this->platformFor($user);
+        $chatId = $this->chatId($user);
+
+        return match ($kind) {
+            'image' => $platform->sendPhoto($chatId, $bytes, $filename, $captionLines, $inlineKeyboard),
+            'voice' => $platform->sendVoice($chatId, $bytes, $filename, $captionLines, $inlineKeyboard),
+            'video' => $platform->sendVideo($chatId, $bytes, $filename, $captionLines, $inlineKeyboard),
+            default => throw new LogicException("{$kind} is not a media kind the bot can send."),
+        };
+    }
+
+    /**
      * The platform this user lives on.
      */
     public function platformFor(User $user): MessengerPlatform
