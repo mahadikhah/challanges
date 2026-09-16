@@ -175,6 +175,9 @@ C="docker compose -p challenges-production -f deploy/compose.app.yml"
 # Telegram — keeps both secrets in step, and registers the command menu
 $C exec app php artisan telegram:set-webhook
 $C exec app php artisan telegram:webhook-info
+
+# Mini App — the menu button is the only way into the app from inside the chat
+$C exec app php artisan telegram:set-menu-button
 ```
 
 Bale has no artisan command — the webhook lifecycle is Telegram-only, so register it once via tinker:

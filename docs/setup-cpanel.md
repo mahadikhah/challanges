@@ -84,7 +84,7 @@ TELEGRAM_BOT_USERNAME=your_challenges_bot
 TELEGRAM_WEBHOOK_SECRET=<random 32+ chars>    # part of the webhook URL path
 TELEGRAM_WEBHOOK_HEADER_SECRET=<random 32+>   # sent back as the Telegram secret header
 TELEGRAM_REQUIRED_CHANNEL=@your_channel       # the access-gate channel
-MINIAPP_URL="${APP_URL}/miniapp"
+MINIAPP_URL="${APP_URL}/miniapp"              # full HTTPS URL; registered in §7, not here
 
 BALE_BOT_TOKEN=...
 BALE_BOT_USERNAME=...
@@ -195,6 +195,48 @@ Registering by hand through BotFather or a raw `setWebhook` call with only one o
 the classic silent failure: the endpoint demands both, so every update 404s *before reaching anything
 that logs*, and the bot just goes quiet. Always use the command.
 
+### Telegram Mini App
+
+The webhook above is what makes the *bot* work. The Mini App is registered separately, and it needs
+one more step that is easy to miss because nothing fails loudly without it:
+
+```bash
+php artisan telegram:set-menu-button
+```
+
+That puts the Mini App behind the **menu button** — the permanent tap target beside the message field.
+Without it there is no way into the app from the chat. Registering a Web App with BotFather
+(`/newapp`) is **not** a substitute: it creates a *named* app reachable at `t.me/<bot>/<app>`, a URL
+nobody types, and adds nothing to the conversation. If you would rather do it by hand, the equivalent
+is **BotFather → your bot → Bot Settings → Menu Button**, and the URL to enter is the **full HTTPS
+URL**, e.g. `https://your-domain.com/miniapp` — `/miniapp` on its own is a path, not a URL.
+
+The command reads `MINIAPP_URL`, refuses an `http://` URL before sending anything (Telegram rejects a
+non-HTTPS Web App button), and then reads the button back and compares it against what you configured.
+That read-back matters: `setChatMenuButton` answering `true` only means Telegram accepted the call, and
+BotFather's UI shows what you *typed* rather than what Telegram *stored*.
+
+> **`MINIAPP_URL` must be a full HTTPS URL.** In this host's `.env`,
+> `MINIAPP_URL="${APP_URL}/miniapp"` interpolates correctly — Laravel's dotenv expands `${…}`. That is
+> *not* true of the Docker deploy, whose `env_file` passes the string through literally
+> (`deploy/production.env.example` says so). On a cPanel host either form works; on the VM, write it
+> out in full.
+
+Verify the whole path with:
+
+```bash
+php artisan telegram:miniapp-diagnose
+```
+
+It reports the token's length (never its value), **which bot the token belongs to**, what menu button
+Telegram actually has stored, whether `MINIAPP_URL` answers, and then self-tests `initData`
+verification. The bot-name line is the one that catches the failure nothing else can: a token
+belonging to a *different* bot verifies perfectly against itself and fails every real user's
+`initData`, in exactly the way a forged one does.
+
+Finally, note that Telegram only hands `initData` to an **HTTPS** page. A plain-HTTP Mini App boots to
+"open me from Telegram" while looking perfectly reachable — which is why the URL is checked twice.
+
 ### Bale
 
 Bale has **no header-secret mechanism** — `setWebhook` accepts only a URL — so the random
@@ -257,6 +299,30 @@ usually suffices; if you see "permission denied" in `storage/logs/laravel.log`'s
 | Payments work on Telegram but Bale shop says disabled | `BALE_PROVIDER_TOKEN` empty — Bale Pay refuses to run without the wallet token |
 | 500 on every page, blank logs | `storage/` not writable → §8 |
 | Old env values stick after editing `.env` | Cached config → `php artisan config:clear` (and `php artisan optimize:clear` on redeploys) |
+| Mini App: "could not verify your Telegram identity" | Read `storage/logs/laravel.log` for **`Mini App authentication was rejected`** — that line names the reason. Nothing in the log at all means the request never reached the controller: a routing/docroot problem, not an identity one |
+| Mini App: "we could not reach the server" | The `/auth` call got no usable answer — not an identity failure. Check for a 500 in `storage/logs/laravel.log` |
+| Mini App: "open me from Telegram" | `MINIAPP_URL` is not HTTPS, or the app was opened in a plain browser — Telegram only hands `initData` to an HTTPS page inside Telegram |
+| Mini App: no menu button, or tapping it opens nothing | `php artisan telegram:set-menu-button`, then `php artisan telegram:miniapp-diagnose` |
+| Mini App fails for *every* user at once | The token belongs to a different bot → `php artisan telegram:miniapp-diagnose` names the bot the configured token actually belongs to |
+
+### Decoding `Mini App authentication was rejected`
+
+The Mini App's `/auth` endpoint answers one uniform 401 on purpose — a caller who could tell "tampered"
+from "outdated" learns which of their forgeries is closest to working. The reason is in the log line
+instead, which only the operator can read. Open `storage/logs/laravel.log` in cPanel's *File Manager*
+and search for the message above:
+
+| The log line says | Cause | Fix |
+|---|---|---|
+| `The initData hash does not match its contents.` | The app is opened under a **different bot** than the token on this host | `php artisan telegram:miniapp-diagnose` names the bot; point the menu button at this host's bot |
+| `The initData cannot be verified: no bot token is configured.` | Token empty *at runtime* — cached config, or the wrong `.env` | `php artisan config:clear`; confirm the deployed `.env` |
+| `The initData is Ns old, past the Ms window.` | Server clock skew, or a small `initdata_max_age_seconds` | Fix the host clock; check the setting in the admin panel |
+| `The initData is not a well-formed payload: …` | Mangled payload — should not occur from a real Telegram client | Investigate the client; treat as a bug |
+| **Nothing at all** | The request never reached the controller | Routing/docroot — the app never ran. Not an identity problem |
+| A **stack trace** instead of that line | A 500 — e.g. Sanctum's `personal_access_tokens` table missing | `php artisan migrate --force` |
+
+The last two rows are why this comes first: neither is an identity problem, and no amount of token
+checking finds them. Rows 2–4 assume the code is *reached*; the last two say it is not.
 
 On every code update: `git pull` (or re-upload) → `composer install --no-dev --optimize-autoloader` →
 `php artisan migrate --force` → rebuild/re-upload `public/build` → `php artisan optimize:clear`.

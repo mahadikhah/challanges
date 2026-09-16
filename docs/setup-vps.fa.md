@@ -224,6 +224,9 @@ cd /var/www/challenges
 # تلگرام — هر دو راز را هم‌گام نگه می‌دارد و فهرست فرمان‌ها را ثبت می‌کند
 php artisan telegram:set-webhook
 php artisan telegram:webhook-info
+
+# مینی‌اپ — دکمهٔ منو تنها راه ورود به اپ از داخل گفتگوست
+php artisan telegram:set-menu-button
 ```
 
 بله (فرمان artisan وجود ندارد — چرخه حیات وبهوک فقط تلگرامی است؛ یک بار با tinker ثبت کنید):

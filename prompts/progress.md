@@ -3648,3 +3648,33 @@ per-test stub (first match wins).
 
 **Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓, tsc ✓,
 tests **1821 passed, 4 skipped**, 6933 assertions. New: `SetMenuButtonCommandTest` (8).
+
+### Task 4 — Documenting the step no doc has ever contained ✅
+
+Every deploy guide in `docs/` told you to run `telegram:set-webhook` and stopped there. Not one mentioned the
+Mini App's menu button — which is why the app was reachable only at a `t.me/<bot>/<app>` URL nobody types, with
+nothing in the chat to tap. `docs/setup-cpanel.md` §7 now has a **Telegram Mini App** section between
+`### Telegram` and `### Bale` (the operator is already there at that point), mirrored into the Farsi guide.
+
+It covers the three things that were nowhere: the URL must be the **full HTTPS URL** (`/miniapp` alone is a
+path, and `/newapp` is *not* a substitute — it adds nothing to the conversation); `telegram:set-menu-button`,
+with the BotFather Menu-Button equivalent for anyone who cannot run artisan; and `telegram:miniapp-diagnose`
+as the way to see the whole path at once.
+
+**Three guides beyond the one the plan named.** `setup-vm-docker.md`, `setup-vps.md` and their Farsi mirrors
+also deploy a Mini App and also never mentioned the button — the same defect in the same shape. They each point
+at cPanel §7 for the full walkthrough, but their runnable snippets are what people copy, so the line is in all
+four. Documenting one of four deploy paths would have left three guides that ship an app and never say how a
+user opens it.
+
+§10 Troubleshooting gains five Mini App rows and a **decode table for `Mini App authentication was rejected`** —
+the exact log wording against its cause, because the endpoint's uniform 401 is deliberate and the reason only
+ever appears in the log. Two of its six rows (`nothing at all`, `a stack trace`) are not identity problems at
+all, and saying so is the point: no amount of token checking finds them.
+
+**Also recorded as a durable rule** (`.ai/rules/tests.md`): `Http::fake()` stubs match first-registered, not
+last, so a catch-all in a shared `beforeEach` shadows every per-test fake; and `Http::assertNothingSent()` is
+vacuous with no fake installed. Both were hit twice in this phase and cost real debugging time.
+
+**Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓, tsc ✓,
+tests **1821 passed, 4 skipped**, 6933 assertions unchanged — this task is documentation only.

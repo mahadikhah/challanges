@@ -244,6 +244,9 @@ cd /var/www/challenges
 # Telegram — keeps both secrets in step, and registers the command menu
 php artisan telegram:set-webhook
 php artisan telegram:webhook-info
+
+# Mini App — the menu button is the only way into the app from inside the chat
+php artisan telegram:set-menu-button
 ```
 
 Bale (no artisan command — webhook lifecycle is Telegram-only; register once via tinker):

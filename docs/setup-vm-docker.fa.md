@@ -141,6 +141,9 @@ C="docker compose -p challenges-production -f deploy/compose.app.yml"
 # تلگرام — این فرمان هر دو راز را هم‌گام نگه می‌دارد
 $C exec app php artisan telegram:set-webhook
 $C exec app php artisan telegram:webhook-info
+
+# مینی‌اپ — دکمهٔ منو تنها راه ورود به اپ از داخل گفتگوست
+$C exec app php artisan telegram:set-menu-button
 ```
 
 بله فرمان artisan ندارد — چرخه وبهوک فقط برای تلگرام پیاده شده، پس یک‌بار با tinker ثبتش کنید:
