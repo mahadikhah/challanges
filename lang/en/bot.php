@@ -10,6 +10,22 @@
 
 return [
 
+    /*
+    | The command menu Telegram lists under the bot's menu button. For most users
+    | these are the first lines they read, and Telegram truncates a description
+    | that runs long — so: short, imperative, no trailing period, and no leading
+    | slash, which Telegram draws itself.
+    */
+    'commands' => [
+        'start' => 'Begin, or start over',
+        'create' => 'Create a challenge',
+        'checkin' => 'Check in for this period',
+        'chatlink' => 'Link a chat to a challenge',
+        'shop' => 'Buy coins and slots',
+        'language' => 'Change the language',
+        'cancel' => 'Cancel what you are doing',
+    ],
+
     'start' => [
         'welcome' => 'Welcome to :app, :name! Set yourself a challenge, bring your friends along, and keep the streak alive.',
         'welcome_back' => 'Welcome back, :name.',

@@ -181,6 +181,10 @@ It reads `TELEGRAM_WEBHOOK_SECRET` (path) and `TELEGRAM_WEBHOOK_HEADER_SECRET` (
 refuses to register an `http://` URL, and asks Telegram to deliver only the update kinds the router
 handles. Add `--drop-pending-updates` on a first deploy to discard anything queued before now.
 
+It also registers the bot's **command menu** — the list under the menu button — once per supported
+language, plus an unscoped set that covers every other client language. Re-run it after changing the
+`bot.commands.*` lines in `lang/`, or the menu keeps the old wording.
+
 Verify with:
 
 ```bash

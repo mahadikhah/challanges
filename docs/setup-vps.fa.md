@@ -221,7 +221,7 @@ Certbot بلاک سرور را به 443 بازنویسی و تمدید خودک�
 ```bash
 cd /var/www/challenges
 
-# تلگرام — فرمان هر دو راز را هم‌گام نگه می‌دارد
+# تلگرام — هر دو راز را هم‌گام نگه می‌دارد و فهرست فرمان‌ها را ثبت می‌کند
 php artisan telegram:set-webhook
 php artisan telegram:webhook-info
 ```

@@ -172,7 +172,7 @@ The full walkthrough, including the silent-failure warning, is in
 cd /opt/challenges
 C="docker compose -p challenges-production -f deploy/compose.app.yml"
 
-# Telegram — the command keeps both secrets in step
+# Telegram — keeps both secrets in step, and registers the command menu
 $C exec app php artisan telegram:set-webhook
 $C exec app php artisan telegram:webhook-info
 ```

@@ -14,6 +14,10 @@ use Telegram\Bot\Api;
  * it was registered with `secret_token`. Register with one half and every update is
  * refused as 404 — a bot that is silently dead with nothing in our own logs, because
  * the refusal happens before anything logs. These tests hold that contract.
+ *
+ * The command registers two things now — the webhook and the command menu — so an
+ * assertion here says which call it means before it reads anything off it. The
+ * menu half has its own file, `BotCommandMenuTest`.
  */
 
 beforeEach(function () {
@@ -70,6 +74,19 @@ function webhookAccepted(): void
     telegramReplies(['ok' => true, 'result' => true]);
 }
 
+/**
+ * Whether a recorded request is the setWebhook call, as opposed to the
+ * setMyCommands calls the same command also makes.
+ *
+ * `Http::assertSent()` runs its closure against every recorded request, so an
+ * assertion that reads `url` or `drop_pending_updates` off whichever one it is
+ * handed would be reading it off the wrong call half the time.
+ */
+function sentToTheWebhook(Request $request): bool
+{
+    return str_ends_with($request->url(), '/setWebhook');
+}
+
 describe('telegram:set-webhook', function () {
     it('registers the URL with the path secret and the header secret together', function () {
         webhookAccepted();
@@ -77,6 +94,10 @@ describe('telegram:set-webhook', function () {
         $this->artisan('telegram:set-webhook')->assertSuccessful();
 
         Http::assertSent(function (Request $request): bool {
+            if (! sentToTheWebhook($request)) {
+                return false;
+            }
+
             expect($request->url())->toBe('https://api.telegram.org/bot123456:TEST-TOKEN/setWebhook');
 
             parse_str($request->body(), $sent);
@@ -95,6 +116,10 @@ describe('telegram:set-webhook', function () {
         $this->artisan('telegram:set-webhook')->assertSuccessful();
 
         Http::assertSent(function (Request $request): bool {
+            if (! sentToTheWebhook($request)) {
+                return false;
+            }
+
             parse_str($request->body(), $sent);
 
             expect(json_decode((string) $sent['allowed_updates'], true))->toBe(TelegramUpdate::HANDLED_KINDS);
@@ -109,6 +134,10 @@ describe('telegram:set-webhook', function () {
         $this->artisan('telegram:set-webhook', $options)->assertSuccessful();
 
         Http::assertSent(function (Request $request) use ($expected): bool {
+            if (! sentToTheWebhook($request)) {
+                return false;
+            }
+
             parse_str($request->body(), $sent);
 
             return $sent['drop_pending_updates'] === $expected;

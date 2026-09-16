@@ -241,7 +241,7 @@ for the full walkthrough and the silent-failure warning. In short:
 ```bash
 cd /var/www/challenges
 
-# Telegram — the command keeps both secrets in step
+# Telegram — keeps both secrets in step, and registers the command menu
 php artisan telegram:set-webhook
 php artisan telegram:webhook-info
 ```

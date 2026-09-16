@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "prompts/progress.md": {
-    "mtime": 1789520302.4007156,
-    "ast_hash": "33ed8d7d8c6ff29d3ce7915a8d9793ae",
+    "mtime": 1789521574.096871,
+    "ast_hash": "1f33a0b7fde99b72ee0269f578032084",
     "semantic_hash": ""
   },
   "prompts/task-01-setup.md": {
@@ -1705,8 +1705,8 @@
     "semantic_hash": ""
   },
   "app/Console/Commands/Telegram/SetWebhookCommand.php": {
-    "mtime": 1788017770.5756187,
-    "ast_hash": "240398ea59fa0e1fab608be78b1e690e",
+    "mtime": 1789521924.7184157,
+    "ast_hash": "f33f5d6ee2fba6c7f6cb4ad8e53f36c9",
     "semantic_hash": ""
   },
   "app/Console/Commands/Telegram/WebhookInfoCommand.php": {
@@ -1735,8 +1735,8 @@
     "semantic_hash": ""
   },
   "tests/Feature/Bot/SetWebhookCommandTest.php": {
-    "mtime": 1788017770.720619,
-    "ast_hash": "9fb24958f73fadbba19f305a711f6216",
+    "mtime": 1789521942.9420576,
+    "ast_hash": "c82128128b52487451d72ddda7055935",
     "semantic_hash": ""
   },
   "tests/Feature/Bot/TelegramTransportTest.php": {
@@ -1800,13 +1800,13 @@
     "semantic_hash": ""
   },
   "lang/en/bot.php": {
-    "mtime": 1788017770.6836188,
-    "ast_hash": "c05fc86a644bcaafec7a01e456091994",
+    "mtime": 1789521908.5917523,
+    "ast_hash": "91dcd67d31a28e3125fa41110f1b1665",
     "semantic_hash": ""
   },
   "lang/fa/bot.php": {
-    "mtime": 1788017770.6856189,
-    "ast_hash": "3420a2ad6c61131f3eb7866c52bf13a1",
+    "mtime": 1789521909.6087306,
+    "ast_hash": "7c1acb9afae0422b8b61387a0133a415",
     "semantic_hash": ""
   },
   "tests/Feature/Bot/ChannelGateTest.php": {
@@ -3807,6 +3807,16 @@
   "tests/Feature/Bot/StartLanguageQuestionTest.php": {
     "mtime": 1789521300.1132474,
     "ast_hash": "5f7c26ef897356664c8ed0a6c1c78a0e",
+    "semantic_hash": ""
+  },
+  "app/Services/Telegram/BotCommandMenu.php": {
+    "mtime": 1789521893.672081,
+    "ast_hash": "5347da85e6d3e6a4ab4de2ffcff5eff7",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Bot/BotCommandMenuTest.php": {
+    "mtime": 1789522142.5894706,
+    "ast_hash": "2d037104d989e5bda9913851794ce586",
     "semantic_hash": ""
   }
 }

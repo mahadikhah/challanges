@@ -2950,3 +2950,80 @@ tests **1730 (1726 pass, 4 skipped)**, 6419 assertions (baseline 1713). `graphif
 10619 edges, 335 communities).
 
 **Next:** Task 5 — register the bot command menu (`setMyCommands`, per locale, derived from `BOT_COMMANDS`).
+
+## Phase 17 · Task 5 — The bot gets a command menu
+
+**The defect.** `setMyCommands` was never called anywhere in the codebase, so Telegram showed no menu button at
+all. `/create`, `/checkin`, `/shop` and `/language` worked and were reachable only by a user who already knew
+they existed — the sole line anywhere naming a command was `bot.start.next_steps` ("Send /create…"). `/chatlink`
+was reachable by *nobody*: no bot copy mentions it, and the wizard's created message announces the challenge and
+stops, so a creator had to guess the word.
+
+**What shipped.** `App\Services\Telegram\BotCommandMenu` — one source for the menu, `MENU` mapping command word
+→ lang key, `order()` for the sequence, `forLocale()` for one language's payload, `registrations()` for the whole
+registration. Descriptions live in a new `commands` group in `lang/{en,fa}/bot.php` (already inside the `UiCopyTest`
+parity dataset added in Task 4, so en/fa parity is enforced). `telegram:set-webhook` registers it.
+
+**Registered by `telegram:set-webhook`, not a sibling command — and why.** Every setup guide in `docs/` runs
+exactly `telegram:set-webhook` and then `telegram:webhook-info`; a third command is a command nobody runs, and a
+menu that never registers fails *silently*, which is precisely the class of failure that command exists to
+prevent. The preconditions it already enforces — both webhook secrets set, an HTTPS `APP_URL` — are ones
+production must satisfy for the bot to work at all, so they gate nothing in practice. Both halves are the same
+act (telling Telegram who we are) and both are safe to repeat: the payload is identical and Telegram overwrites a
+set rather than appending to it. A menu failure fails the command, naming the language that was refused, because
+a half-registered menu on a working bot is the one outcome an operator would otherwise not hear about.
+All five setup docs now say the command registers the menu too.
+
+**Three sets, not two.** Telegram keeps the set sent *without* a `language_code` as the **default** — the one a
+user reads when their client's language has no dedicated set. So the fallback locale goes out unscoped first, then
+every supported locale goes out scoped by `language_code`: `[null, 'en', 'fa']`. Without the unscoped set a German
+client opens the bot to an empty menu; the fallback locale legitimately appears twice, because on Telegram's side
+those are two separate stores and which one a client reads depends on that client's language rather than on our
+fallback. When a set is scoped, `language_code` is *omitted* rather than sent blank — a present-but-empty value is
+a language Telegram cannot match.
+
+**The order is a rule, not array order.** `start` first (always the way back), `cancel` last (always the way out),
+everything between alphabetical — encoded as three constants and a sort, not as the shape of the `MENU` literal,
+so adding a command never reopens the question of where it goes. Telegram renders a command list in the order it
+was registered, so this is the affordance itself; the command prints the order it registered so an operator
+comparing it against the app compares the right two things.
+
+**`chatlink` is in the menu — decision, with the reasoning in the class docblock.** It is creator-only and takes an
+argument, so a bare tap can never succeed. But Telegram scopes command lists per chat, never per user, so
+"creator-only" is not expressible in a menu at all, and the choice is between advertising it to everyone and hiding
+a shipped feature from the only people who can use it. The former wins because a non-creator who taps it gets
+`bot.chatlink.no_challenge`, which names the shape of the command and gives a worked example — a dead end that
+teaches beats the silence it had before. Had it gone the other way, the exclusion would have been a written entry
+in `MENU`'s docblock, not an omission: the list is written out rather than derived from `BOT_COMMANDS` precisely so
+that adding a handler forces a decision.
+
+**Coverage as a tripwire, mirroring the settings panel.** `BotCommandMenuTest` asserts
+`BotCommandMenu::order()` is `toEqualCanonicalizing(array_keys(TelegramServiceProvider::BOT_COMMANDS))` — the same
+shape as *"shows every registry tunable exactly once across the five tabs"*. Add a handler without a menu line and
+the build fails; the fix is a line in `MENU` or a stated reason it is not something to offer on its own. Two more
+guards ride along: command words must match Telegram's own `^[a-z0-9_]{1,32}$` (a bad word fails the *entire*
+registration, not that one line), and descriptions must be ≤256 chars with no leading slash and no trailing period —
+the copy rule from the spec, as a test rather than a convention. The both-locales test compares `fa` against `en`
+**line by line**, because `Lang::get()` degrades silently to the fallback locale and a Farsi line that was never
+written would otherwise come back as the English one and pass.
+
+**Existing tests: three assertions in `SetWebhookCommandTest` needed to say which call they meant.** They read
+`url`, `allowed_updates` and `drop_pending_updates` off whichever request `Http::assertSent()` handed them, and
+the command now makes four. A `sentToTheWebhook()` guard filters to the one they are about; the file docblock
+says why. No behaviour assertion changed.
+
+**Test technique worth keeping: `expectsOutputToContain()` matches per write.** Two expected substrings that land
+in the *same* `doWrite()` call cannot both be asserted — Mockery matches the first registered expectation and the
+second is never reached, so the test fails with "Output does not contain …" for a string that is visibly there.
+One substring per output line, or one substring spanning both facts. This cost a debugging cycle; it is written
+down here so it costs nobody another.
+
+**Not done, and deliberately.** Bale gets no menu: the SDK's `Api` class is shared and would take the call, but
+Bale's Bot API support for `setMyCommands` is unverified, and registering a menu the platform does not implement
+is worse than not registering one. Recorded here rather than guessed at.
+
+**Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓, tsc ✓,
+tests **1740 (1736 pass, 4 skipped)**, 6549 assertions (baseline 1730). `graphify update .` run (4821 nodes,
+10646 edges, 358 communities).
+
+**Next:** Task 6 — replace "send /command" with buttons (`cm` callback action, allowlisted against `BOT_COMMANDS`).
