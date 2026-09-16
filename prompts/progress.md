@@ -2796,3 +2796,61 @@ tsc ✓, tests **1704 (1700 pass, 4 skipped)**, 6250 assertions.
 
 **Next:** Task 3 — the timed-session gap: copy the session's latest proof-bearing submission onto
 `check_ins.proof_path`, extract a shared `ProofReviewNotifier`, notify after commit.
+
+### Task 3 — Timed-session submissions reach the creator at all ✅
+
+**Why.** Issue 2's other half, and the one that was pure silence. A session that fell back to the manual queue
+told the *participant* `bot.session.submitted_for_review` and told the creator **nothing**: the check-in sat
+at `Submitted` with the media attached and nobody asked to look at it. `grep` confirmed `notifyReviewer` existed
+nowhere outside `CheckInFlow`, and no test covered the `submitted_for_review` branch at all.
+
+**Which row holds the session's reviewable media — decided from the schema.** `check_ins.proof_path`.
+`AdvanceCheckInStep::submitForReview()` (`L316-340`) already copies the session's latest proof-bearing step
+submission onto the check-in via `reviewEvidence()`, so `check_in_step_submissions` and `check_ins` hold the
+same path under the same name — exactly the "same name, same meaning, one convention" the step-submissions
+migration asks for. **No storage gap remained on the review path**, so `CompleteCheckInSession` is untouched.
+
+**What shipped:**
+- **`ProofReviewNotifier`** — `notifyReviewer()` + `sendProofMedia()` lifted out of `CheckInFlow` into one
+  collaborator both arrivals inject. The creator is resolved from `$challenge->creator` server-side and never
+  passed in. `CheckInFlow` now calls `$this->proofReview->notify($checkIn)` at both call sites; its copy and
+  three now-unused imports are gone.
+- **`CheckInAwaitsReview`** (event) → **`NotifyProofReviewer`** (sync listener, auto-discovered) →
+  **`SendProofForReview`** (queued job) — the `CheckInSettled`/`AnnounceApprovedCheckIn` shape. The listener is
+  a one-line body with no Telegram and no queries; the job carries an id, re-reads the check-in at execution,
+  and no-ops unless it is still `Submitted`.
+- **The event fires outside the transaction**, from `AdvanceCheckInStep` after `ApplyAiVerdict` returns — that
+  is where the flow already stands when it learns the verdict's outcome, so a listener can never hold the
+  session's lock and a rollback takes the event with it.
+- **Silence is deliberate where silence is right:** an `Approved` verdict is already settled, and a `Rejected`
+  one is resubmittable, so neither leaves the creator anything to act on. Only a fallback fires.
+
+**Tests.** 9 new in `tests/Feature/Domain/SessionAiReviewTest.php` (16 total in the file). A dataset over
+**image, voice and video** asserts the creator's own chat id, the **bytes** rather than a description, the
+caption in the *creator's* locale, and both verdict payloads; the committed button is then **parsed back out of
+what the bot actually sent** and handed to `ReviewCheckInCallback`, asserting the resulting status, `reviewed_by`
+and streak — the shared verdict engine, on a row a session produced. Plus: the missing-from-disk fallback (text
++ both buttons, `Log::shouldReceive('warning')`), and silence on approval, rejection, manual mode, and a
+replayed final step. **Mutation-checked:** with the `dispatch()` commented out, 5 tests fail.
+
+**Trap found and recorded.** The fixture first wrote `session.voice` / `session.image` — an extension
+`CheckIn::proofKind()` cannot classify. Every media assertion was then passing against the **text fallback**,
+because the notifier degrades silently by design. Caught by asserting `proofKind()` alongside the path, which
+now fails loudly on a mis-named fixture instead of quietly proving nothing. Same family as Task 2's stray-request
+trap: a fallback path turns a broken test into a green one.
+
+**Noted, not fixed (out of scope for Task 3):**
+- A **manual-mode** session approves its own completion (`SessionAiReviewTest` pins this: *"leaves manual-mode
+  sessions exactly as they were: final step approves"*), so its check-in keeps `proof_path = null`. That is
+  correct for the review queue — there is no review — but it means `PostCheckInAnnouncement` announces such a
+  check-in **without the photo** even when `proof_is_public` and `share_proof_media` are on. A distinct defect,
+  not one of the seven reported.
+- The **Mini App** submit path reaches `SubmitCheckIn` without going through `CheckInFlow`, so a media
+  submission from there still leaves a `Submitted` row no creator hears about. Routing it through
+  `CheckInAwaitsReview` would mean moving the bot path onto the event too, or it would notify twice.
+
+**Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓,
+tsc ✓, tests **1713 (1709 pass, 4 skipped)**, 6293 assertions.
+
+**Next:** Task 4 — ask for the language on the first `/start`, carrying the already-computed attribution
+outcome rather than re-running `ClaimInvite`.
