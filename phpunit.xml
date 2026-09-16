@@ -20,6 +20,20 @@
     <php>
         <env name="APP_ENV" value="testing"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
+
+        <!-- A test process must never hold a real bot token. Every Telegram and
+             Bale call in the suite is `Http::fake()`d, so these values are never
+             used to reach anyone — but the token still has to *exist*, because
+             `TelegramServiceProvider` and `BaleMessengerPlatform::api()` both
+             refuse to build an `Api` without one. That made a missing variable a
+             hard failure inside whichever test happened to resolve a platform
+             first, and it made the suite's outcome depend on whether the machine
+             running it had real credentials: locally `.env` carried a live
+             token, while CI copies `.env.example`, where both are empty. Same
+             reasoning as the other inert doubles below. -->
+        <env name="BALE_BOT_TOKEN" value="654321:TEST-TOKEN"/>
+        <env name="TELEGRAM_BOT_TOKEN" value="123456:TEST-TOKEN"/>
+
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>
         <env name="CACHE_STORE" value="array"/>

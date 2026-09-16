@@ -3422,3 +3422,100 @@ large video files, at which point caching the uploaded `message_id` per (check-i
 lever — and that needs a column, which is the two-sources-of-truth cost the decision was made to avoid.
 
 **Next:** Phase 17 is complete — all nine tasks, nine green commits.
+
+---
+
+## Phase 17 — the CI failure that followed the v0.3.0-alpha tag
+
+**Symptom.** Five tests failed in CI and passed locally: four in `CriticalAlertsTest` ("an expected request was
+not recorded", or `sendCount()` of 0 where 1 was expected) and one in `SystemHealthTest` (a bare
+`TelegramSDKException`). Every one of them passed on the development machine, on the same commit.
+
+**Root cause: the suite depended on the developer's `.env`.** `phpunit.xml` declared `APP_ENV`, `DB_DATABASE`,
+`QUEUE_CONNECTION`, `CACHE_STORE`, `MAIL_MAILER` and the rest of the suite's environment — but not the bot
+tokens. So `config('services.telegram.bot_token')` came from whatever `.env` happened to say, and the two
+environments disagreed:
+
+| | `.env` on the dev machine | `.env` in CI |
+|---|---|---|
+| how it got there | the real bot token, pasted in during setup | `composer setup` copies `.env.example` |
+| `TELEGRAM_BOT_TOKEN` | set, and live | `''` (empty) |
+
+*(The value is deliberately not reproduced here or anywhere else in the repo — see the note at the end.)*
+
+With no token, `TelegramServiceProvider` refuses to build an `Api` — deliberately, "without a token the SDK
+would happily build `.../bot/sendMessage` and report Telegram's 404 as the problem" — and throws
+`TelegramSDKException`. `BaleMessengerPlatform::api()` carries the identical guard for `BALE_BOT_TOKEN`, which
+is empty in CI for the same reason. That second one was an armed trap rather than a live failure: no test
+resolved Bale's platform that day, so it would have fired on whichever test did it next, in CI only.
+
+**Why it read as mysterious.** Four of the five failed with "an expected request was not recorded" rather than
+with the actual exception, because `SendCriticalAlert` catches `Throwable` around the send and logs a warning.
+That catch is correct and deliberate — `18e0f12` added it so a failure inside the alert path can never replace
+the exception being reported — but it also means a *configuration* failure looks exactly like a delivery
+failure from the outside. The swallowing was not the bug and was not touched.
+
+**Reproduced before fixing.** The empty-token condition was reproducible exactly:
+
+```
+docker-compose exec -T -e TELEGRAM_BOT_TOKEN= laravel.test php artisan test tests/Feature/Observability/…
+```
+
+which produced **the same four `CriticalAlertsTest` failures** as CI, and the same single `SystemHealthTest`
+failure. With a dummy token, all pass. Five failures, one cause.
+
+> Hosts note: this machine has `docker-compose` 1.29.2 and no `docker compose` plugin, so Sail resolves to the
+> v1 binary. Poking at a single service means `docker-compose exec -T …`, not `docker compose exec`.
+
+**Fix — `phpunit.xml` declares its own inert tokens**, next to the inert doubles it already declared
+(`MAIL_MAILER=array`, `CACHE_STORE=array`, `QUEUE_CONNECTION=sync`, `BROADCAST_CONNECTION=null`). Every
+Telegram and Bale call in the suite is `Http::fake()`d, so these values are never used to reach anyone; they
+only have to *exist*. Both tokens are set, because Bale's guard is the same trap and leaving it armed would
+just move the same CI-only failure to a later date.
+
+The alternative — a `config([...])` line in each affected test — was rejected as whack-a-mole: it fixes today's
+five and leaves the next test that forgets it to fail on a machine the author cannot see. `phpunit.xml` is the
+file whose entire job is to declare the suite's environment.
+
+**Verification, which needed its own test.** On the development machine the real token makes a broken suite
+pass, so "the tests are green" is *not* evidence that the declarations work — that is precisely how this bug
+survived until a tag. `tests/Feature/TestEnvironmentTest.php` therefore pins it: it reads the resolved
+`services.telegram.bot_token` and `services.bale.bot_token` and asserts they are the inert literals, and then
+resolves and uses a platform for both messengers. It passed while `.env` held a *different* (live) token, which
+is the strictly harder case — so the declaration demonstrably wins over `.env`.
+
+Then the CI condition itself was reproduced faithfully, using `.env.testing` (which Laravel loads in place of
+`.env` when `APP_ENV=testing`, and which `phpunit.xml` already sets):
+
+```
+cp .env.example .env.testing      # empty TELEGRAM_BOT_TOKEN and BALE_BOT_TOKEN, as CI gets
+# + a real APP_KEY, since `composer setup` runs key:generate in CI and .env.example ships it blank
+php artisan test …CriticalAlertsTest …SystemHealthTest …TestEnvironmentTest
+→ 23 passed, 0 failed
+```
+
+— under the exact conditions that produced five failures minutes earlier. `.env.testing` was deleted
+afterwards; it is not part of the fix and is not gitignored, so it must not be left behind.
+
+**Checked for the inverse dependency before running the suite**, since setting a token could break a test that
+needs one to be *absent*: `TelegramTransportTest`'s "refuses to build a bot with no token" sets
+`config(['services.telegram.bot_token' => null])` itself, as do `MiniAppAuthTest`, `MiniAppDiagnoseCommandTest`
+and the refusal dataset. Every test that needs an absent token already declares one, which is the healthy
+pattern and the reason this fix is safe.
+
+**The tag did not ship anything.** `deploy.yml` gates publication on `tests.yml`, and the gate held: on
+`v0.3.0-alpha` the `tests / ci` job failed and `build`, `deploy-staging`, `deploy-production` and `build-sail`
+were all **skipped**. Production was never touched. `master`'s own deploy run failed the same way for the same
+reason.
+
+**Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓, tsc ✓,
+tests **1808 (1804 pass, 4 skipped)**, 6881 assertions. New: `tests/Feature/TestEnvironmentTest.php` (2).
+
+**→ The development bot token is considered exposed and must be rotated.** While separating the real `.env` from
+`.env.example` for this diagnosis, the value of `TELEGRAM_BOT_TOKEN` was printed into the terminal by a grep and
+so passed through this session's transcript. `.env` is gitignored (`.gitignore:15`) and untracked, so **the token
+is not in git and never was** — the exposure is the session log and the model API, not the repository. Rotate it
+in BotFather (`/revoke`), then update `.env` locally and the host's environment. Worth noting that the token
+being live in a plaintext `.env` is also what made this whole bug invisible: the machine that reported "green"
+was the one holding credentials, and nothing in the suite said so. If it is currently set on the production or
+staging host, rotate there too, in the same pass.
