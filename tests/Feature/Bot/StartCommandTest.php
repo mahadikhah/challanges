@@ -22,6 +22,11 @@ uses(RefreshDatabase::class);
  * message on the wire. Testing it whole rather than per class is deliberate — the
  * bug this task exists to avoid is an *ordering* bug between those pieces, which no
  * unit test of any one of them can see.
+ *
+ * A brand-new user is asked which language they speak before they are greeted, so
+ * most of these tests take the extra step through `answerLanguageQuestion()` — the
+ * same tap a real user makes. That is the point of the arrangement rather than an
+ * inconvenience: the greeting arrives after the answer, in the language given.
  */
 
 beforeEach(function () {
@@ -44,11 +49,15 @@ beforeEach(function () {
  * work, but keeping them together makes the ordering irrelevant. Both patterns are
  * bare-bones wildcards on the method name because `getChatMember` travels as a GET
  * and carries its parameters in the URL.
+ *
+ * `answerCallbackQuery` is here because answering the language question is a tap,
+ * and a tap is acknowledged as well as answered.
  */
 function telegramAnswers(string $status): void
 {
     Http::fake([
         '*getChatMember*' => Http::response(['ok' => true, 'result' => ['status' => $status]]),
+        '*answerCallbackQuery*' => Http::response(['ok' => true, 'result' => true]),
         '*sendMessage*' => Http::response(['ok' => true, 'result' => ['message_id' => 11]]),
     ]);
 }
@@ -70,6 +79,7 @@ function telegramAnswersInTurn(array $statuses): void
             static fn (string $status): PromiseInterface => Http::response(['ok' => true, 'result' => ['status' => $status]]),
             $statuses,
         )),
+        '*answerCallbackQuery*' => Http::response(['ok' => true, 'result' => true]),
         '*sendMessage*' => Http::response(['ok' => true, 'result' => ['message_id' => 11]]),
     ]);
 }
@@ -103,11 +113,12 @@ describe('a first arrival', function () {
         telegramAnswers('member');
 
         arrivesAtBot('/start');
+        answerLanguageQuestion();
 
         $user = User::query()->where('platform_user_id', 777_000_3)->sole();
 
         expect($user->hasVerifiedChannel())->toBeTrue()
-            ->and(soleBotMessage()['text'])->toContain(botCopy('bot.start.welcome', [
+            ->and(latestBotMessage(2)['text'])->toContain(botCopy('bot.start.welcome', [
                 'app' => botCopy('common.app_name'),
                 'name' => 'Sara',
             ]));
@@ -154,9 +165,10 @@ describe('a first arrival', function () {
         telegramAnswers('member');
 
         arrivesAtBot('/start');
+        answerLanguageQuestion();
         arrivesAtBot('/start');
 
-        expect(latestBotMessage(2)['text'])->toContain(botCopy('bot.start.welcome_back', ['name' => 'Sara']));
+        expect(latestBotMessage(3)['text'])->toContain(botCopy('bot.start.welcome_back', ['name' => 'Sara']));
     });
 
     it('creates exactly one user however many times they say hello', function () {
@@ -215,9 +227,10 @@ describe('the channel gate', function () {
 
         arrivesAtBot('/start');
         arrivesAtBot('/start');
+        answerLanguageQuestion();
 
         expect(User::query()->where('platform_user_id', 777_000_3)->sole()->hasVerifiedChannel())->toBeTrue()
-            ->and(latestBotMessage(2)['text'])->toContain(botCopy('bot.start.welcome_back', ['name' => 'Sara']));
+            ->and(latestBotMessage(3)['text'])->toContain(botCopy('bot.start.welcome_back', ['name' => 'Sara']));
     });
 
     it('explains itself without a button when the channel has no public link', function () {
@@ -239,6 +252,7 @@ describe('invite attribution', function () {
         telegramAnswers('member');
 
         arrivesAtBot("/start {$invite->code}");
+        answerLanguageQuestion();
 
         $invitee = User::query()->where('platform_user_id', 777_000_3)->sole();
 
@@ -247,7 +261,7 @@ describe('invite attribution', function () {
             ->and($invitee->referred_by_user_id)->toBe($inviter->getKey())
             ->and($this->ledger->balanceFor($inviter))
             ->toBe($this->settings->integer(SettingKey::InviteCoinReward))
-            ->and(soleBotMessage()['text'])
+            ->and(latestBotMessage(2)['text'])
             ->toContain(botCopy('bot.invite.credited', ['name' => $inviter->first_name ?? $inviter->name]));
     });
 
@@ -288,12 +302,13 @@ describe('invite attribution', function () {
         telegramAnswers('member');
 
         arrivesAtBot('/start no-such-code');
+        answerLanguageQuestion();
 
         $user = User::query()->where('platform_user_id', 777_000_3)->sole();
 
         expect($user->hasVerifiedChannel())->toBeTrue()
             ->and($user->referred_by_user_id)->toBeNull()
-            ->and(soleBotMessage()['text'])->toContain(botCopy('bot.invite.refused.not_found'));
+            ->and(latestBotMessage(2)['text'])->toContain(botCopy('bot.invite.refused.not_found'));
     });
 
     it('refuses somebody redeeming their own link', function () {
@@ -302,9 +317,10 @@ describe('invite attribution', function () {
         telegramAnswers('member');
 
         arrivesAtBot("/start {$invite->code}");
+        answerLanguageQuestion();
 
         expect($this->ledger->balanceFor($inviter))->toBe(0)
-            ->and(soleBotMessage()['text'])->toContain(botCopy('bot.invite.refused.self_invite'));
+            ->and(latestBotMessage(2)['text'])->toContain(botCopy('bot.invite.refused.self_invite'));
     });
 
     it('refuses a link somebody else already used', function () {
@@ -314,10 +330,11 @@ describe('invite attribution', function () {
 
         arrivesAtBot("/start {$invite->code}", ['id' => 888_000_1, 'first_name' => 'Reza']);
         arrivesAtBot("/start {$invite->code}");
+        answerLanguageQuestion();
 
         expect($this->ledger->balanceFor($inviter))
             ->toBe($this->settings->integer(SettingKey::InviteCoinReward))
-            ->and(latestBotMessage(2)['text'])->toContain(botCopy('bot.invite.refused.already_claimed'));
+            ->and(latestBotMessage(3)['text'])->toContain(botCopy('bot.invite.refused.already_claimed'));
     });
 
     it('refuses a second inviter for somebody already attributed', function () {
@@ -327,11 +344,12 @@ describe('invite attribution', function () {
 
         arrivesAtBot('/start '.$this->issue->handle($first)->code);
         arrivesAtBot('/start '.$this->issue->handle($second)->code);
+        answerLanguageQuestion();
 
         // One person, one inviter, for life — otherwise a code passed around between
         // friends mints coins.
         expect($this->ledger->balanceFor($second))->toBe(0)
-            ->and(latestBotMessage(2)['text'])->toContain(botCopy('bot.invite.refused.invitee_already_attributed'));
+            ->and(latestBotMessage(3)['text'])->toContain(botCopy('bot.invite.refused.invitee_already_attributed'));
     });
 
     it('matches a code the phone keyboard capitalised', function () {
@@ -348,10 +366,11 @@ describe('invite attribution', function () {
         telegramAnswers('member');
 
         arrivesAtBot('/start');
+        answerLanguageQuestion();
 
-        expect(soleBotMessage()['text'])
+        expect(latestBotMessage(2)['text'])
             ->not->toContain(botCopy('bot.invite.refused.not_found'))
-            ->and(soleBotMessage()['text'])->toContain(botCopy('bot.start.next_steps'));
+            ->and(latestBotMessage(2)['text'])->toContain(botCopy('bot.start.next_steps'));
     });
 });
 
@@ -432,8 +451,9 @@ describe('anything that is not a command we know', function () {
         telegramAnswers('member');
 
         arrivesAtBot('/start@challenges_bot');
+        answerLanguageQuestion();
 
-        expect(soleBotMessage()['text'])->toContain(botCopy('bot.start.welcome', [
+        expect(latestBotMessage(2)['text'])->toContain(botCopy('bot.start.welcome', [
             'app' => botCopy('common.app_name'),
             'name' => 'Sara',
         ]));
@@ -441,12 +461,19 @@ describe('anything that is not a command we know', function () {
 });
 
 describe('the recipient’s language', function () {
-    it('replies in Farsi to a Farsi client', function () {
+    it('asks in the client’s language, then greets in the one that is picked', function () {
         telegramAnswers('member');
 
         arrivesAtBot('/start', ['language_code' => 'fa', 'first_name' => 'سارا']);
 
-        expect(soleBotMessage()['text'])->toContain(botCopy('bot.start.welcome', [
+        // The question is the one line that cannot be sent in its own answer, so it
+        // resolves in the only language available for them: the one their client
+        // reports. Answering it is what makes that guess a choice.
+        expect(soleBotMessage()['text'])->toBe(botCopy('bot.language.prompt', [], 'fa'));
+
+        answerLanguageQuestion('fa');
+
+        expect(latestBotMessage(2)['text'])->toContain(botCopy('bot.start.welcome', [
             'app' => botCopy('common.app_name', [], 'fa'),
             'name' => 'سارا',
         ], 'fa'));
@@ -456,11 +483,12 @@ describe('the recipient’s language', function () {
         telegramAnswers('member');
 
         arrivesAtBot('/start', ['language_code' => 'en']);
+        answerLanguageQuestion();
         User::query()->where('platform_user_id', 777_000_3)->update(['locale' => 'fa']);
 
         arrivesAtBot('/start', ['language_code' => 'en']);
 
-        expect(latestBotMessage(2)['text'])->toContain(botCopy('bot.start.welcome_back', ['name' => 'Sara'], 'fa'));
+        expect(latestBotMessage(3)['text'])->toContain(botCopy('bot.start.welcome_back', ['name' => 'Sara'], 'fa'));
     });
 
     it('does not leak one recipient’s locale into the next', function () {
@@ -470,8 +498,13 @@ describe('the recipient’s language', function () {
         arrivesAtBot('/start', ['id' => 888_000_2, 'language_code' => 'en', 'first_name' => 'Reza']);
 
         // A queue worker serves everybody, so `app()->getLocale()` is whoever was
-        // processed last. Every line resolves the locale per recipient instead.
-        expect(latestBotMessage(2)['text'])->toContain(botCopy('bot.start.welcome', [
+        // processed last. Every line resolves the locale per recipient instead —
+        // including the question each of them was asked.
+        expect(latestBotMessage(2)['text'])->toBe(botCopy('bot.language.prompt'));
+
+        answerLanguageQuestion();
+
+        expect(latestBotMessage(3)['text'])->toContain(botCopy('bot.start.welcome', [
             'app' => botCopy('common.app_name'),
             'name' => 'Reza',
         ]));

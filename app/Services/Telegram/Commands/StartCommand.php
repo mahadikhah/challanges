@@ -11,10 +11,11 @@ use App\Models\Challenge;
 use App\Models\Invite;
 use App\Models\User;
 use App\Services\Telegram\BotCommand;
-use App\Services\Telegram\BotMessenger;
 use App\Services\Telegram\ChannelGatePrompt;
 use App\Services\Telegram\HandlesBotCommand;
-use App\Services\Telegram\JoinChallengeFlow;
+use App\Services\Telegram\LanguagePrompt;
+use App\Services\Telegram\StartArrival;
+use App\Services\Telegram\StartGreeting;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -41,6 +42,16 @@ use Illuminate\Support\Facades\Log;
  * rather than grants, so running it on every `/start` is free and lifts existing
  * users when an admin raises the allowance.
  *
+ * **4. The language question, once, before the greeting.** A user whose `locale`
+ * is still null has never chosen one — the column is written only by
+ * `LanguageCallback` and by the Mini App — so `/start` asks instead of greeting,
+ * and everything this arrival owed travels on the buttons (`StartArrival`) to
+ * be delivered the moment they answer. It sits *after* the gate because a
+ * blocked user is owed the gate prompt and nothing else, and because the
+ * question they answer here has to outlive the loop they are about to go round:
+ * `locale` is still null on the `/start` that finally gets them through, which
+ * is exactly why the trigger is the column and not `wasRecentlyCreated`.
+ *
  * Everything the user is told goes out as **one** message. Telegram allows roughly
  * a message a second per chat, and a greeting plus an invite note plus a nudge
  * sent separately is how the third one gets dropped with a 429.
@@ -51,9 +62,9 @@ class StartCommand implements HandlesBotCommand
         private readonly ClaimInvite $invites,
         private readonly VerifyChannelMembership $gate,
         private readonly GrantFreeBaseline $baseline,
-        private readonly BotMessenger $messenger,
         private readonly ChannelGatePrompt $gatePrompt,
-        private readonly JoinChallengeFlow $joinFlow,
+        private readonly StartGreeting $greeting,
+        private readonly LanguagePrompt $languagePrompt,
     ) {}
 
     public function handle(User $user, BotCommand $command): void
@@ -66,28 +77,29 @@ class StartCommand implements HandlesBotCommand
         // handing one to `ClaimInvite` would answer a dead challenge link with a
         // message about invite links. Join payloads are resolved here, invite
         // codes further down.
-        $joinArrival = Challenge::isJoinPayload($command->argument);
-        $joinTarget = $joinArrival ? Challenge::fromJoinPayload($command->argument) : null;
+        $joinPayload = Challenge::isJoinPayload($command->argument) ? trim((string) $command->argument) : null;
 
-        $outcome = $joinArrival ? null : $this->attribute($user, $command->argument);
+        $outcome = $joinPayload !== null ? null : $this->attribute($user, $command->argument);
+
+        $arrival = new StartArrival($isFirstArrival, $outcome, $joinPayload);
 
         if (! $this->gate->handle($user)) {
-            $this->askToJoin($user, $outcome);
+            $this->gatePrompt->send($user, [$this->greeting->inviteNote($user, $outcome)]);
 
             return;
         }
 
         $this->baseline->handle($user);
 
-        if ($joinArrival) {
-            $joinTarget !== null
-                ? $this->joinFlow->preview($user, $joinTarget)
-                : $this->messenger->send($user, $this->messenger->line($user, 'bot.join.not_found'));
+        if ($user->locale === null) {
+            // Asked in the fallback locale, which is the only honest one to ask
+            // it in: there is no answer to render it in yet.
+            $this->languagePrompt->send($user, $arrival->carry());
 
             return;
         }
 
-        $this->welcome($user, $isFirstArrival, $outcome);
+        $this->greeting->deliver($user, $arrival);
     }
 
     /**
@@ -117,66 +129,5 @@ class StartCommand implements HandlesBotCommand
 
             return $refused->reason;
         }
-    }
-
-    /**
-     * Block with a join button until membership is confirmed.
-     *
-     * The refusal itself is `ChannelGatePrompt`'s, shared with every other
-     * privileged command; the only thing `/start` adds is a word about the invite
-     * code they arrived with, which they should hear whether or not they got in.
-     */
-    private function askToJoin(User $user, Invite|InviteRejection|null $outcome): void
-    {
-        $this->gatePrompt->send($user, [$this->inviteNote($user, $outcome)]);
-    }
-
-    /**
-     * Let them in.
-     */
-    private function welcome(User $user, bool $isFirstArrival, Invite|InviteRejection|null $outcome): void
-    {
-        $this->messenger->paragraphs($user, [
-            $this->messenger->line($user, $isFirstArrival ? 'bot.start.welcome' : 'bot.start.welcome_back', [
-                'name' => $this->greetingName($user),
-                'app' => $this->messenger->line($user, 'common.app_name'),
-            ]),
-            $this->inviteNote($user, $outcome),
-            $this->messenger->line($user, 'bot.start.next_steps'),
-        ]);
-    }
-
-    /**
-     * One line about the invite code they arrived with, or nothing if they didn't.
-     */
-    private function inviteNote(User $user, Invite|InviteRejection|null $outcome): ?string
-    {
-        if ($outcome === null) {
-            return null;
-        }
-
-        if ($outcome instanceof InviteRejection) {
-            // The rejection cases exist to be told apart: "that link is spent" and
-            // "that is your own link" are different conversations.
-            return $this->messenger->line($user, "bot.invite.refused.{$outcome->value}");
-        }
-
-        return $this->messenger->line(
-            $user,
-            $outcome->wasPaid() ? 'bot.invite.credited' : 'bot.invite.claimed',
-            ['name' => $this->greetingName($outcome->inviter)],
-        );
-    }
-
-    /**
-     * What to call somebody in a sentence.
-     *
-     * `first_name` is what Telegram users recognise as their own name; `name` is
-     * the non-nullable column behind it, which for a bot user is the same thing
-     * plus a surname and for a Fortify admin is a full name.
-     */
-    private function greetingName(User $user): string
-    {
-        return $user->first_name ?? $user->name;
     }
 }

@@ -90,6 +90,11 @@ function givenJoinSlots(User $user, int $count = 1): void
 
 /**
  * `/start` with a join payload, through the whole inbound path.
+ *
+ * A user who has never chosen a language is asked which one they speak before
+ * the preview goes out — the arrival rides on the language buttons and is
+ * delivered the moment they answer — so tests that want the preview follow this
+ * with `answerLanguageQuestion()`.
  */
 function arrivesViaJoinLink(string $token): void
 {
@@ -128,8 +133,9 @@ describe('arriving through a join link', function () {
         $challenge = joinableChallenge();
 
         arrivesViaJoinLink($challenge->join_token);
+        answerLanguageQuestion();
 
-        expect(soleBotMessage()['text'])
+        expect(latestBotMessage(2)['text'])
             ->toContain(botCopy('bot.join.preview_headline', ['title' => 'Read every day']))
             ->toContain(botCopy('bot.join.preview_details', [
                 'period' => botCopy($challenge->period_type->translationKey()),
@@ -145,10 +151,11 @@ describe('arriving through a join link', function () {
         $challenge = joinableChallenge();
 
         arrivesViaJoinLink($challenge->join_token);
+        answerLanguageQuestion();
 
         // The button names an intent and carries the token that resolves it; the
         // actor is re-resolved from `callback_query.from` when it is tapped.
-        expect(botKeyboard())->toBe([[[
+        expect(lastBotKeyboard())->toBe([[[
             'text' => botCopy('bot.join.join_button'),
             'callback_data' => 'jn:'.$challenge->join_token,
         ]]]);
@@ -168,8 +175,9 @@ describe('arriving through a join link', function () {
         telegramServesAMember();
 
         arrivesViaJoinLink('nothere123');
+        answerLanguageQuestion();
 
-        expect(soleBotMessage()['text'])->toBe(botCopy('bot.join.not_found'));
+        expect(latestBotMessage(2)['text'])->toBe(botCopy('bot.join.not_found'));
     });
 
     it('does not treat a join payload as an invite code', function () {
@@ -373,9 +381,10 @@ describe('a preview that already knows the answer', function () {
         ChallengeParticipant::factory()->for($challenge)->for(theJoiner())->create();
 
         arrivesViaJoinLink($challenge->join_token);
+        answerLanguageQuestion();
 
-        expect(soleBotMessage()['text'])->toBe(botCopy('bot.join.already_in', ['title' => 'Read every day']))
-            ->and(botKeyboard())->toBe([]);
+        expect(latestBotMessage(2)['text'])->toBe(botCopy('bot.join.already_in', ['title' => 'Read every day']))
+            ->and(keyboardOn(latestBotMessage(2)))->toBe([]);
     });
 
     it('tells somebody arriving at a closed challenge that it is closed', function () {
@@ -384,8 +393,9 @@ describe('a preview that already knows the answer', function () {
         $challenge->forceFill(['status' => ChallengeStatus::Completed])->save();
 
         arrivesViaJoinLink($challenge->join_token);
+        answerLanguageQuestion();
 
-        expect(soleBotMessage()['text'])
+        expect(latestBotMessage(2)['text'])
             ->toBe(botCopy('bot.join.refused.challenge_closed', ['title' => 'Read every day']));
     });
 });

@@ -15,7 +15,13 @@ export type MiniAppUser = {
     id: number;
     first_name: string;
     username: string | null;
-    locale: string;
+    /**
+     * The language the user chose, or null when they never have. The screen
+     * itself renders in `localization.locale`, which the server resolves from
+     * this preference and falls back from — so null is a normal state, not an
+     * error, and a client that needs a locale should use that one.
+     */
+    locale: string | null;
     coins: number;
 };
 

@@ -128,13 +128,21 @@ describe('UI copy sweep', function (): void {
         );
     });
 
-    test('every client translation group is en/fa complete', function (string $group): void {
+    /*
+     * `bot` is a server-side group rather than a client one, and it is in the
+     * list for the same reason the others are: the bot speaks both languages, so
+     * a key that exists in one file and not the other is a line that silently
+     * resolves to the fallback for half the users. `phrases` is deliberately
+     * absent — its word banks are drawn from, not mirrored, and the two locales
+     * legitimately differ in size.
+     */
+    test('every en/fa translation group is complete', function (string $group): void {
         $en = Arr::dot(require base_path("lang/en/{$group}.php"));
         $fa = Arr::dot(require base_path("lang/fa/{$group}.php"));
 
         expect(array_keys($fa))->toEqualCanonicalizing(array_keys($en))
             ->and(array_keys($en))->not->toBeEmpty();
-    })->with(['common', 'enums', 'miniapp', 'admin', 'website', 'auth', 'settings']);
+    })->with(['common', 'enums', 'miniapp', 'admin', 'website', 'auth', 'settings', 'bot']);
 
     test('the new groups are shipped to the browser in both locales', function (string $locale): void {
         $payload = app(Localization::class)->payload($locale);

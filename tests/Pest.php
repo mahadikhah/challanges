@@ -1,5 +1,9 @@
 <?php
 
+use App\Enums\MessagingPlatform;
+use App\Jobs\Telegram\ProcessTelegramUpdate;
+use App\Models\TelegramUpdate;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -251,4 +255,55 @@ function keyboardOn(array $message): array
     $keyboard = is_array($decoded) ? ($decoded['inline_keyboard'] ?? []) : [];
 
     return $keyboard;
+}
+
+/**
+ * Answer the language question `/start` asks somebody who has never chosen one.
+ *
+ * `/start` greets nobody until the question is answered, so a test that wants a
+ * greeting has to say which language it is in. The button tapped is the one the
+ * bot actually sent — read back off the wire, carried payload and all — and the
+ * tap goes through the real inbound path, so what this exercises is the flow
+ * rather than a shortcut around it. `/language`'s own prompt carries nothing, so
+ * the same call also drives that command's buttons.
+ *
+ * @param  string  $locale  which button to press; the prompt's first is taken
+ *                          when it does not offer this one
+ */
+function answerLanguageQuestion(string $locale = 'en'): void
+{
+    $message = lastBotReply();
+
+    $buttons = array_merge([], ...keyboardOn($message));
+
+    $chosen = null;
+
+    foreach ($buttons as $button) {
+        $data = $button['callback_data'] ?? '';
+
+        if (str_starts_with($data, 'lg:'.$locale.':') || $data === 'lg:'.$locale) {
+            $chosen = $data;
+            break;
+        }
+    }
+
+    $chosen ??= $buttons[0]['callback_data'] ?? null;
+
+    expect($chosen)->toBeString();
+
+    // The tap has to arrive from the user it was offered to, and with the name
+    // that user already has: `ResolveTelegramUser` refreshes the profile from
+    // every payload, so a placeholder here would rename them mid-test.
+    $chatId = (int) $message['chat_id'];
+
+    $user = User::query()
+        ->where('platform', MessagingPlatform::Telegram)
+        ->where('platform_user_id', $chatId)
+        ->sole();
+
+    $update = TelegramUpdate::factory()
+        ->callbackQueryFrom(['id' => $chatId, 'first_name' => $user->first_name], $chosen)
+        ->create();
+
+    dispatch_sync(new ProcessTelegramUpdate($update));
 }

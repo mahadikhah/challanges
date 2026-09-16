@@ -160,7 +160,10 @@ describe('the token exchange', function () {
                 'id' => $user->getKey(),
                 'first_name' => 'Sara',
                 'username' => 'sarahmad',
-                'locale' => 'en',
+                // Null, not a guess: opening the Mini App does not choose a
+                // language any more than messaging the bot does. The client
+                // renders from the locale the page was served in.
+                'locale' => null,
             ]);
     });
 
@@ -200,7 +203,10 @@ describe('the token exchange', function () {
         $user = User::query()->sole();
 
         expect($user->first_name)->toBe('زهرا')
-            ->and($user->locale)->toBe('fa');
+            // Their client speaks Farsi; that is a default, not a choice. The
+            // column records choices, and this arrival made none.
+            ->and($user->language_code)->toBe('fa')
+            ->and($user->locale)->toBeNull();
     });
 
     it('excludes the optional signature from the check string', function () {
@@ -337,7 +343,7 @@ describe('the authenticated surface', function () {
             'id' => $user->getKey(),
             'first_name' => 'Sara',
             'username' => 'sarahmad',
-            'locale' => 'en',
+            'locale' => null,
             'coins' => 25,
         ]);
     });

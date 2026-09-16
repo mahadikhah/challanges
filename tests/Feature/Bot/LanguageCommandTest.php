@@ -91,7 +91,11 @@ it('switches back the other way', function () {
 });
 
 it('refuses a crafted callback naming a locale the platform cannot serve', function () {
-    asksForLanguages(['language_code' => 'en']);
+    // Somebody who has already chosen, so the assertion below is about a real
+    // preference surviving rather than about a null staying null.
+    User::factory()->telegram(777_000_3)->preferring('en')->create();
+
+    asksForLanguages();
 
     tapsLanguageButton('lg:fr');
 
@@ -104,7 +108,9 @@ it('refuses a crafted callback naming a locale the platform cannot serve', funct
 });
 
 it('refuses a button with no locale on it at all', function () {
-    asksForLanguages(['language_code' => 'en']);
+    User::factory()->telegram(777_000_3)->preferring('en')->create();
+
+    asksForLanguages();
 
     tapsLanguageButton('lg:');
 

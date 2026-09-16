@@ -7,6 +7,8 @@ use App\Services\Localization;
 use App\Services\Telegram\BotCallback;
 use App\Services\Telegram\BotMessenger;
 use App\Services\Telegram\HandlesCallback;
+use App\Services\Telegram\StartArrival;
+use App\Services\Telegram\StartGreeting;
 
 /**
  * Delivers a language-button tap to the user's own preference.
@@ -20,6 +22,12 @@ use App\Services\Telegram\HandlesCallback;
  * same per-recipient resolution as everything else: it is the first message the
  * user gets in the language they just picked, which doubles as proof the pick
  * took.
+ *
+ * A button minted by `/start` carries that `/start`'s unfinished business as
+ * well (`StartArrival`), and answering it settles both. In that case the
+ * greeting *is* the confirmation — it arrives in the chosen language, which
+ * proves the pick just as well as a separate line would, and sending both would
+ * be two messages inside the one second Telegram allows a chat.
  */
 class LanguageCallback implements HandlesCallback
 {
@@ -31,6 +39,7 @@ class LanguageCallback implements HandlesCallback
     public function __construct(
         private readonly BotMessenger $messenger,
         private readonly Localization $localization,
+        private readonly StartGreeting $greeting,
     ) {}
 
     public function handle(User $user, BotCallback $callback): void
@@ -43,7 +52,17 @@ class LanguageCallback implements HandlesCallback
             return;
         }
 
+        // Saved before anything is said, so the greeting below resolves in the
+        // language they just chose without a second round trip.
         $user->forceFill(['locale' => $locale])->save();
+
+        $owed = StartArrival::carried($user, $callback);
+
+        if ($owed !== null) {
+            $this->greeting->deliver($user, $owed);
+
+            return;
+        }
 
         $this->messenger->send($user, $this->messenger->line(
             $user,

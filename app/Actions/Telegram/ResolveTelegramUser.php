@@ -4,7 +4,6 @@ namespace App\Actions\Telegram;
 
 use App\Enums\MessagingPlatform;
 use App\Models\User;
-use App\Services\Localization;
 use InvalidArgumentException;
 
 /**
@@ -29,15 +28,22 @@ use InvalidArgumentException;
  * exactly that reason.
  *
  * **What this never touches.** `is_admin` and `channel_verified_at` are privilege
- * state and are not fillable on the model; nothing here writes them. `locale` is
- * written **only at creation**: it is what the user chose in the bot or the Mini
- * App, and their client language must not be allowed to overwrite a deliberate
- * choice on their next message.
+ * state and are not fillable on the model; nothing here writes them. **`locale`
+ * is never written either** — not even at creation, and especially not from the
+ * client's `language_code`.
+ *
+ * The column means "the language they chose", and null means "nobody has asked
+ * them yet". That is the contract `User::preferredLocale()` documents for the
+ * web middleware, and it is what `/start`'s language question triggers on. A
+ * seeded guess would break both: the question could never be asked of a user who
+ * had never been asked it, and the admin panel would attribute a deliberate
+ * choice to somebody who had made none. The client's language is a *guess*, and
+ * it is read as one — `BotMessenger::localeFor()` and
+ * `IssueCheckInPhrase::localeFor()` both hand `language_code` to
+ * `Localization::best()` as a candidate sitting behind the stored preference.
  */
 class ResolveTelegramUser
 {
-    public function __construct(private readonly Localization $localization) {}
-
     /**
      * Find or create the user behind a messenger `User` object.
      *
@@ -66,7 +72,7 @@ class ResolveTelegramUser
 
         $user = User::query()->firstOrCreate(
             ['platform' => $platform, 'platform_user_id' => $platformUserId],
-            [...$profile, 'locale' => $this->localization->best($profile['language_code'])],
+            $profile,
         );
 
         if (! $user->wasRecentlyCreated) {

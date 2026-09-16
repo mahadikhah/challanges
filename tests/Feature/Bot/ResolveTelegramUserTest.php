@@ -2,6 +2,7 @@
 
 use App\Actions\Telegram\ResolveTelegramUser;
 use App\Models\User;
+use App\Services\Telegram\BotMessenger;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -13,9 +14,10 @@ uses(RefreshDatabase::class);
  * 1. The instance it returns is what decides whether an inviter gets paid, because
  *    `ClaimInvite` reads `wasRecentlyCreated` off it. A second lookup anywhere
  *    downstream reports false and the credit is silently lost.
- * 2. `locale` is written once and never again. It is what the user chose; their
- *    Telegram client language must not be able to overwrite that on their next
- *    message.
+ * 2. `locale` is never written here at all. It means "the language they chose",
+ *    and they are asked — `/start` will not greet them until they answer. A seed
+ *    from the client's `language_code` would answer that question on their behalf
+ *    and make it unaskable.
  */
 
 /**
@@ -46,9 +48,13 @@ describe('a first arrival', function () {
             ->and($user->name)->toBe('Sara Karimi')
             ->and($user->telegram_username)->toBe('sara_k')
             ->and($user->language_code)->toBe('fa-IR')
-            // `fa-IR` is not a locale this platform serves; `fa` is. Reducing the
-            // tag is `Localization::best()`'s job, and this is where it happens.
-            ->and($user->locale)->toBe('fa');
+            // Nobody has asked them which language they want, so the column that
+            // means "the one they chose" is still empty. `fa-IR` is not a locale
+            // this platform serves and `fa` is, but reducing the tag is
+            // `Localization::best()`'s job — done when a line is resolved for
+            // them (`BotMessenger::localeFor()`), never guessed into the row.
+            ->and($user->locale)->toBeNull()
+            ->and(app(BotMessenger::class)->localeFor($user))->toBe('fa');
     });
 
     it('reports itself as recently created, which is what pays an inviter', function () {
