@@ -3392,7 +3392,33 @@ added to `MiniAppAuthTest` (two token-lifetime tests and a six-case refusal data
 
 **Out of scope but found.** The Mini App's `period_label` ("Period :index of :total"), `no_open_period` and
 `already_settled` still count in periods rather than in the challenge's own unit — the same defect Task 8 fixed
-in the bot, on a participant-facing surface, and still unfixed. It is carried forward here from the Task 8 entry
-rather than duplicated.
+in the bot, on a participant-facing surface, and still unfixed. It is carried forward here from the Task 8
+entry rather than duplicated.
+
+### The attach re-uploads the bytes — confirmed
+
+The baked-in decision for the media chain was **re-upload the bytes; never re-send by Telegram `file_id`**.
+Confirmed against the shipped code rather than restated from the goal file:
+
+- **No `file_id` is ever stored.** It appears only on the *inbound* path — reading an update's `photo`/
+  `voice`/`video` object, then `TelegramFileDownloader` fetching the bytes and writing them to
+  `Storage::disk('local')`. No migration has a `file_id` column: `check_ins.proof_path` and
+  `check_in_step_submissions.proof_path` (same name, same convention, by that migration's own docblock) are
+  the only places a proof is recorded.
+- **The attach reads from disk.** `ProofReviewNotifier::sendProofMedia()` is the single attach site:
+  `$bytes = Storage::disk('local')->get($path)`, then
+  `$this->messenger->sendMedia($creator, $kind, $bytes, basename($path), $lines, $keyboard)`.
+  `BotMessenger::sendMedia()` takes `string $bytes` as its third parameter, and the platform methods Task 1
+  added take it too — there is no parameter a `file_id` could be passed through even if one were available.
+
+**Does the byte cost matter? No — and the reason is the guard, not the size.** The single attach site is
+reached through `CheckInAwaitsReview` → `NotifyProofReviewer` → `SendProofForReview`, a queued job that
+re-reads the row and returns immediately unless the check-in is *still* `Submitted`. So it is one re-upload of
+one proof file per check-in that actually lands in a human's queue — no polling, no fan-out, exactly one
+recipient. The one place it can multiply is a retry: `SendProofForReview::$tries = 3`, and a retry re-runs the
+whole send, so a flaky platform can cost up to three uploads of the same file. That is bounded, and a failed
+send usually means the upload did not complete in the first place. Worth revisiting only if proofs grow into
+large video files, at which point caching the uploaded `message_id` per (check-in, recipient) would be the
+lever — and that needs a column, which is the two-sources-of-truth cost the decision was made to avoid.
 
 **Next:** Phase 17 is complete — all nine tasks, nine green commits.
