@@ -4,6 +4,7 @@ namespace App\Messaging\Bale;
 
 use App\Enums\MessagingPlatform;
 use App\Enums\PaymentTransactionStatus;
+use App\Messaging\Concerns\BuildsMessengerParams;
 use App\Messaging\Contracts\MessengerException;
 use App\Messaging\Contracts\MessengerPlatform;
 use App\Messaging\DTO\BotUpdate;
@@ -52,6 +53,8 @@ use Throwable;
  */
 class BaleMessengerPlatform implements MessengerPlatform
 {
+    use BuildsMessengerParams;
+
     private const BASE_URL = 'https://tapi.bale.ai/bot';
 
     private const FILE_URL = 'https://tapi.bale.ai/file/bot';
@@ -165,31 +168,70 @@ class BaleMessengerPlatform implements MessengerPlatform
             'text' => $text,
         ];
 
-        if ($inlineKeyboard !== null) {
-            // Same wire convention as Telegram: `reply_markup` is a
-            // JSON-serialized object, and the SDK passes params through as
-            // form fields without serializing this one.
-            $params['reply_markup'] = json_encode(
-                ['inline_keyboard' => $inlineKeyboard],
-                JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE,
-            );
+        $markup = $this->replyMarkupJson($inlineKeyboard);
+
+        if ($markup !== null) {
+            $params['reply_markup'] = $markup;
         }
 
         return $this->sent(fn (): int => (int) $this->api()->sendMessage($params)->get('message_id'));
     }
 
-    public function sendPhoto(int $chatId, string $bytes, string $filename, array $captionLines): SentMessage
-    {
-        $caption = implode("\n\n", array_filter(
-            $captionLines,
-            static fn (?string $line): bool => $line !== null && trim($line) !== '',
-        ));
-
-        return $this->sent(fn (): int => (int) $this->api()->sendPhoto([
+    /**
+     * @param  list<string|null>  $captionLines
+     * @param  list<list<array<string, string>>>|null  $inlineKeyboard
+     */
+    public function sendPhoto(
+        int $chatId,
+        string $bytes,
+        string $filename,
+        array $captionLines,
+        ?array $inlineKeyboard = null,
+    ): SentMessage {
+        $params = $this->mediaParams([
             'chat_id' => $chatId,
             'photo' => InputFile::createFromContents($bytes, $filename),
-            'caption' => $caption,
-        ])->get('message_id'));
+        ], $captionLines, $inlineKeyboard);
+
+        return $this->sent(fn (): int => (int) $this->api()->sendPhoto($params)->get('message_id'));
+    }
+
+    /**
+     * @param  list<string|null>  $captionLines
+     * @param  list<list<array<string, string>>>|null  $inlineKeyboard
+     */
+    public function sendVoice(
+        int $chatId,
+        string $bytes,
+        string $filename,
+        array $captionLines,
+        ?array $inlineKeyboard = null,
+    ): SentMessage {
+        $params = $this->mediaParams([
+            'chat_id' => $chatId,
+            'voice' => InputFile::createFromContents($bytes, $filename),
+        ], $captionLines, $inlineKeyboard);
+
+        return $this->sent(fn (): int => (int) $this->api()->sendVoice($params)->get('message_id'));
+    }
+
+    /**
+     * @param  list<string|null>  $captionLines
+     * @param  list<list<array<string, string>>>|null  $inlineKeyboard
+     */
+    public function sendVideo(
+        int $chatId,
+        string $bytes,
+        string $filename,
+        array $captionLines,
+        ?array $inlineKeyboard = null,
+    ): SentMessage {
+        $params = $this->mediaParams([
+            'chat_id' => $chatId,
+            'video' => InputFile::createFromContents($bytes, $filename),
+        ], $captionLines, $inlineKeyboard);
+
+        return $this->sent(fn (): int => (int) $this->api()->sendVideo($params)->get('message_id'));
     }
 
     public function answerCallbackQuery(string $callbackQueryId): void

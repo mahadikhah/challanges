@@ -2505,8 +2505,8 @@
     "semantic_hash": ""
   },
   "prompts/issues.md": {
-    "mtime": 1788158273.198565,
-    "ast_hash": "37837893a58a95f82719c0ecfe734972",
+    "mtime": 1789516468.9820583,
+    "ast_hash": "10e60ef4b70e7fe9d803ec84cb08119e",
     "semantic_hash": ""
   },
   "app/Actions/Challenges/ComposeLeaderboard.php": {
@@ -3100,8 +3100,8 @@
     "semantic_hash": ""
   },
   "app/Messaging/Contracts/MessengerPlatform.php": {
-    "mtime": 1788017770.5946188,
-    "ast_hash": "794ab87004d86c9e013d0a600ae87ed4",
+    "mtime": 1789518237.9450648,
+    "ast_hash": "7622db18cefc89b3c6d63526214054ac",
     "semantic_hash": ""
   },
   "app/Messaging/DTO/BotUpdate.php": {
@@ -3120,8 +3120,8 @@
     "semantic_hash": ""
   },
   "app/Messaging/Telegram/TelegramMessengerPlatform.php": {
-    "mtime": 1788017770.5956187,
-    "ast_hash": "91d1346e88e14e0df4d060f191e70901",
+    "mtime": 1789518274.693082,
+    "ast_hash": "e0ba1f14a963bcba12689728d0f4915e",
     "semantic_hash": ""
   },
   "database/migrations/2026_08_29_110000_split_platform_identity_on_users_table.php": {
@@ -3150,8 +3150,8 @@
     "semantic_hash": ""
   },
   "app/Messaging/Bale/BaleMessengerPlatform.php": {
-    "mtime": 1788017770.5946188,
-    "ast_hash": "bfbf980ee5c3cff3133c78b83c967a73",
+    "mtime": 1789518290.7348385,
+    "ast_hash": "f317b2435e85cc081121ff62b6950c1a",
     "semantic_hash": ""
   },
   "app/Messaging/PlatformRegistry.php": {
@@ -3515,8 +3515,8 @@
     "semantic_hash": ""
   },
   "app/Messaging/RecordingMessengerPlatform.php": {
-    "mtime": 1788017770.5956187,
-    "ast_hash": "47c00ab93416c9e3d0e5d9bbab5302d6",
+    "mtime": 1789518295.1315036,
+    "ast_hash": "08c18644f1b8938c1a30992576848e9e",
     "semantic_hash": ""
   },
   "app/Models/ExternalCallStat.php": {
@@ -3747,6 +3747,26 @@
   "tests/Feature/SettingsMissingSchemaTest.php": {
     "mtime": 1789315680.2778034,
     "ast_hash": "0b35566eff096f6ac42f299f4cd39483",
+    "semantic_hash": ""
+  },
+  "app/Messaging/Concerns/BuildsMessengerParams.php": {
+    "mtime": 1789518232.9314868,
+    "ast_hash": "e79f200a52b930da72568fc653860159",
+    "semantic_hash": ""
+  },
+  "tests/Feature/Messaging/MessengerMediaSendingTest.php": {
+    "mtime": 1789518366.539404,
+    "ast_hash": "d41ae56f4767d5e94f998730b550a59c",
+    "semantic_hash": ""
+  },
+  "prompts/goal-phase-17.md": {
+    "mtime": 1789517059.2660303,
+    "ast_hash": "5c52427e2e2f959d7ba0ff2dacb62dd5",
+    "semantic_hash": ""
+  },
+  "prompts/phase-17.md": {
+    "mtime": 1789516759.6479814,
+    "ast_hash": "0e6ca2ae3597bef0f6cd21513f58313b",
     "semantic_hash": ""
   }
 }

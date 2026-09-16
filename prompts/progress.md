@@ -2699,3 +2699,60 @@ admin-chrome-absent), `UiCopyTest` + `LocalizationServiceTest`/`LocalizationTest
 
 **Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓,
 tsc ✓, tests **1672 (1668 pass, 4 skipped)**, 6159 assertions.
+
+---
+
+## Phase 17 — Defect fixes reported from the deployed bot and Mini App
+
+Seven issues from real use (`prompts/issues.md`), each traced to a concrete defect in the code before being
+written up as a task. Nine tasks, `prompts/phase-17.md`; goal in `prompts/goal-phase-17.md`. Build order is
+strict: `1 → 2 → 3` (the media chain), `5 → 6 → 7` (discoverability), `9` early and independent, `4` and `8`
+free-standing.
+
+### Task 1 — Messenger media sending: voice, video, and a keyboard on media ✅
+
+**Why.** Issues 1 and 2 both start here. `CheckInFlow::notifyReviewer()` sends the creator a sentence and two
+buttons and nothing else, and the code says so in its own docblock — "the bot has no way to attach a stored
+recording to a message without re-uploading it". Half of that was true: the SDK can upload bytes fine, but
+`MessengerPlatform` had no `sendVoice`/`sendVideo` to call, and no media send could carry a keyboard, so a
+proof could never arrive with its verdict buttons on it.
+
+**What shipped** (`055513b` specs, then the Task 1 commit):
+- **The contract** (`app/Messaging/Contracts/MessengerPlatform.php`) gains `sendVoice(...)` and
+  `sendVideo(...)`, each `(int $chatId, string $bytes, string $filename, array $captionLines, ?array
+  $inlineKeyboard = null): SentMessage`, and `sendPhoto` gains the same **optional trailing** keyboard so its
+  one existing caller (`ChatBroadcaster::sendPhoto`) compiles unchanged. The keyboard parameter is documented
+  as riding *on* the media message rather than following it — the platform allows roughly a message a second
+  per chat, and the second send is the one that gets refused.
+- **A shared trait, not two more encoders.** `app/Messaging/Concerns/BuildsMessengerParams.php` holds the two
+  wire conventions both platforms had been duplicating inline: `captionFrom()` (blank-line joined, nulls and
+  blanks dropped — matching `BotMessenger::paragraphs`) and `replyMarkupJson()` (`reply_markup` as
+  `json_encode(['inline_keyboard' => …])`, because the SDK passes params through as form fields and does not
+  serialize this one). `mediaParams()` composes them. Both `sendMessage` implementations collapse onto the
+  shared encoder; each platform keeps its own endpoint, media field and SDK call.
+- Implemented on `TelegramMessengerPlatform`, `BaleMessengerPlatform` and the `RecordingMessengerPlatform`
+  decorator (so the outbound counters see the new calls like every other send).
+- **Decision recorded:** the three sends are written out explicitly rather than dispatched through one
+  `sendMedia(string $endpoint, …)` helper with a dynamic `$this->telegram->{$endpoint}(…)`. The SDK resolves
+  methods through `__call`/`@mixin CommandBus`, and a variable method name loses that resolution — PHPStan
+  lvl 7 would see `mixed` and the `->get('message_id')` call would fall off the type map. Three four-line
+  bodies with the shared normalisation extracted is the honest trade.
+- **Decision recorded:** the caption field is always sent, even when empty, rather than omitted by an
+  `array_filter` over the params. Omitting it would change the wire shape of every existing `sendPhoto` call
+  for no gain; only `reply_markup` is conditional, since a null one reads as an empty object that would
+  replace whatever keyboard is on screen.
+
+**Tests.** `tests/Feature/Messaging/MessengerMediaSendingTest.php` (16) — every assertion runs against **both**
+platforms via a dataset, so a future third platform has the file as its template. Multipart fields are
+extracted from the **raw body** (a `multipartField()` helper that skips the part's own headers, since a file
+part carries `Content-Type` and a scalar part does not) rather than Laravel's parsed view of a body the test
+itself wrote; keyboards are asserted by decoding the `reply_markup` part. Covers voice/video/photo with a
+keyboard, photo **without** one (the `ChatBroadcaster` regression bar), null/blank caption dropping, the empty
+caption still being present, and `MessengerException` on both a refusal and a transport failure — plus a
+count-1 assertion per send, because "one message per proof" is the rate-limit rule, not a tidiness preference.
+
+**Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓,
+tsc ✓, tests **1701 (1697 pass, 4 skipped)**, 6228 assertions.
+
+**Next:** Task 2 — `notifyReviewer()` reads `proof_path` off disk and sends it with the verdict buttons, one
+send, honest text-only fallback.

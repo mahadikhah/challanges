@@ -66,10 +66,54 @@ interface MessengerPlatform
      * Send a photo (raw bytes) with a caption into a chat.
      *
      * @param  list<string|null>  $captionLines  blank-line separated, nulls dropped
+     * @param  list<list<array<string, string>>>|null  $inlineKeyboard  rows of buttons;
+     *                                                                  they ride on the media message rather than following it, because the platform allows roughly a message a second per chat and a second send is the one that gets refused
      *
      * @throws MessengerException
      */
-    public function sendPhoto(int $chatId, string $bytes, string $filename, array $captionLines): SentMessage;
+    public function sendPhoto(
+        int $chatId,
+        string $bytes,
+        string $filename,
+        array $captionLines,
+        ?array $inlineKeyboard = null,
+    ): SentMessage;
+
+    /**
+     * Send a voice message (raw bytes) with a caption into a chat.
+     *
+     * The caller decides what is voice by the same extension mapping the
+     * upload pipeline uses (`CheckIn::proofKind()`); this method uploads bytes
+     * and never inspects the container.
+     *
+     * @param  list<string|null>  $captionLines  blank-line separated, nulls dropped
+     * @param  list<list<array<string, string>>>|null  $inlineKeyboard  rows of buttons
+     *
+     * @throws MessengerException
+     */
+    public function sendVoice(
+        int $chatId,
+        string $bytes,
+        string $filename,
+        array $captionLines,
+        ?array $inlineKeyboard = null,
+    ): SentMessage;
+
+    /**
+     * Send a video (raw bytes) with a caption into a chat.
+     *
+     * @param  list<string|null>  $captionLines  blank-line separated, nulls dropped
+     * @param  list<list<array<string, string>>>|null  $inlineKeyboard  rows of buttons
+     *
+     * @throws MessengerException
+     */
+    public function sendVideo(
+        int $chatId,
+        string $bytes,
+        string $filename,
+        array $captionLines,
+        ?array $inlineKeyboard = null,
+    ): SentMessage;
 
     /**
      * Acknowledge a tapped inline button (stops the client's spinner).

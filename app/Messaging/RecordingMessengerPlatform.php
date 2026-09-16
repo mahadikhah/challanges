@@ -52,9 +52,46 @@ class RecordingMessengerPlatform implements MessengerPlatform
         return $this->messaging(fn (): SentMessage => $this->inner->sendMessage($chatId, $text, $inlineKeyboard));
     }
 
-    public function sendPhoto(int $chatId, string $bytes, string $filename, array $captionLines): SentMessage
-    {
-        return $this->messaging(fn (): SentMessage => $this->inner->sendPhoto($chatId, $bytes, $filename, $captionLines));
+    /**
+     * @param  list<string|null>  $captionLines
+     * @param  list<list<array<string, string>>>|null  $inlineKeyboard
+     */
+    public function sendPhoto(
+        int $chatId,
+        string $bytes,
+        string $filename,
+        array $captionLines,
+        ?array $inlineKeyboard = null,
+    ): SentMessage {
+        return $this->messaging(fn (): SentMessage => $this->inner->sendPhoto($chatId, $bytes, $filename, $captionLines, $inlineKeyboard));
+    }
+
+    /**
+     * @param  list<string|null>  $captionLines
+     * @param  list<list<array<string, string>>>|null  $inlineKeyboard
+     */
+    public function sendVoice(
+        int $chatId,
+        string $bytes,
+        string $filename,
+        array $captionLines,
+        ?array $inlineKeyboard = null,
+    ): SentMessage {
+        return $this->messaging(fn (): SentMessage => $this->inner->sendVoice($chatId, $bytes, $filename, $captionLines, $inlineKeyboard));
+    }
+
+    /**
+     * @param  list<string|null>  $captionLines
+     * @param  list<list<array<string, string>>>|null  $inlineKeyboard
+     */
+    public function sendVideo(
+        int $chatId,
+        string $bytes,
+        string $filename,
+        array $captionLines,
+        ?array $inlineKeyboard = null,
+    ): SentMessage {
+        return $this->messaging(fn (): SentMessage => $this->inner->sendVideo($chatId, $bytes, $filename, $captionLines, $inlineKeyboard));
     }
 
     public function answerCallbackQuery(string $callbackQueryId): void

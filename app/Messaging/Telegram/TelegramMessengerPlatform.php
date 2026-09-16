@@ -3,6 +3,7 @@
 namespace App\Messaging\Telegram;
 
 use App\Enums\MessagingPlatform;
+use App\Messaging\Concerns\BuildsMessengerParams;
 use App\Messaging\Contracts\MessengerException;
 use App\Messaging\Contracts\MessengerPlatform;
 use App\Messaging\DTO\BotUpdate;
@@ -27,8 +28,9 @@ use Throwable;
  *
  * - `reply_markup` is JSON-serialized where Telegram wants a serialized object
  *   (the SDK passes params through as form fields and does not serialize it).
- * - Photos upload from bytes via `InputFile::createFromContents`, never from a
- *   path — the bytes are on our disk, not at a URL Telegram can fetch.
+ * - Photos, voice and video upload from bytes via
+ *   `InputFile::createFromContents`, never from a path — the bytes are on our
+ *   disk, not at a URL Telegram can fetch.
  * - Optional booleans (`is_member`, `can_post_messages`) arrive absent, not
  *   false, and stay `null` when absent.
  * - `createInvoiceLink` passes `provider_token: ''` — for Stars, an empty
@@ -46,6 +48,8 @@ use Throwable;
  */
 class TelegramMessengerPlatform implements MessengerPlatform
 {
+    use BuildsMessengerParams;
+
     public function __construct(
         private readonly Api $telegram,
         private readonly BotIdentity $identity,
@@ -150,35 +154,70 @@ class TelegramMessengerPlatform implements MessengerPlatform
             'text' => $text,
         ];
 
-        if ($inlineKeyboard !== null) {
-            // The SDK passes params straight through as form fields and does not
-            // serialise this one, and Telegram documents `reply_markup` as a
-            // JSON-serialized object — form-encoding the nested array would be
-            // rejected.
-            $params['reply_markup'] = json_encode(
-                ['inline_keyboard' => $inlineKeyboard],
-                JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE,
-            );
+        $markup = $this->replyMarkupJson($inlineKeyboard);
+
+        if ($markup !== null) {
+            $params['reply_markup'] = $markup;
         }
 
         return $this->sent(fn (): int => (int) $this->telegram->sendMessage($params)->get('message_id'));
     }
 
-    public function sendPhoto(int $chatId, string $bytes, string $filename, array $captionLines): SentMessage
-    {
-        $caption = implode("\n\n", array_filter(
-            $captionLines,
-            static fn (?string $line): bool => $line !== null && trim($line) !== '',
-        ));
-
-        return $this->sent(fn (): int => (int) $this->telegram->sendPhoto([
+    /**
+     * @param  list<string|null>  $captionLines
+     * @param  list<list<array<string, string>>>|null  $inlineKeyboard
+     */
+    public function sendPhoto(
+        int $chatId,
+        string $bytes,
+        string $filename,
+        array $captionLines,
+        ?array $inlineKeyboard = null,
+    ): SentMessage {
+        $params = $this->mediaParams([
             'chat_id' => $chatId,
-            // From contents rather than a path: the bytes are on our disk, not
-            // at a URL Telegram can fetch, and the SDK's path-flavoured factory
-            // would look for a file named after them.
             'photo' => InputFile::createFromContents($bytes, $filename),
-            'caption' => $caption,
-        ])->get('message_id'));
+        ], $captionLines, $inlineKeyboard);
+
+        return $this->sent(fn (): int => (int) $this->telegram->sendPhoto($params)->get('message_id'));
+    }
+
+    /**
+     * @param  list<string|null>  $captionLines
+     * @param  list<list<array<string, string>>>|null  $inlineKeyboard
+     */
+    public function sendVoice(
+        int $chatId,
+        string $bytes,
+        string $filename,
+        array $captionLines,
+        ?array $inlineKeyboard = null,
+    ): SentMessage {
+        $params = $this->mediaParams([
+            'chat_id' => $chatId,
+            'voice' => InputFile::createFromContents($bytes, $filename),
+        ], $captionLines, $inlineKeyboard);
+
+        return $this->sent(fn (): int => (int) $this->telegram->sendVoice($params)->get('message_id'));
+    }
+
+    /**
+     * @param  list<string|null>  $captionLines
+     * @param  list<list<array<string, string>>>|null  $inlineKeyboard
+     */
+    public function sendVideo(
+        int $chatId,
+        string $bytes,
+        string $filename,
+        array $captionLines,
+        ?array $inlineKeyboard = null,
+    ): SentMessage {
+        $params = $this->mediaParams([
+            'chat_id' => $chatId,
+            'video' => InputFile::createFromContents($bytes, $filename),
+        ], $captionLines, $inlineKeyboard);
+
+        return $this->sent(fn (): int => (int) $this->telegram->sendVideo($params)->get('message_id'));
     }
 
     public function answerCallbackQuery(string $callbackQueryId): void
