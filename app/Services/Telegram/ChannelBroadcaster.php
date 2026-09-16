@@ -34,6 +34,7 @@ class ChannelBroadcaster
         private readonly PlatformRegistry $platforms,
         private readonly VerifyChannelMembership $gate,
         private readonly Localization $localization,
+        private readonly PeriodUnit $units,
     ) {}
 
     /**
@@ -146,7 +147,9 @@ class ChannelBroadcaster
             $challenge->description,
             $this->line('bot.announce.details', [
                 'period' => $this->line($challenge->period_type->translationKey(), [], $locale),
-                'periods' => $challenge->total_periods,
+                // No recipient exists to ask, so the unit resolves in the same
+                // fallback locale the rest of this post is written in.
+                'length' => $this->units->length(null, $challenge),
                 'proof' => $this->line($challenge->proof_type->translationKey(), [], $locale),
             ], $locale),
         ];

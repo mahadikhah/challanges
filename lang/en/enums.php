@@ -22,6 +22,26 @@ return [
         'custom' => 'Custom',
     ],
 
+    /*
+    | The noun a challenge's cadence is counted in — "every day", "10 weeks" —
+    | keyed by `PeriodType` and read through App\Services\Telegram\PeriodUnit,
+    | never directly. `period_type` above is the picker label a creator chooses
+    | from ("Daily") and is a different thing entirely.
+    |
+    | `one` is the singular; `after_number` is the form that follows a numeral.
+    | They differ in Farsi, which uses the bare singular after one, so the split
+    | is the catalogue's rather than a pluralizer's. `custom` has no noun of its
+    | own: a 3-day cadence is counted in days.
+    */
+    'period_unit' => [
+        'daily' => ['one' => 'day', 'after_number' => 'days'],
+        'weekly' => ['one' => 'week', 'after_number' => 'weeks'],
+        'monthly' => ['one' => 'month', 'after_number' => 'months'],
+        'seasonal' => ['one' => 'season', 'after_number' => 'seasons'],
+        'yearly' => ['one' => 'year', 'after_number' => 'years'],
+        'custom' => ['one' => 'day', 'after_number' => 'days'],
+    ],
+
     'challenge_visibility' => [
         'public' => 'Public',
         'invite_only' => 'Invite only',

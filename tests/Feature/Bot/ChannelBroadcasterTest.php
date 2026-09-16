@@ -150,7 +150,7 @@ describe('posting a public challenge', function () {
             ->toContain('Twenty pages.')
             ->toContain(botCopy('bot.announce.details', [
                 'period' => botCopy(PeriodType::Weekly->translationKey()),
-                'periods' => 12,
+                'length' => '12 weeks',
                 'proof' => botCopy(ProofType::ImageApproval->translationKey()),
             ]));
     });

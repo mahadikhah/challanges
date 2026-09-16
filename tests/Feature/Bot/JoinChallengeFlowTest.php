@@ -139,7 +139,7 @@ describe('arriving through a join link', function () {
             ->toContain(botCopy('bot.join.preview_headline', ['title' => 'Read every day']))
             ->toContain(botCopy('bot.join.preview_details', [
                 'period' => botCopy($challenge->period_type->translationKey()),
-                'periods' => 30,
+                'length' => '30 days',
                 'proof' => botCopy($challenge->proof_type->translationKey()),
             ]))
             ->toContain(botCopy('bot.join.preview_freezes', ['freezes' => 1]))
@@ -231,6 +231,7 @@ describe('tapping join', function () {
             ->and($participant->status)->toBe(ParticipantStatus::Active)
             ->and(lastBotReply()['text'])->toBe(botCopy('bot.join.joined', [
                 'title' => 'Read every day',
+                'span' => 'day',
                 'how' => botCopy('bot.checkin.how.button'),
             ]));
     });

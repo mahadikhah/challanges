@@ -3187,3 +3187,102 @@ tests **1766 (1762 pass, 4 skipped)**, 6666 assertions (baseline 1754). `graphif
 10803 edges, 377 communities).
 
 **Next:** Task 8 — say "day", not "period", per period type.
+
+---
+
+## Phase 17 · Task 8 — Say "day", not "period"
+
+**The bot called every cadence a "period".** That is our word for a row in `challenge_periods` and not the
+participant's word for anything. Somebody in a daily challenge checks in *every day*; "check in every period"
+asks them to work out what a period is before they can work out what the sentence means — and the challenge
+told them the answer eleven questions ago.
+
+**A collaborator, `App\Services\Telegram\PeriodUnit`, rather than a method on `PeriodType`.** Two reasons, and
+both are hard requirements rather than taste. The noun has to resolve in the *recipient's* locale, which a
+static enum method cannot see and which `label()` gets wrong (ambient locale, in a queue worker whoever was
+processed last). And the arithmetic needs the challenge, not just the type: a `custom` challenge's period is N
+days, so its counts are day counts.
+
+**The custom decision, stated because the spec asked for it explicitly.** A custom challenge has no noun of its
+own. "Period 2 of 6" cannot become "day 2 of 6" — that is a lie about the timeline — and "3 days 2 of 6" is not
+a sentence. So **every custom count is a day count**: `total() = total_periods × custom_period_days` (six
+3-day periods is "18 days"), `opening($index) = $index × days + 1` (its second period opens on "day 4 of 18"),
+`closing($index) = ($index + 1) × days` (it closes on day 6 of 18), and `span()` is "3 days" — what its creator
+actually configured, and what `join.joined` promises. The noun stays "day" throughout, so `spelled()` never has
+to invent a plural for a word the product does not otherwise use. A 3-day window has no honest other name, and
+inventing one ("round", "stretch") would be vocabulary appearing nowhere else in the product.
+
+**Two catalogue forms, `one` and `after_number`, instead of a pluralizer.** English wants "3 days"; Farsi uses
+the bare singular after a numeral — "۳ روز" — which is the rule the rest of the Farsi catalogue already follows
+(`:coins سکه`, `:custom_period_days روز`). One pluralizer for two words would be a framework feature; a second
+catalogue form is a line. The two are identical in Farsi and differ in English, which is exactly the
+disagreement being encoded.
+
+**A new `enums.period_unit` group; `enums.period_type` untouched.** Those are picker labels — "Daily",
+"Weekly" — read back to a creator choosing a cadence, and they are a different thing from the noun they imply.
+Both locales carry every case, and `PeriodNounTest` pins the untouched labels as a regression bar.
+
+**Placeholder names.** `:cadence` is the singular noun, `:span` is one window's own name ("day", "3 days"),
+`:length` is the whole challenge ("10 days", "18 days"), and `:index`/`:total` are reused — but they are now
+*day numbers* rather than period numbers, which is why `checkin.todo` and `chatpost.checkin` compute them
+through `PeriodUnit::opening()`/`total()` instead of `$period->index + 1`. `:unit` was already taken by the
+scoring unit ("pushups", "km") and could not be reused.
+
+**The two ordinal reminders were restructured so the noun is not sentence-initial.** `:cadence` renders
+lowercased, so `period_opened` and `period_ending` now open with the title — `In "Morning run", day 2 of 10 is
+open.` — the same shape `checkin.todo` already had.
+
+**The wizard needed no unit at all.** Every wizard question that said "period" was reworded to "check-in" ("How
+many check-ins long is the challenge?"), which is what the question is actually about. That matters
+structurally: `promptReplacements()` works off a `ChallengeDraft` and has no `User`, so it has no locale to
+resolve a noun in — and now it needs none. This settles the one question the spec left open
+(`wizard.awaiting_period_type.error`/`.expected`, "pick one of the periods offered"): both now say "options"
+and "how often". The two `:period` slots that remain in the wizard (`summary_steps`, `steps_too_long`) hold a
+*duration* from `CompactDuration` — "the whole check-in lasts only 24 hours" — so the slot name is legacy but
+the sentence is right.
+
+**One deliberate survivor: `commands.checkin`** ("Check in for this period" / "ثبت وضعیت این دوره"). It is the
+Telegram menu entry, and it is read with no challenge in hand — `/checkin` lists what is owed across every
+challenge a user is in, so there is no single cadence it could name. Rather than a comment, a test enforces it:
+`PeriodNounTest` scans every `bot.*` line in both locales, strips `:placeholders` (placeholder *names* are ours,
+not the reader's), and asserts the offenders are **exactly** `['commands.checkin']`. Any future copy that
+reintroduces the word fails the build and has to argue its case here.
+
+**Broadcast sites resolve in the fallback locale, centrally.** `ChannelBroadcaster::post()` and
+`PostCheckInAnnouncement::lines()` have no recipient to ask — a channel and a linked group chat have
+mixed-language audiences — so both pass `null` and `PeriodUnit::localeFor()` returns the platform fallback. That
+policy lives in one place rather than being repeated at each broadcast site.
+
+**Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓, tsc ✓,
+tests **1788 (1784 pass, 4 skipped)**, 6822 assertions (baseline 1766). `graphify update .` run (4874 nodes,
+10888 edges, 346 communities).
+
+**Tests.** A new `tests/Feature/Bot/PeriodNounTest.php`: a six-case `PeriodType` dataset for the noun, the span
+and the length; a `custom`-with-3-days case pinning `total`/`opening`/`closing`; a singular case ("1 week", "1
+day", and a 1-day custom window reading as "day" rather than "1 day"); a two-locale case resolving the same
+challenge for an `en` and an `fa` reader in one test (a composer reaching for ambient `Lang::get()` would give
+the second reader the first reader's language, and a single-reader assertion cannot see that); the four
+sentences that name a cadence rendered with the values `PeriodUnit` produces, per type, asserting the unit
+**and** that the word "period" is gone; both-locale catalogue parity; the untouched picker labels; the offender
+scan above; and one real end-to-end drive — a custom 3-day challenge of six periods swept by
+`challenges:reminders` with one `en` and one `fa` participant, asserting both whole messages ("18 days" /
+"18 روز", "every 3 days" / "هر 3 روز"). That last one is there because the rendered-copy block proves the
+*catalogue* interpolates the value while only the sweep proves `SendReminder` passes it.
+
+Six existing files had pinned expectations updated to the new copy: `ReminderSweepTest` (including its
+whole-message Farsi reminder), `JoinChallengeFlowTest`, `CheckInFlowTest`, `ChannelBroadcasterTest`,
+`ChallengeChatPostingTest`, `CreateChallengeWizardTest`.
+
+**Out of scope but found — three surfaces still say "period", and one of them is participant-facing.** The spec
+puts admin and Mini App copy out of scope, so none of this is fixed here, but it should not be lost:
+- **Mini App** (`lang/{en,fa}/miniapp.php`): `period_label` = "Period :index of :total", plus `no_open_period`
+  and `already_settled`. This is a *participant* surface and it is the same defect this task fixed in the bot —
+  the Mini App's check-in card numbers check-ins by period.
+- **Public website** (`lang/{en,fa}/website.php`): the features section sells the product as "Check in every
+  period", and two bodies say "periods" where they mean days.
+- **Admin panel** (`lang/{en,fa}/admin.php`): `reviews.period` renders as "Period 2/10" in the review queue,
+  `challenges.periods` is a table column, and `reviews.description`/`already_settled` use the word in
+  sentences. The spec calls the table columns developer-facing and correct as they are; the review queue's
+  "Period 2/10" is a label rather than a raw column, so it is the one worth a second look.
+
+**Next:** Task 9 — the Mini App failure message, and why it lies.

@@ -32,6 +32,7 @@ use App\Services\Telegram\BotMessenger;
 use App\Services\Telegram\ChannelGatePrompt;
 use App\Services\Telegram\CheckInInstruction;
 use App\Services\Telegram\CompactDuration;
+use App\Services\Telegram\PeriodUnit;
 use App\Services\Telegram\ReportedValue;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Log;
@@ -180,6 +181,7 @@ class CreateChallengeWizard
         private readonly AiApprovalGate $aiApprovalGate,
         private readonly ReportedValue $numbers,
         private readonly CheckInInstruction $instructions,
+        private readonly PeriodUnit $units,
     ) {}
 
     /**
@@ -957,11 +959,12 @@ class CreateChallengeWizard
         $this->messenger->paragraphs($user, [
             $this->messenger->line($user, 'bot.wizard.created', ['title' => $challenge->title]),
             $this->messenger->line($user, 'bot.wizard.created_timeline', [
-                'periods' => $challenge->total_periods,
+                'length' => $this->units->length($user, $challenge),
                 'start' => $challenge->starts_at->setTimezone($challenge->timezone)->toDateString(),
                 'timezone' => $challenge->timezone,
             ]),
             $this->messenger->line($user, 'bot.wizard.created_checkin', [
+                'span' => $this->units->span($user, $challenge),
                 'how' => $this->instructions->lineFor($user, $challenge),
             ]),
             $challenge->visibility->shouldAnnounce()

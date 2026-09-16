@@ -9,6 +9,7 @@ use App\Models\ReminderDispatch;
 use App\Services\Telegram\BotButtons;
 use App\Services\Telegram\BotMessenger;
 use App\Services\Telegram\CheckInInstruction;
+use App\Services\Telegram\PeriodUnit;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -57,9 +58,9 @@ class SendReminder implements ShouldQueue
     /**
      * @throws Throwable when Telegram refuses the send, so the job retries
      */
-    public function handle(BotMessenger $messenger, BotButtons $buttons, CheckInInstruction $instructions): void
+    public function handle(BotMessenger $messenger, BotButtons $buttons, CheckInInstruction $instructions, PeriodUnit $units): void
     {
-        DB::transaction(function () use ($messenger, $buttons, $instructions): void {
+        DB::transaction(function () use ($messenger, $buttons, $instructions, $units): void {
             /** @var ReminderDispatch|null $reminder */
             $reminder = ReminderDispatch::query()
                 ->lockForUpdate()
@@ -82,7 +83,7 @@ class SendReminder implements ShouldQueue
 
             $messenger->paragraphs(
                 $user,
-                [$this->compose($messenger, $instructions, $reminder->period, $reminder)],
+                [$this->compose($messenger, $instructions, $units, $reminder->period, $reminder)],
                 // The nudge used to name `/checkin`, which is an instruction
                 // only a user who already knows the command can follow. The
                 // button is that instruction, and it names the challenge because
@@ -137,10 +138,17 @@ class SendReminder implements ShouldQueue
      * kinds carry it, `challenge_starting` included: it is the first thing a
      * participant ever hears from the challenge, and "check in each period" is
      * exactly as unhelpful there as it is a day later.
+     *
+     * Every kind is handed every replacement, the ones it does not interpolate
+     * included: `:index`/`:total` are day numbers in the challenge's own unit
+     * ("day 4 of 18" for a custom 3-day challenge), and `:length`/`:span` are the
+     * whole timeline and one window of it. Which kind reads which is the
+     * catalogue's business, not this method's.
      */
     private function compose(
         BotMessenger $messenger,
         CheckInInstruction $instructions,
+        PeriodUnit $units,
         ChallengePeriod $period,
         ReminderDispatch $reminder,
     ): string {
@@ -149,8 +157,15 @@ class SendReminder implements ShouldQueue
 
         return $messenger->line($user, "bot.reminder.{$reminder->kind->value}", [
             'title' => $challenge->title,
-            'index' => $period->index + 1,
-            'total' => $challenge->total_periods,
+            'cadence' => $units->one($user, $challenge),
+            // The ending nudge names the day the window *closes* on, so the
+            // number it quotes is the last one the participant can still act in.
+            'index' => $reminder->kind === ReminderKind::PeriodEnding
+                ? $units->closing($challenge, $period->index)
+                : $units->opening($challenge, $period->index),
+            'total' => $units->total($challenge),
+            'span' => $units->span($user, $challenge),
+            'length' => $units->length($user, $challenge),
             // The boundary the participant experiences, in the challenge's own
             // timezone — the same clock the period was cut on, not the worker's.
             'moment' => $this->moment($period, $reminder->kind),

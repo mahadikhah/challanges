@@ -7,6 +7,7 @@ use App\Enums\ProofType;
 use App\Models\ChallengeChat;
 use App\Models\CheckIn;
 use App\Services\Telegram\ChatBroadcaster;
+use App\Services\Telegram\PeriodUnit;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -55,7 +56,7 @@ class PostCheckInAnnouncement implements ShouldQueue
     /**
      * @throws Throwable when Telegram refuses the send, so the job retries
      */
-    public function handle(ChatBroadcaster $broadcaster): void
+    public function handle(ChatBroadcaster $broadcaster, PeriodUnit $units): void
     {
         /** @var ChallengeChat|null $chat */
         $chat = ChallengeChat::query()->with('challenge.creator')->find($this->chatId);
@@ -70,7 +71,7 @@ class PostCheckInAnnouncement implements ShouldQueue
             return;
         }
 
-        DB::transaction(function () use ($broadcaster, $chat, $checkIn): void {
+        DB::transaction(function () use ($broadcaster, $units, $chat, $checkIn): void {
             if (! $broadcaster->claim($chat, ChatPostKind::CheckInAnnouncement->value, [
                 'challenge_period_id' => $checkIn->challenge_period_id,
                 'challenge_participant_id' => $checkIn->challenge_participant_id,
@@ -80,12 +81,12 @@ class PostCheckInAnnouncement implements ShouldQueue
 
             try {
                 if ($this->shareableProof($chat, $checkIn) === null) {
-                    $broadcaster->sendLines($chat, $this->lines($broadcaster, $chat, $checkIn));
+                    $broadcaster->sendLines($chat, $this->lines($broadcaster, $units, $chat, $checkIn));
                 } else {
                     $broadcaster->sendPhoto(
                         $chat,
                         (string) $checkIn->proof_path,
-                        $this->lines($broadcaster, $chat, $checkIn),
+                        $this->lines($broadcaster, $units, $chat, $checkIn),
                     );
                 }
             } catch (Throwable $failure) {
@@ -141,10 +142,18 @@ class PostCheckInAnnouncement implements ShouldQueue
      * is the whole point of the challenge; a binary challenge's format is
      * unchanged.
      *
+     * A group chat has no single recipient to ask for a locale, so the unit is
+     * resolved as a broadcast, in the fallback locale the post itself is written
+     * in.
+     *
      * @return list<string|null>
      */
-    private function lines(ChatBroadcaster $broadcaster, ChallengeChat $chat, CheckIn $checkIn): array
-    {
+    private function lines(
+        ChatBroadcaster $broadcaster,
+        PeriodUnit $units,
+        ChallengeChat $chat,
+        CheckIn $checkIn,
+    ): array {
         $challenge = $checkIn->period->challenge;
         $participant = $checkIn->participant;
 
@@ -158,8 +167,9 @@ class PostCheckInAnnouncement implements ShouldQueue
             $broadcaster->line($base, [
                 'title' => $challenge->title,
                 'name' => $participant->user->first_name ?? $participant->user->name,
-                'period' => $checkIn->period->index + 1,
-                'total' => $challenge->total_periods,
+                'cadence' => $units->one(null, $challenge),
+                'period' => $units->opening($challenge, $checkIn->period->index),
+                'total' => $units->total($challenge),
                 'streak' => $participant->current_streak,
                 'value' => $this->plainNumber($checkIn->reported_value),
                 'unit' => (string) $challenge->unit_label,

@@ -58,11 +58,11 @@ return [
         'not_found' => 'آن لینک پیوستن دیگر معتبر نیست.',
 
         'preview_headline' => 'چالش: :title',
-        'preview_details' => ':period · :periods دوره · :proof',
+        'preview_details' => ':period · :length · :proof',
         'preview_freezes' => 'انجماد هر نفر: :freezes',
         'join_button' => 'پیوستن',
 
-        'joined' => 'به «:title» پیوستی. هر دوره ثبت کن تا زنجیره‌ات زنده بماند. :how',
+        'joined' => 'به «:title» پیوستی. هر :span ثبت کن تا زنجیره‌ات زنده بماند. :how',
         'already_in' => 'تو از قبل در «:title» هستی.',
 
         'no_slot' => 'سهمیهٔ پیوستن چالش‌هایت تمام شده است.',
@@ -70,7 +70,7 @@ return [
 
         'refused' => [
             'challenge_closed' => '«:title» دیگر برای پیوستن باز نیست.',
-            'timeline_exhausted' => 'دوره‌های «:title» تمام شده‌اند، پس چیزی برای پیوستن نمانده است.',
+            'timeline_exhausted' => ':length «:title» تمام شده است، پس چیزی برای پیوستن نمانده.',
             'participation_ended' => 'تو قبلاً در این چالش بوده‌ای و پیوستن دوباره با سازندهٔ آن است.',
         ],
     ],
@@ -86,8 +86,8 @@ return [
     */
     'checkin' => [
         'none' => 'تو هنوز در هیچ چالشی نیستی.',
-        'nothing_due' => 'در حال حاضر چیزی از تو مطالبه نمی‌شود. وقتی دورهٔ بعدی باز شد برگرد.',
-        'todo' => '«:title» — دورهٔ :index از :total باز است. :how',
+        'nothing_due' => 'در حال حاضر چیزی از تو مطالبه نمی‌شود. وقتی ثبت بعدی باز شد برگرد.',
+        'todo' => '«:title» — :cadence :index از :total باز است. :how',
         'done' => '«:title» — از قبل ثبت شده است. زنجیره: :streak',
         'awaiting_review' => '«:title» — مدرک تو دست سازنده است و منتظر تصمیم اوست.',
         'button' => 'ثبت: :title',
@@ -130,8 +130,8 @@ return [
 
         'confirmed' => 'برای «:title» ثبت شدی. زنجیره: :streak',
         'confirmed_scored' => 'آفرین — :value :unit، یعنی :score امتیاز. برای «:title» ثبت شدی. زنجیره: :streak',
-        'below_target_frozen' => 'گزارش تو :value از :target :unit بود — زیر هدف. یک فریز این دورهٔ «:title» را پوشش داد. زنجیره: :streak',
-        'below_target_missed' => 'گزارش تو :value از :target :unit بود — زیر هدف، پس این دورهٔ «:title» از دست رفت و زنجیره صفر شد. زنجیره: :streak',
+        'below_target_frozen' => 'گزارش تو :value از :target :unit بود — زیر هدف. یک فریز این ثبت «:title» را پوشش داد. زنجیره: :streak',
+        'below_target_missed' => 'گزارش تو :value از :target :unit بود — زیر هدف، پس این ثبت «:title» از دست رفت و زنجیره صفر شد. زنجیره: :streak',
 
         'value_prompt' => 'چند :unit؟ عدد «:title» را به‌صورت متن بفرست.',
         'value_error' => 'یک عدد ساده بفرست — ۲۰ یا ۱۲/۵. چند :unit؟',
@@ -145,15 +145,15 @@ return [
         'review_rejected_ack' => 'رد شد.',
         'review_approved' => 'ثبنت برای «:title» تأیید شد. زنجیره: :streak',
         'review_approved_scored' => 'ثبنت برای «:title» تأیید شد: :value :unit، :score امتیاز. زنجیره: :streak',
-        'review_rejected_image' => 'عکست برای «:title» رد شد. پیش از پایان دوره یکی دیگر بفرست.',
-        'review_rejected_voice' => 'پیام صوتی‌ات برای «:title» رد شد. پیش از پایان دوره یکی دیگر بفرست.',
-        'review_rejected_video' => 'ویدیویت برای «:title» رد شد. پیش از پایان دوره یکی دیگر بفرست.',
+        'review_rejected_image' => 'عکست برای «:title» رد شد. پیش از بسته‌شدن ثبت یکی دیگر بفرست.',
+        'review_rejected_voice' => 'پیام صوتی‌ات برای «:title» رد شد. پیش از بسته‌شدن ثبت یکی دیگر بفرست.',
+        'review_rejected_video' => 'ویدیویت برای «:title» رد شد. پیش از بسته‌شدن ثبت یکی دیگر بفرست.',
 
         'refused' => [
             'challenge_closed' => '«:title» دیگر در جریان نیست.',
             'not_a_participant' => 'تو شرکت‌کنندهٔ فعال «:title» نیستی.',
-            'no_open_period' => '«:title» در حال حاضر دورهٔ بازی ندارد.',
-            'already_settled' => 'آن دوره از قبل تعیین تکلیف شده است.',
+            'no_open_period' => '«:title» در حال حاضر ثبت بازی ندارد.',
+            'already_settled' => 'آن ثبت از قبل تعیین تکلیف شده است.',
             'awaiting_review' => 'ثبنت برای «:title» همین حالا منتظر سازنده است.',
             'wrong_proof_type' => '«:title» با این روش اثبات نمی‌شود.',
             'proof_missing' => 'چیزی فرستاده نشد.',
@@ -164,7 +164,7 @@ return [
 
         'review_refused' => [
             'not_the_reviewer' => 'فقط سازندهٔ آن چالش می‌تواند آن را بازبینی کند.',
-            'already_settled' => 'آن دوره از گذشته است، پس دیگر نظر نمی‌تواند تغییری بدهد.',
+            'already_settled' => 'آن ثبت از گذشته است، پس دیگر نظر نمی‌تواند تغییری بدهد.',
             'not_awaiting_review' => 'مدرکی که منتظر تو باشد وجود ندارد.',
             'value_missing' => 'آن ثبت عددی ندارد که امتیاز بگیرد. ردش کن تا شرکت‌کننده با عدد دوباره بفرستد.',
         ],
@@ -195,8 +195,8 @@ return [
         'refused' => [
             'not_a_timed_challenge' => '«:title» از طریق نشست ثبت‌کردن انجام نمی‌دهد.',
             'not_a_participant' => 'تو شرکت‌کنندهٔ فعال «:title» نیستی.',
-            'no_open_period' => '«:title» الان دورهٔ بازی ندارد.',
-            'already_settled' => 'آن دوره از قبل تعیین وضعیت شده است.',
+            'no_open_period' => '«:title» الان ثبت بازی ندارد.',
+            'already_settled' => 'آن ثبت از قبل تعیین وضعیت شده است.',
             'submission_missing' => 'این گام بیش از یک لمس می‌خواهد.',
             'unexpected_submission' => 'این گام فقط یک لمس می‌خواهد، نه چیز دیگری.',
         ],
@@ -243,16 +243,16 @@ return [
         'criteria_flagged' => 'این معیار پذیرفته نشد، پس چالش با بررسی دستی ادامه می‌یابد. می‌توانی معیار را ویرایش کنی و دوباره امتحان کنی، یا ادامه بده.',
         'criteria_unscreened' => 'الان نتوانستم این معیار را بررسی کنم، پس چالش با بررسی دستی ادامه می‌یابد. کمی بعد دوباره امتحان کن، یا ادامه بده.',
 
-        'steps_too_long' => 'این گام‌ها ممکن نیست: انتظارهایشان دست‌کم :minimum می‌شود، ولی هر دورهٔ این چالش فقط :period طول می‌کشد. یکی از گام‌ها را حذف کن یا انتظارها را کوتاه‌تر کن.',
+        'steps_too_long' => 'این گام‌ها ممکن نیست: انتظارهایشان دست‌کم :minimum می‌شود، ولی کل ثبت این چالش فقط :period طول می‌کشد. یکی از گام‌ها را حذف کن یا انتظارها را کوتاه‌تر کن.',
 
-        'summary' => "چالش تو این است:\n\nعنوان: :title\nتوضیح: :description\nدوره: :period\nطول دلخواه: :custom_days روز\nشروع: :start (:timezone)\nتعداد دوره‌ها: :periods\nاثبات: :proof\nدسترسی: :visibility\nروش: :flow\nفریز هر نفر: :freezes",
-        'summary_steps' => ':steps گام، دست‌کم :minimum انتظار در هر نشست (هر دوره :period طول می‌کشد)',
+        'summary' => "چالش تو این است:\n\nعنوان: :title\nتوضیح: :description\nهر چند وقت: :period\nفاصلهٔ ثبت‌ها: :custom_days روز\nشروع: :start (:timezone)\nتعداد ثبت‌ها: :periods\nاثبات: :proof\nدسترسی: :visibility\nروش: :flow\nفریز هر نفر: :freezes",
+        'summary_steps' => ':steps گام، دست‌کم :minimum انتظار در هر نشست (کل ثبت :period طول می‌کشد)',
         'summary_approval' => 'بررسی با هوش مصنوعی بر اساس: «:criteria»',
-        'summary_scoring' => 'امتیازدهی: :target :unit در هر دوره، :points امتیاز برای رسیدن به آن. کمتر از هدف: :partial',
+        'summary_scoring' => 'امتیازدهی: :target :unit در هر ثبت، :points امتیاز برای رسیدن به آن. کمتر از هدف: :partial',
 
         'created' => '«:title» آماده است.',
-        'created_timeline' => ':periods دوره، از :start به وقت :timezone.',
-        'created_checkin' => 'هر دوره، شرکت‌کننده‌ها این کار را می‌کنند: :how',
+        'created_timeline' => ':length، از :start به وقت :timezone.',
+        'created_checkin' => 'هر :span، شرکت‌کننده‌ها این کار را می‌کنند: :how',
         'created_public' => 'عمومی است، پس در کانال اطلاع‌رسانی منتشر می‌شود تا دیگران بتوانند بپیوندند.',
         'created_private' => 'فقط با دعوت است، پس کسی بدون لینک تو نمی‌تواند بپیوندد.',
 
@@ -270,18 +270,18 @@ return [
 
         'awaiting_period_type' => [
             'prompt' => 'هر چند وقت یک بار همه ثبت می‌کنند؟',
-            'error' => 'لطفاً یکی از دوره‌های پیشنهادی را انتخاب کن.',
-            'expected' => 'برای انتخاب دوره یکی از دکمه‌ها را بزن.',
+            'error' => 'لطفاً یکی از گزینه‌های پیشنهادی را انتخاب کن.',
+            'expected' => 'برای انتخاب بازهٔ زمانی یکی از دکمه‌ها را بزن.',
         ],
 
         'awaiting_custom_period_days' => [
-            'prompt' => 'هر دوره چند روز است؟ تا :custom_period_days_max روز.',
+            'prompt' => 'بین ثبت‌ها چند روز فاصله باشد؟ تا :custom_period_days_max روز.',
             'error' => 'یک عدد صحیح بین ۱ تا :custom_period_days_max بفرست.',
             'expected' => 'تعداد روزها را به‌صورت پیام متنی بفرست.',
         ],
 
         'awaiting_timezone' => [
-            'prompt' => 'دوره‌ها بر اساس کدام منطقهٔ زمانی حساب شوند؟ برای همهٔ اعضا یکی است.',
+            'prompt' => 'ثبت‌ها بر اساس کدام منطقهٔ زمانی حساب شوند؟ برای همهٔ اعضا یکی است.',
             'error' => 'لطفاً یکی از منطقه‌های زمانی پیشنهادی را انتخاب کن.',
             'expected' => 'برای انتخاب منطقهٔ زمانی یکی از دکمه‌ها را بزن.',
         ],
@@ -293,19 +293,19 @@ return [
         ],
 
         'awaiting_total_periods' => [
-            'prompt' => 'چالش چند دوره طول می‌کشد؟ تا :total_periods_max دوره.',
+            'prompt' => 'چالش چند ثبت طول می‌کشد؟ تا :total_periods_max ثبت.',
             'error' => 'یک عدد صحیح بین ۱ تا :total_periods_max بفرست.',
-            'expected' => 'تعداد دوره‌ها را به‌صورت پیام متنی بفرست.',
+            'expected' => 'تعداد ثبت‌ها را به‌صورت پیام متنی بفرست.',
         ],
 
         'awaiting_scoring_type' => [
-            'prompt' => 'یک دوره چطور داوری می‌شود؟',
+            'prompt' => 'هر ثبت چطور داوری می‌شود؟',
             'error' => 'لطفاً یکی از گزینه‌های پیشنهادی را انتخاب کن.',
             'expected' => 'برای انتخاب روش داوری یکی از دکمه‌ها را بزن.',
         ],
 
         'awaiting_scoring_target' => [
-            'prompt' => 'در هر دوره شرکت‌کننده‌ها به چه عددی باید برسند؟ عدد را بفرست — ۳۰ برای سی شنا، یا ۲/۵ برای دو و نیم کیلومتر.',
+            'prompt' => 'در هر ثبت شرکت‌کننده‌ها به چه عددی باید برسند؟ عدد را بفرست — ۳۰ برای سی شنا، یا ۲/۵ برای دو و نیم کیلومتر.',
             'error' => 'یک عدد مثبت بفرست — ۳۰ یا ۲/۵. اعشار با ممیز بفرست.',
             'expected' => 'هدف را به‌صورت پیام متنی بفرست.',
         ],
@@ -317,7 +317,7 @@ return [
         ],
 
         'awaiting_scoring_base_points' => [
-            'prompt' => 'رسیدن به هدف در هر دوره چند امتیاز می‌ارزد؟',
+            'prompt' => 'رسیدن به هدف در هر ثبت چند امتیاز می‌ارزد؟',
             'error' => 'یک عدد صحیح امتیاز بفرست، دست‌کم ۱.',
             'expected' => 'امتیاز را به‌صورت پیام متنی بفرست.',
         ],
@@ -416,7 +416,7 @@ return [
     */
     'announce' => [
         'headline' => 'چالش تازه: :title',
-        'details' => ':period · :periods دوره · :proof',
+        'details' => ':period · :length · :proof',
         'join_button' => 'پیوستن',
     ],
 
@@ -424,11 +424,16 @@ return [
     | متن یادآوری‌ها، یک خط برای هر مقدارِ `ReminderKind`. «:moment» همان مرزی است
     | که جمله دربارهٔ آن است (شروع یا پایان)، از قبل به وقت خودِ چالش نمایش داده
     | شده و وقت آن جداگانه با «:timezone» می‌آید.
+    |
+    | دو خط `period_opened` و `period_ending` با «در “:title”» شروع می‌شوند نه با
+    | اسم بازه، چون آن اسم از کاتالوگ می‌آید و جمله نمی‌تواند حرف اولش را
+    | بزرگ کند — همان دلیلی که `checkin.todo` با عنوان شروع می‌شود. «:cadence»
+    | اسم مفرد است، «:span» کل بازه («هفته»، «۳ روز») و «:length» تمام چالش.
     */
     'reminder' => [
-        'challenge_starting' => '«:title» از :moment (:timezone) شروع می‌شود — :total دوره. هر دوره ثبت کن تا زنجیره‌ات زنده بماند. :how',
-        'period_opened' => 'دورهٔ :index از :total در «:title» باز است. وقتی کار را انجام دادی ثبت کن. :how',
-        'period_ending' => 'دورهٔ :index از :total در «:title» در :moment (:timezone) بسته می‌شود. اگر هنوز ثبت نکرده‌ای همین حالا ثبت کن. :how',
+        'challenge_starting' => '«:title» از :moment (:timezone) شروع می‌شود — :length. هر :span ثبت کن تا زنجیره‌ات زنده بماند. :how',
+        'period_opened' => 'در «:title»، :cadence :index از :total باز است. وقتی کار را انجام دادی ثبت کن. :how',
+        'period_ending' => 'در «:title»، :cadence :index از :total در :moment (:timezone) بسته می‌شود. اگر هنوز ثبت نکرده‌ای همین حالا ثبت کن. :how',
     ],
 
     /*
@@ -496,12 +501,14 @@ return [
     /*
     | آنچه در گفتگوی پیوندخورده منتشر می‌شود. این پیام‌ها مخاطبی چندزبانه
     | دارند، پس با زبان پیش‌فرض پلتفرم ارسال می‌شوند — همان انتخابی که
-    | کانال اعلان‌ها می‌کند. پیامِ ثبتِ وضعیت فقط نام، شمارهٔ دوره و
+    | کانال اعلان‌ها می‌کند. پیامِ ثبتِ وضعیت فقط نام، شمارهٔ روز و
     | استریک را می‌آورد: چیز دیگری دربارهٔ شرکت‌کننده کارِ گفتگو نیست.
+    | «:cadence» واحد خودِ چالش است و «:period»/«:total» با همان شمرده
+    | می‌شوند — نگاه کن به `PeriodUnit`.
     */
     'chatpost' => [
-        'checkin' => ':name دورهٔ :period از :total را ثبت کرد — استریک: :streak 🔥',
-        'checkin_scored' => ':name دورهٔ :period از :total را ثبت کرد — :value :unit، :score امتیاز 🔥',
+        'checkin' => ':name ثبت کرد — :cadence :period از :total — استریک: :streak 🔥',
+        'checkin_scored' => ':name ثبت کرد — :cadence :period از :total — :value :unit، :score امتیاز 🔥',
         'leaderboard' => [
             'headline' => 'بیشترین استریک‌های «:title»',
             'headline_scored' => 'بالاترین امتیازهای «:title»',

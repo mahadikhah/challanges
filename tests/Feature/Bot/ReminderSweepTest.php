@@ -100,7 +100,8 @@ it('sends exactly one reminder per participant per period across a boundary, run
         'title' => 'Morning run',
         'moment' => $start->format('Y-m-d H:i'),
         'timezone' => 'UTC',
-        'total' => 3,
+        'length' => '3 days',
+        'span' => 'day',
         'how' => botCopy('bot.checkin.how.button'),
     ]);
 
@@ -116,6 +117,7 @@ it('sends exactly one reminder per participant per period across a boundary, run
 
     $closing = botCopy('bot.reminder.period_ending', [
         'title' => 'Morning run',
+        'cadence' => 'day',
         'index' => 1,
         'total' => 3,
         'moment' => $start->addDay()->format('Y-m-d H:i'),
@@ -133,6 +135,7 @@ it('sends exactly one reminder per participant per period across a boundary, run
 
     $opened = botCopy('bot.reminder.period_opened', [
         'title' => 'Morning run',
+        'cadence' => 'day',
         'index' => 2,
         'total' => 3,
         'how' => botCopy('bot.checkin.how.button'),
@@ -204,14 +207,18 @@ it('explains the mechanic in the recipient’s own language', function () {
             'title' => 'Morning run',
             'moment' => $start->format('Y-m-d H:i'),
             'timezone' => 'UTC',
-            'total' => 3,
+            'length' => '3 days',
+            'span' => 'day',
             'how' => botCopy('bot.checkin.how.button'),
         ]))
+        // The unit is resolved per recipient, so the Farsi half of this pairing
+        // is the whole point: the same challenge, the same sweep, two locales.
         ->and($messages[1]['text'])->toBe(botCopy('bot.reminder.challenge_starting', [
             'title' => 'Morning run',
             'moment' => $start->format('Y-m-d H:i'),
             'timezone' => 'UTC',
-            'total' => 3,
+            'length' => '3 روز',
+            'span' => 'روز',
             'how' => botCopy('bot.checkin.how.button', [], 'fa'),
         ], 'fa'));
 });
@@ -251,6 +258,7 @@ it('suppresses the closing nudge for a participant who has already checked in', 
 
     $closing = botCopy('bot.reminder.period_ending', [
         'title' => 'Morning run',
+        'cadence' => 'day',
         'index' => 1,
         'total' => 3,
         'moment' => $start->addDay()->format('Y-m-d H:i'),

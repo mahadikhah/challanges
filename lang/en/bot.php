@@ -59,11 +59,11 @@ return [
         'not_found' => 'That join link is no longer valid.',
 
         'preview_headline' => 'Challenge: :title',
-        'preview_details' => ':period · :periods periods · :proof',
+        'preview_details' => ':period · :length · :proof',
         'preview_freezes' => 'Freezes each: :freezes',
         'join_button' => 'Join',
 
-        'joined' => 'You’re in “:title”. Check in every period to keep the streak alive. :how',
+        'joined' => 'You’re in “:title”. Check in every :span to keep the streak alive. :how',
         'already_in' => 'You are already in “:title”.',
 
         'no_slot' => 'You have used up your challenge-joining slots.',
@@ -71,7 +71,7 @@ return [
 
         'refused' => [
             'challenge_closed' => '“:title” is no longer open to join.',
-            'timeline_exhausted' => '“:title” has run out of periods, so there is nothing left to join.',
+            'timeline_exhausted' => '“:title” has run out of its :length, so there is nothing left to join.',
             'participation_ended' => 'You already took part in this one, and rejoining is up to its creator.',
         ],
     ],
@@ -87,8 +87,8 @@ return [
     */
     'checkin' => [
         'none' => 'You are not in any challenges yet.',
-        'nothing_due' => 'Nothing is due from you right now. Check back when the next period opens.',
-        'todo' => '“:title” — period :index of :total is open. :how',
+        'nothing_due' => 'Nothing is due from you right now. Check back when the next check-in opens.',
+        'todo' => '“:title” — :cadence :index of :total is open. :how',
         'done' => '“:title” — already checked in. Streak: :streak',
         'awaiting_review' => '“:title” — your proof is with the creator, waiting on a verdict.',
         'button' => 'Check in: :title',
@@ -132,8 +132,8 @@ return [
 
         'confirmed' => 'Checked in for “:title”. Streak: :streak',
         'confirmed_scored' => 'Nice — :value :unit, that is :score points. Checked in for “:title”. Streak: :streak',
-        'below_target_frozen' => 'You reported :value of :target :unit — under the bar. A freeze covered this period of “:title”. Streak: :streak',
-        'below_target_missed' => 'You reported :value of :target :unit — under the bar, so this period of “:title” is missed and the streak resets. Streak: :streak',
+        'below_target_frozen' => 'You reported :value of :target :unit — under the bar. A freeze covered this check-in of “:title”. Streak: :streak',
+        'below_target_missed' => 'You reported :value of :target :unit — under the bar, so this check-in of “:title” is missed and the streak resets. Streak: :streak',
 
         'value_prompt' => 'How many :unit? Send the number for “:title” as a text message.',
         'value_error' => 'Send a plain number — 20, or 12.5. How many :unit?',
@@ -147,15 +147,15 @@ return [
         'review_rejected_ack' => 'Rejected.',
         'review_approved' => 'Your check-in for “:title” was approved. Streak: :streak',
         'review_approved_scored' => 'Your check-in for “:title” was approved: :value :unit, :score points. Streak: :streak',
-        'review_rejected_image' => 'Your photo for “:title” was turned down. Send another before the period ends.',
-        'review_rejected_voice' => 'Your voice message for “:title” was turned down. Send another before the period ends.',
-        'review_rejected_video' => 'Your video for “:title” was turned down. Send another before the period ends.',
+        'review_rejected_image' => 'Your photo for “:title” was turned down. Send another before the check-in closes.',
+        'review_rejected_voice' => 'Your voice message for “:title” was turned down. Send another before the check-in closes.',
+        'review_rejected_video' => 'Your video for “:title” was turned down. Send another before the check-in closes.',
 
         'refused' => [
             'challenge_closed' => '“:title” is no longer running.',
             'not_a_participant' => 'You are not an active participant in “:title”.',
-            'no_open_period' => '“:title” has no period open right now.',
-            'already_settled' => 'That period is already settled.',
+            'no_open_period' => '“:title” has no check-in open right now.',
+            'already_settled' => 'That check-in is already settled.',
             'awaiting_review' => 'Your check-in for “:title” is already waiting on the creator.',
             'wrong_proof_type' => '“:title” is not proven that way.',
             'proof_missing' => 'Nothing was sent.',
@@ -166,7 +166,7 @@ return [
 
         'review_refused' => [
             'not_the_reviewer' => 'Only the creator of that challenge can review it.',
-            'already_settled' => 'That period has already closed, so the verdict can no longer change.',
+            'already_settled' => 'That check-in has already closed, so the verdict can no longer change.',
             'not_awaiting_review' => 'There is no proof waiting on you for that one.',
             'value_missing' => 'That check-in carries no reported number, so it cannot be scored. Reject it and the participant can send it again with one.',
         ],
@@ -197,8 +197,8 @@ return [
         'refused' => [
             'not_a_timed_challenge' => '“:title” does not check in through a session.',
             'not_a_participant' => 'You are not an active participant in “:title”.',
-            'no_open_period' => '“:title” has no period open right now.',
-            'already_settled' => 'That period is already settled.',
+            'no_open_period' => '“:title” has no check-in open right now.',
+            'already_settled' => 'That check-in is already settled.',
             'submission_missing' => 'That step needs more than a tap.',
             'unexpected_submission' => 'That step takes a tap, nothing else.',
         ],
@@ -247,16 +247,16 @@ return [
         'criteria_flagged' => 'Those criteria could not be accepted, so the challenge will use manual review instead. You can edit them and try again, or continue.',
         'criteria_unscreened' => 'I could not check those criteria just now, so the challenge will use manual review instead. You can try again in a moment, or continue.',
 
-        'steps_too_long' => "Those steps can't work: their waits add up to at least :minimum, but one period of this challenge lasts only :period. Drop a step or shorten the waits.",
+        'steps_too_long' => "Those steps can't work: their waits add up to at least :minimum, but the whole check-in lasts only :period. Drop a step or shorten the waits.",
 
-        'summary' => "Here is your challenge:\n\nTitle: :title\nDescription: :description\nPeriod: :period\nCustom length: :custom_days days\nStarts: :start (:timezone)\nPeriods: :periods\nProof: :proof\nVisibility: :visibility\nFlow: :flow\nFreezes each: :freezes",
-        'summary_steps' => ':steps steps, at least :minimum of waiting per session (one period lasts :period)',
+        'summary' => "Here is your challenge:\n\nTitle: :title\nDescription: :description\nHow often: :period\nDays between check-ins: :custom_days\nStarts: :start (:timezone)\nCheck-ins: :periods\nProof: :proof\nVisibility: :visibility\nFlow: :flow\nFreezes each: :freezes",
+        'summary_steps' => ':steps steps, at least :minimum of waiting per session (the whole check-in lasts :period)',
         'summary_approval' => 'Reviewed by AI against: “:criteria”',
-        'summary_scoring' => 'Scoring: :target :unit per period, :points points for reaching it. Below target: :partial',
+        'summary_scoring' => 'Scoring: :target :unit per check-in, :points points for reaching it. Below target: :partial',
 
         'created' => '“:title” is ready.',
-        'created_timeline' => ':periods periods, starting :start in :timezone.',
-        'created_checkin' => 'Each period, this is what your participants do: :how',
+        'created_timeline' => ':length, starting :start in :timezone.',
+        'created_checkin' => 'Every :span, this is what your participants do: :how',
         'created_public' => 'It is public, so it is being posted to the announcement channel for others to join.',
         'created_private' => 'It is invite-only, so nobody can join without a link from you.',
 
@@ -274,18 +274,18 @@ return [
 
         'awaiting_period_type' => [
             'prompt' => 'How often does everyone check in?',
-            'error' => 'Please pick one of the periods offered.',
-            'expected' => 'Tap one of the buttons to pick a period.',
+            'error' => 'Please pick one of the options offered.',
+            'expected' => 'Tap one of the buttons to choose how often.',
         ],
 
         'awaiting_custom_period_days' => [
-            'prompt' => 'How many days is one period? Up to :custom_period_days_max.',
+            'prompt' => 'How many days between check-ins? Up to :custom_period_days_max.',
             'error' => 'Send a whole number of days between 1 and :custom_period_days_max.',
             'expected' => 'Send the number of days as a text message.',
         ],
 
         'awaiting_timezone' => [
-            'prompt' => 'Which timezone should the periods follow? Everyone in the challenge shares it.',
+            'prompt' => 'Which timezone should the check-ins follow? Everyone in the challenge shares it.',
             'error' => 'Please pick one of the timezones offered.',
             'expected' => 'Tap one of the buttons to pick a timezone.',
         ],
@@ -297,19 +297,19 @@ return [
         ],
 
         'awaiting_total_periods' => [
-            'prompt' => 'How many periods long is the challenge? Up to :total_periods_max.',
+            'prompt' => 'How many check-ins long is the challenge? Up to :total_periods_max.',
             'error' => 'Send a whole number between 1 and :total_periods_max.',
-            'expected' => 'Send the number of periods as a text message.',
+            'expected' => 'Send the number of check-ins as a text message.',
         ],
 
         'awaiting_scoring_type' => [
-            'prompt' => 'How is a period judged?',
+            'prompt' => 'How is a check-in judged?',
             'error' => 'Please pick one of the options offered.',
-            'expected' => 'Tap one of the buttons to pick how a period is judged.',
+            'expected' => 'Tap one of the buttons to pick how a check-in is judged.',
         ],
 
         'awaiting_scoring_target' => [
-            'prompt' => 'What should participants reach each period? Send a number — 30 for 30 pushups, 2.5 for 2.5 km.',
+            'prompt' => 'What should participants reach at each check-in? Send a number — 30 for 30 pushups, 2.5 for 2.5 km.',
             'error' => 'Send a positive number — 30, or 2.5. Fractions use a dot.',
             'expected' => 'Send the target as a text message.',
         ],
@@ -321,7 +321,7 @@ return [
         ],
 
         'awaiting_scoring_base_points' => [
-            'prompt' => 'How many points is reaching the target worth each period?',
+            'prompt' => 'How many points is reaching the target worth at each check-in?',
             'error' => 'Send a whole number of points, at least 1.',
             'expected' => 'Send the points as a text message.',
         ],
@@ -424,7 +424,7 @@ return [
     */
     'announce' => [
         'headline' => 'New challenge: :title',
-        'details' => ':period · :periods periods · :proof',
+        'details' => ':period · :length · :proof',
         'join_button' => 'Join',
     ],
 
@@ -432,11 +432,17 @@ return [
     | Reminder copy, one line per `ReminderKind` value. `:moment` is the boundary
     | the sentence is about (a start or a close), already rendered in the
     | challenge's own timezone, which is passed separately as `:timezone`.
+    |
+    | `period_opened` and `period_ending` open with "In “:title”" rather than with
+    | the unit, because the unit comes from the catalogue and a sentence cannot
+    | capitalise its first word for it — the same reason `checkin.todo` leads with
+    | the title. `:cadence` is the singular noun, `:span` the whole cadence ("week",
+    | "3 days") and `:length` the challenge end to end.
     */
     'reminder' => [
-        'challenge_starting' => '“:title” starts :moment (:timezone) — :total periods. Check in each period to keep your streak alive. :how',
-        'period_opened' => 'Period :index of :total in “:title” is open. Check in once you have done the thing. :how',
-        'period_ending' => 'Period :index of :total in “:title” closes at :moment (:timezone). Check in now if you have not yet. :how',
+        'challenge_starting' => '“:title” starts :moment (:timezone) — :length. Check in every :span to keep your streak alive. :how',
+        'period_opened' => 'In “:title”, :cadence :index of :total is open. Check in once you have done the thing. :how',
+        'period_ending' => 'In “:title”, :cadence :index of :total closes at :moment (:timezone). Check in now if you have not yet. :how',
     ],
 
     /*
@@ -506,12 +512,13 @@ return [
     | What goes out into a linked chat. These lines are read by a mixed-language
     | audience, so they render in the platform's fallback locale — the same
     | choice the announcement channel makes. The check-in line carries only a
-    | name, a period number and a streak: anything else about the participant
-    | is not the chat's business.
+    | name, a day number and a streak: anything else about the participant
+    | is not the chat's business. `:cadence` is the challenge's own unit, and
+    | `:period`/`:total` are counted in it — see `PeriodUnit`.
     */
     'chatpost' => [
-        'checkin' => ':name checked in for period :period of :total — streak: :streak 🔥',
-        'checkin_scored' => ':name checked in for period :period of :total — :value :unit, :score pts 🔥',
+        'checkin' => ':name checked in for :cadence :period of :total — streak: :streak 🔥',
+        'checkin_scored' => ':name checked in for :cadence :period of :total — :value :unit, :score pts 🔥',
         'leaderboard' => [
             'headline' => 'Top streaks in “:title”',
             'headline_scored' => 'Top scores in “:title”',

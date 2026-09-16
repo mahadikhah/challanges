@@ -44,6 +44,7 @@ class JoinChallengeFlow
         private readonly BotMessenger $messenger,
         private readonly Settings $settings,
         private readonly CheckInInstruction $instructions,
+        private readonly PeriodUnit $units,
     ) {}
 
     /**
@@ -76,7 +77,10 @@ class JoinChallengeFlow
             $challenge->description,
             $this->messenger->line($user, 'bot.join.preview_details', [
                 'period' => $this->messenger->line($user, $challenge->period_type->translationKey()),
-                'periods' => $challenge->total_periods,
+                // The challenge's own unit rather than a period count: "Daily ·
+                // 10 days · Photo" is what a daily challenge of ten periods is,
+                // and a custom 3-day one of six periods is "18 days".
+                'length' => $this->units->length($user, $challenge),
                 'proof' => $this->messenger->line($user, $challenge->proof_type->translationKey()),
             ]),
             $this->messenger->line($user, 'bot.join.preview_freezes', [
@@ -117,10 +121,16 @@ class JoinChallengeFlow
         try {
             $participant = $this->join->handle($user, $challenge);
         } catch (ChallengeNotJoinableException $refused) {
+            // Only the timeline refusal reads `:length`; the others are passed it
+            // by the same call rather than three call sites each knowing which
+            // reasons happen to interpolate what.
             $this->messenger->send($user, $this->messenger->line(
                 $user,
                 "bot.join.refused.{$refused->reason->value}",
-                ['title' => $refused->challenge->title],
+                [
+                    'title' => $refused->challenge->title,
+                    'length' => $this->units->length($user, $refused->challenge),
+                ],
             ));
 
             return;
@@ -138,6 +148,7 @@ class JoinChallengeFlow
         // reading, and it costs no extra message.
         $this->messenger->send($user, $this->messenger->line($user, $participant->wasRecentlyCreated ? 'bot.join.joined' : 'bot.join.already_in', [
             'title' => $challenge->title,
+            'span' => $this->units->span($user, $challenge),
             'how' => $this->instructions->lineFor($user, $challenge),
         ]));
     }

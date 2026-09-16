@@ -237,6 +237,7 @@ describe('/checkin', function () {
             // period — computed rather than assumed, like everywhere else.
             ->toContain(botCopy('bot.checkin.todo', [
                 'title' => 'Morning run',
+                'cadence' => 'day',
                 'index' => currentPeriod($challenge)->index + 1,
                 'total' => 10,
                 'how' => botCopy('bot.checkin.how.button'),

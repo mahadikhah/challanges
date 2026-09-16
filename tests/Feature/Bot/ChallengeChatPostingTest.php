@@ -184,7 +184,7 @@ describe('check-in announcements', function () {
         $toTheChat = array_filter(postedMessages(), fn (array $sent): bool => $sent['chat'] === '-1004444');
 
         expect($toTheChat)->toHaveCount(1)
-            ->and(current($toTheChat)['text'])->toContain('period 1')->toContain('streak: 5')
+            ->and(current($toTheChat)['text'])->toContain('day 1')->toContain('streak: 5')
             ->and($this->chat->posts()->count())->toBe(1);
     });
 
@@ -516,6 +516,7 @@ describe('a quantity challenge’s chat posts', function () {
         expect($text)->toBe(__('bot.chatpost.checkin_scored', [
             'title' => 'Morning run',
             'name' => $checkIn->participant->user->first_name,
+            'cadence' => 'day',
             'period' => 1,
             'total' => 10,
             'streak' => 1,

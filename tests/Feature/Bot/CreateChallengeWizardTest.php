@@ -745,6 +745,7 @@ describe('the confirmation step', function () {
         // first check-in.
         expect(soleBotMessage()['text'])
             ->toContain(botCopy('bot.wizard.created_checkin', [
+                'span' => 'day',
                 'how' => botCopy('bot.checkin.how.image_approval'),
             ]))
             ->not->toContain(botCopy('bot.checkin.how.button'));

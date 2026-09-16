@@ -77,6 +77,7 @@ class CheckInFlow
         private readonly ProofReviewNotifier $proofReview,
         private readonly BotButtons $buttons,
         private readonly CheckInInstruction $instructions,
+        private readonly PeriodUnit $units,
     ) {}
 
     /**
@@ -139,12 +140,16 @@ class CheckInFlow
 
             $lines[] = $this->messenger->line($user, 'bot.checkin.todo', [
                 'title' => $challenge->title,
-                'index' => $period->index + 1,
-                'total' => $challenge->total_periods,
+                'cadence' => $this->units->one($user, $challenge),
+                // Day numbers, not period numbers: a daily challenge's second
+                // check-in is "day 2 of 10", and a custom 3-day one's is "day 4
+                // of 18".
+                'index' => $this->units->opening($challenge, $period->index),
+                'total' => $this->units->total($challenge),
                 // The line the participant sees when something *is* owed, and
-                // the one place the mechanic has to be stated: "period 2 of 10
-                // is open" names the occasion and never the act, so a user who
-                // has never checked in before reads it and still does not know
+                // the one place the mechanic has to be stated: "day 2 of 10 is
+                // open" names the occasion and never the act, so a user who has
+                // never checked in before reads it and still does not know
                 // whether to tap, type or photograph something.
                 'how' => $this->instructions->lineFor($user, $challenge),
             ]);
