@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "prompts/progress.md": {
-    "mtime": 1789543864.998701,
-    "ast_hash": "7924c171b8ed87c10be2122720a7b8b4",
+    "mtime": 1789545320.356153,
+    "ast_hash": "6c595d5c9863808e764e0b0483dcab6f",
     "semantic_hash": ""
   },
   "prompts/task-01-setup.md": {
@@ -1630,8 +1630,8 @@
     "semantic_hash": ""
   },
   ".ai/rules/index.md": {
-    "mtime": 1788017770.5626187,
-    "ast_hash": "4d192de4f2f0e4b3ef9026019d1284a8",
+    "mtime": 1789545166.846861,
+    "ast_hash": "6acc7f9aefea9273bea29f8585338e61",
     "semantic_hash": ""
   },
   "prompts/phase-10.md": {
@@ -3375,23 +3375,23 @@
     "semantic_hash": ""
   },
   "docs/setup-cpanel.fa.md": {
-    "mtime": 1789522319.489772,
-    "ast_hash": "d832af3c8794f1567e16fc4c1328f080",
+    "mtime": 1789545130.7725809,
+    "ast_hash": "339bbfe3ae9990c9c3709864edb3ee97",
     "semantic_hash": ""
   },
   "docs/setup-cpanel.md": {
-    "mtime": 1789522318.0267732,
-    "ast_hash": "b6df1b43c2e9715fc5b3f2a234c92df5",
+    "mtime": 1789545104.9293864,
+    "ast_hash": "f8ba94084521dbdc77cb2a59f9f0a5ad",
     "semantic_hash": ""
   },
   "docs/setup-vps.fa.md": {
-    "mtime": 1789522325.4667687,
-    "ast_hash": "e93d5c2e7adc787c7b3cc858fda12397",
+    "mtime": 1789545154.241762,
+    "ast_hash": "d2336725d79f3010f02dd52cd0465372",
     "semantic_hash": ""
   },
   "docs/setup-vps.md": {
-    "mtime": 1789522325.0867689,
-    "ast_hash": "c095158fee3fea4dea45fdd182ce4254",
+    "mtime": 1789545153.7357578,
+    "ast_hash": "c12a65d514e955eed3b9086b146d3a05",
     "semantic_hash": ""
   },
   "docs/user-flows.fa.md": {
@@ -3735,13 +3735,13 @@
     "semantic_hash": ""
   },
   "docs/setup-vm-docker.fa.md": {
-    "mtime": 1789300157.9591866,
-    "ast_hash": "4ca4310f49715fa119f3bcbb1ff4d190",
+    "mtime": 1789545148.9727209,
+    "ast_hash": "6e09630c6e4cd393e6b022f43c9d835a",
     "semantic_hash": ""
   },
   "docs/setup-vm-docker.md": {
-    "mtime": 1789522325.7937684,
-    "ast_hash": "7c21d29ff9a9cc6fd1992f9d1f2be4c0",
+    "mtime": 1789545148.347716,
+    "ast_hash": "575333234011488f293607438d289406",
     "semantic_hash": ""
   },
   "tests/Feature/SettingsMissingSchemaTest.php": {
@@ -3862,6 +3862,21 @@
   "tests/Feature/TestEnvironmentTest.php": {
     "mtime": 1789539405.203667,
     "ast_hash": "07dbcaeebc1197810151d53d0b9756ad",
+    "semantic_hash": ""
+  },
+  "app/Console/Commands/Telegram/SetMenuButtonCommand.php": {
+    "mtime": 1789544878.115955,
+    "ast_hash": "19189b8bc133cd13186ba9bdb74fa09b",
+    "semantic_hash": ""
+  },
+  "tests/Feature/MiniApp/SetMenuButtonCommandTest.php": {
+    "mtime": 1789544861.874875,
+    "ast_hash": "4c45b006dab92a8260734de7cb75a73a",
+    "semantic_hash": ""
+  },
+  ".ai/rules/tests.md": {
+    "mtime": 1789545166.846861,
+    "ast_hash": "1e837afa4faf905b6538b78c134608f4",
     "semantic_hash": ""
   }
 }
