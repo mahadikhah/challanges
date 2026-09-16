@@ -3519,3 +3519,36 @@ in BotFather (`/revoke`), then update `.env` locally and the host's environment.
 being live in a plaintext `.env` is also what made this whole bug invisible: the machine that reported "green"
 was the one holding credentials, and nothing in the suite said so. If it is currently set on the production or
 staging host, rotate there too, in the same pass.
+
+## Mini App access on the cPanel host
+
+### Task 1 — The exchange stops blaming the identity for a dropped connection ✅
+
+Reported from the live cPanel host (`https://challenges.dragonline.top`): opening the Mini App from Telegram
+showed "We could not verify your Telegram identity", alongside the question of whether `/miniapp` was the only
+thing that had to be registered with BotFather.
+
+**The message was lying, and that is the defect fixed first.** `resources/js/miniapp/app.tsx` handled a failed
+token exchange with `() => setPhase({ screen: 'refused' })` — a rejection handler that takes no argument and
+discards the error. So the uniform 401 the API returns *on purpose* (`AuthController.php:12-19`), a 500, and a
+dropped connection all rendered that one sentence. The useful line is **transport versus verdict**: a 401 is the
+server refusing the identity, and only fresh `initData` clears it, so a retry is theatre; anything else means
+the identity was never judged at all and the same payload is worth sending again. That is not the reconnaissance
+the API deliberately withholds — it distinguishes *whether we got an answer*, not *why a payload was refused*.
+
+`identityFailure()` now makes that split, at module scope beside `bootScreen()`. A new `unreachable` screen
+shows the status as a hint when something did answer, reusing `miniapp.auth.data_failed_status` rather than
+adding a twin of it, and offers the retry the old screen could not. `signIn` was extracted so the retry path
+has something to call.
+
+**A real bug the linter caught, not a style nit.** The first draft had `signIn` set `authenticating` before
+starting the exchange, which made the effect call `setState` synchronously (`react-hooks/set-state-in-effect`).
+On the boot path that was a *second* render for a screen `bootScreen()` had already chosen synchronously
+(`:55-59`) — precisely the waste the rule exists to catch. `signIn` no longer sets it; `retrySignIn` does, at
+the call site that genuinely needs the transition.
+
+**Verification — `types:check` ✓, `lint:check` ✓, `format:check` ✓, pint ✓**, `UiCopyTest` 11 passed,
+`LocalizationTest` 55 passed. `miniapp.auth.unreachable` landed in **both** locales: `UiCopyTest:161` lists
+`miniapp` among the parity-pinned groups, so a one-sided key fails the build rather than silently falling back
+for half the users.
+

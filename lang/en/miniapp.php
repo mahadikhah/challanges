@@ -5,6 +5,12 @@ return [
     'auth' => [
         'failed' => 'We could not verify your Telegram identity. Please close and reopen the app.',
 
+        // The exchange never got a verdict at all — a dropped connection, or a
+        // server that broke. Kept apart from `failed` above, which is the server
+        // answering 401: this one says nothing about the identity, so the same
+        // `initData` is worth sending again and there is something to retry.
+        'unreachable' => 'We could not reach the server to sign you in.',
+
         // Shown when there is no identity to even try to verify: opened in a
         // browser, or on a page Telegram would not hand `initData` to. Nothing
         // is broken and there is nothing to retry — the app has to be opened

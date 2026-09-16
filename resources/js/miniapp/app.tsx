@@ -11,19 +11,25 @@ import type { ChallengeView, MiniAppUser } from './types';
 /**
  * The Mini App's root: authenticate → list ↔ detail.
  *
- * Boot ends one of three ways, and they are not interchangeable. *Outside
+ * Boot ends one of four ways, and they are not interchangeable. *Outside
  * Telegram* — no `WebApp` object, or one that handed us an empty `initData`:
  * there is nobody to authenticate, and the fix is to open the app from the bot,
- * not to try again. *Refused* — Telegram vouched for nothing we sent, and a
- * fresh open is the only way to get fresh `initData`. *Signed in* — the token is
+ * not to try again. *Refused* — the server answered 401, so Telegram vouched
+ * for nothing we sent, and a fresh open is the only way to get fresh
+ * `initData`. *Unreachable* — no usable answer at all, so the identity was never
+ * actually judged and retrying is worth the tap. *Signed in* — the token is
  * minted and we have a user.
  *
- * The listing is the *signed-in* state's own business, not a fourth boot
+ * The listing is the *signed-in* state's own business, not a fifth boot
  * outcome: a request that fails after a successful exchange is a failed
  * request, not a failed identity, and it is worth retrying without reopening
  * anything. It used to share the refusal's screen, so a flaky `/challenges`
  * told the user their Telegram identity could not be verified — which they had
- * just watched be verified.
+ * just watched be verified. The exchange had the same flaw in the other
+ * direction: a dropped connection and a 500 were both reported as a refusal, so
+ * the one sentence a user could quote covered three unrelated faults — and the
+ * server had already logged which one it was, where nobody reporting a bug from
+ * a phone can read it.
  *
  * The list hands the whole `ChallengeView` to the detail screen rather than
  * an id. The detail then never re-fetches on first paint — the list's data
@@ -41,6 +47,7 @@ type Phase =
     | { screen: 'authenticating' }
     | { screen: 'outside' }
     | { screen: 'refused' }
+    | { screen: 'unreachable'; httpStatus: number | null }
     | { screen: 'list'; state: ListState }
     | { screen: 'detail'; challenge: ChallengeView };
 
@@ -56,6 +63,33 @@ function bootScreen(): Phase {
     return (webApp()?.initData ?? '') === ''
         ? { screen: 'outside' }
         : { screen: 'authenticating' };
+}
+
+/**
+ * Which screen a failed exchange deserves.
+ *
+ * A 401 is the server refusing the identity, and the only thing that clears it
+ * is fresh `initData` — a new open. Everything else is the exchange *failing*
+ * rather than the identity being judged: a dropped connection, a 500, a proxy
+ * answering with its own error page. Telling the user their Telegram identity
+ * could not be verified in those cases blames the one thing that was never in
+ * question, and sends them to close and reopen an app that was never the
+ * problem.
+ *
+ * The split is deliberately transport-versus-verdict, not one refusal reason
+ * against another: the server keeps *why* it refused to itself, because a
+ * caller who can tell "tampered" from "outdated" learns which of their
+ * forgeries is closest to working.
+ */
+function identityFailure(failure: unknown): Phase {
+    if (failure instanceof ApiError && failure.status === 401) {
+        return { screen: 'refused' };
+    }
+
+    return {
+        screen: 'unreachable',
+        httpStatus: failure instanceof ApiError ? failure.status : null,
+    };
 }
 
 export function MiniApp() {
@@ -92,6 +126,53 @@ export function MiniApp() {
         );
     }, []);
 
+    /**
+     * Trade `initData` for a token, and land on whichever screen the answer
+     * deserves.
+     *
+     * Deliberately does not put the app back on `authenticating` first. On the
+     * boot path `bootScreen()` has already chosen that screen synchronously, so
+     * setting it again from inside the effect is a second render that changes
+     * nothing — and `react-hooks/set-state-in-effect` is right to refuse it. The
+     * retry path, which does need the transition, sets it at its own call site.
+     *
+     * `loadList` is called from the success branch rather than chained onto
+     * this promise, so a listing failure can never be caught by the exchange's
+     * handler however the chain is edited later.
+     */
+    const signIn = useCallback(
+        (initData: string) => {
+            authenticate(initData).then(
+                (bootUser) => {
+                    setUser(bootUser);
+
+                    loadList();
+                },
+                (failure: unknown) => {
+                    setPhase(identityFailure(failure));
+                },
+            );
+        },
+        [loadList],
+    );
+
+    /**
+     * Retry the exchange with the same `initData`, which is what the screen
+     * offering this is for: an exchange that never got an answer says nothing
+     * about the identity, so the same payload is worth sending again. Unlike
+     * the boot path this one does need the loading screen, since it is leaving
+     * a screen that is already painted.
+     *
+     * Re-read from the SDK rather than held in state because Telegram injects
+     * `initData` once per open and never rotates it — the value behind a retry
+     * is the one that just failed, which is precisely what is wanted.
+     */
+    const retrySignIn = useCallback(() => {
+        setPhase({ screen: 'authenticating' });
+
+        signIn(webApp()?.initData ?? '');
+    }, [signIn]);
+
     useEffect(() => {
         const app = webApp();
 
@@ -114,21 +195,8 @@ export function MiniApp() {
             return;
         }
 
-        // The exchange's own rejection handler, and the only place a failure is
-        // read as an identity failure. `loadList` is called from the success
-        // branch rather than chained onto this promise, so the two cannot be
-        // caught by the same handler however the promise chain is edited later.
-        authenticate(initData).then(
-            (bootUser) => {
-                setUser(bootUser);
-
-                loadList();
-            },
-            () => {
-                setPhase({ screen: 'refused' });
-            },
-        );
-    }, [loadList]);
+        signIn(initData);
+    }, [signIn]);
 
     const openDetail = useCallback((challenge: ChallengeView) => {
         setPhase({ screen: 'detail', challenge });
@@ -204,6 +272,26 @@ export function MiniApp() {
 
                 {phase.screen === 'refused' ? (
                     <Notice message={t('miniapp.auth.failed')} />
+                ) : null}
+
+                {phase.screen === 'unreachable' ? (
+                    <Notice
+                        message={t('miniapp.auth.unreachable')}
+                        // The listing's status line, reused rather than twinned:
+                        // the sentence is about the server answering, and says
+                        // nothing about which of the two requests it answered.
+                        // Absent when nothing answered at all, since inventing a
+                        // status for a dropped connection is the misattribution
+                        // this screen exists to undo.
+                        hint={
+                            phase.httpStatus === null
+                                ? undefined
+                                : t('miniapp.auth.data_failed_status', {
+                                      status: phase.httpStatus,
+                                  })
+                        }
+                        onRetry={retrySignIn}
+                    />
                 ) : null}
 
                 {phase.screen === 'list' &&
