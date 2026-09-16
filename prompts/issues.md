@@ -9,3 +9,13 @@ it would be cool to redesign it like the settings in profile page , there would 
 
 
 # landing page redesign is needed,  it should be looking based on the challanges not the admin panel desgin
+
+
+# lots of issues 
+# mini app shows this error We could not verify your Telegram identity. Please close and reopen the app. even opened from telegram, what should i do ?
+# add video audio reviewable by creator
+# the proof image is not being sent or forwarded to the creator
+# turn commands into inline buttons or just buttons
+# before every thing after start ask for languge if not set
+# there is no mention of checkin in messages sent to bot users so how would they now 
+# the period in messages when the period is set should actually become the name of the period like instead of each period it should be daily for daily challange 
