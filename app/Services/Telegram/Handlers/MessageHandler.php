@@ -8,6 +8,7 @@ use App\Enums\StarPaymentStatus;
 use App\Models\TelegramUpdate;
 use App\Models\User;
 use App\Services\CoinLedger;
+use App\Services\Telegram\BotButtons;
 use App\Services\Telegram\BotCommand;
 use App\Services\Telegram\BotMessenger;
 use App\Services\Telegram\CommandRouter;
@@ -47,6 +48,7 @@ class MessageHandler implements HandlesUpdate
     public function __construct(
         private readonly ResolveTelegramUser $resolveUser,
         private readonly CommandRouter $commands,
+        private readonly BotButtons $buttons,
         private readonly ConversationRouter $conversations,
         private readonly SessionStepFlow $sessions,
         private readonly CompleteStarsPayment $completePayment,
@@ -171,14 +173,16 @@ class MessageHandler implements HandlesUpdate
     }
 
     /**
-     * Point the user at the one command that always works.
+     * Offer the two things that can follow a message the bot did not understand.
      *
      * `/start` is both the entry point and the recovery path: it re-checks channel
-     * membership, so a user who left and rejoined fixes themselves with it.
+     * membership, so a user who left and rejoined fixes themselves with it. The
+     * buttons come before it in the row because a user who typed something at the
+     * bot most likely meant to get on with a challenge.
      */
     private function offerStart(User $user): void
     {
-        $this->messenger->send($user, $this->messenger->line($user, 'bot.fallback.unknown'));
+        $this->buttons->send($user, 'bot.fallback.unknown', 'create', 'start');
     }
 
     /**

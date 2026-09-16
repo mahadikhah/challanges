@@ -6,8 +6,8 @@ use App\Actions\Telegram\ResolveTelegramUser;
 use App\Messaging\PlatformRegistry;
 use App\Models\TelegramUpdate;
 use App\Models\User;
+use App\Services\Telegram\BotButtons;
 use App\Services\Telegram\BotCallback;
-use App\Services\Telegram\BotMessenger;
 use App\Services\Telegram\CallbackRouter;
 use App\Services\Telegram\HandlesUpdate;
 use Illuminate\Support\Facades\Log;
@@ -36,7 +36,7 @@ class CallbackQueryHandler implements HandlesUpdate
     public function __construct(
         private readonly ResolveTelegramUser $resolveUser,
         private readonly CallbackRouter $callbacks,
-        private readonly BotMessenger $messenger,
+        private readonly BotButtons $buttons,
         private readonly PlatformRegistry $platforms,
     ) {}
 
@@ -64,8 +64,10 @@ class CallbackQueryHandler implements HandlesUpdate
         if ($callback === null || ! $this->callbacks->route($user, $callback)) {
             // A button from a deploy that has since renamed its action, or one
             // carrying no data at all. Say something rather than leave a tap that
-            // visibly does nothing.
-            $this->messenger->send($user, $this->messenger->line($user, 'bot.fallback.stale_button'));
+            // visibly does nothing — and offer the one command that works from
+            // wherever they are, since "no data" says nothing about what they
+            // were trying to do.
+            $this->buttons->stale($user);
         }
     }
 

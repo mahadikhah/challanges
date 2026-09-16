@@ -204,6 +204,20 @@ describe('the flow, end to end', function () {
         expect(lastSentMessage())->toContain('Run Club')->toContain('Morning run');
     });
 
+    it('asks for the forward with a way out of the wait under it', function () {
+        linkVerdict();
+
+        typesAtTheBot(777_000_1, '/chatlink j_linktoken1');
+
+        // The creator has to leave Telegram, promote the bot, and come back — and
+        // a forwarded message is not a command, so nothing they can type in
+        // between ends this. The escape hatch belongs on the message that asks
+        // for all of that, which is why `prompt_cancel` travels with a button
+        // rather than a sentence naming `/cancel`.
+        expect(lastSentMessage())->toContain(botCopy('bot.chatlink.prompt_forward'))
+            ->and(lastBotKeyboard())->toBe([[commandButton('en', 'cancel')]]);
+    });
+
     it('tells the creator which admin check failed when the bot is not an admin', function () {
         linkVerdict(bot: 'member');
 

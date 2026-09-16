@@ -3,8 +3,8 @@
 namespace App\Services\Telegram\Callbacks;
 
 use App\Models\User;
+use App\Services\Telegram\BotButtons;
 use App\Services\Telegram\BotCallback;
-use App\Services\Telegram\BotMessenger;
 use App\Services\Telegram\HandlesCallback;
 use App\Services\Telegram\JoinChallengeFlow;
 
@@ -28,7 +28,7 @@ class JoinCallback implements HandlesCallback
 
     public function __construct(
         private readonly JoinChallengeFlow $flow,
-        private readonly BotMessenger $messenger,
+        private readonly BotButtons $buttons,
     ) {}
 
     public function handle(User $user, BotCallback $callback): void
@@ -40,7 +40,7 @@ class JoinCallback implements HandlesCallback
             // built, and a retry would fail identically — so it is answered
             // rather than thrown for: the message it rode on is still sitting
             // in somebody's chat with its keyboard attached.
-            $this->messenger->send($user, $this->messenger->line($user, 'bot.fallback.stale_button'));
+            $this->buttons->stale($user);
 
             return;
         }

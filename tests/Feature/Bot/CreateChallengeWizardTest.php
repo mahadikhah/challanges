@@ -414,7 +414,8 @@ describe('a typed answer', function () {
         wizardTypes('Read every day');
 
         expect(flowAnswers())->toBe([])
-            ->and(soleBotMessage()['text'])->toBe(botCopy('bot.fallback.unknown'));
+            ->and(soleBotMessage()['text'])->toBe(botCopy('bot.fallback.unknown'))
+            ->and(botKeyboard())->toBe([[commandButton('en', 'create'), commandButton('en', 'start')]]);
     });
 });
 
@@ -1134,10 +1135,15 @@ describe('/cancel', function () {
         expect(BotConversation::query()->count())->toBe(0);
     });
 
-    it('says there was nothing to cancel', function () {
+    it('says there was nothing to cancel, and offers the thing there is to do', function () {
         wizardTypes('/cancel');
 
-        expect(soleBotMessage()['text'])->toBe(botCopy('bot.cancel.nothing_open'));
+        // The button rides on this line and not on the successful cancellation
+        // above it. Somebody who just asked to stop is owed a confirmation and
+        // nothing else; offering to start again in the same breath argues with
+        // them. Here there is no flow to have stopped, so the dead end needs one.
+        expect(soleBotMessage()['text'])->toBe(botCopy('bot.cancel.nothing_open'))
+            ->and(botKeyboard())->toBe([[commandButton('en', 'create')]]);
     });
 
     it('does not spend a gate check on letting somebody out', function () {

@@ -6,6 +6,7 @@ use App\Messaging\Bale\BaleMessengerPlatform;
 use App\Messaging\PlatformRegistry;
 use App\Services\Telegram\CallbackRouter;
 use App\Services\Telegram\Callbacks\CheckInCallback;
+use App\Services\Telegram\Callbacks\CommandCallback;
 use App\Services\Telegram\Callbacks\JoinCallback;
 use App\Services\Telegram\Callbacks\LanguageCallback;
 use App\Services\Telegram\Callbacks\ReviewCheckInCallback;
@@ -114,6 +115,7 @@ class TelegramServiceProvider extends ServiceProvider
         ReviewCheckInCallback::ACTION => ReviewCheckInCallback::class,
         ShopCallback::ACTION => ShopCallback::class,
         LanguageCallback::ACTION => LanguageCallback::class,
+        CommandCallback::ACTION => CommandCallback::class,
     ];
 
     public function register(): void

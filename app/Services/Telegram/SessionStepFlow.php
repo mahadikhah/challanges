@@ -62,6 +62,7 @@ class SessionStepFlow
         private readonly AdvanceCheckInStep $advanceStep,
         private readonly TelegramFileDownloader $files,
         private readonly BotMessenger $messenger,
+        private readonly BotButtons $buttons,
         private readonly Settings $settings,
         private readonly ReportedValue $values,
         private readonly CheckInConfirmation $confirmations,
@@ -121,7 +122,7 @@ class SessionStepFlow
         $session = $this->openSessionOn($user, $challenge);
 
         if ($session === null) {
-            $this->messenger->send($user, $this->messenger->line($user, 'bot.session.stale'));
+            $this->stale($user);
 
             return;
         }
@@ -129,7 +130,7 @@ class SessionStepFlow
         $step = $challenge->steps()->where('step_order', $stepOrder)->first();
 
         if ($step === null) {
-            $this->messenger->send($user, $this->messenger->line($user, 'bot.session.stale'));
+            $this->stale($user);
 
             return;
         }
@@ -381,7 +382,21 @@ class SessionStepFlow
     {
         $conversation->delete();
 
-        $this->messenger->send($user, $this->messenger->line($user, 'bot.session.stale'));
+        $this->stale($user);
+    }
+
+    /**
+     * The session has moved on without the row in the chat that names it.
+     *
+     * One line and one button, for four sites that all mean the same thing: the
+     * user still has a step in front of them that no longer matches the world, and
+     * what they need is not an explanation but a way to see where the session
+     * actually is. `/checkin` answers that for every challenge, so the button
+     * names it.
+     */
+    private function stale(User $user): void
+    {
+        $this->buttons->send($user, 'bot.session.stale', 'checkin');
     }
 
     /**
@@ -410,7 +425,7 @@ class SessionStepFlow
             // A completed or expired session has no current step; reaching here
             // with one open would be a wiring bug, so the honest answer is the
             // stale line rather than a crash.
-            $this->messenger->send($user, $this->messenger->line($user, 'bot.session.stale'));
+            $this->stale($user);
 
             return;
         }
@@ -512,13 +527,22 @@ class SessionStepFlow
                 'seconds' => $refused->voiceSeconds,
                 'max' => $refused->voiceCeiling,
             ]),
-            SessionRejection::WrongStep, SessionRejection::SessionNotOpen => $this->messenger->line($user, 'bot.session.stale'),
+            // Null rather than a sentence: "the session moved on" is the one
+            // refusal answered with a button, because the reason it confuses is
+            // that the user cannot see where they are.
+            SessionRejection::WrongStep, SessionRejection::SessionNotOpen => null,
             default => $this->messenger->line(
                 $user,
                 "bot.session.refused.{$refused->reason->value}",
                 ['title' => $challenge->title],
             ),
         };
+
+        if ($line === null) {
+            $this->stale($user);
+
+            return;
+        }
 
         $this->messenger->send($user, $line);
     }

@@ -26,6 +26,7 @@ use App\Models\User;
 use App\Services\Ai\AiApprovalGate;
 use App\Services\Localization;
 use App\Services\Settings;
+use App\Services\Telegram\BotButtons;
 use App\Services\Telegram\BotCallback;
 use App\Services\Telegram\BotMessenger;
 use App\Services\Telegram\ChannelGatePrompt;
@@ -173,6 +174,7 @@ class CreateChallengeWizard
         private readonly SuggestApprovalCriteria $suggestCriteria,
         private readonly ScreenApprovalCriteria $screenCriteria,
         private readonly BotMessenger $messenger,
+        private readonly BotButtons $buttons,
         private readonly Settings $settings,
         private readonly AiApprovalGate $aiApprovalGate,
         private readonly ReportedValue $numbers,
@@ -549,6 +551,14 @@ class CreateChallengeWizard
     private function keyboard(User $user, ConversationState $state, ChallengeDraft $draft): ?array
     {
         $options = match ($state) {
+            // The opening line promises ten questions, so the way out of them
+            // rides on the first one. Every later question still answers to
+            // `/cancel` — typed, or tapped in the command menu — and carrying a
+            // Cancel row on all ten would be a permanent second exit next to the
+            // confirmation step's own.
+            ConversationState::AwaitingChallengeTitle => [
+                self::CANCEL => $this->messenger->line($user, 'bot.wizard.cancel_button'),
+            ],
             ConversationState::AwaitingChallengeDescription => [
                 self::SKIP => $this->messenger->line($user, 'bot.wizard.skip_button'),
             ],
@@ -877,7 +887,7 @@ class CreateChallengeWizard
             // progress. Cheaper to restart than to work out which answer is
             // missing and re-ask it out of order.
             $this->abandon($user);
-            $this->messenger->send($user, $this->messenger->line($user, 'bot.wizard.incomplete'));
+            $this->buttons->send($user, 'bot.wizard.incomplete', 'create');
 
             return;
         }
@@ -920,7 +930,7 @@ class CreateChallengeWizard
             ]);
 
             $this->abandon($user);
-            $this->messenger->send($user, $this->messenger->line($user, 'bot.wizard.error'));
+            $this->buttons->send($user, 'bot.wizard.error', 'create');
 
             return;
         }
@@ -1076,7 +1086,7 @@ class CreateChallengeWizard
         // same verdict `finish()` gives an incomplete draft.
         if ($periodType === null || $timezone === null || $draft->startDate() === null) {
             $this->abandon($user);
-            $this->messenger->send($user, $this->messenger->line($user, 'bot.wizard.incomplete'));
+            $this->buttons->send($user, 'bot.wizard.incomplete', 'create');
 
             return;
         }

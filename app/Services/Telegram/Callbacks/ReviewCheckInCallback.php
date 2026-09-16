@@ -7,6 +7,7 @@ use App\Actions\Telegram\VerifyChannelMembership;
 use App\Exceptions\CheckInRejectedException;
 use App\Models\CheckIn;
 use App\Models\User;
+use App\Services\Telegram\BotButtons;
 use App\Services\Telegram\BotCallback;
 use App\Services\Telegram\BotMessenger;
 use App\Services\Telegram\ChannelGatePrompt;
@@ -42,6 +43,7 @@ class ReviewCheckInCallback implements HandlesCallback
         private readonly VerifyChannelMembership $gate,
         private readonly ChannelGatePrompt $gatePrompt,
         private readonly BotMessenger $messenger,
+        private readonly BotButtons $buttons,
         private readonly NotifyCheckInVerdict $notify,
     ) {}
 
@@ -53,7 +55,7 @@ class ReviewCheckInCallback implements HandlesCallback
         // Anything that is not exactly one of the two verdicts is a payload from
         // a format we no longer speak — answered, not guessed at.
         if ($id === null || ! ctype_digit($id) || ($verdict !== self::APPROVE && $verdict !== self::REJECT)) {
-            $this->messenger->send($user, $this->messenger->line($user, 'bot.fallback.stale_button'));
+            $this->buttons->stale($user);
 
             return;
         }
@@ -70,7 +72,7 @@ class ReviewCheckInCallback implements HandlesCallback
         $checkIn = CheckIn::query()->find((int) $id);
 
         if ($checkIn === null) {
-            $this->messenger->send($user, $this->messenger->line($user, 'bot.fallback.stale_button'));
+            $this->buttons->stale($user);
 
             return;
         }

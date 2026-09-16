@@ -100,6 +100,24 @@ class BotCommandMenu
     }
 
     /**
+     * The line that describes one command, in whatever locale it is read in.
+     *
+     * Public because the menu is not the only place a command is offered: an
+     * inline button under a message says the same words, and reading them from
+     * here is what keeps the button and the menu from drifting apart.
+     *
+     * A command with no entry above falls back to the conventional key rather
+     * than throwing. That should be unreachable — `BotCommandMenuTest` pins this
+     * list against the router's — and if it ever is reached, a message reading
+     * `bot.commands.whatever` is a visible bug where a crash would be a silent
+     * one.
+     */
+    public function descriptionKey(string $command): string
+    {
+        return self::MENU[$command] ?? "bot.commands.{$command}";
+    }
+
+    /**
      * One locale's menu, shaped for `setMyCommands`.
      *
      * @return list<array{command: string, description: string}>

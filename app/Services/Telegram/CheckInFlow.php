@@ -18,7 +18,6 @@ use App\Models\ChallengePeriod;
 use App\Models\CheckIn;
 use App\Models\User;
 use App\Services\Settings;
-use App\Services\Telegram\Callbacks\CheckInCallback;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Log;
 use LogicException;
@@ -75,6 +74,7 @@ class CheckInFlow
         private readonly ReportedValue $values,
         private readonly CheckInConfirmation $confirmations,
         private readonly ProofReviewNotifier $proofReview,
+        private readonly BotButtons $buttons,
     ) {}
 
     /**
@@ -138,12 +138,7 @@ class CheckInFlow
                 'total' => $challenge->total_periods,
             ]);
 
-            $buttons[] = [
-                'text' => $this->messenger->line($user, 'bot.checkin.button', [
-                    'title' => $challenge->title,
-                ]),
-                'callback_data' => BotCallback::encode(CheckInCallback::ACTION, $challenge->join_token),
-            ];
+            $buttons[] = $this->buttons->checkIn($user, $challenge);
         }
 
         if ($lines === []) {
@@ -217,7 +212,7 @@ class CheckInFlow
         $challenge = $this->challengeOf($conversation);
 
         if ($challenge === null) {
-            $this->abandon($user, $conversation, 'bot.fallback.stale_button');
+            $this->abandonStale($user, $conversation);
 
             return;
         }
@@ -275,7 +270,7 @@ class CheckInFlow
         $challenge = $this->challengeOf($conversation);
 
         if ($challenge === null) {
-            $this->abandon($user, $conversation, 'bot.fallback.stale_button');
+            $this->abandonStale($user, $conversation);
 
             return;
         }
@@ -295,7 +290,7 @@ class CheckInFlow
         $proof = ProofType::tryFrom((string) $conversation->answer('proof', ''));
 
         if ($proof === null) {
-            $this->abandon($user, $conversation, 'bot.fallback.stale_button');
+            $this->abandonStale($user, $conversation);
 
             return;
         }
@@ -335,7 +330,7 @@ class CheckInFlow
         $phrase = $conversation->answer('phrase');
 
         if (! is_string($phrase) || $phrase === '') {
-            $this->abandon($user, $conversation, 'bot.fallback.stale_button');
+            $this->abandonStale($user, $conversation);
 
             return;
         }
@@ -409,7 +404,7 @@ class CheckInFlow
         $challenge = $this->challengeOf($conversation);
 
         if ($challenge === null) {
-            $this->abandon($user, $conversation, 'bot.fallback.stale_button');
+            $this->abandonStale($user, $conversation);
 
             return;
         }
@@ -489,7 +484,7 @@ class CheckInFlow
         $challenge = $this->challengeOf($conversation);
 
         if ($challenge === null) {
-            $this->abandon($user, $conversation, 'bot.fallback.stale_button');
+            $this->abandonStale($user, $conversation);
 
             return;
         }
@@ -793,6 +788,22 @@ class CheckInFlow
         if ($line !== null) {
             $this->messenger->send($user, $this->messenger->line($user, $line, $replace));
         }
+    }
+
+    /**
+     * Close the conversation at a dead end, with somewhere to go next.
+     *
+     * Six sites reach here for the same reason — the row is still open but the
+     * thing it was about has gone, or a deploy changed what it expects to find in
+     * it. They share more than the sentence: a user whose half-finished check-in
+     * just evaporated should land on something they can tap rather than on the
+     * name of a command they have to remember.
+     */
+    private function abandonStale(User $user, BotConversation $conversation): void
+    {
+        $conversation->delete();
+
+        $this->buttons->stale($user);
     }
 
     /**

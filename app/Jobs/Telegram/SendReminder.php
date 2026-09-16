@@ -6,6 +6,7 @@ use App\Enums\ReminderKind;
 use App\Models\ChallengePeriod;
 use App\Models\CheckIn;
 use App\Models\ReminderDispatch;
+use App\Services\Telegram\BotButtons;
 use App\Services\Telegram\BotMessenger;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -55,9 +56,9 @@ class SendReminder implements ShouldQueue
     /**
      * @throws Throwable when Telegram refuses the send, so the job retries
      */
-    public function handle(BotMessenger $messenger): void
+    public function handle(BotMessenger $messenger, BotButtons $buttons): void
     {
-        DB::transaction(function () use ($messenger): void {
+        DB::transaction(function () use ($messenger, $buttons): void {
             /** @var ReminderDispatch|null $reminder */
             $reminder = ReminderDispatch::query()
                 ->lockForUpdate()
@@ -76,9 +77,16 @@ class SendReminder implements ShouldQueue
                 return;
             }
 
-            $messenger->send(
-                $reminder->participant->user,
-                $this->compose($messenger, $reminder->period, $reminder),
+            $user = $reminder->participant->user;
+
+            $messenger->paragraphs(
+                $user,
+                [$this->compose($messenger, $reminder->period, $reminder)],
+                // The nudge used to name `/checkin`, which is an instruction
+                // only a user who already knows the command can follow. The
+                // button is that instruction, and it names the challenge because
+                // a participant is usually in more than one.
+                [[$buttons->checkIn($user, $reminder->participant->challenge)]],
             );
 
             $this->stamp($reminder);

@@ -182,16 +182,18 @@ describe('a first arrival', function () {
 });
 
 describe('the channel gate', function () {
-    it('blocks a non-member with a button to join', function () {
+    it('blocks a non-member with a way to join and a way back', function () {
         telegramAnswers('left');
 
         arrivesAtBot('/start');
 
         $reply = soleBotMessage();
 
+        // Two buttons, one row: the join link leaves Telegram, so the way to say
+        // "I am back" travels next to it rather than on a row of its own.
         expect($reply['text'])->toContain(botCopy('bot.gate.blocked', ['channel' => '@challenges']))
             ->and($reply['text'])->toContain(botCopy('bot.gate.then_start_again'))
-            ->and(botKeyboard())->toBe([[[
+            ->and(botKeyboard())->toBe([[commandButton('en', 'start'), [
                 'text' => botCopy('bot.gate.join_button'),
                 'url' => 'https://t.me/challenges',
             ]]]);
@@ -233,15 +235,17 @@ describe('the channel gate', function () {
             ->and(latestBotMessage(3)['text'])->toContain(botCopy('bot.start.welcome_back', ['name' => 'Sara']));
     });
 
-    it('explains itself without a button when the channel has no public link', function () {
+    it('offers only the way back when the channel has no public link', function () {
         $this->settings->set(SettingKey::RequiredChannel, '-1001234567890');
         telegramAnswers('left');
 
         arrivesAtBot('/start');
 
-        // No `https://t.me/-100…` exists, so offering one would be a dead button.
+        // No `https://t.me/-100…` exists, so offering a join button would be a
+        // dead one. The retry button is not decoration around it — it is the only
+        // move there is, short of asking an admin for the link by hand.
         expect(soleBotMessage()['text'])->toContain(botCopy('bot.gate.blocked_without_link'))
-            ->and(soleBotMessage())->not->toHaveKey('reply_markup');
+            ->and(botKeyboard())->toBe([[commandButton('en', 'start')]]);
     });
 });
 
@@ -407,12 +411,17 @@ describe('what the bot refuses to act on', function () {
 });
 
 describe('anything that is not a command we know', function () {
-    it('points the user back at /start', function (string $text) {
+    it('offers the two moves that work from anywhere', function (string $text) {
         telegramAnswers('member');
 
         arrivesAtBot($text);
 
-        expect(soleBotMessage()['text'])->toBe(botCopy('bot.fallback.unknown'));
+        // Two buttons, not a sentence naming them. The words under the buttons
+        // are the command menu's own, so a user who taps one has also learned
+        // which command it is — and `/create` leads because a message the bot
+        // could not read most likely meant "get on with a challenge".
+        expect(soleBotMessage()['text'])->toBe(botCopy('bot.fallback.unknown'))
+            ->and(botKeyboard())->toBe([[commandButton('en', 'create'), commandButton('en', 'start')]]);
     })->with([
         'an unknown command' => ['/teleport'],
         'free text' => ['hello there'],
@@ -444,7 +453,11 @@ describe('anything that is not a command we know', function () {
 
         dispatch_sync(new ProcessTelegramUpdate($update));
 
-        expect(soleBotMessage()['text'])->toBe(botCopy('bot.fallback.unknown'));
+        // A photo is not a command and not a wizard answer, so it lands on the
+        // same dead end as free text — buttons included. That matters more here
+        // than anywhere: a user who sends a photo has visibly *tried* something.
+        expect(soleBotMessage()['text'])->toBe(botCopy('bot.fallback.unknown'))
+            ->and(botKeyboard())->toBe([[commandButton('en', 'create'), commandButton('en', 'start')]]);
     });
 
     it('reads a command addressed to the bot by name', function () {

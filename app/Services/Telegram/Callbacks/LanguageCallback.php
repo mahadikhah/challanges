@@ -4,6 +4,7 @@ namespace App\Services\Telegram\Callbacks;
 
 use App\Models\User;
 use App\Services\Localization;
+use App\Services\Telegram\BotButtons;
 use App\Services\Telegram\BotCallback;
 use App\Services\Telegram\BotMessenger;
 use App\Services\Telegram\HandlesCallback;
@@ -40,6 +41,7 @@ class LanguageCallback implements HandlesCallback
         private readonly BotMessenger $messenger,
         private readonly Localization $localization,
         private readonly StartGreeting $greeting,
+        private readonly BotButtons $buttons,
     ) {}
 
     public function handle(User $user, BotCallback $callback): void
@@ -47,7 +49,7 @@ class LanguageCallback implements HandlesCallback
         $locale = $callback->argument(0);
 
         if ($locale === null || ! $this->localization->isSupported($locale)) {
-            $this->messenger->send($user, $this->messenger->line($user, 'bot.fallback.stale_button'));
+            $this->buttons->stale($user);
 
             return;
         }

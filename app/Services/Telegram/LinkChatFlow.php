@@ -46,6 +46,7 @@ class LinkChatFlow
         private readonly VerifyChallengeChat $verify,
         private readonly BotMessenger $messenger,
         private readonly Settings $settings,
+        private readonly BotButtons $buttons,
     ) {}
 
     /**
@@ -83,12 +84,17 @@ class LinkChatFlow
             ],
         );
 
+        // The only way out of a flow that is waiting on a forwarded message. Its
+        // steps happen in another app entirely — the creator has to open Telegram,
+        // add the bot as an admin, come back and forward something — so the escape
+        // hatch belongs on the message that asks for all that, not in the command
+        // menu two taps away.
         $this->messenger->paragraphs($user, [
             $this->messenger->line($user, 'bot.chatlink.prompt_title', ['title' => $challenge->title]),
             $this->messenger->line($user, 'bot.chatlink.prompt_add_bot'),
             $this->messenger->line($user, 'bot.chatlink.prompt_forward'),
             $this->messenger->line($user, 'bot.chatlink.prompt_cancel'),
-        ]);
+        ], $this->buttons->keyboard($user, 'cancel'));
     }
 
     /**

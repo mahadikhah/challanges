@@ -3027,3 +3027,86 @@ tests **1740 (1736 pass, 4 skipped)**, 6549 assertions (baseline 1730). `graphif
 10646 edges, 358 communities).
 
 **Next:** Task 6 — replace "send /command" with buttons (`cm` callback action, allowlisted against `BOT_COMMANDS`).
+
+## Phase 17 · Task 6 — "Send /command" becomes a button
+
+**The defect.** The bot's answer to every dead end was a sentence naming a slash command — `bot.fallback.unknown`,
+`bot.cancel.nothing_open`, `bot.session.stale`, `bot.wizard.incomplete`, `bot.gate.then_start_again` and a dozen
+more. Sixteen keys across the two language files told the user to type something and gave them nothing to tap.
+That is an instruction only a user who already knows the command can follow, and it is worst exactly where it
+matters most: the wizard's opening line promised ten questions and offered no way out of them.
+
+**What shipped.** `App\Services\Telegram\BotButtons` — one builder for every button the bot puts under a message.
+`send()` for a verdict with a row of command buttons, `stale()` for the dead end (two dozen call sites, one
+call), `row()`/`keyboard()` for callers that have buttons of their own, and `checkIn()` for the `ci:` button.
+`App\Services\Telegram\Callbacks\CommandCallback` (action word `cm`) is what a tap on a command button resolves to,
+and `BotCommand::named()` is how a word that did not come from message text enters the same router. Sixteen copy
+keys were rewritten in both locales so the buttons carry the action and the sentences stop describing it.
+
+**A command button's label *is* the command menu's description — no per-context wording.** Read through the new
+`BotCommandMenu::descriptionKey()`, so the word under a message button and the word under the menu button come from
+one line and cannot drift apart. It was tempting to give the gate its own "I have joined" button, and that is
+exactly what was rejected: a second label per command is the drift the menu was built to prevent, and a user who
+taps a button has now learned the command's name for free, which is how the menu becomes discoverable rather than
+redundant. `CommandButtonTest` pins both directions of the claim — the label equals the menu's description in both
+locales, and a tap reaches the same handler a typed command does.
+
+**The allowlist is the router's own map, checked before anything is routed.** `CommandCallback` calls
+`CommandRouter::handles($name)` before `route()`. `callback_data` is a string a client sends us, so `cm:dropTables`
+is a thing that can arrive, and without that check this handler would be a way into any class the map happens to
+hold — including a command a later task adds and never offers as a button. Nothing is logged on a refusal: the
+common case is a button from a deploy that dropped its command, which is ordinary, and the crafted case says
+nothing we act on.
+
+**Two literal `/command`s survive, and both are decisions.**
+- `bot.shop.pre_checkout_error` is rendered inside Telegram's *own* payment sheet via
+  `answerPreCheckoutQuery(errorMessage:)`. An inline keyboard is structurally impossible there, so its "/shop" is
+  the bot's one genuinely unbuttonable instruction.
+- `bot.chatlink.no_challenge` describes a command that takes a free-form argument. A button cannot carry one, and a
+  button that starts the flow and then asks for the payload would be a new conversational step — a wizard-flow
+  redesign, not a button conversion. `/chatlink` is stated as the one typed command, and the class docblock says so.
+
+**The gate's row: one row, two buttons, the retry first.** `[Begin, or start over]` then `[Join the channel]`. The
+join link leaves Telegram, so the way to say "I am back" sits beside it rather than on a row of its own; a second
+row under a link that is the whole point of the message reads as an afterthought. With a numeric `-100…` channel id
+there is no public link and no second button — that case previously had no keyboard at all, which is now the one
+thing it does have.
+
+**`cancel` rides on the greeting only when a conversation is live.** Offering a way out of a flow that is not
+running produces "there was nothing to cancel", which is a worse reply than never having offered the button —
+and `/start` is reachable at any time, so both states are real. The CancelCommand's *own* dead end does carry a
+button, because somebody who asked to stop is owed a confirmation and offering to start again in the same breath
+argues with them. The wizard carries Cancel on its first question only (the opening line and Q1 are one message);
+all ten questions carrying a permanent second exit next to the confirmation step's own would be worse, and
+`/cancel` still answers typed or tapped in the menu.
+
+**Every reminder kind gets a `ci:` button, `challenge_starting` included.** The button looks premature there and
+is not: `CheckInFlow::start()` answers "nothing is due yet" gracefully, and one rule beats a per-kind special case.
+The label names the challenge because a participant is usually in more than one and a bare "check in" under a
+reminder about three says nothing about which. `SendReminder` now takes `BotButtons` as a *method parameter* — the
+first version called `$this->buttons` inside a closure where it was not a property, which is a fatal error, not a
+subtlety.
+
+**Four `$messenger` properties were deleted, not left in place.** `JoinCallback`, `SessionStepCallback`,
+`WizardCallback` and `CallbackQueryHandler` each had a `BotMessenger` injected for exactly one `send()` that the
+conversion replaced. PHPStan level 7's `property.onlyWritten` caught all four. Removing them is the fix; the
+temptation to keep one "just in case" is how an unused dependency survives three tasks.
+
+**Tests — a new `CommandButtonTest`, plus keyboard assertions on six existing ones.** The new file covers the
+spec's five categories: label parity with the menu in both locales; tap-and-typed equivalence through a locally
+bound `CommandRouter` that *records* rather than runs (so the assertion is "the same handler, the same user, the
+same word, the same absent argument", not "two paths happen to agree today"); four crafted or unknown command words
+(`cm:dropTables`, `cm:startall`, bare `cm`, `cm:`) all landing on the ordinary dead end; a tap during an open
+wizard clearing it rather than being read as a challenge title; and the converted dead ends rendering in `en` and
+`fa` with the right label and the right text. Its helpers are file-local (`buttonTelegramAnswers`, `buttonTyped`,
+`buttonTapped`) because a helper defined in one test file only exists when that file happens to be loaded — the
+same reason `telegramAnswers()` lives in `StartCommandTest`. The existing tests that already asserted the converted
+*text* gained the keyboard assertion under it: `StartCommandTest` ×2, `CreateChallengeWizardTest` ×2,
+`TimedSessionBotTest`, `ChallengeChatLinkTest` and `ReminderSweepTest`. `tests/Pest.php` gained `commandButton()`,
+which reads the label from the same `bot.commands.*` keys the menu is registered from.
+
+**Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓, tsc ✓,
+tests **1754 (1750 pass, 4 skipped)**, 6620 assertions (baseline 1740). `graphify update .` run (4847 nodes,
+10772 edges, 367 communities).
+
+**Next:** Task 7 — tell users how to check in, per proof type, in the place they are asked to do it.

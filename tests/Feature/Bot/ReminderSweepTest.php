@@ -139,6 +139,47 @@ it('sends exactly one reminder per participant per period across a boundary, run
         ->and(collect(botMessages())->pluck('text')->filter(fn (string $text): bool => $text === $opened))->toHaveCount(2);
 });
 
+it('carries a check-in button on every reminder, whatever it is about', function () {
+    [$challenge, $start] = aRemindedChallenge();
+
+    // An hour before the start, so the first period's rows are minted while its
+    // beginning is still ahead of the sweep — a `challenge_starting` whose moment
+    // has already passed is never minted at all.
+    $this->travelTo($start->subHour());
+    Artisan::call('challenges:reminders');
+
+    expect(botMessages())->toBeEmpty();
+
+    // The three moments in one period the three kinds fire at: inside it, near
+    // its close, and at the top of the next one.
+    foreach ([$start->addHour(), $start->addHours(22), $start->addHours(25)] as $moment) {
+        $this->travelTo($moment);
+        Artisan::call('challenges:reminders');
+    }
+
+    $messages = botMessages();
+
+    expect($messages)->toHaveCount(6);
+
+    foreach ($messages as $message) {
+        // Every kind, including `challenge_starting` — where the button looks
+        // premature and is not, because the check-in flow answers "nothing is due
+        // yet" gracefully and one rule beats a per-kind exception.
+        //
+        // The nudge used to name `/checkin`, which is an instruction only a user
+        // who already knows the command can follow. The button *is* that
+        // instruction. It carries the challenge's token because a participant is
+        // usually in more than one: a bare "check in" under a reminder would say
+        // nothing about which challenge it means, and the token is what
+        // `CheckInCallback` resolves the challenge from.
+        expect($message['text'])->not->toContain('/checkin')
+            ->and(keyboardOn($message))->toBe([[[
+                'text' => botCopy('bot.checkin.button', ['title' => 'Morning run']),
+                'callback_data' => 'ci:'.$challenge->join_token,
+            ]]]);
+    }
+});
+
 it('never mints a reminder for a period a late joiner did not owe', function () {
     [$challenge, $start, $participants] = aRemindedChallenge();
 

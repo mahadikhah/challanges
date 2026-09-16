@@ -3,8 +3,8 @@
 namespace App\Services\Telegram\Callbacks;
 
 use App\Models\User;
+use App\Services\Telegram\BotButtons;
 use App\Services\Telegram\BotCallback;
-use App\Services\Telegram\BotMessenger;
 use App\Services\Telegram\HandlesCallback;
 use App\Services\Telegram\Wizards\CreateChallengeWizard;
 
@@ -27,7 +27,7 @@ class WizardCallback implements HandlesCallback
 {
     public function __construct(
         private readonly CreateChallengeWizard $wizard,
-        private readonly BotMessenger $messenger,
+        private readonly BotButtons $buttons,
     ) {}
 
     public function handle(User $user, BotCallback $callback): void
@@ -35,7 +35,7 @@ class WizardCallback implements HandlesCallback
         $conversation = $user->conversation()->live()->first();
 
         if ($conversation === null || ! $conversation->state->isCreateChallengeStep()) {
-            $this->messenger->send($user, $this->messenger->line($user, 'bot.fallback.stale_button'));
+            $this->buttons->stale($user);
 
             return;
         }

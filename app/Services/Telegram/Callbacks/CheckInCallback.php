@@ -5,6 +5,7 @@ namespace App\Services\Telegram\Callbacks;
 use App\Enums\FlowType;
 use App\Models\Challenge;
 use App\Models\User;
+use App\Services\Telegram\BotButtons;
 use App\Services\Telegram\BotCallback;
 use App\Services\Telegram\BotMessenger;
 use App\Services\Telegram\CheckInFlow;
@@ -34,6 +35,7 @@ class CheckInCallback implements HandlesCallback
         private readonly CheckInFlow $simple,
         private readonly SessionStepFlow $sessions,
         private readonly BotMessenger $messenger,
+        private readonly BotButtons $buttons,
     ) {}
 
     public function handle(User $user, BotCallback $callback): void
@@ -41,7 +43,7 @@ class CheckInCallback implements HandlesCallback
         $token = $callback->argument(0);
 
         if ($token === null) {
-            $this->messenger->send($user, $this->messenger->line($user, 'bot.fallback.stale_button'));
+            $this->buttons->stale($user);
 
             return;
         }

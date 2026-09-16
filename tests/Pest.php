@@ -4,6 +4,8 @@ use App\Enums\MessagingPlatform;
 use App\Jobs\Telegram\ProcessTelegramUpdate;
 use App\Models\TelegramUpdate;
 use App\Models\User;
+use App\Services\Telegram\BotCallback;
+use App\Services\Telegram\Callbacks\CommandCallback;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -215,6 +217,24 @@ function botCopy(string $key, array $replace = [], string $locale = 'en'): strin
     $line = Lang::get($key, $replace, $locale);
 
     return is_string($line) ? $line : $key;
+}
+
+/**
+ * The button a command offers, as the bot would render it for one locale.
+ *
+ * Read from the same `bot.commands.*` lines Task 5 registers with Telegram, so a
+ * test that expects a command button never pastes a label the next copy change
+ * would leave behind — and the assertion doubles as a check that the button and
+ * the menu say the same words.
+ *
+ * @return array{text: string, callback_data: string}
+ */
+function commandButton(string $locale, string $command): array
+{
+    return [
+        'text' => botCopy("bot.commands.{$command}", [], $locale),
+        'callback_data' => BotCallback::encode(CommandCallback::ACTION, $command),
+    ];
 }
 
 /**

@@ -29,13 +29,13 @@ return [
     'start' => [
         'welcome' => 'Welcome to :app, :name! Set yourself a challenge, bring your friends along, and keep the streak alive.',
         'welcome_back' => 'Welcome back, :name.',
-        'next_steps' => 'Send /create to set up a challenge. /cancel gets you out of anything half-finished.',
+        'next_steps' => 'Whenever you are ready, tap below to set up a challenge.',
     ],
 
     'gate' => [
         'blocked' => 'Before you can use the bot, please join :channel.',
         'blocked_without_link' => 'Before you can use the bot, please join our announcement channel. Ask an admin for the link.',
-        'then_start_again' => 'Once you have joined, send /start again.',
+        'then_start_again' => 'Once you have joined, tap below to be let back in.',
         'join_button' => 'Join the channel',
     ],
 
@@ -77,7 +77,7 @@ return [
     ],
 
     'cancel' => [
-        'nothing_open' => 'There was nothing to cancel. Send /create to start a challenge.',
+        'nothing_open' => 'There was nothing to cancel.',
     ],
 
     /*
@@ -164,7 +164,7 @@ return [
     */
     'session' => [
         'next_button' => 'Next',
-        'stale' => 'That step is no longer the one waiting. Send /checkin to see where the session is.',
+        'stale' => 'That step is no longer the one waiting.',
         'too_early' => ':seconds seconds left — the wait is part of this challenge.',
         'voice_too_long' => 'That voice message is :seconds seconds long; this step accepts up to :max.',
         'video_too_long' => 'That video is :seconds seconds long; this challenge accepts up to :max.',
@@ -205,12 +205,12 @@ return [
     | step needs its three lines here and no other wiring.
     */
     'wizard' => [
-        'opening' => 'Let’s set up a challenge. Ten quick questions — send /cancel at any point to stop.',
+        'opening' => 'Let’s set up a challenge. Ten quick questions.',
         'restarted' => 'Starting a new challenge from scratch. The previous draft has been dropped.',
         'cancelled' => 'Dropped. Nothing was created.',
         'stale_step' => 'That button belongs to an earlier question. Here is where we are now.',
-        'incomplete' => 'That draft is missing some answers, so it has been dropped. Send /create to start again.',
-        'error' => 'Something went wrong creating that challenge, and it has not been saved. Please try /create again.',
+        'incomplete' => 'That draft is missing some answers, so it has been dropped.',
+        'error' => 'Something went wrong creating that challenge, and it has not been saved.',
 
         'no_slot' => 'You have used up your challenge-creation slots.',
         'slot_price' => 'Another one costs :coins coins.',
@@ -406,9 +406,9 @@ return [
     | challenge's own timezone, which is passed separately as `:timezone`.
     */
     'reminder' => [
-        'challenge_starting' => '“:title” starts :moment (:timezone) — :total periods. Send /checkin every period to keep your streak.',
-        'period_opened' => 'Period :index of :total in “:title” is open. Send /checkin when you have done the thing.',
-        'period_ending' => 'Period :index of :total in “:title” closes at :moment (:timezone). Send /checkin now if you have not yet.',
+        'challenge_starting' => '“:title” starts :moment (:timezone) — :total periods. Check in each period to keep your streak alive.',
+        'period_opened' => 'Period :index of :total in “:title” is open. Check in once you have done the thing.',
+        'period_ending' => 'Period :index of :total in “:title” closes at :moment (:timezone). Check in now if you have not yet.',
     ],
 
     /*
@@ -450,7 +450,7 @@ return [
         'prompt_title' => 'Linking a chat to “:title”.',
         'prompt_add_bot' => 'First, add this bot as an administrator to your channel or group.',
         'prompt_forward' => 'Then forward any message from that chat to me here, and I will link it.',
-        'prompt_cancel' => 'Send /cancel to give up.',
+        'prompt_cancel' => 'You can stop at any point.',
         'no_challenge' => 'Send this as /chatlink followed by your challenge’s join link payload, e.g. /chatlink j_abc123.',
         'challenge_gone' => 'That challenge is no longer available.',
         'not_forwarded' => 'That was not a message forwarded from a channel or group. Forward one from the chat you want to link.',
@@ -470,8 +470,8 @@ return [
     ],
 
     'fallback' => [
-        'unknown' => 'I did not follow that. Send /create to start a challenge, or /start to begin again.',
-        'stale_button' => 'That button is no longer live. Send /create to start a challenge.',
+        'unknown' => 'I did not follow that. One of these should get us going:',
+        'stale_button' => 'That button is no longer live.',
     ],
 
     /*

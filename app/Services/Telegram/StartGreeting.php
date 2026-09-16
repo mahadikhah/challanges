@@ -26,6 +26,7 @@ class StartGreeting
     public function __construct(
         private readonly BotMessenger $messenger,
         private readonly JoinChallengeFlow $joinFlow,
+        private readonly BotButtons $buttons,
     ) {}
 
     /**
@@ -52,7 +53,25 @@ class StartGreeting
             ]),
             $this->inviteNote($user, $arrival->invite),
             $this->messenger->line($user, 'bot.start.next_steps'),
-        ]);
+        ], $this->nextSteps($user));
+    }
+
+    /**
+     * The buttons on the closing nudge.
+     *
+     * `cancel` joins `create` only when there is actually something open to
+     * cancel. A way out of a flow that is not running answers "there was nothing
+     * to cancel", which is a worse reply than never having offered the button —
+     * and `/start` is reachable at any time, so the two states are not
+     * hypothetical.
+     *
+     * @return list<list<array{text: string, callback_data: string}>>|null
+     */
+    private function nextSteps(User $user): ?array
+    {
+        return $user->conversation()->live()->exists()
+            ? $this->buttons->keyboard($user, 'create', 'cancel')
+            : $this->buttons->keyboard($user, 'create');
     }
 
     /**

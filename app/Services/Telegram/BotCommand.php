@@ -58,6 +58,22 @@ readonly class BotCommand
     }
 
     /**
+     * A command built from a name we already hold, rather than parsed out of text.
+     *
+     * The path a button tap takes into the handlers a typed command reaches:
+     * `CommandCallback` resolves the word and hands it here, so the two arrive at
+     * `CommandRouter` looking identical and no handler needs to know which it was.
+     *
+     * The name is *not* validated here. A word that arrived in `callback_data`
+     * is checked against the router's map before this is called — the allowlist
+     * belongs where the map is, not here, where a name is just a name.
+     */
+    public static function named(string $name, ?string $argument = null): self
+    {
+        return new self($name, $argument);
+    }
+
+    /**
      * The argument, or an empty string — for callers that would rather not
      * branch on null.
      */

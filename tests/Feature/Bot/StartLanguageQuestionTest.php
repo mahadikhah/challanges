@@ -314,7 +314,7 @@ describe('the order the gate and the question come in', function () {
 });
 
 describe('a user who has already chosen', function () {
-    it('is greeted exactly as before, with no question and no buttons', function () {
+    it('is greeted as before, with no question and only the next move offered', function () {
         User::factory()->telegram(777_100_1)->preferring('en')->create();
 
         asksLanguageServes('member');
@@ -323,9 +323,12 @@ describe('a user who has already chosen', function () {
 
         $message = soleBotMessage();
 
+        // The buttons are the greeting's own, not the language question's: one to
+        // create, and none for the language, which this user has already settled.
+        // No `cancel` either — nothing is open to cancel.
         expect($message['text'])->toContain(botCopy('bot.start.welcome_back', ['name' => 'Sara']))
             ->and($message['text'])->not->toContain(botCopy('bot.language.prompt'))
-            ->and(keyboardOn($message))->toBe([]);
+            ->and(keyboardOn($message))->toBe([[commandButton('en', 'create')]]);
     });
 
     it('still gets the invite note on the same message', function () {

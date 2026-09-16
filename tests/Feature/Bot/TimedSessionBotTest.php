@@ -283,6 +283,10 @@ describe('a participant running a session', function () {
         sessionTaps(BotCallback::encode(SessionStepCallback::ACTION, $this->challenge->join_token, '2'), SESSION_TELEGRAM_ID);
 
         expect(lastBotReply()['text'])->toBe(botCopy('bot.session.stale'))
+            // A stale step is the one refusal whose reason is invisible — the user
+            // cannot see where the flow is, only where they thought it was — so it
+            // is answered with the command that shows them, not with a sentence.
+            ->and(lastBotKeyboard())->toBe([[commandButton('en', 'checkin')]])
             ->and(theSessionOf($this->participant)->current_step_order)->toBe(1);
 
         CarbonImmutable::setTestNow();

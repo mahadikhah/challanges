@@ -19,6 +19,7 @@ class ChannelGatePrompt
     public function __construct(
         private readonly VerifyChannelMembership $gate,
         private readonly BotMessenger $messenger,
+        private readonly BotButtons $buttons,
     ) {}
 
     /**
@@ -41,6 +42,17 @@ class ChannelGatePrompt
             ]);
         }
 
+        // The way back sits in the same row as the way out, not under it. The
+        // join button leaves Telegram, and a user who comes back has to be able
+        // to say so from the same place they left — a second row under a link
+        // that is the whole point of the message reads as an afterthought.
+        $row = $url === null
+            ? $this->buttons->row($user, 'start')
+            : [...$this->buttons->row($user, 'start'), [
+                'text' => $this->messenger->line($user, 'bot.gate.join_button'),
+                'url' => $url,
+            ]];
+
         $this->messenger->paragraphs(
             $user,
             [
@@ -52,10 +64,7 @@ class ChannelGatePrompt
                 ...$extraLines,
                 $this->messenger->line($user, 'bot.gate.then_start_again'),
             ],
-            $url === null ? null : [[[
-                'text' => $this->messenger->line($user, 'bot.gate.join_button'),
-                'url' => $url,
-            ]]],
+            [$row],
         );
     }
 }

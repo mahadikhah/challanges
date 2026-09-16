@@ -7,6 +7,7 @@ use App\Actions\Payments\CreateStarsInvoice;
 use App\Actions\Telegram\VerifyChannelMembership;
 use App\Enums\PaymentProvider;
 use App\Models\User;
+use App\Services\Telegram\BotButtons;
 use App\Services\Telegram\BotCallback;
 use App\Services\Telegram\BotMessenger;
 use App\Services\Telegram\ChannelGatePrompt;
@@ -43,6 +44,7 @@ class ShopCallback implements HandlesCallback
         private readonly VerifyChannelMembership $gate,
         private readonly ChannelGatePrompt $gatePrompt,
         private readonly BotMessenger $messenger,
+        private readonly BotButtons $buttons,
     ) {}
 
     public function handle(User $user, BotCallback $callback): void
@@ -66,7 +68,7 @@ class ShopCallback implements HandlesCallback
         $index = $callback->argument(0);
 
         if ($index === null || ! ctype_digit($index)) {
-            $this->messenger->send($user, $this->messenger->line($user, 'bot.fallback.stale_button'));
+            $this->buttons->stale($user);
 
             return;
         }
@@ -88,7 +90,7 @@ class ShopCallback implements HandlesCallback
                     'package_index' => $index,
                 ]);
 
-                $this->messenger->send($user, $this->messenger->line($user, 'bot.fallback.stale_button'));
+                $this->buttons->stale($user);
             }
 
             return;
@@ -107,7 +109,7 @@ class ShopCallback implements HandlesCallback
                 'package_index' => $index,
             ]);
 
-            $this->messenger->send($user, $this->messenger->line($user, 'bot.fallback.stale_button'));
+            $this->buttons->stale($user);
 
             return;
         }

@@ -4,8 +4,8 @@ namespace App\Services\Telegram\Callbacks;
 
 use App\Models\Challenge;
 use App\Models\User;
+use App\Services\Telegram\BotButtons;
 use App\Services\Telegram\BotCallback;
-use App\Services\Telegram\BotMessenger;
 use App\Services\Telegram\HandlesCallback;
 use App\Services\Telegram\SessionStepFlow;
 
@@ -32,7 +32,7 @@ class SessionStepCallback implements HandlesCallback
 
     public function __construct(
         private readonly SessionStepFlow $flow,
-        private readonly BotMessenger $messenger,
+        private readonly BotButtons $buttons,
     ) {}
 
     public function handle(User $user, BotCallback $callback): void
@@ -41,7 +41,7 @@ class SessionStepCallback implements HandlesCallback
         $order = $callback->argument(1);
 
         if ($token === null || $order === null || ! ctype_digit($order)) {
-            $this->messenger->send($user, $this->messenger->line($user, 'bot.fallback.stale_button'));
+            $this->buttons->stale($user);
 
             return;
         }
@@ -49,7 +49,7 @@ class SessionStepCallback implements HandlesCallback
         $challenge = Challenge::query()->where('join_token', $token)->first();
 
         if ($challenge === null) {
-            $this->messenger->send($user, $this->messenger->line($user, 'bot.fallback.stale_button'));
+            $this->buttons->stale($user);
 
             return;
         }

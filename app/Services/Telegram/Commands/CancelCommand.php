@@ -3,6 +3,7 @@
 namespace App\Services\Telegram\Commands;
 
 use App\Models\User;
+use App\Services\Telegram\BotButtons;
 use App\Services\Telegram\BotCommand;
 use App\Services\Telegram\BotMessenger;
 use App\Services\Telegram\HandlesBotCommand;
@@ -23,15 +24,23 @@ class CancelCommand implements HandlesBotCommand
     public function __construct(
         private readonly CreateChallengeWizard $wizard,
         private readonly BotMessenger $messenger,
+        private readonly BotButtons $buttons,
     ) {}
 
     public function handle(User $user, BotCommand $command): void
     {
-        $this->messenger->send($user, $this->messenger->line(
-            $user,
-            // Saying "nothing to cancel" matters: a user who thinks a flow is still
-            // open and gets a bare acknowledgement will keep waiting for a prompt.
-            $this->wizard->abandon($user) ? 'bot.wizard.cancelled' : 'bot.cancel.nothing_open',
-        ));
+        if ($this->wizard->abandon($user)) {
+            $this->messenger->send($user, $this->messenger->line($user, 'bot.wizard.cancelled'));
+
+            return;
+        }
+
+        // Saying "nothing to cancel" matters: a user who thinks a flow is still
+        // open and gets a bare acknowledgement will keep waiting for a prompt.
+        //
+        // The button is here and not on the line above. Somebody who just asked
+        // to stop is owed a confirmation and nothing else; offering to start
+        // again in the same breath argues with them.
+        $this->buttons->send($user, 'bot.cancel.nothing_open', 'create');
     }
 }
