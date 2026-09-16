@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "prompts/progress.md": {
-    "mtime": 1789553766.7215874,
-    "ast_hash": "b7cd9f5fa63cd3ddbcb30bc23522ec8d",
+    "mtime": 1789554700.6867769,
+    "ast_hash": "9806be5dc7bb65baeefdd7ec9d14f661",
     "semantic_hash": ""
   },
   "prompts/task-01-setup.md": {
@@ -2145,13 +2145,13 @@
     "semantic_hash": ""
   },
   "app/Http/Controllers/MiniApp/AuthController.php": {
-    "mtime": 1788017770.5906188,
-    "ast_hash": "fd18845de0d27976d871a3f0690bd6d9",
+    "mtime": 1789595529.8982294,
+    "ast_hash": "926da6220145888b1102cfadef91ecfd",
     "semantic_hash": ""
   },
   "app/Http/Controllers/MiniApp/MeController.php": {
-    "mtime": 1788017770.5906188,
-    "ast_hash": "0e70616b44c5debefd1bbbee44768d2f",
+    "mtime": 1789595529.8982294,
+    "ast_hash": "fadc48cd646b379cd4f3991a406ea54f",
     "semantic_hash": ""
   },
   "app/Http/Requests/MiniApp/AuthenticateRequest.php": {
@@ -2160,8 +2160,8 @@
     "semantic_hash": ""
   },
   "app/Services/Telegram/InitDataVerifier.php": {
-    "mtime": 1789548733.5779002,
-    "ast_hash": "85921c1f9e1ad82db553634e743774d0",
+    "mtime": 1789591170.975531,
+    "ast_hash": "faaa86a354847a34e72830e3af40dd26",
     "semantic_hash": ""
   },
   "app/Services/Telegram/VerifiedInitData.php": {
@@ -2170,8 +2170,8 @@
     "semantic_hash": ""
   },
   "tests/Feature/MiniApp/MiniAppAuthTest.php": {
-    "mtime": 1789548573.7857444,
-    "ast_hash": "dcb5bae22146cdde16c0f4d2e49dd060",
+    "mtime": 1789595529.8982294,
+    "ast_hash": "b1e62300bd36ef222386426549f16346",
     "semantic_hash": ""
   },
   "app/Enums/Contracts/HasTranslatedLabel.php": {
@@ -2210,13 +2210,13 @@
     "semantic_hash": ""
   },
   "resources/js/miniapp/api.ts": {
-    "mtime": 1788017770.707619,
-    "ast_hash": "20b222623e386ecc40e5dab15939f04a",
+    "mtime": 1789595790.8345017,
+    "ast_hash": "8d5740ea4a5cc20f505b5c816e1b1f42",
     "semantic_hash": ""
   },
   "resources/js/miniapp/app.tsx": {
-    "mtime": 1789543800.7728047,
-    "ast_hash": "47fabff79b3faff562a2d0291a44e0f7",
+    "mtime": 1789595565.6348145,
+    "ast_hash": "a302f3796cbf4b70ed58394e8425b153",
     "semantic_hash": ""
   },
   "resources/js/miniapp/screens/challenge-detail.tsx": {
@@ -2240,8 +2240,8 @@
     "semantic_hash": ""
   },
   "resources/js/miniapp/types.ts": {
-    "mtime": 1789521371.766934,
-    "ast_hash": "1cd2d243a87de4d6ab133a85a8fc2885",
+    "mtime": 1789595569.9608853,
+    "ast_hash": "4ee7d7269b00c07c3e2074b8d922486b",
     "semantic_hash": ""
   },
   "tests/Feature/MiniApp/MiniAppCheckInTest.php": {
@@ -2505,8 +2505,8 @@
     "semantic_hash": ""
   },
   "prompts/issues.md": {
-    "mtime": 1789516468.9820583,
-    "ast_hash": "10e60ef4b70e7fe9d803ec84cb08119e",
+    "mtime": 1789595529.8982294,
+    "ast_hash": "5dfeaece80d64cd1a44596b148c59b1b",
     "semantic_hash": ""
   },
   "app/Actions/Challenges/ComposeLeaderboard.php": {
@@ -3922,6 +3922,21 @@
   "app/Services/UserStats.php": {
     "mtime": 1789553377.6685922,
     "ast_hash": "5f52ab3bb13faf2677332c2f8cc8f311",
+    "semantic_hash": ""
+  },
+  "app/Http/Resources/MiniApp/MiniAppUserResource.php": {
+    "mtime": 1789595529.9042294,
+    "ast_hash": "cbdffc965b0315a45cf8bd05b80b6458",
+    "semantic_hash": ""
+  },
+  "prompts/goal-phase-19.md": {
+    "mtime": 1789595529.9042294,
+    "ast_hash": "3a4aafda5da579514c56d998aeea8298",
+    "semantic_hash": ""
+  },
+  "prompts/phase-19.md": {
+    "mtime": 1789595529.9042294,
+    "ast_hash": "bf5678bda0bae023c98973ba80547781",
     "semantic_hash": ""
   }
 }
