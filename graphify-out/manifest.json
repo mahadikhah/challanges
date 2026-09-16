@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "prompts/progress.md": {
-    "mtime": 1789526609.8751678,
-    "ast_hash": "cbab53862aa7c6a8554f664b28ed5fc6",
+    "mtime": 1789539674.6187923,
+    "ast_hash": "07ef74f833b3717d48a9da4a078210dc",
     "semantic_hash": ""
   },
   "prompts/task-01-setup.md": {
@@ -3857,6 +3857,11 @@
   "tests/Feature/MiniApp/MiniAppDiagnoseCommandTest.php": {
     "mtime": 1789527170.6227112,
     "ast_hash": "c7b64ea6e7157bb64acbb8a26d700240",
+    "semantic_hash": ""
+  },
+  "tests/Feature/TestEnvironmentTest.php": {
+    "mtime": 1789539405.203667,
+    "ast_hash": "07dbcaeebc1197810151d53d0b9756ad",
     "semantic_hash": ""
   }
 }
