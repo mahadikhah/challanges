@@ -3607,3 +3607,44 @@ request would have gone out for real.
 
 **Result — `sail composer ci:check` GREEN:** pint ✓ (526 files), phpstan lvl 7 (0 errors) ✓, eslint ✓,
 prettier ✓, tsc ✓, tests **1813 passed, 4 skipped**, 6910 assertions. `MiniAppDiagnoseCommandTest` 11 → 19.
+
+### Task 3 — `telegram:set-menu-button`, so the repo owns Mini App registration ✅
+
+The answer to "is `/miniapp` the only thing that has to go to BotFather?" turned out to be **neither yes nor
+no, but the wrong question**. `/miniapp` is a path; BotFather's Web App URL field wants the full HTTPS URL.
+More to the point, `/newapp` makes an app reachable at `t.me/<bot>/<app>` — a URL nobody types — and puts
+**nothing in the chat**. The thing a user actually taps is the **menu button** (Bot Settings → Menu Button, or
+`setChatMenuButton`), which the repo did not set and **no doc mentioned**.
+
+`SetMenuButtonCommand` now owns it, mirroring `SetWebhookCommand`'s conventions. It reads `MINIAPP_URL`, sets
+the button, and reads it back.
+
+**The read-back is the point, not decoration.** `setChatMenuButton` answering `true` says Telegram accepted the
+call, not that the button now points where it was asked to — and this is precisely the setting an operator has
+usually already changed by hand in BotFather, whose UI shows what was *typed* rather than what was *stored*. A
+read-back that disagrees is a hard failure. A read-back that *cannot be read* is only a warning: the button was
+set, and reporting that as a failed command would send someone to fix something already right.
+
+**Two pre-flight refusals, before anything is sent.** An unset `MINIAPP_URL` and a non-HTTPS one. Telegram
+rejects a plain-HTTP `web_app` button at the API, so sending anyway turns a config mistake into a raw API error
+for the operator *and* a dead button for every user — the worst combination, since the person who can fix it
+sees an error and the people who cannot see nothing. Both are pinned with `Http::assertNothingSent()`.
+
+**`text` is deliberately omitted** from the button object. It is the optional label, and Telegram renders a
+localised default without it — any label written here would be one language shown to every user of a bot that
+ships in two.
+
+**Kept out of `SetWebhookCommand` on purpose**, even though that command already registers the command menu:
+an unset `MINIAPP_URL` must not fail webhook registration, and re-running `set-webhook` to change a Mini App URL
+would couple two unrelated registrations. The diagnose command's task-2 warning ("Run
+`telegram:set-menu-button`") is what makes the new command discoverable.
+
+**The tests are mutation-checked.** The HTTPS pre-flight was temporarily disabled and the suite re-run, to
+confirm the refusal tests fail for the right reason rather than passing vacuously. They do. The same trap as
+task 2 is present here and handled: `Http::assertNothingSent()` is **vacuous** without a fake installed, since
+Laravel only records once recording is on — so the two refusal tests install a catch-all `Http::fake()`
+themselves, and *not* in a shared `beforeEach`, because a catch-all registered there would shadow every
+per-test stub (first match wins).
+
+**Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓, tsc ✓,
+tests **1821 passed, 4 skipped**, 6933 assertions. New: `SetMenuButtonCommandTest` (8).
