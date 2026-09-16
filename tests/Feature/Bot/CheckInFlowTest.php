@@ -4,6 +4,7 @@ use App\Actions\Challenges\MaterialiseChallengePeriods;
 use App\Enums\ChallengeStatus;
 use App\Enums\CheckInStatus;
 use App\Enums\ConversationState;
+use App\Enums\FlowType;
 use App\Enums\ProofType;
 use App\Enums\SettingKey;
 use App\Jobs\Telegram\ProcessTelegramUpdate;
@@ -145,9 +146,9 @@ function theCreatorOf(Challenge $challenge, int $telegramId): User
 /**
  * A gate-verified user already active in the challenge.
  */
-function aParticipantIn(Challenge $challenge, int $telegramId): array
+function aParticipantIn(Challenge $challenge, int $telegramId, string $locale = 'en'): array
 {
-    $user = User::factory()->telegram($telegramId)->preferring('en')->create(['channel_verified_at' => now()]);
+    $user = User::factory()->telegram($telegramId)->preferring($locale)->create(['channel_verified_at' => now()]);
     $participant = ChallengeParticipant::factory()->for($challenge)->for($user)->create();
 
     return [$user, $participant];
@@ -238,6 +239,7 @@ describe('/checkin', function () {
                 'title' => 'Morning run',
                 'index' => currentPeriod($challenge)->index + 1,
                 'total' => 10,
+                'how' => botCopy('bot.checkin.how.button'),
             ]))
             ->and(botKeyboard())->toBe([[[
                 'text' => botCopy('bot.checkin.button', ['title' => 'Morning run']),
@@ -255,7 +257,12 @@ describe('/checkin', function () {
 
         typesIn(888_100_1, '/checkin');
 
-        expect(soleBotMessage()['text'])->toBe(botCopy('bot.checkin.nothing_due'));
+        // One challenge, so the mechanic is named — as its own paragraph, which
+        // is what keeps a five-branch sentence from running into the reason it
+        // is being said.
+        expect(soleBotMessage()['text'])->toBe(
+            botCopy('bot.checkin.nothing_due')."\n\n".botCopy('bot.checkin.how.button'),
+        );
     });
 
     it('reports a settled period with the streak it earned', function () {
@@ -311,6 +318,84 @@ describe('/checkin', function () {
         typesIn(888_100_1, '/checkin');
 
         expect(soleBotMessage()['text'])->toContain(botCopy('bot.gate.blocked', ['channel' => '@challenges']));
+    });
+});
+
+/*
+ * The act, not the occasion. Every message that asks somebody to check in used
+ * to name the period and stop, which tells a first-time participant nothing
+ * about whether checking in means a tap, a typed phrase or a photograph — and
+ * the answer differs per challenge, so it cannot live in the message.
+ */
+describe('the check-in instruction', function () {
+    it('says what checking in means, per proof type', function (ProofType $proofType, array $attributes) {
+        telegramServesTheLot();
+        $challenge = checkinChallenge($proofType, attributes: $attributes);
+        aParticipantIn($challenge, 888_100_1);
+
+        typesIn(888_100_1, '/checkin');
+
+        // Asserted against the rendered line, not the key it came from: the
+        // failure worth catching is a sentence that names the wrong act, and a
+        // key assertion would pass while the Farsi half said "photo" for a video.
+        expect(soleBotMessage()['text'])->toContain(botCopy("bot.checkin.how.{$proofType->value}"));
+    })->with([
+        'a tap' => [ProofType::Button, []],
+        'a typed phrase' => [ProofType::TextAutogen, []],
+        'a photo' => [ProofType::ImageApproval, []],
+        'a voice message' => [ProofType::VoiceApproval, recordingCaps()],
+        'a video' => [ProofType::VideoApproval, recordingCaps()],
+    ]);
+
+    it('names the session instead, whatever a timed challenge proves with', function (ProofType $proofType) {
+        telegramServesTheLot();
+        $challenge = checkinChallenge($proofType, attributes: ['flow_type' => FlowType::TimedSession]);
+        aParticipantIn($challenge, 888_100_1);
+
+        typesIn(888_100_1, '/checkin');
+
+        // A timed challenge still carries a proof type — the session's last step
+        // ends in one — but what the participant *does* is start a session. The
+        // flow overrides the proof, and the copy does not name one.
+        expect(soleBotMessage()['text'])
+            ->toContain(botCopy('bot.checkin.how.session'))
+            ->not->toContain(botCopy("bot.checkin.how.{$proofType->value}"));
+    })->with([
+        'a tap' => [ProofType::Button],
+        'a typed phrase' => [ProofType::TextAutogen],
+        'a photo' => [ProofType::ImageApproval],
+    ]);
+
+    it('explains it in the participant’s own language', function () {
+        telegramServesTheLot();
+        $challenge = checkinChallenge(ProofType::ImageApproval);
+        aParticipantIn($challenge, 888_100_1, locale: 'fa');
+
+        typesIn(888_100_1, '/checkin');
+
+        expect(soleBotMessage()['text'])
+            ->toContain(botCopy('bot.checkin.how.image_approval', [], 'fa'))
+            ->not->toContain(botCopy('bot.checkin.how.image_approval'));
+    });
+
+    it('leaves the mechanic out when there is more than one challenge to name it for', function () {
+        telegramServesTheLot();
+        $tap = checkinChallenge(ProofType::Button, 'token-one');
+        $photo = checkinChallenge(ProofType::ImageApproval, 'token-two');
+
+        // Scheduled, so neither owes anything and the listing comes out empty.
+        $tap->forceFill(['status' => ChallengeStatus::Scheduled])->save();
+        $photo->forceFill(['status' => ChallengeStatus::Scheduled])->save();
+
+        [$user] = aParticipantIn($tap, 888_100_1);
+        ChallengeParticipant::factory()->for($photo)->for($user)->create();
+
+        typesIn(888_100_1, '/checkin');
+
+        // Two challenges, two mechanics. Naming one of them would be a coin flip
+        // dressed up as an answer, and the listing states it properly per
+        // challenge the moment something is actually owed.
+        expect(soleBotMessage()['text'])->toBe(botCopy('bot.checkin.nothing_due'));
     });
 });
 

@@ -229,7 +229,10 @@ describe('tapping join', function () {
 
         expect($participant->user_id)->toBe(theJoiner()->getKey())
             ->and($participant->status)->toBe(ParticipantStatus::Active)
-            ->and(lastBotReply()['text'])->toBe(botCopy('bot.join.joined', ['title' => 'Read every day']));
+            ->and(lastBotReply()['text'])->toBe(botCopy('bot.join.joined', [
+                'title' => 'Read every day',
+                'how' => botCopy('bot.checkin.how.button'),
+            ]));
     });
 
     it('spends exactly one join-slot', function () {

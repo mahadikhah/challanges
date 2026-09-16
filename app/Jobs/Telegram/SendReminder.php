@@ -8,6 +8,7 @@ use App\Models\CheckIn;
 use App\Models\ReminderDispatch;
 use App\Services\Telegram\BotButtons;
 use App\Services\Telegram\BotMessenger;
+use App\Services\Telegram\CheckInInstruction;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -56,9 +57,9 @@ class SendReminder implements ShouldQueue
     /**
      * @throws Throwable when Telegram refuses the send, so the job retries
      */
-    public function handle(BotMessenger $messenger, BotButtons $buttons): void
+    public function handle(BotMessenger $messenger, BotButtons $buttons, CheckInInstruction $instructions): void
     {
-        DB::transaction(function () use ($messenger, $buttons): void {
+        DB::transaction(function () use ($messenger, $buttons, $instructions): void {
             /** @var ReminderDispatch|null $reminder */
             $reminder = ReminderDispatch::query()
                 ->lockForUpdate()
@@ -81,7 +82,7 @@ class SendReminder implements ShouldQueue
 
             $messenger->paragraphs(
                 $user,
-                [$this->compose($messenger, $reminder->period, $reminder)],
+                [$this->compose($messenger, $instructions, $reminder->period, $reminder)],
                 // The nudge used to name `/checkin`, which is an instruction
                 // only a user who already knows the command can follow. The
                 // button is that instruction, and it names the challenge because
@@ -129,9 +130,20 @@ class SendReminder implements ShouldQueue
 
     /**
      * The message, from the period as it stands.
+     *
+     * `:how` is resolved as the line is built, in the recipient's locale and
+     * against the challenge as it stands now — the same reason the title is
+     * re-read here rather than copied onto the row when it was minted. All three
+     * kinds carry it, `challenge_starting` included: it is the first thing a
+     * participant ever hears from the challenge, and "check in each period" is
+     * exactly as unhelpful there as it is a day later.
      */
-    private function compose(BotMessenger $messenger, ChallengePeriod $period, ReminderDispatch $reminder): string
-    {
+    private function compose(
+        BotMessenger $messenger,
+        CheckInInstruction $instructions,
+        ChallengePeriod $period,
+        ReminderDispatch $reminder,
+    ): string {
         $challenge = $period->challenge;
         $user = $reminder->participant->user;
 
@@ -143,6 +155,7 @@ class SendReminder implements ShouldQueue
             // timezone — the same clock the period was cut on, not the worker's.
             'moment' => $this->moment($period, $reminder->kind),
             'timezone' => $challenge->timezone,
+            'how' => $instructions->lineFor($user, $challenge),
         ]);
     }
 

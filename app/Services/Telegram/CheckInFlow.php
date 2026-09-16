@@ -19,6 +19,7 @@ use App\Models\CheckIn;
 use App\Models\User;
 use App\Services\Settings;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use LogicException;
 use Throwable;
@@ -75,6 +76,7 @@ class CheckInFlow
         private readonly CheckInConfirmation $confirmations,
         private readonly ProofReviewNotifier $proofReview,
         private readonly BotButtons $buttons,
+        private readonly CheckInInstruction $instructions,
     ) {}
 
     /**
@@ -88,7 +90,10 @@ class CheckInFlow
             return;
         }
 
-        $participations = $user->participations()->active()->get();
+        // The challenge is eager-loaded because both the loop below and the
+        // nothing-due branch ask each participant for it, and a lazy load per
+        // participant would be one query per challenge joined.
+        $participations = $user->participations()->active()->with('challenge')->get();
 
         if ($participations->isEmpty()) {
             $this->messenger->send($user, $this->messenger->line($user, 'bot.checkin.none'));
@@ -136,18 +141,57 @@ class CheckInFlow
                 'title' => $challenge->title,
                 'index' => $period->index + 1,
                 'total' => $challenge->total_periods,
+                // The line the participant sees when something *is* owed, and
+                // the one place the mechanic has to be stated: "period 2 of 10
+                // is open" names the occasion and never the act, so a user who
+                // has never checked in before reads it and still does not know
+                // whether to tap, type or photograph something.
+                'how' => $this->instructions->lineFor($user, $challenge),
             ]);
 
             $buttons[] = $this->buttons->checkIn($user, $challenge);
         }
 
         if ($lines === []) {
-            $this->messenger->send($user, $this->messenger->line($user, 'bot.checkin.nothing_due'));
+            $this->sayNothingDue($user, $participations);
 
             return;
         }
 
         $this->messenger->paragraphs($user, $lines, $buttons === [] ? null : [$buttons]);
+    }
+
+    /**
+     * Nothing is owed — say so, and say what will be asked of them when it is.
+     *
+     * The instruction is only added when there is exactly one challenge to name
+     * it for. A participant in three challenges with three proof types is told
+     * nothing here rather than told one of them and left to guess which: the
+     * listing is per challenge, and `checkin.todo` states it properly, per
+     * challenge, the moment something is actually owed.
+     *
+     * @param  Collection<int, ChallengeParticipant>  $participations
+     */
+    private function sayNothingDue(User $user, Collection $participations): void
+    {
+        $line = $this->messenger->line($user, 'bot.checkin.nothing_due');
+
+        $challenges = $participations
+            ->map(fn (ChallengeParticipant $participation): Challenge => $participation->challenge)
+            ->unique('id');
+
+        $challenge = $challenges->count() === 1 ? $challenges->first() : null;
+
+        if ($challenge === null) {
+            $this->messenger->send($user, $line);
+
+            return;
+        }
+
+        $this->messenger->paragraphs($user, [
+            $line,
+            $this->instructions->lineFor($user, $challenge),
+        ]);
     }
 
     /**

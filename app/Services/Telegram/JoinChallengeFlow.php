@@ -43,6 +43,7 @@ class JoinChallengeFlow
         private readonly ChannelGatePrompt $gatePrompt,
         private readonly BotMessenger $messenger,
         private readonly Settings $settings,
+        private readonly CheckInInstruction $instructions,
     ) {}
 
     /**
@@ -131,8 +132,13 @@ class JoinChallengeFlow
             return;
         }
 
+        // The mechanic, at the moment they join, in the same message. "Check in
+        // every period" is a promise they have just accepted and no statement of
+        // what accepting it means; this is the one moment they are certainly
+        // reading, and it costs no extra message.
         $this->messenger->send($user, $this->messenger->line($user, $participant->wasRecentlyCreated ? 'bot.join.joined' : 'bot.join.already_in', [
             'title' => $challenge->title,
+            'how' => $this->instructions->lineFor($user, $challenge),
         ]));
     }
 

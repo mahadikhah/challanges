@@ -3110,3 +3110,80 @@ tests **1754 (1750 pass, 4 skipped)**, 6620 assertions (baseline 1740). `graphif
 10772 edges, 367 communities).
 
 **Next:** Task 7 — tell users how to check in, per proof type, in the place they are asked to do it.
+
+## Phase 17 · Task 7 — Tell users to check in, and how
+
+**The defect.** Every message that asked for a check-in said *that* and never *how*. `checkin.todo` — the reply
+when something is genuinely owed — read "“Morning run” — period 2 of 10 is open." and stopped, which names the
+occasion and not the act: a first-time participant could not tell whether checking in meant a tap, a typed
+phrase, a photo, a voice note or a video, and the answer differs per challenge. The reminders said "check in now
+if you have not yet", `join.joined` said "check in every period", and the creator never learned what they were
+asking of anybody.
+
+**What shipped.** `App\Services\Telegram\CheckInInstruction` — one collaborator answering "what does a
+participant do to check in for this challenge?", with a `match` over `ProofType` and one override for
+`FlowType::TimedSession`. Six new `bot.checkin.how.*` lines in both locales. `:how` threaded into `checkin.todo`,
+`checkin.nothing_due`, all three `reminder.*` kinds, `join.joined` and a new `wizard.created_checkin`.
+
+**A collaborator rather than a method on `ProofType`, and the flow is why.** A timed challenge is checked in
+through a session whatever its proof type is — the session's last step still ends in evidence of that type, but
+what the participant *does* is start a session and work through its steps. An enum method cannot see
+`Challenge::$flow_type` and would have to be handed it, which is a collaborator with extra steps. The
+instruction is also bot copy addressed to one recipient, so rendering it needs `BotMessenger`, not just a key.
+
+**The `match` has no `default`, on purpose.** Adding a proof type without deciding what its check-in looks like
+fails PHPStan (`match.unhandled`) rather than quietly rendering `bot.checkin.how.something_new` into a chat. That
+is the same tripwire `BotCommandMenu` uses for a new command word, and it is the reason the keys are written out
+rather than derived from `ProofType->value`.
+
+**The copy is a statement about the mechanic, not an instruction to the reader.** Each line reads "Checking in
+means sending a photo." That phrasing is what lets one sentence serve both audiences: the participant reading it
+under a reminder and the creator reading it under their own confirmation. An imperative — "send me a photo" —
+would be addressed to the wrong person in the wizard.
+
+**`checkin.nothing_due` names the mechanic only when there is one challenge to name it for.** The listing is
+empty there, so there is nothing in the loop to attach an instruction to; the branch picks the distinct
+challenges among the user's active participations and appends the instruction only when exactly one is left.
+Two challenges with two proof types would otherwise mean picking one at random and presenting it as the answer.
+For the same reason the participations query now eager-loads `challenge` — both the loop and this branch ask each
+participant for it, and a lazy load would be one query per challenge joined.
+
+**Every reminder kind carries it, `challenge_starting` included.** The spec named `period_opened` and
+`period_ending`; `challenge_starting` is the first thing a participant ever hears from a challenge, and "check in
+each period to keep your streak alive" is exactly as unhelpful there as it is a day later. `compose()` takes the
+collaborator as a parameter alongside `BotMessenger` and resolves `:how` at send time, in the recipient's locale
+and against the challenge as it stands now — the same reason the title is re-read there rather than copied onto
+the reminder row when it was minted.
+
+**Two places were deliberately left alone.**
+- **`announce.details`** carries no instruction, and the reason is structural rather than editorial: it is the
+  one message with no single recipient. A public challenge's announcement is read by whoever is passing, in
+  whichever language they read, and `:how` is resolved *per recipient locale* everywhere else. Putting it there
+  would mean picking one language for everybody or writing five branches into a post whose job is to be one
+  line. It does name the proof type already, in `:proof`. The reasoning is written into the `announce` group's
+  docblock in both lang files so the next person does not re-open it.
+- **`start.welcome` for a returning user with an open period.** It would need a query for open periods on every
+  `/start`, and `/start` is the recovery path people hit repeatedly — including from the channel gate's own
+  button. The check-in listing already answers the question, is one tap away in the command menu, and does it
+  per challenge.
+
+**Tests.** A new `describe('the check-in instruction')` block in `CheckInFlowTest` — a five-case dataset (one per
+proof type) asserting the *rendered* line rather than the key, a three-case dataset proving the timed flow
+overrides the proof type and never names one, a Farsi participant getting the Farsi branch and not the English
+one, and the multi-challenge `nothing_due` case that asserts the mechanic is left out. `aParticipantIn()` gained
+an optional `$locale` so the Farsi case does not need a parallel helper. `ReminderSweepTest` gained the locale
+test the spec asked for: it flips one participant to `fa` and asserts the *whole* message against the Farsi
+translation, not just the `:how` clause — `SendReminder` has had locale bugs before, and a Farsi recipient
+getting an English nudge with a Farsi tail would pass a clause-only assertion. `CreateChallengeWizardTest` gained
+one test that the creator's confirmation names the mechanic for the proof type they picked.
+
+**The parity test was extended, not duplicated.** `UiCopyTest`'s group-parity test now also asserts that no line
+resolves to its own key, in both locales. That is what `Lang::get` returns for a key nobody wrote, and a group
+missing the same key in both files is perfectly "in parity" — so key-set equality alone would never catch it.
+Checked before adding: no key in any of the eight groups currently resolves to itself.
+
+**Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓, tsc ✓,
+tests **1766 (1762 pass, 4 skipped)**, 6666 assertions (baseline 1754). `graphify update .` run (4854 nodes,
+10803 edges, 377 communities).
+
+**Next:** Task 8 — say "day", not "period", per period type.

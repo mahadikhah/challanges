@@ -63,7 +63,7 @@ return [
         'preview_freezes' => 'Freezes each: :freezes',
         'join_button' => 'Join',
 
-        'joined' => 'You’re in “:title”. Check in every period to keep the streak alive.',
+        'joined' => 'You’re in “:title”. Check in every period to keep the streak alive. :how',
         'already_in' => 'You are already in “:title”.',
 
         'no_slot' => 'You have used up your challenge-joining slots.',
@@ -88,11 +88,28 @@ return [
     'checkin' => [
         'none' => 'You are not in any challenges yet.',
         'nothing_due' => 'Nothing is due from you right now. Check back when the next period opens.',
-        'todo' => '“:title” — period :index of :total is open.',
+        'todo' => '“:title” — period :index of :total is open. :how',
         'done' => '“:title” — already checked in. Streak: :streak',
         'awaiting_review' => '“:title” — your proof is with the creator, waiting on a verdict.',
         'button' => 'Check in: :title',
         'not_found' => 'That check-in button no longer belongs to a challenge.',
+
+        /*
+        | What checking in looks like, one line per proof type — and one for a
+        | timed flow, which overrides all five because a session is started the
+        | same way whatever evidence it ends up carrying. `CheckInInstruction`
+        | picks between them; these are statements about the mechanic rather than
+        | instructions to the reader, so the same sentence works under a
+        | participant's reminder and under the creator's confirmation.
+        */
+        'how' => [
+            'button' => 'Checking in is one tap of the check-in button.',
+            'text_autogen' => 'Checking in means typing back the phrase I send you.',
+            'image_approval' => 'Checking in means sending a photo.',
+            'voice_approval' => 'Checking in means sending a voice message.',
+            'video_approval' => 'Checking in means sending a video.',
+            'session' => 'Checking in means starting a session and working through its steps.',
+        ],
 
         'phrase_prompt' => 'Type this phrase back to check in for “:title”:',
         'phrase_error' => 'That is not the phrase. Check it and send it again.',
@@ -239,6 +256,7 @@ return [
 
         'created' => '“:title” is ready.',
         'created_timeline' => ':periods periods, starting :start in :timezone.',
+        'created_checkin' => 'Each period, this is what your participants do: :how',
         'created_public' => 'It is public, so it is being posted to the announcement channel for others to join.',
         'created_private' => 'It is invite-only, so nobody can join without a link from you.',
 
@@ -394,6 +412,16 @@ return [
         ],
     ],
 
+    /*
+    | The public announcement, posted to the channel for a `public` challenge.
+    | Deliberately proof-agnostic. `details` names the proof type in one word
+    | instead of carrying the per-proof check-in instruction, because this is the
+    | one message with no single recipient: a channel post is read by whoever is
+    | passing, in whichever language they read, and the instruction Task 7 added
+    | everywhere else is resolved per recipient locale. Naming the mechanic here
+    | would mean either picking one language for everybody or writing five
+    | branches into a post whose whole job is to be one line.
+    */
     'announce' => [
         'headline' => 'New challenge: :title',
         'details' => ':period · :periods periods · :proof',
@@ -406,9 +434,9 @@ return [
     | challenge's own timezone, which is passed separately as `:timezone`.
     */
     'reminder' => [
-        'challenge_starting' => '“:title” starts :moment (:timezone) — :total periods. Check in each period to keep your streak alive.',
-        'period_opened' => 'Period :index of :total in “:title” is open. Check in once you have done the thing.',
-        'period_ending' => 'Period :index of :total in “:title” closes at :moment (:timezone). Check in now if you have not yet.',
+        'challenge_starting' => '“:title” starts :moment (:timezone) — :total periods. Check in each period to keep your streak alive. :how',
+        'period_opened' => 'Period :index of :total in “:title” is open. Check in once you have done the thing. :how',
+        'period_ending' => 'Period :index of :total in “:title” closes at :moment (:timezone). Check in now if you have not yet. :how',
     ],
 
     /*

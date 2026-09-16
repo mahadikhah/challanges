@@ -101,6 +101,7 @@ it('sends exactly one reminder per participant per period across a boundary, run
         'moment' => $start->format('Y-m-d H:i'),
         'timezone' => 'UTC',
         'total' => 3,
+        'how' => botCopy('bot.checkin.how.button'),
     ]);
 
     expect(botMessages())->toHaveCount(2)
@@ -119,6 +120,7 @@ it('sends exactly one reminder per participant per period across a boundary, run
         'total' => 3,
         'moment' => $start->addDay()->format('Y-m-d H:i'),
         'timezone' => 'UTC',
+        'how' => botCopy('bot.checkin.how.button'),
     ]);
 
     expect(botMessages())->toHaveCount(4)
@@ -133,6 +135,7 @@ it('sends exactly one reminder per participant per period across a boundary, run
         'title' => 'Morning run',
         'index' => 2,
         'total' => 3,
+        'how' => botCopy('bot.checkin.how.button'),
     ]);
 
     expect(botMessages())->toHaveCount(6)
@@ -180,6 +183,39 @@ it('carries a check-in button on every reminder, whatever it is about', function
     }
 });
 
+it('explains the mechanic in the recipient’s own language', function () {
+    [, $start, $participants] = aRemindedChallenge();
+
+    $participants[1]->user->forceFill(['locale' => 'fa'])->save();
+
+    $this->travelTo($start->subHour());
+    Artisan::call('challenges:reminders');
+    $this->travelTo($start->addHour());
+    Artisan::call('challenges:reminders');
+
+    $messages = botMessages();
+
+    // The whole message, not just the clause. `SendReminder` composes at send
+    // time in the recipient's locale, and a Farsi participant who got an English
+    // nudge with a Farsi tail would still pass a clause-only assertion — which
+    // is exactly the class of bug this composer has had before.
+    expect($messages)->toHaveCount(2)
+        ->and($messages[0]['text'])->toBe(botCopy('bot.reminder.challenge_starting', [
+            'title' => 'Morning run',
+            'moment' => $start->format('Y-m-d H:i'),
+            'timezone' => 'UTC',
+            'total' => 3,
+            'how' => botCopy('bot.checkin.how.button'),
+        ]))
+        ->and($messages[1]['text'])->toBe(botCopy('bot.reminder.challenge_starting', [
+            'title' => 'Morning run',
+            'moment' => $start->format('Y-m-d H:i'),
+            'timezone' => 'UTC',
+            'total' => 3,
+            'how' => botCopy('bot.checkin.how.button', [], 'fa'),
+        ], 'fa'));
+});
+
 it('never mints a reminder for a period a late joiner did not owe', function () {
     [$challenge, $start, $participants] = aRemindedChallenge();
 
@@ -219,6 +255,7 @@ it('suppresses the closing nudge for a participant who has already checked in', 
         'total' => 3,
         'moment' => $start->addDay()->format('Y-m-d H:i'),
         'timezone' => 'UTC',
+        'how' => botCopy('bot.checkin.how.button'),
     ]);
 
     // The checked-in participant hears nothing further; the other is nudged.

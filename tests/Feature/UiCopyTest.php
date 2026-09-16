@@ -135,6 +135,12 @@ describe('UI copy sweep', function (): void {
      * resolves to the fallback for half the users. `phrases` is deliberately
      * absent — its word banks are drawn from, not mirrored, and the two locales
      * legitimately differ in size.
+     *
+     * A line equal to its own key is checked here too, in both locales. That is
+     * what `Lang::get` returns for a key nobody wrote, so it renders as
+     * `bot.checkin.how.something_new` in a chat — visible in the product and
+     * invisible to every other test, since a group missing the same key in both
+     * files is perfectly "in parity".
      */
     test('every en/fa translation group is complete', function (string $group): void {
         $en = Arr::dot(require base_path("lang/en/{$group}.php"));
@@ -142,6 +148,16 @@ describe('UI copy sweep', function (): void {
 
         expect(array_keys($fa))->toEqualCanonicalizing(array_keys($en))
             ->and(array_keys($en))->not->toBeEmpty();
+
+        foreach (['en' => $en, 'fa' => $fa] as $locale => $lines) {
+            $unwritten = array_keys(array_filter(
+                $lines,
+                static fn (string $line, string $key): bool => $line === $key,
+                ARRAY_FILTER_USE_BOTH,
+            ));
+
+            expect($unwritten)->toBeEmpty("{$locale}/{$group}.php has keys that resolve to themselves: ".implode(', ', $unwritten));
+        }
     })->with(['common', 'enums', 'miniapp', 'admin', 'website', 'auth', 'settings', 'bot']);
 
     test('the new groups are shipped to the browser in both locales', function (string $locale): void {

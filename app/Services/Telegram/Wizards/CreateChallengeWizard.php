@@ -30,6 +30,7 @@ use App\Services\Telegram\BotButtons;
 use App\Services\Telegram\BotCallback;
 use App\Services\Telegram\BotMessenger;
 use App\Services\Telegram\ChannelGatePrompt;
+use App\Services\Telegram\CheckInInstruction;
 use App\Services\Telegram\CompactDuration;
 use App\Services\Telegram\ReportedValue;
 use Carbon\CarbonImmutable;
@@ -178,6 +179,7 @@ class CreateChallengeWizard
         private readonly Settings $settings,
         private readonly AiApprovalGate $aiApprovalGate,
         private readonly ReportedValue $numbers,
+        private readonly CheckInInstruction $instructions,
     ) {}
 
     /**
@@ -944,6 +946,11 @@ class CreateChallengeWizard
 
     /**
      * Confirm the new challenge.
+     *
+     * The check-in line is here because a creator picks a proof type ten
+     * questions before this message and never sees what it means from the
+     * participant's side. It is the same sentence the participants will read, so
+     * a creator who chose wrongly can tell before anyone has to check in.
      */
     private function announceOutcome(User $user, Challenge $challenge): void
     {
@@ -953,6 +960,9 @@ class CreateChallengeWizard
                 'periods' => $challenge->total_periods,
                 'start' => $challenge->starts_at->setTimezone($challenge->timezone)->toDateString(),
                 'timezone' => $challenge->timezone,
+            ]),
+            $this->messenger->line($user, 'bot.wizard.created_checkin', [
+                'how' => $this->instructions->lineFor($user, $challenge),
             ]),
             $challenge->visibility->shouldAnnounce()
                 ? $this->messenger->line($user, 'bot.wizard.created_public')

@@ -732,6 +732,24 @@ describe('the confirmation step', function () {
             ->toContain(botCopy('bot.wizard.created_public'));
     });
 
+    it('says what the challenge asks of its participants', function () {
+        flowSittingAt(ConversationState::AwaitingCreateConfirmation, completeDraft([
+            'proof_type' => ProofType::ImageApproval->value,
+        ]));
+
+        wizardChooses(CreateChallengeWizard::CONFIRM);
+
+        // The creator chose this ten questions ago and never sees it from the
+        // participant's side. It is the same sentence the participants read, so
+        // a proof type picked by mistake is visible here rather than at the
+        // first check-in.
+        expect(soleBotMessage()['text'])
+            ->toContain(botCopy('bot.wizard.created_checkin', [
+                'how' => botCopy('bot.checkin.how.image_approval'),
+            ]))
+            ->not->toContain(botCopy('bot.checkin.how.button'));
+    });
+
     it('keeps an invite-only challenge off the channel', function () {
         flowSittingAt(ConversationState::AwaitingCreateConfirmation, completeDraft([
             'visibility' => ChallengeVisibility::InviteOnly->value,
