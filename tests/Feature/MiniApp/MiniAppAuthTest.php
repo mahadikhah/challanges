@@ -2,6 +2,7 @@
 
 use App\Enums\CoinTransactionReason;
 use App\Enums\SettingKey;
+use App\Models\CoinTransaction;
 use App\Models\User;
 use App\Services\CoinLedger;
 use App\Services\Settings;
@@ -229,6 +230,11 @@ describe('the token exchange', function () {
                 // language any more than messaging the bot does. The client
                 // renders from the locale the page was served in.
                 'locale' => null,
+                // This block used to stop at `locale`, and the Mini App
+                // rendered the missing balance as the literal word
+                // "undefined" in its header on every open. It is stated here
+                // now because the resource always states it.
+                'coins' => 0,
             ]);
     });
 
@@ -309,6 +315,105 @@ describe('the token exchange', function () {
         exchangesInitData(initData(extra: [
             'signature' => 'TW90aGFtbWVkIEthcmltIGRvZXMgbm90IHNpZ24gaGVyZQ',
         ]))->assertOk();
+    });
+});
+
+/*
+ * The boot user: the shape the Mini App's header reads before anything else
+ * happens, returned by `/auth` under `user` and by `/me` as its whole body.
+ *
+ * Both used to hand-build it, side by side, and the copies had already drifted
+ * — `/auth` was missing `coins`, which `String(undefined)` in the frontend's
+ * translation helper turned into the literal word in the header. One resource
+ * owns the shape now, and the parity test below is what keeps it that way.
+ */
+describe('the boot user', function () {
+    it('carries the balance the ledger holds at the exchange', function () {
+        // The user exists first, so the exchange resolves to them rather than
+        // creating a second row — the same firstOrCreate path the bot uses.
+        $user = User::factory()->telegram(777_000_5)->create();
+
+        app(CoinLedger::class)->credit(
+            $user,
+            25,
+            CoinTransactionReason::AdminCredit,
+            'test:boot-user-balance',
+        );
+
+        $response = exchangesInitData(initData());
+
+        $response->assertOk();
+
+        // `toBe` is `assertSame`, so a string, a null and a missing key all
+        // fail here — which is the whole point of asserting the type too.
+        expect($response->json('user.coins'))->toBeInt()->toBe(25);
+    });
+
+    it('states a balance of zero for a user who has never moved coins', function () {
+        $response = exchangesInitData(initData());
+
+        $response->assertOk();
+
+        $user = User::query()->sole();
+
+        // The premise, asserted rather than assumed: zero here is the reader's
+        // answer for an empty ledger, not a number someone seeded.
+        expect(CoinTransaction::query()->where('user_id', $user->getKey())->exists())
+            ->toBeFalse()
+            ->and($response->json('user'))->toHaveKey('coins')
+            ->and($response->json('user.coins'))->toBe(0);
+    });
+
+    it('states the same user at /auth and /me', function () {
+        $token = aMiniAppSession();
+
+        // A balance both endpoints must agree on, written through the ledger
+        // rather than assumed to be zero — a shared zero would pass even if
+        // one of the two had stopped reading it.
+        app(CoinLedger::class)->credit(
+            User::query()->sole(),
+            25,
+            CoinTransactionReason::AdminCredit,
+            'test:field-parity',
+        );
+
+        $boot = exchangesInitData(initData())->json('user');
+        $me = test()->withToken($token)->getJson('/api/v1/miniapp/me');
+
+        $me->assertOk();
+
+        // `toBe` is `===` on arrays, which is key- *and* order-sensitive. That
+        // strictness is the point: two hand-built copies of this contract
+        // cannot both satisfy it, so the next field to be added to one path
+        // and not the other fails here instead of reaching a user's screen.
+        expect($me->json('data'))->toBe($boot);
+    });
+
+    it('re-reads a balance it was not told about at the exchange', function () {
+        $response = exchangesInitData(initData());
+        $response->assertOk();
+
+        $boot = $response->json('user');
+        expect($boot['coins'])->toBe(0);
+
+        // The same token, two different answers. This is what `fetchMe()` is
+        // for: the header holds the number the app booted with until something
+        // re-reads it.
+        app(CoinLedger::class)->credit(
+            User::query()->sole(),
+            40,
+            CoinTransactionReason::AdminCredit,
+            'test:balance-moved',
+        );
+
+        $me = test()->withToken($response->json('token'))->getJson('/api/v1/miniapp/me');
+
+        $me->assertOk();
+
+        expect($me->json('data.coins'))->toBe(40)
+            // The honesty check: the body really moved, so the assertion above
+            // is not passing because both reads happen to be the same number.
+            ->and($me->json('data'))->not->toBe($boot);
     });
 });
 
@@ -455,11 +560,13 @@ describe('the authenticated surface', function () {
 
         $me->assertOk();
         expect($me->json())->toBe([
-            'id' => $user->getKey(),
-            'first_name' => 'Sara',
-            'username' => 'sarahmad',
-            'locale' => null,
-            'coins' => 25,
+            'data' => [
+                'id' => $user->getKey(),
+                'first_name' => 'Sara',
+                'username' => 'sarahmad',
+                'locale' => null,
+                'coins' => 25,
+            ],
         ]);
     });
 

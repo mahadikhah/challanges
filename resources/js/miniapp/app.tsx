@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { ApiError, authenticate, fetchChallenges } from './api';
+import { ApiError, authenticate, fetchChallenges, fetchMe } from './api';
 import { t } from './localization';
 import { ChallengeDetail } from './screens/challenge-detail';
 import { ChallengeList } from './screens/challenge-list';
@@ -36,6 +36,10 @@ import type { ChallengeView, MiniAppUser } from './types';
  * is fresh by definition — while the check-in response replaces the whole
  * state, so there is exactly one place data can go stale and exactly one
  * place it is refreshed.
+ *
+ * The boot user follows the same rule from the other direction: it arrives
+ * once with the exchange and is re-read on the way back to the list, which is
+ * the only screen that shows it.
  */
 
 type ListState =
@@ -219,6 +223,19 @@ export function MiniApp() {
                 // Deliberately nothing.
             },
         );
+
+        // And the boot user on the same beat, because the header is hidden
+        // while the detail is open: this is the first moment a balance that
+        // moved on that screen is visible anyway. `user.coins` is otherwise the
+        // snapshot the exchange handed over at boot and never revised — the
+        // header that read "undefined" was that snapshot being wrong once, and
+        // a stale number would be the same bug at a lower volume.
+        //
+        // Silent on failure, for the same reason the listing above is: they
+        // asked to go back, and a failed nicety must not undo a working screen.
+        fetchMe().then(setUser, () => {
+            // Deliberately nothing.
+        });
     }, []);
 
     useEffect(() => {

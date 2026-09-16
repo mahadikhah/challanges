@@ -84,6 +84,23 @@ export function fetchChallenges(): Promise<ChallengeView[]> {
     );
 }
 
+/**
+ * The token's own user, re-read on demand.
+ *
+ * `authenticate()` hands the boot user over once, at the exchange, and the
+ * header keeps that number for the rest of the open. Anything that can settle a
+ * balance afterwards re-reads it here, so the header is the ledger's answer
+ * rather than the snapshot the app booted with.
+ *
+ * Same replacement-not-a-patch contract as the check-in response: the body is
+ * the whole user, not a delta to merge.
+ */
+export function fetchMe(): Promise<MiniAppUser> {
+    return request<{ data: MiniAppUser }>('/me').then(
+        (payload) => payload.data,
+    );
+}
+
 export function fetchChallenge(id: number): Promise<ChallengeView> {
     return request<{ data: ChallengeView }>(`/challenges/${id}`).then(
         (payload) => payload.data,

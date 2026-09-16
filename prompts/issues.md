@@ -18,4 +18,10 @@ it would be cool to redesign it like the settings in profile page , there would 
 # turn commands into inline buttons or just buttons
 # before every thing after start ask for languge if not set
 # there is no mention of checkin in messages sent to bot users so how would they now 
-# the period in messages when the period is set should actually become the name of the period like instead of each period it should be daily for daily challange 
+# the period in messages when the period is set should actually become the name of the period like instead of each period it should be daily for daily challange
+
+# i see undefined coins in mini app
+# i see no create challenge in mini app
+# add check in button in mini app for each challange, if simple input , use the mini app , if document point the user to the bot so they upload in bot not in the mini app
+# the owner of the challenge is not joind to the challange , atleast they should see the join button immidiatly after they create it , also owner should be able to see the challange and stats in the miniapp if no joined too
+# the owner also should be able to approve or reject from the miniapp too , so in that way the inline button of the proof message should get disapeared (i think updating the message needed)

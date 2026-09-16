@@ -3,8 +3,7 @@
 namespace App\Http\Controllers\MiniApp;
 
 use App\Http\Controllers\Controller;
-use App\Services\CoinLedger;
-use Illuminate\Http\JsonResponse;
+use App\Http\Resources\MiniApp\MiniAppUserResource;
 use Illuminate\Http\Request;
 
 /**
@@ -15,21 +14,19 @@ use Illuminate\Http\Request;
  * `auth:sanctum` — and never from a field on the request. This is the pattern
  * every later `/api/v1/miniapp/*` endpoint follows: re-resolve, re-check, and
  * only then act.
+ *
+ * The body is `MiniAppUserResource`, the very resource `/auth` nests under
+ * `user`. This controller owns no shape of its own: it used to hand-build the
+ * boot user a second time, side by side with the exchange, which is how the two
+ * copies came to disagree. Returning the resource is also what puts `coins`
+ * back within the client's reach on demand — `fetchMe()` re-reads it after an
+ * action that can settle a balance, so the header is the ledger's answer rather
+ * than the snapshot the app booted with.
  */
 class MeController extends Controller
 {
-    public function __construct(private readonly CoinLedger $ledger) {}
-
-    public function __invoke(Request $request): JsonResponse
+    public function __invoke(Request $request): MiniAppUserResource
     {
-        $user = $request->user();
-
-        return response()->json([
-            'id' => $user->getKey(),
-            'first_name' => $user->first_name,
-            'username' => $user->telegram_username,
-            'locale' => $user->locale,
-            'coins' => $this->ledger->balanceFor($user),
-        ]);
+        return MiniAppUserResource::make($request->user());
     }
 }

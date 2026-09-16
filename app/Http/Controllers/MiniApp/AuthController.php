@@ -6,6 +6,7 @@ use App\Actions\MiniApp\AuthenticateMiniAppUser;
 use App\Exceptions\InvalidInitDataException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MiniApp\AuthenticateRequest;
+use App\Http\Resources\MiniApp\MiniAppUserResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 
@@ -40,12 +41,13 @@ class AuthController extends Controller
             'token' => $session->token,
             'token_type' => 'Bearer',
             'expires_at' => $session->expiresAt->toIso8601String(),
-            'user' => [
-                'id' => $session->user->getKey(),
-                'first_name' => $session->user->first_name,
-                'username' => $session->user->telegram_username,
-                'locale' => $session->user->locale,
-            ],
+
+            // The same resource `/me` answers with. Nested here it serialises
+            // through `jsonSerialize()`, so the block stays flat under `user`
+            // and carries `coins` — the exchange used to hand-build this shape
+            // and had already lost that field, which is what the Mini App
+            // rendered as "undefined".
+            'user' => MiniAppUserResource::make($session->user),
         ]);
     }
 }

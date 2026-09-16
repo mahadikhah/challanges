@@ -1,8 +1,16 @@
 /**
  * The shapes `/api/v1/miniapp/*` returns, mirroring the PHP resources exactly
- * (`MiniApp/AuthController`, `MeController`, `ChallengeResource`,
- * `CheckInController`). The API is versioned, so these types are a contract:
- * when a field changes shape, it changes here in the same commit.
+ * (`MiniApp/AuthController`, `MeController`, `MiniAppUserResource`,
+ * `ChallengeResource`, `CheckInController`). The API is versioned, so these
+ * types are a contract: when a field changes shape, it changes here in the same
+ * commit.
+ *
+ * `MiniAppUser` is the one shape written down twice on purpose — here and in
+ * `MiniAppUserResource`. It used to be written down twice on the *server*, in
+ * `AuthController` and `MeController` separately, and `/auth`'s copy had
+ * already lost `coins` while this type still demanded it. `api.ts` casts with
+ * `as T` and validates nothing, so TypeScript never saw the disagreement: the
+ * header simply rendered `String(undefined)`.
  */
 
 /** An enum as the API states it: machine value plus translated label. */
