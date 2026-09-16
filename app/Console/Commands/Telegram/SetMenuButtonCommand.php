@@ -78,10 +78,22 @@ class SetMenuButtonCommand extends Command
     /**
      * The `MenuButtonWebApp` object Telegram expects, JSON-encoded.
      *
-     * `text` is deliberately omitted. It is the label on the button, it is
-     * optional, and Telegram renders a localised default when it is absent —
-     * whereas any label written here would be one language shown to every user
-     * of a bot that ships in two.
+     * `text` is **required**, and this command shipped without it believing the
+     * opposite: Telegram refuses the entire call with `Bad Request: can't parse
+     * menu button: Can't find field "text"`, so a Web App button with no label is
+     * not "a button Telegram labels itself" — it is a button that cannot be
+     * registered at all.
+     *
+     * The label is the app's own name, read from the **fallback** locale rather
+     * than the viewer's or the operator's. `setChatMenuButton` takes a single
+     * `text` for every user of the bot — there is no `language_code` on it, the
+     * way there is on the command list — so a localised label is not something
+     * this field can express. Reading the operator's locale instead would make
+     * the label depend on whichever machine happened to run the command.
+     *
+     * Showing one word to both locales is not a missing translation here:
+     * `common.app_name` is a brand, not a sentence, and a translated *sentence*
+     * is what would be wrong in this slot.
      *
      * @throws \JsonException
      */
@@ -89,8 +101,22 @@ class SetMenuButtonCommand extends Command
     {
         return json_encode([
             'type' => 'web_app',
+            'text' => $this->label(),
             'web_app' => ['url' => $url],
         ], JSON_THROW_ON_ERROR);
+    }
+
+    /**
+     * The button's label, from the fallback locale.
+     *
+     * A null locale is passed through as null rather than guessed at, which is
+     * `trans()`'s own documented behaviour: it falls back to the current locale.
+     */
+    private function label(): string
+    {
+        $fallback = config('app.fallback_locale');
+
+        return (string) trans('common.app_name', [], is_string($fallback) ? $fallback : null);
     }
 
     /**

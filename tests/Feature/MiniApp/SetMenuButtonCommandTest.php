@@ -17,6 +17,12 @@ use Illuminate\Support\Facades\Http;
  * compared, not just printed**: `setChatMenuButton` answering `true` means
  * Telegram accepted the call, not that the button now points where it was asked
  * to.
+ *
+ * The exact sent payload is pinned too, and that is not incidental: this command
+ * first went live omitting `text` on the belief that it was optional, and
+ * Telegram refused the call outright. The payload is asserted whole rather than
+ * field by field so that dropping a required field fails here instead of on an
+ * operator's first run.
  */
 
 beforeEach(function () {
@@ -77,8 +83,13 @@ describe('telegram:set-menu-button', function () {
 
             // Telegram's `menu_button` is a JSON-serialized object, not a nested
             // form field — sending it as an array would be silently ignored.
+            //
+            // `text` is not decoration in this payload: without it Telegram
+            // refuses the whole call (`Can't find field "text"`) rather than
+            // falling back to a label of its own.
             expect(json_decode((string) $sent['menu_button'], true))->toBe([
                 'type' => 'web_app',
+                'text' => 'Challenges',
                 'web_app' => ['url' => 'https://challenges.test/miniapp'],
             ]);
 
@@ -86,10 +97,17 @@ describe('telegram:set-menu-button', function () {
         });
     });
 
-    it('leaves the button label to Telegram rather than hardcoding a language', function () {
-        // `text` is optional and Telegram renders a localised default without it.
-        // Any label written here would be one language shown to every user of a
-        // bot that ships in two.
+    it('labels the button from the app name in the fallback locale', function () {
+        // This command shipped asserting the opposite — that `text` was optional
+        // and Telegram would localise it — and the first live run failed with
+        // `Bad Request: can't parse menu button: Can't find field "text"`.
+        //
+        // The label must come from the *fallback* locale, not the running one.
+        // The button carries a single `text` for every user, so it cannot be
+        // localised; sourcing it from the current locale would instead make the
+        // label depend on whichever machine ran the command.
+        app()->setLocale('fa');
+
         menuButtonStored('https://challenges.test/miniapp');
 
         $this->artisan('telegram:set-menu-button')->assertSuccessful();
@@ -100,8 +118,15 @@ describe('telegram:set-menu-button', function () {
             }
 
             parse_str($request->body(), $sent);
+            $button = json_decode((string) $sent['menu_button'], true);
 
-            expect(json_decode((string) $sent['menu_button'], true))->not->toHaveKey('text');
+            expect($button['text'])
+                ->toBe(trans('common.app_name', [], 'en'))
+
+                // Compared against the Farsi name rather than a literal, so this
+                // keeps passing if the brand is ever renamed but still fails the
+                // moment the label starts tracking the running locale.
+                ->and($button['text'])->not->toBe(trans('common.app_name', [], 'fa'));
 
             return true;
         });
