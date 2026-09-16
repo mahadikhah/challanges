@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "prompts/progress.md": {
-    "mtime": 1789539674.6187923,
-    "ast_hash": "07ef74f833b3717d48a9da4a078210dc",
+    "mtime": 1789543864.998701,
+    "ast_hash": "7924c171b8ed87c10be2122720a7b8b4",
     "semantic_hash": ""
   },
   "prompts/task-01-setup.md": {
@@ -2200,13 +2200,13 @@
     "semantic_hash": ""
   },
   "lang/en/miniapp.php": {
-    "mtime": 1789526846.272787,
-    "ast_hash": "e28d7ff3d591718bf4447b7b0e7ea42e",
+    "mtime": 1789543748.8930807,
+    "ast_hash": "89b1288645d16cd5a901e34e39622f55",
     "semantic_hash": ""
   },
   "lang/fa/miniapp.php": {
-    "mtime": 1789526847.2847989,
-    "ast_hash": "a337519ae28c3a877ce4f0f12f3b5151",
+    "mtime": 1789543753.8881502,
+    "ast_hash": "b705b79c414577d2a06c5cc9c8b52bc6",
     "semantic_hash": ""
   },
   "resources/js/miniapp/api.ts": {
@@ -2215,8 +2215,8 @@
     "semantic_hash": ""
   },
   "resources/js/miniapp/app.tsx": {
-    "mtime": 1789526900.6184227,
-    "ast_hash": "7f8530d6af712423f240e74dd147416f",
+    "mtime": 1789543800.7728047,
+    "ast_hash": "47fabff79b3faff562a2d0291a44e0f7",
     "semantic_hash": ""
   },
   "resources/js/miniapp/screens/challenge-detail.tsx": {
@@ -3850,13 +3850,13 @@
     "semantic_hash": ""
   },
   "app/Console/Commands/Telegram/MiniAppDiagnoseCommand.php": {
-    "mtime": 1789527165.1276424,
-    "ast_hash": "f1b3224226b414acdd6718cda6dcc010",
+    "mtime": 1789544029.2119923,
+    "ast_hash": "c70fd956f65b086dd02612e475e4e55b",
     "semantic_hash": ""
   },
   "tests/Feature/MiniApp/MiniAppDiagnoseCommandTest.php": {
-    "mtime": 1789527170.6227112,
-    "ast_hash": "c7b64ea6e7157bb64acbb8a26d700240",
+    "mtime": 1789544199.0623615,
+    "ast_hash": "c7ca0b440eb5ae0513441862c3c2890f",
     "semantic_hash": ""
   },
   "tests/Feature/TestEnvironmentTest.php": {

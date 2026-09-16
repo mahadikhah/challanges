@@ -3552,3 +3552,58 @@ the call site that genuinely needs the transition.
 `miniapp` among the parity-pinned groups, so a one-sided key fails the build rather than silently falling back
 for half the users.
 
+
+### Task 2 — `telegram:miniapp-diagnose` starts asking the other end ✅
+
+Task 1 fixed what the *user* is told. This fixes what the *operator* can find out, because the failure that
+produced the report is not visible from inside this app at all.
+
+**The blind spot, stated plainly.** The command already self-tested the HMAC chain — it signs a synthetic
+payload with the configured token and puts it through the real verifier. That check is genuinely independent of
+the verifier's own internals, which is what makes it evidence. But it signs **with whatever token is
+configured**, so it passes just as green when that token belongs to an entirely different bot. A token for the
+wrong bot fails every real user's `initData` in exactly the way a forged one does, and no amount of local
+cryptography can tell the difference. Three outward checks close it:
+
+1. **`getMe`** — names the bot the token belongs to (`@username`, the string an operator recognises from
+   BotFather). This is the only thing that answers "is this even the right bot?".
+2. **`getChatMenuButton`** — reads back what Telegram has *actually stored*, rather than what BotFather's UI
+   shows you typed. Catches the case where the button points at some other URL: it opens fine and hands the app
+   an `initData` signed for a bot this server does not hold, so everything looks correctly configured at both
+   ends while every verification fails.
+3. **Reachability of `MINIAPP_URL`** — a real request. The URL was checked for *syntax* and nothing else, which
+   is how a 404 or a 500 on the SPA stays invisible: its own failure is a blank page inside Telegram, and this
+   is the only vantage point outside that.
+
+Only a token Telegram actively *rejects* is fatal. An unreachable network **warns**, because a host with no
+route to `api.telegram.org` is a different problem from a host that cannot authenticate anyone — and dying on
+the first would make the command useless exactly when the network is what is broken. The token is still never
+printed; the new assertions check that naming the bot did not become a way of naming the token.
+
+**The SDK has no `getChatMenuButton`.** v3.16.0 ships `getMe()` but not the menu-button pair, and `Api::__call`
+throws `BadMethodCallException` for unknown names — so a raw `post('getChatMenuButton')` through the SDK's
+**public** transport is the correct escape hatch, not a workaround. It returns a `TelegramResponse`, read with
+`getResult()`. `TelegramResponseException` is `final` and extends `TelegramSDKException`, so it is caught
+**first**; transport failures arrive as the parent via `LaravelHttpClient`.
+
+**Two things this broke, both found before committing.** First, the command used to run entirely offline, so
+`MiniAppDiagnoseCommandTest` had no `Http::fake()` at all — adding the outward calls silently turned a bunch of
+tests that never asked to into tests that reach `api.telegram.org` for real, which CLAUDE.md forbids outright.
+Every fake now goes through one `telegramIsHealthy()` helper.
+
+Second, and less obvious: **`handle(Api $telegram, …)` never ran its own empty-token check.** The container's
+binding for `Api` throws when `TELEGRAM_BOT_TOKEN` is empty, and method injection resolves it *before* the
+method body — so an injected `Api` would have turned the one misconfiguration this command exists to explain
+into an uncaught stack trace. It is now resolved lazily, after the token is known to exist, with a comment
+saying why. `it reports the missing token without blowing up on the way there` pins it.
+
+**A trap in Laravel's HTTP fake, worth writing down.** `Http::fake()` *appends* stubs and the first match wins,
+so a default installed in a top-level `beforeEach` cannot be overridden by a later `Http::fake()` in a test —
+it silently shadows it. Four tests failed for that reason and the fix was structural: the default lives on the
+describes whose world does not vary, and the describe that is *about* the varying answers states each one
+itself. The empty-token describe also gets a catch-all `Http::fake()` — with no fake installed, its
+`assertNothingSent()` was **vacuous** (Laravel only records once something turns recording on) while a stray
+request would have gone out for real.
+
+**Result — `sail composer ci:check` GREEN:** pint ✓ (526 files), phpstan lvl 7 (0 errors) ✓, eslint ✓,
+prettier ✓, tsc ✓, tests **1813 passed, 4 skipped**, 6910 assertions. `MiniAppDiagnoseCommandTest` 11 → 19.
