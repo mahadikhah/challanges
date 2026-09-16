@@ -2,9 +2,15 @@ import { t } from '../localization';
 import type { ChallengeView } from '../types';
 
 /**
- * The Mini App's home: one card per challenge the user is in, each carrying
- * the one question a dashboard exists to answer — "am I okay right now?" —
- * as the owes banner, with streak and freezes as the numbers worth watching.
+ * The Mini App's home: one card per challenge the user is in or runs, each
+ * carrying the one question a dashboard exists to answer — "am I okay right
+ * now?" — as the owes banner, with streak and freezes as the numbers worth
+ * watching.
+ *
+ * A creator who has not joined their own challenge yet has no streak and no
+ * freezes to show, and gets a badge saying so instead of two zeroes. The
+ * timeline's position is shown either way, because that belongs to the
+ * challenge rather than to the viewer.
  */
 
 export function ChallengeList({
@@ -41,6 +47,7 @@ function ChallengeCard({
     onOpen: (challenge: ChallengeView) => void;
 }) {
     const period = challenge.current_period;
+    const me = challenge.me;
 
     return (
         <button
@@ -67,13 +74,21 @@ function ChallengeCard({
             ) : null}
 
             <div className="mt-3 flex items-center gap-4 text-sm">
-                <span aria-label={t('miniapp.challenges.streak')}>
-                    🔥 {challenge.me.current_streak}
-                </span>
+                {me === null ? (
+                    <span className="rounded-full border border-[var(--tg-separator)] px-2 py-0.5 text-xs text-[var(--tg-hint)]">
+                        {t('miniapp.challenges.not_joined')}
+                    </span>
+                ) : (
+                    <>
+                        <span aria-label={t('miniapp.challenges.streak')}>
+                            🔥 {me.current_streak}
+                        </span>
 
-                <span aria-label={t('miniapp.challenges.freezes')}>
-                    ❄️ {challenge.me.freezes.remaining}
-                </span>
+                        <span aria-label={t('miniapp.challenges.freezes')}>
+                            ❄️ {me.freezes.remaining}
+                        </span>
+                    </>
+                )}
 
                 <span className="ms-auto text-[var(--tg-hint)]">
                     {period !== null

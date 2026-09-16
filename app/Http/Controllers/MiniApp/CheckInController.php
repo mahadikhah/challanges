@@ -77,7 +77,7 @@ class CheckInController extends Controller
         // response is the SPA's new state, not a patch to merge.
         $participant->refresh();
 
-        return (new ChallengeResource($participant))
+        return (new ChallengeResource($participant->challenge, $participant, $request->user()))
             ->response()
             ->setStatusCode(201);
     }

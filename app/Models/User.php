@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection as SupportCollection;
 use Laravel\Sanctum\HasApiTokens;
 
 /**
@@ -116,6 +117,46 @@ class User extends Authenticatable implements HasLocalePreference
     public function participations(): HasMany
     {
         return $this->hasMany(ChallengeParticipant::class);
+    }
+
+    /**
+     * The ids of every challenge this user owns or takes part in, newest first.
+     *
+     * **One rule, two surfaces.** The bot's `/challenges` listing and the Mini
+     * App's challenge list answer the same question — what has this user got
+     * themselves into — out of the same two halves. Participation and ownership
+     * are tracked separately: `CreateChallenge` never writes a participant row
+     * for the creator, so a creator who never joined is in no participation query
+     * at all, and one who did join appears in both. The merge is keyed on the
+     * challenge id for exactly that reason, and a challenge in both sets is named
+     * once.
+     *
+     * **Newest first, deliberately, and it is a judgement call.** An order has to
+     * be stated somewhere, and every alternative encodes an opinion neither
+     * caller has any business holding: ranking by what is owed would duplicate
+     * the check-in rule, and ranking by "active" would bury a challenge that
+     * starts tomorrow under one that ended last week. Creation order is a total
+     * order that needs no tiebreaker, and it answers the question the user
+     * actually arrived with — "what did I get myself into?"
+     *
+     * Takes the ids each caller has already loaded rather than running its own
+     * two `pluck`s: the two callers fetch full models with *different* eager
+     * loads — the bot counts participants, the Mini App needs the timeline — so a
+     * helper that queried for itself would make them pay twice to learn an order.
+     *
+     * @param  SupportCollection<int, int>  $participatedChallengeIds
+     * @param  SupportCollection<int, int>  $createdChallengeIds
+     * @return SupportCollection<int, int>
+     */
+    public function challengeIdsNewestFirst(
+        SupportCollection $participatedChallengeIds,
+        SupportCollection $createdChallengeIds,
+    ): SupportCollection {
+        return $participatedChallengeIds
+            ->merge($createdChallengeIds)
+            ->unique()
+            ->sortDesc()
+            ->values();
     }
 
     /**

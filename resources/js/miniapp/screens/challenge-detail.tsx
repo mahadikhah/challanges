@@ -10,6 +10,12 @@ import type { ChallengeView } from '../types';
  * freezes), the period open right now with its verdict, progress through the
  * whole timeline, and the history grid behind it.
  *
+ * A creator who has not joined their own challenge yet sees the same screen
+ * minus everything that would have to be invented for them: no stats grid, no
+ * history grid, and a pill that says they are not in it rather than "Checked
+ * in". What stays is the challenge's own — title, description, the period open
+ * now and the timeline behind it. The join affordance is not here yet.
+ *
  * The one-tap check-in is the Telegram MainButton while — and only while —
  * the current period is owed and the challenge's proof is a tap. Every other
  * proof type keeps its path in the bot, and the card says so instead of
@@ -28,9 +34,11 @@ export function ChallengeDetail({ initial }: { initial: ChallengeView }) {
     const [value, setValue] = useState('');
 
     const period = challenge.current_period;
+    const me = challenge.me;
     // A quantity challenge is scored on a number; a binary one is not asked.
     const scoring = challenge.scoring;
     const canTap =
+        me !== null &&
         period !== null &&
         period.owes_check_in &&
         challenge.proof_type.value === 'button';
@@ -189,35 +197,43 @@ export function ChallengeDetail({ initial }: { initial: ChallengeView }) {
                 </label>
             ) : null}
 
-            <section
-                className={`grid gap-3 ${scoring === null ? 'grid-cols-3' : 'grid-cols-4'}`}
-            >
-                <Stat
-                    label={t('miniapp.challenges.streak')}
-                    value={challenge.me.current_streak}
-                />
-                <Stat
-                    label={t('miniapp.challenges.best')}
-                    value={challenge.me.longest_streak}
-                />
-                {scoring !== null ? (
+            {me === null ? (
+                <NotJoinedCard />
+            ) : (
+                <section
+                    className={`grid gap-3 ${scoring === null ? 'grid-cols-3' : 'grid-cols-4'}`}
+                >
                     <Stat
-                        label={t('miniapp.challenges.score')}
-                        value={challenge.me.total_score}
+                        label={t('miniapp.challenges.streak')}
+                        value={me.current_streak}
                     />
-                ) : null}
-                <Stat
-                    label={t('miniapp.challenges.freezes')}
-                    value={challenge.me.freezes.remaining}
-                    caption={t('miniapp.challenges.freeze_count', {
-                        used: challenge.me.freezes.used,
-                        total: challenge.me.freezes.total,
-                    })}
-                />
-            </section>
+                    <Stat
+                        label={t('miniapp.challenges.best')}
+                        value={me.longest_streak}
+                    />
+                    {scoring !== null ? (
+                        <Stat
+                            label={t('miniapp.challenges.score')}
+                            value={me.total_score}
+                        />
+                    ) : null}
+                    <Stat
+                        label={t('miniapp.challenges.freezes')}
+                        value={me.freezes.remaining}
+                        caption={t('miniapp.challenges.freeze_count', {
+                            used: me.freezes.used,
+                            total: me.freezes.total,
+                        })}
+                    />
+                </section>
+            )}
 
             {period !== null ? (
-                <CurrentPeriodCard challenge={challenge} period={period} />
+                <CurrentPeriodCard
+                    challenge={challenge}
+                    period={period}
+                    joined={me !== null}
+                />
             ) : (
                 <p className="rounded-2xl bg-[var(--tg-section-bg)] p-4 text-sm text-[var(--tg-hint)]">
                     {challenge.status.value === 'scheduled'
@@ -228,9 +244,34 @@ export function ChallengeDetail({ initial }: { initial: ChallengeView }) {
 
             <section>
                 <Progress challenge={challenge} />
-                <HistoryGrid challenge={challenge} />
+                {me !== null ? (
+                    <HistoryGrid
+                        challenge={challenge}
+                        joinedAt={me.joined_period_index}
+                    />
+                ) : null}
             </section>
         </div>
+    );
+}
+
+/**
+ * What a creator who has not joined their own challenge sees instead of the
+ * stats grid. It says the numbers are absent, not zero — there is no streak to
+ * keep, and a zeroed tile would be a claim about somebody who is not in the
+ * challenge.
+ */
+function NotJoinedCard() {
+    return (
+        <section className="rounded-2xl bg-[var(--tg-section-bg)] p-4">
+            <p className="text-sm font-semibold">
+                {t('miniapp.challenges.not_joined')}
+            </p>
+
+            <p className="mt-1 text-sm text-[var(--tg-hint)]">
+                {t('miniapp.challenges.not_joined_body')}
+            </p>
+        </section>
     );
 }
 
@@ -303,9 +344,11 @@ function Stat({
 function CurrentPeriodCard({
     challenge,
     period,
+    joined,
 }: {
     challenge: ChallengeView;
     period: NonNullable<ChallengeView['current_period']>;
+    joined: boolean;
 }) {
     const owed = period.owes_check_in;
 
@@ -319,16 +362,24 @@ function CurrentPeriodCard({
                     })}
                 </p>
 
+                {/* Three states, not two. Without the participant branch a
+                    viewer who never joined owes nothing, and the two-way pill
+                    would answer "Checked in" — about somebody who is not in
+                    the challenge. */}
                 <span
                     className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                        owed
-                            ? 'bg-[var(--tg-button)] text-[var(--tg-button-text)]'
-                            : 'bg-green-500/15 text-green-600'
+                        !joined
+                            ? 'border border-[var(--tg-separator)] text-[var(--tg-hint)]'
+                            : owed
+                              ? 'bg-[var(--tg-button)] text-[var(--tg-button-text)]'
+                              : 'bg-green-500/15 text-green-600'
                     }`}
                 >
-                    {owed
-                        ? t('miniapp.challenges.check_in_due')
-                        : t('miniapp.challenges.all_set')}
+                    {!joined
+                        ? t('miniapp.challenges.not_joined')
+                        : owed
+                          ? t('miniapp.challenges.check_in_due')
+                          : t('miniapp.challenges.all_set')}
                 </span>
             </div>
 
@@ -348,17 +399,35 @@ function CurrentPeriodCard({
 }
 
 function Progress({ challenge }: { challenge: ChallengeView }) {
-    // The participant's own obligations, not the timeline's: a late joiner's
-    // bar fills from their join, and the resource's history already starts
-    // there, so the two agree.
-    const own = challenge.total_periods - challenge.me.joined_period_index;
-    const settled = challenge.history.length;
+    const me = challenge.me;
+    const period = challenge.current_period;
+
+    // Two different questions wear the same bar. A participant's is their own
+    // obligations — a late joiner's fills from their join, and the resource's
+    // history already starts there, so the two agree. A viewer with no
+    // participation owes nothing, so theirs is the *timeline*: how far the
+    // shared clock has run. `period.index` counts closed periods because the
+    // timeline is materialised whole and contiguous.
+    const settled =
+        me === null
+            ? (period?.index ?? challenge.total_periods)
+            : challenge.history.length;
+    const own =
+        me === null
+            ? challenge.total_periods
+            : challenge.total_periods - me.joined_period_index;
     const percent = own === 0 ? 0 : Math.round((settled / own) * 100);
 
     return (
         <div>
             <div className="flex items-center justify-between text-xs text-[var(--tg-hint)]">
-                <span>{t('miniapp.challenges.progress')}</span>
+                <span>
+                    {t(
+                        me === null
+                            ? 'miniapp.challenges.timeline_progress'
+                            : 'miniapp.challenges.progress',
+                    )}
+                </span>
                 <span>
                     {settled} / {own}
                 </span>
@@ -374,7 +443,13 @@ function Progress({ challenge }: { challenge: ChallengeView }) {
     );
 }
 
-function HistoryGrid({ challenge }: { challenge: ChallengeView }) {
+function HistoryGrid({
+    challenge,
+    joinedAt,
+}: {
+    challenge: ChallengeView;
+    joinedAt: number;
+}) {
     const byIndex = new Map(
         challenge.history.map((entry) => [entry.index, entry]),
     );
@@ -394,7 +469,7 @@ function HistoryGrid({ challenge }: { challenge: ChallengeView }) {
                             state={historyDotState(
                                 index,
                                 byIndex.get(index)?.status.value ?? null,
-                                challenge.me.joined_period_index,
+                                joinedAt,
                                 period?.index,
                             )}
                             title={byIndex.get(index)?.status.label ?? ''}

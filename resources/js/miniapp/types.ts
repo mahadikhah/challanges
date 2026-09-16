@@ -96,8 +96,27 @@ export type ChallengeView = {
     proof_type: LabeledEnum;
     visibility: LabeledEnum;
     is_creator: boolean;
+    /**
+     * Whether a participation row exists — not whether it is active. Somebody
+     * who completed, left or was removed still has one, and `me.status` names
+     * which of those they are.
+     */
+    has_joined: boolean;
     scoring: ScoringView | null;
-    me: ChallengeMe;
+    /**
+     * Null exactly when `has_joined` is false, which is a creator who has not
+     * joined their own challenge yet — creating one does not enrol the
+     * creator. Never read a null `me` as zeroes: there is no streak to report,
+     * and a zeroed grid would claim "you are keeping a 0-day streak" about
+     * somebody who is not in the challenge at all.
+     */
+    me: ChallengeMe | null;
+    /**
+     * The challenge's own open period, so it is present for a viewer with no
+     * participation too — a creator who never joined still needs "period 3 of
+     * 30" and when it ends. Only `owes_check_in` and `check_in` belong to a
+     * participant, and both go neutral without one.
+     */
     current_period: CurrentPeriod | null;
     history: HistoryEntry[];
 };

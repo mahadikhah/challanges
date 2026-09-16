@@ -42,10 +42,19 @@ return [
         'starts' => 'Starts :when',
         'ends' => 'Ends :when',
         'progress' => 'Progress',
+        // The bar a viewer with no participation sees: it measures the shared
+        // timeline's elapsed periods, not their own obligations, and calling
+        // that "Progress" would read as a score of zero out of thirty.
+        'timeline_progress' => 'Timeline',
         'history' => 'History',
         'not_started' => 'Has not started yet',
         'finished' => 'Finished',
         'via_bot' => 'Check in via the bot',
+        // A creator who has not joined their own challenge yet — creating one
+        // does not enrol them. Shown where a streak would be, so it is short;
+        // `not_joined_body` is the sentence that explains the absence.
+        'not_joined' => 'Not joined',
+        'not_joined_body' => 'You are not taking part in this challenge yet, so there is no streak, score or freeze to show.',
     ],
 
     'check_in' => [

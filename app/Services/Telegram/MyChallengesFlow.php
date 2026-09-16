@@ -18,8 +18,11 @@ use App\Models\User;
  * **Both halves, because they are different sets.** Participation and ownership
  * are tracked separately — `CreateChallenge` never writes a participant row for
  * the creator, so a creator who never joined is in no participation query at all,
- * and one who did join appears in both. The merge is keyed on the challenge id
- * for exactly that reason, and a challenge in both sets is named once, as both.
+ * and one who did join appears in both. Unioning the two, and the order the union
+ * comes out in, is stated once in the repository, on
+ * `User::challengeIdsNewestFirst()`, which is what this flow calls: the Mini App
+ * lists the same two halves for the same user, and the two surfaces disagreeing
+ * on the order of somebody's own challenges is a bug no test here would catch.
  *
  * **Nothing here decides what is owed.** That rule lives in `CheckInFlow` and is
  * reached through the button below, which is the same `cm:checkin` a typed
@@ -90,13 +93,10 @@ class MyChallengesFlow
     /**
      * Every challenge this user is in or owns, newest first.
      *
-     * **Newest first, deliberately, and it is a judgement call.** An order has to
-     * be stated somewhere, and every alternative encodes an opinion this flow has
-     * no business holding: ranking by what is owed would duplicate the rule above,
-     * and ranking by "active" would bury a challenge that starts tomorrow under
-     * one that ended last week. Creation order is a total order that needs no
-     * tiebreaker, and it answers the question the user actually arrived with —
-     * "what did I get myself into?"
+     * The union and its order are `User::challengeIdsNewestFirst()`'s, not this
+     * flow's: the Mini App's challenge list asks the same question of the same
+     * two halves, and the two surfaces must not name the same challenges in two
+     * different orders. What is decided *here* is only what each row carries.
      *
      * @return list<array{challenge: Challenge, participation: ChallengeParticipant|null, created: bool}>
      */
@@ -112,11 +112,7 @@ class MyChallengesFlow
         // read for the rows this user owns.
         $created = $user->createdChallenges()->withCount('participants')->get()->keyBy('id');
 
-        $ids = $participations->keys()
-            ->merge($created->keys())
-            ->unique()
-            ->sortDesc()
-            ->values();
+        $ids = $user->challengeIdsNewestFirst($participations->keys(), $created->keys());
 
         $rows = [];
 

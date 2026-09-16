@@ -40,10 +40,13 @@ return [
         'starts' => 'شروع :when',
         'ends' => 'پایان :when',
         'progress' => 'پیشرفت',
+        'timeline_progress' => 'خط زمان',
         'history' => 'تاریخچه',
         'not_started' => 'هنوز شروع نشده',
         'finished' => 'پایان‌یافته',
         'via_bot' => 'ثبت اقدام از طریق ربات',
+        'not_joined' => 'عضو نشده‌ای',
+        'not_joined_body' => 'هنوز در این چالش شرکت نکرده‌ای، پس زنجیره، امتیاز یا فریزی برای نمایش نیست.',
     ],
 
     'check_in' => [

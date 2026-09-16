@@ -4020,3 +4020,115 @@ offering both slot rows.
 
 **Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓, tsc ✓,
 tests **1859 passed, 4 skipped**, 7097 assertions.
+
+## Phase 19 — The Mini App becomes a surface of its own
+
+Five defects reported from real use of the deployed Mini App. The reporter's words, and the shape they share,
+are quoted at the top of `prompts/phase-19.md`: **the Mini App is a read-mostly window on a product whose other
+surfaces can all act**, and the same user hits the same wall from whichever end they arrive.
+
+*Task 1 (`/auth` stops shipping half a user) landed as `2669fe3` and is not written up here — this file's
+record of the phase starts at Task 2.*
+
+### Task 2 — The creator sees their own challenge, joined or not ✅
+
+The report: *"the owner of the challenge is not joined to the challenge … also owner should be able to see the
+challenge and stats in the miniapp if not joined too."* Both halves were true and had one cause. `CreateChallenge`
+deliberately writes no participant row for its creator, and the Mini App had no notion of a viewer who is not a
+participant: `index` read `$user->participations()` alone, `show` resolved a participation from the token's user
+*and* the route id together and `abort(404)`ed on a mismatch, and `ChallengeResource` **wrapped** a
+`ChallengeParticipant` throughout — it could not be handed `null` at all. So a challenge its own creator was
+running was absent from their list and 404 from its detail screen.
+
+**The rule that got reversed was written down in `ChallengeController`'s docblock**, where it had been stated as
+settled: *"creating a challenge does not enrol its creator, so a challenge they run but never joined is not theirs
+on this surface — the creator's review and moderation surface is the admin panel's job."* That sentence is now
+replaced by the rule this task wants, and **the uniform-404 paragraph beside it is kept verbatim**, because the
+property it protects is the one this change widens around: a challenge the token's user neither owns nor is in
+still answers 404, indistinguishable from an id that never existed. Ownership is resolved through
+`$user->createdChallenges()`, so the route id stays a lookup key and never becomes an authorization.
+
+**`ChallengeResource` now takes three arguments instead of one, and that is a deliberate break with the
+convention `MiniAppUserResource` documents.** The convention (`make()`/`collection()` build members from a single
+value) exists so a caller cannot forget a field; here a member genuinely *is* three facts — the challenge, the
+viewer's participation (nullable), and the viewer — so callers construct each resource explicitly, and
+`ChallengeResource::collection()` receives already-built resources. That path is real, and it was checked in
+vendor rather than assumed: `ResourceCollection::toArray()` branches on whether the first item is already a
+`JsonResource`. The class docblock says so, because the next reader will otherwise read three arguments as a
+mistake.
+
+**`has_joined` is the discriminator, and `me` is nullable — a `me: null` must never be read as zeroes.** The
+distinction is the whole point of the task: a creator who has not joined has no streak, no best, no freezes and
+no score, and rendering those as `0` would be a claim about somebody who is not in the challenge. `has_joined`
+answers "a participation row exists" — not "the participant is Active" — which is exactly the question the SPA
+asks before it reaches for `me.current_streak`. `is_creator` keeps its meaning but changed its data source: it is
+now `$challenge->creator_id === $viewer->getKey()`, because with `me: null` there is no participant to read a
+`user_id` off.
+
+**`current_period` stayed challenge-owned, and this was the one genuine judgement call** — taken with the user,
+via a question, because the task text pulled both ways. It said `current_period` should be null for a viewer with
+no participation, and in the same breath required the not-joined detail screen to show "the timeline's own
+progress". Nulling it wins the first and loses the second: no "period N of M" label, no period card, no timeline
+progress — and, worse, `challenge-detail.tsx` reads a null period as *Finished*, which would tell a creator that
+a live challenge of theirs had ended. So `index` / `starts_at` / `ends_at` are stated for every viewer — they
+belong to the challenge, not to a participant — with `owes_check_in: false` and `check_in: null`. Someone who is
+not in the challenge owes nothing; that is the honest answer, and it is not the same statement as "checked in".
+
+**The merge rule is stated once, in `User::challengeIdsNewestFirst()`.** The bot had already solved this exact
+question in `MyChallengesFlow::rows()` — participations ∪ created, keyed on the challenge id, newest first, with
+the ordering rationale written on the method — and `rows()` now calls the shared method, a one-line diff with no
+change in what it queries. The helper takes the ids each caller has already loaded rather than running its own
+`pluck`s: the two callers fetch full models with different eager loads (the bot counts participants, the Mini App
+needs the timeline), and a self-querying helper would make them both pay twice to learn an order.
+
+**One user-visible consequence of that, recorded because it is a change and not a fix:** the Mini App's list used
+to be ordered by participation id, so it is now ordered by challenge id. For a user in several challenges who
+joined them in a different order from the order they were created, the list reorders. The two surfaces now name
+the same challenges in the same order, which is the point.
+
+**What the not-joined screen shows, and what it refuses to.** The list row keeps the title, the description and
+the "period N of M" position, and puts a neutral `Not joined` chip where the streak and freeze counts would go —
+not two zeroes. The detail screen keeps everything that is the challenge's (title, description, status, period
+type, proof type, visibility, the period open now, the timeline bar) and replaces the stats grid with a card that
+says the numbers are absent rather than zero. `canTap` gained a `me !== null &&` guard — redundant with the
+server's `owes_check_in: false`, and kept anyway so the SPA's own intent is readable, with the server remaining
+the authority. `CurrentPeriodCard`'s pill became three-way: without it, a viewer who is not in the challenge owes
+nothing and the old two-way pill would have answered **"Checked in"** about somebody who is not a participant.
+
+*Two deviations from the plan, both deliberate.* The plan had `Progress` take `{settled, own}` props computed at
+the call site; it keeps its `challenge` prop and branches internally instead, which keeps the two questions the
+bar answers in one readable place. And the plan had `HistoryGrid` render for everyone with `joinedAt = 0`; it is
+hidden for a viewer with no participation, because a wall of grey dots conveys nothing and `joinedAt = 0` would
+have rung the open period as *current* for a participant's grid. `history` is `[]` for a non-participant either
+way, so no fabricated verdicts were possible — this is about not drawing an empty thing.
+
+**Tests** — six added to `tests/Feature/MiniApp/ChallengesSurfaceTest.php`, plus `has_joined` inserted into the
+existing full-payload sweep: the creator-never-joined row in the list with its whole payload pinned (including
+`me: null`, `history: []` and the unchanged `current_period`, asserted as an array because `assertJsonPath`
+compares with `assertSame` and a missing key would pass a `null` expectation vacuously); the same challenge 200
+on `show`; **an absent participation and a zero streak asserted side by side**, which is the contract the whole
+task turns on; a stranger's unjoined challenge still 404 from `show` — alongside `99999` and a non-numeric id —
+and absent from the stranger's list; a challenge both created and joined named exactly once with its real streak;
+and an ordering case where the user joins the *newer* challenge first and the *older* one second, so
+participation-id order and challenge-id order disagree and only one can be the rule.
+
+**Result — `sail composer ci:check`:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓, tsc ✓
+(one file, `challenge-detail.tsx`, needed `--write`). `artisan test` **1868 passed, 4 skipped, 1 failed** — the
+one failure is **pre-existing and unrelated**, confirmed by stashing this branch's changes and re-running:
+`MiniAppAuthTest` → *"excludes the optional signature from the check string"* expects 200 and gets 401, on a
+clean tree, in that file alone. See the note below; it is not this task's and was not touched by it.
+
+**The pre-existing failure, located but not fixed** (out of Task 2's scope, and left for whoever owns it —
+`composer test` is red until it is resolved). `03c0ef5 fix(telegram): include signature field in init data
+verification` deleted the four-line `if ($key === 'signature') { continue; }` guard from
+`InitDataVerifier::verify()`, so `signature` now joins the `data_check_string`. It updated nothing else, and the
+three things that state the old contract still say the old contract: the verifier's own docblock (twice — the
+contract block at the top and the prose under it), `CLAUDE.md`'s "all received fields EXCEPT `hash` (and
+`signature`)", and this test, which is why the test now fails rather than being silently wrong. **These cannot
+both be right, and which one is right is a question about Telegram, not about this repo** — if Telegram signs
+`initData` with `signature` in the check string, the commit is the fix and the docblock, `CLAUDE.md` and the test
+are stale; if it signs without it, the commit breaks every client that sends a `signature` field, and the failure
+would be 100% of real users while this suite merely notices one case. Worth resolving before the next tag: the
+test is currently the only thing standing between that commit and a silent authentication regression, and the
+next person to "fix" the red build by deleting the test would take it away.
+
