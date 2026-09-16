@@ -2854,3 +2854,99 @@ tsc ✓, tests **1713 (1709 pass, 4 skipped)**, 6293 assertions.
 
 **Next:** Task 4 — ask for the language on the first `/start`, carrying the already-computed attribution
 outcome rather than re-running `ClaimInvite`.
+
+---
+
+### Task 4 — Ask for the language before the first greeting ✅
+
+**Why.** `/start` greeted everybody in whatever language the platform guessed for them, and the only way to
+change it was to already know `/language` exists. A user whose client reported a language they do not read got
+a greeting they could not read and no question about it. Issue #4: *"before every thing after start ask for
+languge if not set."*
+
+**The trigger, and the finding that decided it.** The spec's trigger is `$user->locale === null`. That was
+**unreachable**, and the reason is worth recording: `ResolveTelegramUser` seeded `locale` at creation from the
+client's `language_code` via `Localization::best()`, which never returns null — so every user created through
+the bot or the Mini App had a non-null locale from their very first message, and no user could ever be
+"unasked". The spec anticipated this and forbade changing it silently, so here is the decision, explicitly:
+
+- **`ResolveTelegramUser` no longer writes `locale`, at all.** The column means *the language they chose*, and
+  two of the codebase's own docblocks already said so — `User::preferredLocale()` ("returns null when they have
+  never chosen one, which lets the middleware fall through to the cookie and then `Accept-Language` rather than
+  pinning everyone to the fallback") and `ResolveTelegramUser`'s own "it is what the user chose". Seeding a
+  guess into it did not merely make the question unaskable; it also pinned every web user to a guess that
+  `SetLocale` was written to defer on.
+- **The client language is still the default** — just not written down as a choice. `BotMessenger::localeFor()`
+  and `IssueCheckInPhrase::localeFor()` both already passed `language_code` to `best()` behind the stored
+  preference, so nothing about resolution changed; the question is simply *asked* in the guessed language and
+  the answer is what makes it a choice.
+
+**Why not `wasRecentlyCreated` (the plan's settled trigger).** The plan chose it on the reasoning that
+"every user is asked once". Building it made the consequence visible: the channel gate is mandatory, so a new
+user's first `/start` is blocked, they join, and they send `/start` again — and by that second update their row
+exists. A prompt keyed on `wasRecentlyCreated` would fire only for a user who had *already* joined the channel
+before ever starting the bot, i.e. almost nobody. Worse, the spec's own test — *"a user behind the channel gate
+with no locale: the gate prompt still comes, and the flow still completes correctly afterwards"* — is only
+satisfiable if the question survives the loop, and `locale` is the only thing that does. So the trigger is the
+column, and the question sits **after** the gate: a blocked user is owed the way in and nothing else.
+
+**What shipped.**
+- **`StartArrival`** — the arrival, and the carry. `{isFirstArrival, invite|refusal|null, join payload|null}`.
+- **`LanguagePrompt`** — the buttons, extracted from `LanguageCommand` so `/start` and `/language` ask
+  identically. `send(User, array $carry = [])`; an empty carry reproduces today's `lg:<code>` byte for byte.
+- **`StartGreeting`** — everything `/start` says after the gate (welcome / welcome_back, invite note, join
+  preview), extracted because it now has two callers. `inviteNote()` is public: the gate prompt wants it too.
+- **`StartCommand`** — unchanged order (attribution → gate → baseline), then the question instead of the
+  greeting, then `StartGreeting::deliver()`.
+- **`LanguageCallback`** — sets the locale, then either delivers the carried arrival or (an ordinary
+  `/language` tap) sends the confirmation as before.
+
+**Carried on the callback, not in a `BotConversation` row — and why.** A `BotConversation` row would be
+mutable state held across three surfaces for a question whose entire life is one message and one tap, and it
+would need a sweep to stop it leaking. The invite claim and the join resolution are *outcomes of a particular
+update*, not a session, and `JoinChallengeFlow` already made this exact bargain — the join token rides on the
+button and nothing about "what was asked" lives outside the message. Layout:
+`lg:<locale>:start:<first|back>[:invite:<id> | :refused:<reason> | :join:<payload>]`. The join segment carries
+the **raw payload**, not a challenge id, so the greeting re-runs the same resolution `/start` ran and a
+challenge deleted in between is reported as the dead link it now is.
+
+**Reading it back is deliberately timid, because that is where a second credit would hide.** The invite is
+**re-read, never re-claimed**, and only if `invited_user_id` is the tapper's own; a refusal reason is looked up
+in `InviteRejection` rather than interpolated into a translation key; a join payload has to still look like one.
+A replayed button re-delivers the greeting and moves no coins — pinned by tapping the same bytes twice and
+asserting one ledger entry.
+
+**One message, not two.** On a carried tap the greeting *is* the confirmation: it arrives in the language just
+picked, which is the same proof `bot.language.set` gives, and sending both would be two messages inside the one
+second Telegram allows a chat. `/language`'s own tap still gets its confirmation unchanged.
+
+**Tests.** 16 new in `tests/Feature/Bot/StartLanguageQuestionTest.php`, covering the spec's seven: the prompt
+and not the welcome; locale set and greeted in it; an invite credited **exactly once** (ledger count and
+`credited_at`) with the note delivered after the pick; a join payload previewed after the pick; the
+already-chosen user greeted exactly as before, no buttons; gate-prompt-first and question-only-once-they-are-in;
+and stale/forged payloads refused. Plus: the replayed button paying nothing, an invite id that is not the
+tapper's, the longest carriable refusal fitting inside 64 bytes, and a `/language` tap still confirming.
+`answerLanguageQuestion()` joined the shared helpers in `tests/Pest.php` — it reads the button back **off the
+wire** and taps it through the real inbound path, including the carry, so it exercises the flow rather than a
+shortcut around it.
+
+**Existing tests updated (23 across 5 files), all because the behaviour they asserted genuinely changed.**
+`StartCommandTest` (12), `JoinChallengeFlowTest` (5), `LanguageCommandTest` (2), `MiniAppAuthTest` (3),
+`ResolveTelegramUserTest` (1). Two of the `MiniAppAuthTest` changes are contract changes rather than fixture
+changes: `/auth` and `/me` now report `locale: null` for a user who has not chosen, and
+`resources/js/miniapp/types.ts` says `string | null` to match. No client reads the field — the Mini App renders
+from the server-resolved `localization.locale` embedded in its Blade payload — so this is a type correction,
+not a UI change. `UiCopyTest`'s en/fa parity dataset gained `'bot'` (251 keys each side, already at parity), so
+bot copy is now under the same parity gate as everything else; `phrases` stays out deliberately, because its
+word banks are sampled rather than mirrored and the two locales legitimately differ in size.
+
+**Observed, not caused:** `MiniAppAuthTest`'s *"accepts an auth_date exactly at the window's edge"* failed once
+during this task and passed on every re-run. It compares `now()->getTimestamp() - 3600` against a clock read
+again inside the verifier, so it is a second-boundary race, unrelated to this change. Left alone — noted here so
+the next person who sees it knows it predates them.
+
+**Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓, tsc ✓,
+tests **1730 (1726 pass, 4 skipped)**, 6419 assertions (baseline 1713). `graphify update .` run (4808 nodes,
+10619 edges, 335 communities).
+
+**Next:** Task 5 — register the bot command menu (`setMyCommands`, per locale, derived from `BOT_COMMANDS`).
