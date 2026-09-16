@@ -5,7 +5,6 @@ namespace App\Services\Telegram;
 use App\Enums\SettingKey;
 use App\Exceptions\InvalidInitDataException;
 use App\Services\Settings;
-use Illuminate\Support\Facades\Config;
 
 /**
  * Verifies `Telegram.WebApp.initData` — the one proof of identity the Mini App
@@ -86,6 +85,23 @@ class InitDataVerifier
 
         ksort($signed);
 
+        // Read before the HMAC, not inside it: an unset `TELEGRAM_BOT_TOKEN`
+        // arrives as a null, and `hash_hmac` wants a string — but casting it at
+        // the call site would compare against a hash computed from the empty
+        // string, which is a *verification* that always fails rather than a
+        // refusal that says why. An environment that cannot verify anything is a
+        // refusal, and refusals here are one uniform 401.
+        //
+        // `(string) config(...)`, not `Config::string(...)`: `Config::string`
+        // throws on a null, and its default does not rescue it — `Arr::get`
+        // returns the stored null because the key exists. That is the 500 this
+        // guard exists to prevent.
+        $botToken = (string) config('services.telegram.bot_token');
+
+        if ($botToken === '') {
+            throw InvalidInitDataException::unverifiable('no bot token is configured');
+        }
+
         $lines = [];
 
         foreach ($signed as $key => $value) {
@@ -95,7 +111,7 @@ class InitDataVerifier
         $computed = hash_hmac(
             'sha256',
             implode("\n", $lines),
-            hash_hmac('sha256', Config::string('services.telegram.bot_token'), 'WebAppData'),
+            hash_hmac('sha256', $botToken, 'WebAppData'),
         );
 
         // Lowercased first: Telegram's hashes are lowercase hex, but a client

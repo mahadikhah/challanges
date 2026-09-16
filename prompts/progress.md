@@ -3286,3 +3286,113 @@ puts admin and Mini App copy out of scope, so none of this is fixed here, but it
   "Period 2/10" is a label rather than a raw column, so it is the one worth a second look.
 
 **Next:** Task 9 — the Mini App failure message, and why it lies.
+
+## Phase 17 · Task 9 — The Mini App failure message, and why it lied
+
+**The symptom was real and the server was innocent.** Every Mini App failure — a refused exchange, a dropped
+connection, a 500 on `/challenges` — rendered the same sentence: "We could not verify your Telegram identity.
+Please close and reopen the app." The client produced it from one bare `.catch()` chained across two unrelated
+promises:
+
+```ts
+authenticate(initData).then(…).then(fetchChallenges).catch(() => setPhase({ screen: 'failed' }));
+```
+
+`InitDataVerifier` was the obvious suspect and was re-verified line by line against the `initData` contract in
+CLAUDE.md — HMAC argument order (`token` is the *message*, `WebAppData` the key), `signature` excluded from the
+check string, `ksort`, `\n` join, `hash_equals` over lowercased hex, `auth_date` window. **It is correct.**
+Nothing in the verification path was changed. The defect was entirely in which branch caught which rejection,
+so the first fix is attribution, not cryptography.
+
+**Boot now ends one of three ways, and the header says so.** *Outside Telegram* — no `WebApp` object, or one
+that handed over an empty `initData`: nobody to authenticate, and the remedy is to open the app from the bot,
+so the screen says that and offers no retry. *Refused* — Telegram vouched for nothing we sent; this is the one
+case that keeps `miniapp.auth.failed`, and it is now *accurate* because nothing else can reach it. *Signed in* —
+and here the spec's "fourth boot state" is modelled as a sub-state of the third rather than a sibling:
+`{ screen: 'list', state: { status: 'unreachable' } }`. A failed request after a successful exchange is a
+failed request, not a failed identity, and it is worth retrying without reopening anything. That sub-state
+carries its own key, a status hint drawn from `ApiError.status` **only when the API answered at all** (a
+dropped connection has no status, and inventing one would be the same misattribution this fixes), and a retry
+button that reuses the `miniapp.auth.retry` key that had been sitting unused in both locales since the SPA was
+written.
+
+**No `.catch()` spans the exchange and the listing, and the shape makes it hard to reintroduce.** The exchange
+uses the two-argument `then(onFulfilled, onRejected)` form, and `loadList` is *called from* the success branch
+rather than chained onto the promise — so a later edit cannot fold the two back under one handler without
+deliberately restructuring it. `loadList`'s own rejection handler is the only place a list failure is read, and
+it can by construction only run after the identity was established.
+
+**Inside Telegram is decided during the first render, not in an effect.** `bootScreen()` reads
+`webApp()?.initData` in the `useState` initialiser. The shell loads `telegram-web-app.js` as a blocking script
+before the bundle, so the answer is available synchronously — and assigning it from an effect would paint an
+"authenticating" frame for a state already known to be wrong. It also avoids `react-hooks/set-state-in-effect`,
+which eslint enforces here.
+
+**One genuine server-side bug found on the way: an unset bot token used to answer 500, not 401.** With
+`TELEGRAM_BOT_TOKEN` empty, `Config::string('services.telegram.bot_token')` throws
+`InvalidArgumentException` and escapes `InitDataVerifier` — so `/auth` returned 500 and the log said "the Mini
+App is broken" when the answer was "one environment variable is missing". Worse, the obvious repair does not
+work: **`Config::string($key, '')` does not rescue a null.** `Arr::get()` returns the stored null because the
+key *exists* (`config/services.php` sets `bot_token => env('TELEGRAM_BOT_TOKEN')`, which is a present key with a
+null value), and the default is only consulted for a missing key. Verified in tinker against the installed
+framework, not assumed:
+
+```
+Config::string('services.telegram.bot_token', '') → InvalidArgumentException: … must be a string, NULL given.
+```
+
+The house pattern for a possibly-null env string is `(string) config(…)` — `SetWebhookCommand`, `WebhookRequest`,
+`BaleMessengerPlatform` and `TelegramServiceProvider` all already do it — so both readers use it, and the
+verifier now throws `InvalidInitDataException::unverifiable('no bot token is configured')`, which the controller
+turns into the same uniform 401 as every other refusal.
+
+**A zero token lifetime mints a token that was born expired.** `miniapp_token_ttl_minutes` is admin-editable and
+its form accepts `min:0`; `AuthenticateMiniAppUser` passed the value straight to `createToken`. The exchange
+still answered 200 with a well-formed token, so the failure surfaced one request later on `/challenges` — where
+it was reported as a bad identity. The floor (`max(1, …)`) is applied **at minting**, not in the setting's
+validation, because the value can already have been written by an older form or a seeder, and a token lasting a
+minute is a recoverable annoyance where a token lasting no time at all is a dead app.
+
+**`telegram:miniapp-diagnose` is where an operator can see what the browser cannot.** The Mini App's failure
+modes are almost all server-side and mutually indistinguishable from the client: a wrong token fails every
+verification in exactly the same way as a forged one. The command reports whether a token is configured **and
+its length, never its value** — a test asserts the raw output does not contain the token — plus the
+`MINIAPP_URL` verdict (warning when it is not HTTPS, since Telegram will not hand `initData` to a plain-HTTP
+page and the app then boots to "open me from Telegram" while looking perfectly reachable), the staleness window,
+and the token lifetime *after* the floor. Its self-test **re-implements Telegram's HMAC chain** rather than
+calling the verifier's own internals: a check that signed with the verifier would pass whatever the verifier
+did, including being wrong. It asserts both halves — a correctly signed payload is accepted, a tampered one is
+refused — and two tests bind deliberately broken verifiers (one that accepts everything, one that refuses
+everything) to prove the self-test can actually fail. A check that passes unconditionally is worse than no
+check, because it is believed.
+
+**`initdata_max_age_seconds <= 0` disables the staleness window — permissive, not broken, so the command warns
+rather than fails.** With the window off, an initData that leaked months ago is still a working credential.
+That is a real posture decision and it should be a visible one, so it gets a `<fg=yellow>` warning next to the
+row that reads `off (0 — staleness accepted)`. The command still exits 0: the server works, it is just more
+trusting than it should be.
+
+**The uniform 401 is unchanged and now has a stronger test.** `AuthController` still answers one message with no
+reason for every `InvalidInitDataException`; six refusal causes (tampered hash, stale `auth_date`, no hash, a
+genuine signature from another bot, a signed payload with no user, and a payload this server has no token to
+check) are driven through one dataset asserting the **whole body** is exactly
+`{"message": "The Mini App identity could not be verified."}` — a `reason` field or a `debug` key would tell
+whoever is sending the forgeries which one is closer to working.
+
+**Honest note on client verification.** The spec asks for the client branches to be exercised in a real Telegram
+client and observed. **That was not done** — there is no Telegram client available in this environment. What was
+verified instead: `tsc --noEmit`, `eslint`, `prettier --check` and a full `npm run build` all pass; the six
+server-side refusals above are covered by tests; and the two new copy keys resolve in both locales under
+`UiCopyTest`. The four screens themselves are asserted only by reading the code.
+
+**Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓, tsc ✓,
+tests **1806 (1802 pass, 4 skipped)**, 6878 assertions (baseline 1788). `graphify update .` run (4890 nodes,
+10931 edges, 364 communities). New: `tests/Feature/MiniApp/MiniAppDiagnoseCommandTest.php` (10 tests); eight
+added to `MiniAppAuthTest` (two token-lifetime tests and a six-case refusal dataset).
+
+**Out of scope but found.** The Mini App's `period_label` ("Period :index of :total"), `no_open_period` and
+`already_settled` still count in periods rather than in the challenge's own unit — the same defect Task 8 fixed
+in the bot, on a participant-facing surface, and still unfixed. It is carried forward here from the Task 8 entry
+rather than duplicated.
+
+**Next:** Phase 17 is complete — all nine tasks, nine green commits.

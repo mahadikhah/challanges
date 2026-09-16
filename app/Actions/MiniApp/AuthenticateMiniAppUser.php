@@ -49,7 +49,7 @@ class AuthenticateMiniAppUser
         $user = $this->resolveUser->handle($verified->user);
 
         $expiresAt = now()->addMinutes(
-            $this->settings->integer(SettingKey::MiniAppTokenTtlMinutes),
+            $this->lifetimeMinutes(),
         );
 
         $token = $user->createToken('miniapp', ['miniapp'], $expiresAt);
@@ -59,5 +59,26 @@ class AuthenticateMiniAppUser
             $token->plainTextToken,
             CarbonImmutable::instance($expiresAt),
         );
+    }
+
+    /**
+     * How long the token lives, floored at a minute.
+     *
+     * `miniapp_token_ttl_minutes` is an admin-editable setting and its form
+     * accepts zero, which would mint a token that expired at the instant it was
+     * issued. That failure is invisible at the exchange — `/auth` succeeds and
+     * hands back a token — and lands on the *next* request instead, as a 401 on
+     * `/challenges` that the Mini App used to report as a failed identity check.
+     * An operator reading "we could not verify your Telegram identity" while
+     * their identity had just been verified has nothing to go on.
+     *
+     * The floor is here, at minting, rather than in the setting's validation:
+     * the value can already have been written by an older form or a seeder, and
+     * a token that lasts a minute is a recoverable annoyance where a token that
+     * lasts no time at all is a dead app.
+     */
+    private function lifetimeMinutes(): int
+    {
+        return max(1, $this->settings->integer(SettingKey::MiniAppTokenTtlMinutes));
     }
 }

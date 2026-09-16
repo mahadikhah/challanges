@@ -25,6 +25,21 @@ class InvalidInitDataException extends RuntimeException
         return new self("The initData is not a well-formed payload: {$reason}.");
     }
 
+    /**
+     * The payload may be perfectly good, but this server cannot check it —
+     * there is no bot token to derive the signing key from, so there is nothing
+     * a valid hash could have been computed with.
+     *
+     * Distinct from `tampered()` for the log's sake only: the reply is the same
+     * uniform 401. Without this, an unset token escapes as an
+     * `InvalidArgumentException` and the caller gets a 500, which reads to the
+     * operator as "the Mini App is broken" rather than "the token is missing".
+     */
+    public static function unverifiable(string $reason): self
+    {
+        return new self("The initData cannot be verified: {$reason}.");
+    }
+
     public static function tampered(): self
     {
         return new self('The initData hash does not match its contents.');

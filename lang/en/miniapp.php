@@ -4,7 +4,19 @@ return [
 
     'auth' => [
         'failed' => 'We could not verify your Telegram identity. Please close and reopen the app.',
+
+        // Shown when there is no identity to even try to verify: opened in a
+        // browser, or on a page Telegram would not hand `initData` to. Nothing
+        // is broken and there is nothing to retry — the app has to be opened
+        // from the bot.
+        'outside_telegram' => 'Open this app from Telegram — tap the button in your chat with the bot.',
         'retry' => 'Try again',
+
+        // The third failure, and not the same one: the identity was verified
+        // and a *later* request failed. Saying so is the whole point — the old
+        // copy blamed the identity check the user had just watched succeed.
+        'data_failed' => 'Your Telegram identity was verified, but your challenges could not be loaded.',
+        'data_failed_status' => 'The server answered :status.',
     ],
 
     'coins' => ':count coins',

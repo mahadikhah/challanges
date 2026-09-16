@@ -124,6 +124,61 @@ function aMiniAppSession(): string
     return $response->json('token');
 }
 
+/**
+ * The ways an exchange can be refused, keyed by what is wrong with the payload.
+ *
+ * Each is a callable rather than a pre-built payload because two of them have to
+ * change the server's configuration as well — and because building them eagerly
+ * would parse and re-encode initData for every test in the file that never runs
+ * this dataset.
+ *
+ * @return array<string, callable(): TestResponse>
+ */
+function refusedExchanges(): array
+{
+    return [
+        'a tampered hash' => function (): TestResponse {
+            $fields = [];
+            parse_str(initData(), $fields);
+            $fields['hash'] = strrev($fields['hash']);
+
+            return exchangesInitData(http_build_query($fields));
+        },
+        'a stale auth_date' => fn (): TestResponse => exchangesInitData(
+            initData(authDate: now()->getTimestamp() - 3601),
+        ),
+        'no hash at all' => function (): TestResponse {
+            $fields = [];
+            parse_str(initData(), $fields);
+            unset($fields['hash']);
+
+            return exchangesInitData(http_build_query($fields));
+        },
+        'a genuine signature from another bot' => fn (): TestResponse => exchangesInitData(
+            initDataSignedWith('999999:OTHER-BOT', [
+                'auth_date' => (string) now()->getTimestamp(),
+                'query_id' => 'AAF1q2W4vQ5x8z0b3C6d9E2f',
+                'user' => json_encode(['id' => 777_000_5, 'first_name' => 'Sara'], JSON_THROW_ON_ERROR),
+            ]),
+        ),
+        'a valid signature and no user in it' => fn (): TestResponse => exchangesInitData(
+            initDataSignedWith(BOT_TOKEN, [
+                'auth_date' => (string) now()->getTimestamp(),
+                'query_id' => 'AAF1q2W4vQ5x8z0b3C6d9E2f',
+            ]),
+        ),
+        'a correctly signed payload this server cannot check' => function (): TestResponse {
+            // The payload is genuine and fresh; the *server* has nothing to
+            // derive the signing key from, so it cannot tell. That used to
+            // escape as a 500 — an operator reading "the Mini App is broken"
+            // when the answer is "TELEGRAM_BOT_TOKEN is empty".
+            config(['services.telegram.bot_token' => null]);
+
+            return exchangesInitData(initData());
+        },
+    ];
+}
+
 describe('the token exchange', function () {
     it('issues a bearer token for a valid initData', function () {
         // Frozen at a whole second: the TTL assertions below compare
@@ -175,6 +230,35 @@ describe('the token exchange', function () {
 
         $response->assertOk();
         expect($response->json('expires_at'))->toBe(now()->addMinutes(5)->toIso8601String());
+    });
+
+    it('floors a zero lifetime instead of minting a token that was born expired', function () {
+        // The admin form accepts `min:0`, and a zero TTL mints a token whose
+        // expiry is the instant it was issued. The exchange would still answer
+        // 200 with a perfectly well-formed token, so the failure would surface
+        // one request later, on `/challenges`, where it reads as a bad identity
+        // rather than a bad setting.
+        test()->travelTo(now()->startOfSecond());
+        $this->settings->set(SettingKey::MiniAppTokenTtlMinutes, 0);
+
+        $response = exchangesInitData(initData());
+
+        $response->assertOk();
+        expect($response->json('expires_at'))->toBe(now()->addMinutes(1)->toIso8601String());
+    });
+
+    it('carries a zero-lifetime token all the way to the authenticated surface', function () {
+        // The end of the same story: whatever the minted lifetime is, the first
+        // request the SPA makes after the exchange has to succeed. This is the
+        // assertion the production symptom would have failed.
+        $this->settings->set(SettingKey::MiniAppTokenTtlMinutes, 0);
+
+        $response = exchangesInitData(initData());
+        $response->assertOk();
+
+        test()->withToken($response->json('token'))
+            ->getJson('/api/v1/miniapp/challenges')
+            ->assertOk();
     });
 
     it('resolves to the user the bot already knows, without clobbering their chosen locale', function () {
@@ -321,6 +405,27 @@ describe('a rejected exchange', function () {
         'empty string' => [['init_data' => '']],
         'not a string' => [['init_data' => ['an' => 'array']]],
     ]);
+});
+
+describe('what a refusal says', function () {
+    it('is the same answer, with no reason attached, whatever went wrong', function (callable $attempt) {
+        $response = $attempt();
+
+        $response->assertStatus(401);
+
+        // The *whole* body, not just the message. A `reason`, a `debug` key or
+        // anything else that told tampering apart from staleness would be
+        // reconnaissance: it would say which forgery is closer to working. The
+        // distinction belongs in the log, where `AuthController` puts it.
+        expect($response->json())->toBe([
+            'message' => 'The Mini App identity could not be verified.',
+        ])
+
+            // And nothing was created on the way to saying it — no user for a
+            // forged identity, no token that could ever have been spent.
+            ->and(User::query()->count())->toBe(0)
+            ->and(PersonalAccessToken::query()->count())->toBe(0);
+    })->with(refusedExchanges());
 });
 
 describe('the authenticated surface', function () {
