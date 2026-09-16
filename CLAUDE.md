@@ -173,11 +173,19 @@ Use PHP **backed enums** for every status and type. No magic strings.
 
 ```
 secret_key       = HMAC_SHA256(<bot_token>, "WebAppData")   // token is the MESSAGE, "WebAppData" is the KEY
+                   ...AS RAW BYTES — the 32-byte digest, NOT its 64-character hex rendering
 data_check_string = all received fields EXCEPT `hash` (and `signature`),
                     sorted alphabetically, formatted `key=<value>`, joined with \n (0x0A)
 valid            = hex(HMAC_SHA256(data_check_string, secret_key)) === hash
 ```
 
+- **Note the asymmetry, because it is the whole contract: the inner value is raw, the outer is hex.** In PHP
+  that is `hash_hmac('sha256', $token, 'WebAppData', true)` for the key and `hash_hmac('sha256', $check, $key)`
+  for the MAC. Drop the `true` and every MAC is wrong: HMAC uses a key of exactly one block (64 bytes)
+  verbatim, so the hex *string* is a different key of a different length. This shipped once and refused
+  **100%** of real users while the whole test suite stayed green, because app and fixtures derived the key
+  identically-wrong. Derive it via `InitDataSecretKey::derive()` — never inline it — and do not "fix" a
+  failure here by accepting both forms.
 - Compare with a **timing-safe** comparison (`hash_equals`), never `==`.
 - Additionally validate `auth_date` (Unix timestamp) to reject outdated data. Telegram gives no fixed TTL;
   use a short configurable window for the token exchange and rely on our own token lifetime thereafter.

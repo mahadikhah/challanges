@@ -15,6 +15,9 @@ use App\Services\Settings;
  *
  * ```
  * secret_key        = HMAC_SHA256(<bot_token>, "WebAppData")   // token is the MESSAGE
+ *                     ...as RAW BYTES. Note the outer line below is wrapped in
+ *                     hex(...) and this one is not — that difference is the whole
+ *                     contract, and dropping it refuses every real user.
  * data_check_string = all received fields EXCEPT hash (and signature),
  *                     sorted alphabetically, formatted key=<value>, joined with \n
  * valid             = hex(HMAC_SHA256(data_check_string, secret_key)) === hash
@@ -111,7 +114,9 @@ class InitDataVerifier
         $computed = hash_hmac(
             'sha256',
             implode("\n", $lines),
-            hash_hmac('sha256', $botToken, 'WebAppData'),
+            // Raw digest, not the hex rendering of it — see `InitDataSecretKey`,
+            // which is the one definition of this and the place the reasoning lives.
+            InitDataSecretKey::derive($botToken),
         );
 
         // Lowercased first: Telegram's hashes are lowercase hex, but a client

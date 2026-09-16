@@ -314,7 +314,7 @@ and search for the message above:
 
 | The log line says | Cause | Fix |
 |---|---|---|
-| `The initData hash does not match its contents.` | The app is opened under a **different bot** than the token on this host | `php artisan telegram:miniapp-diagnose` names the bot; point the menu button at this host's bot |
+| `The initData hash does not match its contents.` | **Two causes, and they look identical.** Either (a) this build derives the signing key wrongly — the raw-vs-hex bug described below — or (b) the app is opened under a **different bot** than the token on this host | Check (a) first: `php artisan telegram:miniapp-diagnose`. A self-test that passes does *not* clear (a) unless it is the current build. Then (b): the command names the bot the token belongs to; point the menu button at this host's bot |
 | `The initData cannot be verified: no bot token is configured.` | Token empty *at runtime* — cached config, or the wrong `.env` | `php artisan config:clear`; confirm the deployed `.env` |
 | `The initData is Ns old, past the Ms window.` | Server clock skew, or a small `initdata_max_age_seconds` | Fix the host clock; check the setting in the admin panel |
 | `The initData is not a well-formed payload: …` | Mangled payload — should not occur from a real Telegram client | Investigate the client; treat as a bug |
@@ -323,6 +323,19 @@ and search for the message above:
 
 The last two rows are why this comes first: neither is an identity problem, and no amount of token
 checking finds them. Rows 2–4 assume the code is *reached*; the last two say it is not.
+
+**The raw-vs-hex signing key — read this before touching `InitDataVerifier`.** Telegram's chain is
+`secret_key = HMAC_SHA256(<bot_token>, "WebAppData")` taken **as raw bytes**, while the outer MAC is
+compared **as hex**. In PHP that is `hash_hmac('sha256', $token, 'WebAppData', true)` — the trailing
+`true`. Omit it and you get the 64-character hex *string*, which HMAC uses as a 64-byte key rather
+than a 32-byte one, so every MAC is wrong and **every user is refused** with the row-1 log line above.
+This shipped to production once.
+
+It is invisible to the test suite, because the fixtures sign with the same derivation as the app: both
+were wrong, they agreed, and 1800 tests stayed green. That is why the formula is pinned against a
+vector generated *outside PHP* in `tests/Feature/MiniApp/InitDataGoldenVectorTest.php`. **If that file
+is red, the derivation is wrong — do not make it green by accepting both key forms.** The correct
+forms are already in place; derive via `InitDataSecretKey::derive()` rather than inlining it.
 
 On every code update: `git pull` (or re-upload) → `composer install --no-dev --optimize-autoloader` →
 `php artisan migrate --force` → rebuild/re-upload `public/build` → `php artisan optimize:clear`.

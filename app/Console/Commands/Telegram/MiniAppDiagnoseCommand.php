@@ -5,6 +5,7 @@ namespace App\Console\Commands\Telegram;
 use App\Enums\SettingKey;
 use App\Exceptions\InvalidInitDataException;
 use App\Services\Settings;
+use App\Services\Telegram\InitDataSecretKey;
 use App\Services\Telegram\InitDataVerifier;
 use Illuminate\Console\Command;
 use Illuminate\Http\Client\ConnectionException;
@@ -305,6 +306,15 @@ class MiniAppDiagnoseCommand extends Command
     /**
      * Telegram's own signing chain, written out.
      *
+     * The key comes from {@see InitDataSecretKey} rather than being derived here.
+     * That is the whole point: this self-test signs with the key and then hands
+     * the result to the real verifier, so if both derived it independently they
+     * would agree with each other while both disagreeing with Telegram — which
+     * is exactly how a self-test that always passed shipped alongside a server
+     * that refused every real user. Sharing the one definition makes that
+     * failure mode impossible; `InitDataGoldenVectorTest` independently pins the
+     * definition itself.
+     *
      * @param  array<string, string>  $fields
      */
     private function sign(string $token, array $fields): string
@@ -322,7 +332,7 @@ class MiniAppDiagnoseCommand extends Command
         $fields['hash'] = hash_hmac(
             'sha256',
             $checkString,
-            hash_hmac('sha256', $token, 'WebAppData'),
+            InitDataSecretKey::derive($token),
         );
 
         return http_build_query($fields);

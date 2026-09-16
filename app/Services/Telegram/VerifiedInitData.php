@@ -15,8 +15,12 @@ final readonly class VerifiedInitData
 {
     /**
      * @param  array<string, mixed>  $user  Telegram's `User` object, decoded
-     * @param  array<string, string>  $fields  every field except `hash` and
-     *                                         `signature`, values as they arrived
+     * @param  array<string, string>  $fields  every field except `hash`,
+     *                                         `signature` and `user` — the first
+     *                                         two are never signed-over and the
+     *                                         third is the argument above, so it
+     *                                         would otherwise be a second copy
+     *                                         that could drift from it
      */
     public function __construct(
         public array $user,
