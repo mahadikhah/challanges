@@ -12,6 +12,7 @@ use App\Services\Telegram\Callbacks\LanguageCallback;
 use App\Services\Telegram\Callbacks\ReviewCheckInCallback;
 use App\Services\Telegram\Callbacks\SessionStepCallback;
 use App\Services\Telegram\Callbacks\ShopCallback;
+use App\Services\Telegram\Callbacks\SlotPurchaseCallback;
 use App\Services\Telegram\Callbacks\WizardCallback;
 use App\Services\Telegram\CommandRouter;
 use App\Services\Telegram\Commands\CancelCommand;
@@ -114,6 +115,7 @@ class TelegramServiceProvider extends ServiceProvider
         SessionStepCallback::ACTION => SessionStepCallback::class,
         ReviewCheckInCallback::ACTION => ReviewCheckInCallback::class,
         ShopCallback::ACTION => ShopCallback::class,
+        SlotPurchaseCallback::ACTION => SlotPurchaseCallback::class,
         LanguageCallback::ACTION => LanguageCallback::class,
         CommandCallback::ACTION => CommandCallback::class,
     ];

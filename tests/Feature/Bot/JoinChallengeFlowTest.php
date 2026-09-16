@@ -276,6 +276,11 @@ describe('tapping join', function () {
         expect(lastBotReply()['text'])
             ->toContain(botCopy('bot.join.no_slot'))
             ->toContain(botCopy('bot.join.slot_price', ['coins' => 25]))
+            // The refusal used to end here, with no way to act on it. The token
+            // travels with the button so the purchase can hand them back to this
+            // join rather than to a dead end — `confirm()` re-resolves the
+            // challenge from it and re-runs its own gate and slot checks.
+            ->and(lastBotKeyboard())->toBe([[slotButton('en', EntitlementType::JoinSlot, $challenge->join_token)]])
             ->and(ChallengeParticipant::query()->where('user_id', $user->getKey())->count())->toBe(0);
     });
 

@@ -34,6 +34,7 @@ use App\Services\Telegram\CheckInInstruction;
 use App\Services\Telegram\CompactDuration;
 use App\Services\Telegram\PeriodUnit;
 use App\Services\Telegram\ReportedValue;
+use App\Services\Telegram\SlotRefusal;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
@@ -178,6 +179,7 @@ class CreateChallengeWizard
         private readonly BotMessenger $messenger,
         private readonly BotButtons $buttons,
         private readonly Settings $settings,
+        private readonly SlotRefusal $refusal,
         private readonly AiApprovalGate $aiApprovalGate,
         private readonly ReportedValue $numbers,
         private readonly CheckInInstruction $instructions,
@@ -854,20 +856,17 @@ class CreateChallengeWizard
     }
 
     /**
-     * Say that a create-slot is needed, and what one costs.
+     * Say that a create-slot is needed, what one costs, and how to buy it.
      *
-     * Quoting the price is the point: "you have no slots left" with no way to get
-     * one is a dead end, and the price is a `Setting` rather than a constant so it
-     * has to be read at the moment of refusal.
+     * Delegated to {@see SlotRefusal} so the create and join refusals cannot drift
+     * — they are the same three facts, and this one previously stopped at two of
+     * them, quoting a price with nothing to tap. That made the refusal permanent:
+     * the check is an entitlement *count*, not a balance, so no amount of coins
+     * could ever clear it.
      */
     private function refuseForNoSlot(User $user): void
     {
-        $this->messenger->paragraphs($user, [
-            $this->messenger->line($user, 'bot.wizard.no_slot'),
-            $this->messenger->line($user, 'bot.wizard.slot_price', [
-                'coins' => $this->settings->integer(EntitlementType::CreateSlot->priceSetting()),
-            ]),
-        ]);
+        $this->refusal->send($user, EntitlementType::CreateSlot);
     }
 
     /**

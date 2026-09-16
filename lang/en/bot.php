@@ -469,6 +469,17 @@ return [
         'unavailable' => 'Top-ups are not available here yet. They will be soon.',
     ],
 
+    'slots' => [
+        // Shown on every refusal, next to the price — "what it costs" and "what
+        // you have" are two different questions and a refusal should answer both.
+        'balance' => 'Your balance: :coins coins.',
+        'buy_button' => 'Buy for :coins coins',
+        'bought' => 'Done — that slot is yours.',
+        'already_have' => 'You still have a slot left, so nothing was charged.',
+        'short' => 'That costs :price coins and you have :balance, so you are :short coins short.',
+        'misconfigured' => 'That slot is not for sale right now. Please ask an administrator.',
+    ],
+
     'language' => [
         'prompt' => 'Which language should I speak?',
         'set' => 'Done — from now on, :language.',

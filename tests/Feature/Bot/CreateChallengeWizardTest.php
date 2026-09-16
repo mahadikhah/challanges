@@ -297,7 +297,11 @@ describe('opening the flow', function () {
             // `Setting` — so it has to be read at the moment of refusal.
             ->toContain(botCopy('bot.wizard.slot_price', [
                 'coins' => $this->settings->integer(EntitlementType::CreateSlot->priceSetting()),
-            ]));
+            ]))
+            // A price with nothing to tap is what made this refusal permanent: the
+            // check is an entitlement count, not a balance, so no amount of coins
+            // would ever change it.
+            ->and(botKeyboard())->toBe([[slotButton('en', EntitlementType::CreateSlot)]]);
     });
 
     it('restarts from scratch when /create arrives mid-flow', function () {
@@ -792,7 +796,11 @@ describe('the confirmation step', function () {
         // the half-written challenge rolls back rather than being created for free.
         expect(Challenge::query()->count())->toBe(1)
             ->and(liveFlow())->toBeNull()
-            ->and(soleBotMessage()['text'])->toContain(botCopy('bot.wizard.no_slot'));
+            ->and(soleBotMessage()['text'])->toContain(botCopy('bot.wizard.no_slot'))
+            // The authoritative refusal offers the same way out as the advisory one.
+            // The draft is already abandoned by this point, so starting again is the
+            // only honest offer — but paying for the slot is now possible at all.
+            ->and(botKeyboard())->toBe([[slotButton('en', EntitlementType::CreateSlot)]]);
     });
 
     it('drops an incomplete draft rather than guessing at the gaps', function () {

@@ -1,11 +1,14 @@
 <?php
 
+use App\Enums\EntitlementType;
 use App\Enums\MessagingPlatform;
 use App\Jobs\Telegram\ProcessTelegramUpdate;
 use App\Models\TelegramUpdate;
 use App\Models\User;
+use App\Services\Settings;
 use App\Services\Telegram\BotCallback;
 use App\Services\Telegram\Callbacks\CommandCallback;
+use App\Services\Telegram\Callbacks\SlotPurchaseCallback;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -234,6 +237,33 @@ function commandButton(string $locale, string $command): array
     return [
         'text' => botCopy("bot.commands.{$command}", [], $locale),
         'callback_data' => BotCallback::encode(CommandCallback::ACTION, $command),
+    ];
+}
+
+/**
+ * The button that sells one extra slot, as the bot would render it.
+ *
+ * Both halves are read from the same places the bot reads them — the label from
+ * `bot.slots.buy_button`, the price from the `Setting` the purchase will charge
+ * — so an assertion cannot pin a figure the product no longer sells at. A test
+ * using this still sets the price explicitly, because it also has to fund the
+ * buyer to the exact coin.
+ *
+ * @param  string|null  $joinToken  carried when the refusal was for a join, so the
+ *                                  purchase can hand the user back to that challenge
+ * @return array{text: string, callback_data: string}
+ */
+function slotButton(string $locale, EntitlementType $type, ?string $joinToken = null): array
+{
+    $price = app(Settings::class)->integer($type->priceSetting());
+
+    return [
+        'text' => botCopy('bot.slots.buy_button', ['coins' => $price], $locale),
+        'callback_data' => BotCallback::encode(
+            SlotPurchaseCallback::ACTION,
+            $type->value,
+            ...($joinToken === null ? [] : [$joinToken]),
+        ),
     ];
 }
 

@@ -59,7 +59,12 @@ class CallbackQueryHandler implements HandlesUpdate
         $user = $this->resolveUser->handle($from, $update->platform);
 
         $data = $update->value('callback_query.data');
-        $callback = BotCallback::parse(is_string($data) ? $data : null);
+
+        // The update id rides along so a handler that spends money can derive a
+        // per-delivery idempotency key from it. It is the *delivery* that is
+        // identified, not the tap: a redelivered update replays, a second tap of
+        // the same button carries a new id and is a new intent.
+        $callback = BotCallback::parse(is_string($data) ? $data : null, (string) $update->update_id);
 
         if ($callback === null || ! $this->callbacks->route($user, $callback)) {
             // A button from a deploy that has since renamed its action, or one

@@ -3634,6 +3634,12 @@ sees an error and the people who cannot see nothing. Both are pinned with `Http:
 localised default without it — any label written here would be one language shown to every user of a bot that
 ships in two.
 
+> **Corrected — this paragraph was wrong, and it took the command down with it.** `text` is *required*: Telegram
+> refuses the entire call with `Bad Request: can't parse menu button: Can't find field "text"`, so the command
+> could not register a button at all and the Mini App stayed unreachable. The reasoning above ("optional",
+> "Telegram renders a localised default") was invented to justify an omission, not read from Telegram's docs.
+> See *The first live run* below for the fix and the label decision.
+
 **Kept out of `SetWebhookCommand` on purpose**, even though that command already registers the command menu:
 an unset `MINIAPP_URL` must not fail webhook registration, and re-running `set-webhook` to change a Mini App URL
 would couple two unrelated registrations. The diagnose command's task-2 warning ("Run
@@ -3678,3 +3684,186 @@ vacuous with no fake installed. Both were hit twice in this phase and cost real 
 
 **Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓, tsc ✓,
 tests **1821 passed, 4 skipped**, 6933 assertions unchanged — this task is documentation only.
+
+---
+
+## Phase 17.1 — The live outage, and the button that could not be registered
+
+Phase 17 was deployed and broken for **every** real user: opening the Mini App showed *"We could not verify
+your Telegram identity."* Every attempt logged the same line, and Telescope showed a clean 401 at
+`MiniAppController@store` in 36 ms — so not routing, not a 500, and the payload's `auth_date` was current, so
+not staleness.
+
+### The initData secret key was the hex digest ✗→✓
+
+`InitDataVerifier` derived the signing key as:
+
+```php
+hash_hmac('sha256', $botToken, 'WebAppData')   // ← missing the 4th argument
+```
+
+`hash_hmac()`'s fourth parameter is `$binary` and it **defaults to `false`**, so the inner call returned the
+**64-character hex string**. Telegram's spec is `secret_key = HMAC_SHA256(<bot_token>, "WebAppData")` taken as
+the **raw 32-byte digest**, and HMAC uses a key of exactly one block (64 bytes) verbatim — so the hex *string*
+is a different key of a different length, and **every MAC computed with it is wrong**. It could never match
+anything Telegram sends, which is exactly the shape of the symptom: 100% of users refused, no exceptions.
+
+**The `signature` field was a red herring and is correct as written.** It was already excluded before the
+`hash` branch, deliberately, and documented. The token was never wrong either — the bot replies on that host,
+so the configured token provably belongs to the right bot.
+
+**Why 1800 tests said nothing was wrong.** The derivation was written out **three times** and wrong in all
+three: the verifier, the diagnose command's self-test, and both test fixtures. The self-test signed with the
+wrong key and verified with the same wrong key, so it reported a clean bill of health to operators while
+production was down; the fixtures signed with the wrong key and the app checked with the wrong key, so they
+agreed *by construction*. `MiniAppAuthTest` even stated the assumption out loud — *"computed exactly the way
+`InitDataVerifier` expects them"* — which is the bug written down as reassurance. A check that shares the
+implementation's assumption can never falsify it.
+
+**That failure was reproduced deliberately before fixing anything**, and the result is in the history: fixing
+*only* the verifier turns `MiniAppAuthTest` red — **10 failed, 19 passed** — which is the proof the fixtures
+had shared the bug rather than caught it. The two commits are split so that this is recorded rather than
+quietly rectified: the first is **deliberately red**, and says so in its message.
+
+**The derivation is now one function** — `InitDataSecretKey::derive()` — because three copies is how it came to
+be wrong three times at once.
+
+**And it is pinned from outside PHP.** `InitDataGoldenVectorTest` carries literal `initData` strings generated
+with Python's `hmac`/`hashlib`, with the generating snippet in its header. Five cases, three of which matter:
+
+- the **good vector** verifies and yields the Telegram user id — signed by an implementation that has never
+  read this codebase;
+- the **hex-keyed vector is rejected**. Without this the test only proves the code accepts *something*, and
+  "accept both key forms" — the tempting band-aid that would restore production while leaving the derivation
+  wrong — would sail through;
+- the **fixture still signs the committed vector byte for byte**, which is what stops the fixtures drifting
+  into a *new* shared-but-wrong belief.
+
+The clock is travelled to the vector's own `auth_date` (2023-11-14) rather than disabling the freshness window,
+so `assertFresh` is exercised for real, plus a fifth case proving it can still refuse (3601s, and a widened
+window). Both directions were confirmed independently — Python and PHP each produce `07917198a5…` for the raw
+key and `f626b72ea1…` for the hex key.
+
+**Two docs corrections.** `CLAUDE.md`'s spec block was technically correct and still useless, because it did
+not say the asymmetry out loud — it now states that the inner value is **raw** and the outer is **hex**, with
+the concrete PHP. And both `setup-cpanel` guides carried the misdiagnosis this incident cost hours to: the
+`hash does not match its contents` row blamed *only* a mismatched bot, pointing the next operator at BotFather
+instead of at the code. That row now leads with the derivation bug, and a short section explains that a
+passing self-test does **not** clear it unless it is the current build.
+
+### The menu button: `text` is required ✗→✓
+
+`telegram:set-menu-button` could not run at all:
+
+```
+Bad Request: can't parse menu button: Can't find field "text".
+```
+
+It omitted `text` **on purpose**, with a docblock justifying the omission by claiming the field was optional
+and localised by Telegram. Both claims were false. A missing label is not a defaulted label; it is an invalid
+button — and the consequence was that the Mini App had no tap target in the chat, which is the *other* half of
+why it looked unreachable.
+
+The label is now the app's own name from the **fallback** locale. `setChatMenuButton` carries a single `text`
+for every user of the bot — there is no `language_code` on it, unlike the command list — so this field cannot
+express a localised label, and sourcing it from the running locale instead would make the label depend on
+whichever machine ran the command. `common.app_name` is already a brand rather than a sentence, so one word
+shown to both locales is not a missing translation; a translated *sentence* is what would be wrong in that
+slot. **No new env var, no new `SettingKey`.**
+
+The test that asserted the old behaviour — *"leaves the button label to Telegram rather than hardcoding a
+language"* — is replaced by one that sets the running locale to Farsi and asserts the label is still the
+English app name. It compares against both translations rather than a literal, so a brand rename keeps passing
+while a label that tracks the locale fails the build.
+
+### Operator steps this needs
+
+- **`php artisan optimize:clear` on the cPanel host.** A cached config makes the deployed fix look like it did
+  nothing. On shared cPanel, OPcache serving stale compiled PHP is a real possibility too — a PHP-FPM restart
+  may be needed.
+- **The bot token does not need rotating for either bug.** (The dev token is separately known to be exposed and
+  should be revoked via BotFather `/revoke` — unrelated to this.)
+- Acceptance is manual and end-to-end: deploy, clear, open the Mini App from Telegram, see the challenge list.
+  `telegram:miniapp-diagnose` should pass its self-test **and** name the bot the token belongs to, and
+  `telegram:set-menu-button` should now register successfully.
+
+**Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓, tsc ✓,
+tests **1826 passed, 4 skipped**, 6945 assertions. New: `InitDataGoldenVectorTest` (5).
+
+---
+
+## Phase 18 — The economy closes its loop
+
+Three reports from real use of the deployed bot. The first is a broken economy rather than a rough edge: the
+product would sell you coins and then give you nothing to spend them on.
+
+### Task 1 — Coins buy a slot ✅
+
+`PurchaseEntitlement` was written, covered by `EntitlementsTest`, and had **zero production callers** —
+verified across the whole repo. Both refusal paths — `CreateChallengeWizard::refuseForNoSlot()` and
+`JoinChallengeFlow::refuseForNoSlot()` — sent a price quote with **no keyboard under it**. So the refusal was
+permanent, and the reason is easy to miss on a reading: the check that produces it is an *entitlement count*,
+not a balance check. A user with a thousand coins could never create a second challenge, and nothing they
+could do — buying Stars, inviting friends, finishing a challenge — would change that. `priceOf()` is public
+*specifically* so a caller can quote before charging. The prompt existed; nobody had built the button.
+
+**The idempotency key needed plumbing that did not exist.** `PurchaseEntitlement::handle()` requires a key,
+and its docblock says a callback should derive one from the update id — but `BotCallback` carried only
+`action` and `arguments`, and `HandlesCallback::handle()` never sees the envelope. The update id *was* in hand
+one layer up, at `CallbackQueryHandler`. So `BotCallback` gained an optional `?string $updateId`, set at parse
+time. Additive with a default, so the other seven handlers, `CallbackRouter`, `HandlesCallback` and the fake
+handlers in `CallbackQueryHandlerTest` are untouched. Its docblock now says the one thing that matters about
+it: **idempotency only, never an authorization input** — the same rule the class already states for the
+callback data itself.
+
+**The key format is `entitlement:{type}:{platform}:{update_id}`, and the platform segment is not decorative.**
+`update_id` is unique *per platform* — Telegram and Bale number their updates independently — so without it a
+Telegram delivery and a Bale delivery that happen to share an id would collide, and the second buyer would
+silently replay the first buyer's purchase and pay nothing. There is a test for exactly that.
+
+**A replay is not a double tap, and conflating them is how this gets tested wrongly.** Telegram issues a
+fresh `update_id` for each individual tap, so two taps are two deliveries with two keys and the ledger would
+happily charge twice. What stops a double tap is the **slot left in hand** by the first one — a guard that
+runs before the ledger is consulted at all. So the idempotency key and the double-tap guard protect against
+different things, and the replay tests had to *consume the bought slot between the two invocations* to reach
+the key at all. Without that they pass for the wrong reason: the guard answers first and the key is never
+consulted. The trade-off the guard buys is stated in the code — **a user cannot stockpile two slots with two
+consecutive taps** — which is a much smaller loss than charging someone twice for one slot.
+
+Nothing is caught that should not be. `InsufficientCoinsException` gets a real answer (price, balance,
+shortfall, and the shop). `InvalidArgumentException` means an admin priced a slot at zero; `PurchaseEntitlement`
+refuses rather than writing a zero-coin `CoinPurchase` row that would misreport a baseline grant as something
+paid for, so the handler logs it as the operator misconfiguration it is. **`LogicException` is deliberately
+uncaught** — it means the key already paid for something else, which is a bug in how *this* handler built the
+key, and swallowing it would report success for a slot that was never sold.
+
+**Two refusals became one service.** `CreateChallengeWizard::refuseForNoSlot()` and
+`JoinChallengeFlow::refuseForNoSlot()` were near-identical twins that both gained the same three lines. They
+are now `SlotRefusal`. The copy keys stay per-scenario (`bot.wizard.*` / `bot.join.*`) — "you have used up your
+creation slots" is not the same news as "you have used up your joining slots", and the buttons underneath send
+the reader to different places. The join refusal also now carries the **join token**, so a purchase hands the
+user back to the challenge they were trying to join rather than to a dead end: `confirm()` re-resolves the
+challenge from the token and re-runs its own gate and slot checks by construction, so resuming is safe. The
+create case genuinely cannot do the same — `finish()` abandons the draft *before* refusing — so its offer is
+the honest one, to start again.
+
+**The balance is on the refusal, and the price is read at the tap.** One indexed lookup turns "you have no
+slot" into "you are 20 coins short", which is the difference between a wall and a next step. And because the
+button carries no price — only the slot type — a keyboard sent last week cannot sell a slot at last week's
+price. There is a test that moves the price between the send and the tap.
+
+**`SlotPurchaseCallback` is not rail-gated.** A slot costs **coins, not Stars**, so it deliberately sits
+outside `ShopCallback`'s `supportsNativePayments()` guard: a Bale user with no Rial-priced packages can still
+hold coins and must still be able to spend them.
+
+**Tests** — new `tests/Feature/Bot/SlotPurchaseCallbackTest.php` (13), plus the new keyboard asserted in
+`CreateChallengeWizardTest` (both the advisory `/create` refusal and the authoritative in-transaction one) and
+`JoinChallengeFlowTest`. A `slotButton()` helper joins `commandButton()` in `tests/Pest.php`, reading the
+label from `bot.slots.buy_button` and the price from the same `Setting` the purchase charges, so an assertion
+cannot pin a figure the product no longer sells at.
+
+**Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓, tsc ✓,
+tests **1839 passed, 4 skipped**, 7016 assertions.
+
+**Acceptance for the phase, end to end:** a user with a spent free slot and 100 coins — who could previously
+never create a second challenge — taps Buy, pays, and creates one.

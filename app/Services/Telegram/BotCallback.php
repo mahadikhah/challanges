@@ -21,6 +21,12 @@ use LogicException;
  * id or a participant id that a handler then acts on — handlers re-resolve the
  * actor from `callback_query.from` against our own rows and re-check ownership.
  * A tapped button is a request, exactly like a typed message.
+ *
+ * The `updateId` alongside the data is the one thing here that comes from the
+ * envelope rather than the button, and it is carried for **idempotency only —
+ * never as an authorization input**. Its one use is letting a handler that spends
+ * money derive a stable key for "this delivery of this tap", so a redelivered
+ * update replays instead of charging twice.
  */
 readonly class BotCallback
 {
@@ -33,10 +39,12 @@ readonly class BotCallback
 
     /**
      * @param  list<string>  $arguments
+     * @param  string|null  $updateId  the delivering update, for idempotency keys
      */
     private function __construct(
         public string $action,
         public array $arguments,
+        public ?string $updateId = null,
     ) {}
 
     /**
@@ -46,8 +54,13 @@ readonly class BotCallback
      * `callback_query` with no data at all (a game or inline-mode callback). The
      * caller answers the query either way — leaving it unanswered is what makes a
      * Telegram client spin forever.
+     *
+     * `$updateId` is optional so that a parser with no envelope to hand — a test,
+     * or a caller that only wants to read the action word — still constructs one.
+     * A handler that needs it for a payment must treat its absence as a refusal
+     * rather than invent a substitute: see `SlotPurchaseCallback`.
      */
-    public static function parse(?string $data): ?self
+    public static function parse(?string $data, ?string $updateId = null): ?self
     {
         $data = trim((string) $data);
 
@@ -65,7 +78,7 @@ readonly class BotCallback
             return null;
         }
 
-        return new self($action, array_map('trim', $parts));
+        return new self($action, array_map('trim', $parts), $updateId);
     }
 
     /**

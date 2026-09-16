@@ -9,7 +9,6 @@ use App\Exceptions\ChallengeNotJoinableException;
 use App\Exceptions\NoEntitlementAvailableException;
 use App\Models\Challenge;
 use App\Models\User;
-use App\Services\Settings;
 use App\Services\Telegram\Callbacks\JoinCallback;
 
 /**
@@ -42,7 +41,7 @@ class JoinChallengeFlow
         private readonly VerifyChannelMembership $gate,
         private readonly ChannelGatePrompt $gatePrompt,
         private readonly BotMessenger $messenger,
-        private readonly Settings $settings,
+        private readonly SlotRefusal $refusal,
         private readonly CheckInInstruction $instructions,
         private readonly PeriodUnit $units,
     ) {}
@@ -136,8 +135,9 @@ class JoinChallengeFlow
             return;
         } catch (NoEntitlementAvailableException) {
             // They had a slot when they tapped the link and spent it elsewhere
-            // since — the same race the create wizard answers.
-            $this->refuseForNoSlot($user);
+            // since — the same race the create wizard answers. This refusal knows
+            // which challenge they meant, so it can offer to resume it.
+            $this->refuseForNoSlot($user, $token);
 
             return;
         }
@@ -154,18 +154,14 @@ class JoinChallengeFlow
     }
 
     /**
-     * Say that a join-slot is needed, and what one costs.
+     * Say that a join-slot is needed, what one costs, and how to buy it.
      *
-     * Quoting the price at the moment of refusal, because it is a `Setting`: a
-     * cached number would go stale the moment an admin changed it.
+     * The token is carried so the purchase can hand the user back to *this* join
+     * rather than to a dead end — `confirm()` re-resolves the challenge from it
+     * and re-runs its own gate and slot checks, so resuming is safe.
      */
-    private function refuseForNoSlot(User $user): void
+    private function refuseForNoSlot(User $user, ?string $token = null): void
     {
-        $this->messenger->paragraphs($user, [
-            $this->messenger->line($user, 'bot.join.no_slot'),
-            $this->messenger->line($user, 'bot.join.slot_price', [
-                'coins' => $this->settings->integer(EntitlementType::JoinSlot->priceSetting()),
-            ]),
-        ]);
+        $this->refusal->send($user, EntitlementType::JoinSlot, $token);
     }
 }

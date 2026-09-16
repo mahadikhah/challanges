@@ -2,10 +2,13 @@
 
 namespace App\Services\Telegram;
 
+use App\Actions\Entitlements\PurchaseEntitlement;
+use App\Enums\EntitlementType;
 use App\Models\Challenge;
 use App\Models\User;
 use App\Services\Telegram\Callbacks\CheckInCallback;
 use App\Services\Telegram\Callbacks\CommandCallback;
+use App\Services\Telegram\Callbacks\SlotPurchaseCallback;
 
 /**
  * The buttons that go under a bot message, built in one place.
@@ -31,6 +34,7 @@ class BotButtons
     public function __construct(
         private readonly BotMessenger $messenger,
         private readonly BotCommandMenu $menu,
+        private readonly PurchaseEntitlement $purchases,
     ) {}
 
     /**
@@ -119,6 +123,37 @@ class BotButtons
         return [
             'text' => $this->messenger->line($user, 'bot.checkin.button', ['title' => $challenge->title]),
             'callback_data' => BotCallback::encode(CheckInCallback::ACTION, $challenge->join_token),
+        ];
+    }
+
+    /**
+     * The button that buys one extra slot with coins.
+     *
+     * The price is read through `PurchaseEntitlement::priceOf()` rather than from
+     * `Settings` directly, so the number shown on the button and the number
+     * charged on the tap come from one reader and cannot drift apart. That is the
+     * whole reason the price method is public.
+     *
+     * `$joinToken` is carried only for a **join** slot, and only when the refusal
+     * happened while responding to a specific challenge's join — it is what lets
+     * the purchase hand the user back to the join they were attempting instead of
+     * a dead end. It is a routing hint, not an authorization: `JoinChallengeFlow`
+     * re-resolves the challenge from the token and re-runs its own gate and slot
+     * checks, so a forged or stale token buys nothing.
+     *
+     * @return array{text: string, callback_data: string}
+     */
+    public function buySlot(User $user, EntitlementType $type, ?string $joinToken = null): array
+    {
+        return [
+            'text' => $this->messenger->line($user, 'bot.slots.buy_button', [
+                'coins' => $this->purchases->priceOf($type),
+            ]),
+            'callback_data' => BotCallback::encode(
+                SlotPurchaseCallback::ACTION,
+                $type->value,
+                ...($joinToken === null ? [] : [$joinToken]),
+            ),
         ];
     }
 }
