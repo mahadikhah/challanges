@@ -4,6 +4,7 @@ use App\Actions\Challenges\MaterialiseChallengePeriods;
 use App\Actions\Invites\IssueInviteCode;
 use App\Enums\ChallengeStatus;
 use App\Enums\ConversationState;
+use App\Enums\EntitlementType;
 use App\Enums\MessagingPlatform;
 use App\Enums\ReminderKind;
 use App\Enums\SettingKey;
@@ -246,22 +247,37 @@ describe('the Bale bot surface', function () {
         $message = soleBotMessage();
 
         // The second row has no Rial price, so it is not on Bale's shelves —
-        // the button indexes still name the shared table's rows.
+        // the button indexes still name the shared table's rows. The two slot
+        // rows below them are, because a slot costs coins this user may
+        // already hold and no rail has anything to do with it.
         expect($message['text'])->toContain(botCopy('bot.shop.package_rial', ['rial' => 250000, 'coins' => 250]))
             ->and($message['text'])->not->toContain(botCopy('bot.shop.package', ['stars' => 50, 'coins' => 500]))
-            ->and(keyboardOn($message))->toBe([[[
-                'text' => botCopy('bot.shop.button', ['coins' => 250]),
-                'callback_data' => 'sp:0',
-            ]]]);
+            ->and(keyboardOn($message))->toBe([
+                [[
+                    'text' => botCopy('bot.shop.button', ['coins' => 250]),
+                    'callback_data' => 'sp:0',
+                ]],
+                [slotButton('en', EntitlementType::CreateSlot)],
+                [slotButton('en', EntitlementType::JoinSlot)],
+            ]);
     });
 
-    it('says so when no package is priced in Rial', function () {
+    it('still sells slots when no package is priced in Rial', function () {
         baleAnswers('member');
         $this->settings->set(SettingKey::StarsPackages, [['stars' => 25, 'coins' => 250]]);
 
         arrivesAtBale('/shop');
 
-        expect(soleBotMessage()['text'])->toBe(botCopy('bot.shop.no_packages'));
+        $message = soleBotMessage();
+
+        // The whole point of the rework: an empty Rial shelf used to be the
+        // entire reply, which left a Bale user holding coins with no way to
+        // spend them on the one thing the menu promises.
+        expect($message['text'])->toContain(botCopy('bot.shop.no_packages'))
+            ->and(keyboardOn($message))->toBe([
+                [slotButton('en', EntitlementType::CreateSlot)],
+                [slotButton('en', EntitlementType::JoinSlot)],
+            ]);
     });
 
     it('opens the create-challenge wizard on Bale like on Telegram', function () {

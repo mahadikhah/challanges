@@ -477,7 +477,13 @@ return [
     | shows — the title is capped at 32 characters by Telegram, so it stays terse.
     */
     'shop' => [
-        'prompt' => 'Coins pay for extra challenge slots and freezes. Top up:',
+        'prompt' => 'Coins pay for extra challenge slots and freezes.',
+        'packages_heading' => 'Top up with coins:',
+        'slots_heading' => 'Add a slot — you have :create_slot to create and :join_slot to join:',
+        'slot' => [
+            'create_slot' => 'An extra challenge to create: :coins coins',
+            'join_slot' => 'An extra challenge to join: :coins coins',
+        ],
         'package' => ':stars Stars → :coins coins',
         'package_rial' => ':rial Rial → :coins coins',
         'button' => 'Buy :coins coins',

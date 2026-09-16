@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "prompts/progress.md": {
-    "mtime": 1789553247.1551504,
-    "ast_hash": "5971c1b1471be336428dbcab31d09961",
+    "mtime": 1789553766.7215874,
+    "ast_hash": "b7cd9f5fa63cd3ddbcb30bc23522ec8d",
     "semantic_hash": ""
   },
   "prompts/task-01-setup.md": {
@@ -1800,13 +1800,13 @@
     "semantic_hash": ""
   },
   "lang/en/bot.php": {
-    "mtime": 1789553392.5174756,
-    "ast_hash": "f57a5074db4952008728961b8be7c9c2",
+    "mtime": 1789553867.7897644,
+    "ast_hash": "7a8e8ab0a23cdd94361d9127290e9d8c",
     "semantic_hash": ""
   },
   "lang/fa/bot.php": {
-    "mtime": 1789553396.999486,
-    "ast_hash": "378e3bee9e677f7362dab1e07accf3e2",
+    "mtime": 1789553871.907854,
+    "ast_hash": "162f08f5602d94dab2a68120b3660eb1",
     "semantic_hash": ""
   },
   "tests/Feature/Bot/ChannelGateTest.php": {
@@ -2110,8 +2110,8 @@
     "semantic_hash": ""
   },
   "app/Services/Telegram/Commands/ShopCommand.php": {
-    "mtime": 1788017770.6116188,
-    "ast_hash": "e76ec8130813e62eb7e2c0fde9489b4a",
+    "mtime": 1789553862.8739026,
+    "ast_hash": "d39ef10730ae0a437f5ae9fd79af1551",
     "semantic_hash": ""
   },
   "app/Services/Telegram/Handlers/PreCheckoutQueryHandler.php": {
@@ -2125,8 +2125,8 @@
     "semantic_hash": ""
   },
   "tests/Feature/Payments/StarsPurchaseTest.php": {
-    "mtime": 1788017770.736619,
-    "ast_hash": "ae58393291014ee50262267c5b9a98c7",
+    "mtime": 1789554440.5834117,
+    "ast_hash": "ba886784437b365a7f33f2855abc340a",
     "semantic_hash": ""
   },
   "app/Actions/MiniApp/AuthenticateMiniAppUser.php": {
@@ -3175,8 +3175,8 @@
     "semantic_hash": ""
   },
   "tests/Feature/Bot/BaleBotTest.php": {
-    "mtime": 1788017770.716619,
-    "ast_hash": "e005c87f7e45ffa2c42f7bc5b920bcb8",
+    "mtime": 1789553931.9393616,
+    "ast_hash": "52f35a4661a701bd8bf6330e61f81527",
     "semantic_hash": ""
   },
   "tests/Feature/Messaging/BaleMessengerPlatformTest.php": {

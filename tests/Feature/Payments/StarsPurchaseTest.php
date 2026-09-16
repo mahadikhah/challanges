@@ -2,10 +2,12 @@
 
 use App\Actions\Payments\CreateStarsInvoice;
 use App\Enums\CoinTransactionReason;
+use App\Enums\EntitlementType;
 use App\Enums\SettingKey;
 use App\Enums\StarPaymentStatus;
 use App\Jobs\Telegram\ProcessTelegramUpdate;
 use App\Models\CoinTransaction;
+use App\Models\Entitlement;
 use App\Models\StarPayment;
 use App\Models\TelegramUpdate;
 use App\Models\User;
@@ -87,9 +89,30 @@ function asksTheShop(string $text = '/shop'): void
 }
 
 /**
- * Put one shop-button tap through the whole inbound path.
+ * The slot rows `/shop` always offers, in `EntitlementType` order.
+ *
+ * Built from the same `priceOf()` the purchase charges and the same callback
+ * the refusal path sends, so this cannot pin a price the product no longer
+ * sells at — and cannot pass if the shop grew a second purchase path.
+ *
+ * @return list<list<array{text: string, callback_data: string}>>
  */
-function tapsPackage(string $data): void
+function slotRows(): array
+{
+    return array_map(
+        static fn (EntitlementType $type): array => [slotButton('en', $type)],
+        EntitlementType::cases(),
+    );
+}
+
+/**
+ * Put one shop-button tap through the whole inbound path.
+ *
+ * The shop sends two kinds of button — a package index (`sp:`) and a slot
+ * (`bs:`) — and they travel the same inbound path, so this helper is the same
+ * one for both.
+ */
+function tapsShopButton(string $data): void
 {
     $update = TelegramUpdate::factory()
         ->callbackQueryFrom(['id' => 777_000_3, 'first_name' => 'Sara', 'language_code' => 'en'], $data)
@@ -181,13 +204,13 @@ describe('/shop', function () {
         expect($reply['text'])->toContain(botCopy('bot.shop.prompt'))
             ->and($reply['text'])->toContain(botCopy('bot.shop.package', ['stars' => 50, 'coins' => 50]))
             ->and($reply['text'])->toContain(botCopy('bot.shop.package', ['stars' => 500, 'coins' => 620]))
-            ->and(keyboardOn($reply))->toBe(array_map(
+            ->and(keyboardOn($reply))->toBe([...array_map(
                 fn (int $index): array => [[
                     'text' => botCopy('bot.shop.button', ['coins' => $packages[$index]['coins']]),
                     'callback_data' => 'sp:'.$index,
                 ]],
                 array_keys($packages),
-            ));
+            ), ...slotRows()]);
     });
 
     it('prices the shelves from the setting, not from this file', function () {
@@ -200,7 +223,7 @@ describe('/shop', function () {
             ->and(keyboardOn(soleBotMessage()))->toBe([[[
                 'text' => botCopy('bot.shop.button', ['coins' => 80]),
                 'callback_data' => 'sp:0',
-            ]]]);
+            ]], ...slotRows()]);
     });
 
     it('says so rather than show empty shelves when no packages are configured', function () {
@@ -209,7 +232,56 @@ describe('/shop', function () {
 
         asksTheShop();
 
-        expect(soleBotMessage()['text'])->toBe(botCopy('bot.shop.no_packages'));
+        // A line in the message, not the whole message. The slot section below
+        // it is priced in coins the user already holds, so it is on offer
+        // whether or not anything can be topped up — and that is the only
+        // reason a Telegram user with no packages configured still has
+        // something to do here.
+        expect(soleBotMessage()['text'])->toContain(botCopy('bot.shop.no_packages'))
+            ->and(keyboardOn(soleBotMessage()))->toBe(slotRows());
+    });
+
+    it('sells slots for coins the user already holds', function () {
+        telegramServesTheShop();
+
+        asksTheShop();
+
+        $message = soleBotMessage();
+
+        expect($message['text'])
+            ->toContain(botCopy('bot.shop.slot.create_slot', [
+                'coins' => $this->settings->integer(SettingKey::CreateSlotCoinPrice),
+            ]))
+            ->and($message['text'])
+            ->toContain(botCopy('bot.shop.slot.join_slot', [
+                'coins' => $this->settings->integer(SettingKey::JoinSlotCoinPrice),
+            ]))
+            // Packages first, then slots. A user who came to buy coins should
+            // not have to read past two slot rows to find the top-ups.
+            ->and(array_slice(keyboardOn($message), -2))->toBe(slotRows());
+    });
+
+    it('sells the slot its own button names, through the one purchase path', function () {
+        telegramServesTheShop();
+
+        asksTheShop();
+
+        $payer = thePayer();
+        $this->ledger->credit($payer, 100, CoinTransactionReason::AdminCredit, 'shop:funds');
+
+        tapsShopButton(slotButton('en', EntitlementType::CreateSlot)['callback_data']);
+
+        // The claim the shop's slot section rests on: it did not grow a second
+        // purchase path, it grew a second place to send the first one's
+        // button. If a `bs:` button were ever handled twice, or priced twice,
+        // this is the test that stops agreeing.
+        expect(Entitlement::query()
+            ->where('user_id', $payer->getKey())
+            ->where('type', EntitlementType::CreateSlot)
+            ->count())->toBe(1)
+            ->and($this->ledger->balanceFor($payer))
+            ->toBe(100 - $this->settings->integer(SettingKey::CreateSlotCoinPrice))
+            ->and(lastBotReply()['text'])->toBe(botCopy('bot.slots.bought'));
     });
 
     it('blocks a user who has not joined the channel', function () {
@@ -225,7 +297,7 @@ describe('a package tap', function () {
     it('records the purchase and answers with Telegram’s invoice link', function () {
         telegramServesTheShop();
         asksTheShop();
-        tapsPackage('sp:1');
+        tapsShopButton('sp:1');
 
         $payment = StarPayment::query()->sole();
 
@@ -260,7 +332,7 @@ describe('a package tap', function () {
             ['stars' => 100, 'coins' => 200],
         ]);
 
-        tapsPackage('sp:1');
+        tapsShopButton('sp:1');
 
         expect(StarPayment::query()->sole()->coin_amount)->toBe(200)
             ->and(latestBotMessage(2)['text'])->toBe(botCopy('bot.shop.pay_prompt', [
@@ -278,7 +350,7 @@ describe('a package tap', function () {
         telegramServesTheShop();
         asksTheShop();
 
-        tapsPackage('sp:99');
+        tapsShopButton('sp:99');
 
         expect(latestBotMessage(2)['text'])->toBe(botCopy('bot.fallback.stale_button'))
             ->and(StarPayment::query()->count())->toBe(0);
@@ -288,7 +360,7 @@ describe('a package tap', function () {
         telegramServesTheShop();
         asksTheShop();
 
-        tapsPackage('sp:free');
+        tapsShopButton('sp:free');
 
         expect(latestBotMessage(2)['text'])->toBe(botCopy('bot.fallback.stale_button'))
             ->and(StarPayment::query()->count())->toBe(0);

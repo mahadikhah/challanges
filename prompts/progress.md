@@ -3979,3 +3979,44 @@ join-preview path, and the gate path.
 
 **Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓, tsc ✓,
 tests **1857 passed, 4 skipped**, 7086 assertions.
+
+### Task 4 — `/shop` sells slots ✅
+
+The menu entry has said "Buy coins and slots" since it was written, and `bot.shop.prompt` said "Coins pay for
+extra challenge slots and freezes" — neither was true. The shop sold Stars packages and nothing else.
+
+**The rail gates the package section and nothing else.** Coins are bought with Stars (or Rial) out of a
+package table, and only a rail that takes a native payment can serve that. Slots are bought with coins the
+user *already holds* — by the time anybody buys one the money is in the ledger — and that is true on every
+rail. A Bale user whose shelves carry no Rial price is exactly the person who most needs the slot section:
+they can be holding coins from an invite or a completion reward, and a shop that showed them nothing leaves
+those coins unspendable.
+
+So both empty-shelf answers stopped being whole-message early returns. `bot.shop.no_packages` and
+`bot.shop.unavailable` are now *lines* in the message, with the slot rows underneath. `ShopCallback`'s mirror
+of that guard stays exactly as it was: it guards a *top-up* tap, and top-ups genuinely are unavailable there.
+
+**One purchase path, not two.** The shop reuses `BotButtons::buySlot` — the very button `SlotRefusal` sends —
+so there is one place that knows which callback buys a slot and what it quotes. A test asserts the shop's own
+button actually buys: fund the user, tap the payload the shop sent, expect one `Entitlement` and a debit of
+exactly `CreateSlotCoinPrice`.
+
+**The slot count is shown here, not in the greeting.** The plan put "slots left" out of scope for `/start` as
+a fifth query and said the shop shows it where it is actionable — this is where. The heading reads "Add a slot
+— you have 1 to create and 0 to join:", from `ConsumeEntitlement::available()`.
+
+**A slot priced below one coin is left out rather than offered.** `PurchaseEntitlement` refuses to sell at
+that price — a free slot is a change to the free allowance, not a purchase — so a button quoting it could
+only ever fail.
+
+**Copy restsructured, not just added.** `bot.shop.prompt` lost its trailing "Top up:" (that instruction moved
+to the `packages_heading` that follows it), and `bot.shop.slot.create_slot` / `.join_slot` name the two types
+so the button's position is not the only thing telling them apart.
+
+**Three exact-match assertions had to move in this commit** — `StarsPurchaseTest`'s "no packages are
+configured" and both package keyboards, plus two in `BaleBotTest`. All are now `toContain` plus an exact
+keyboard, and the Bale pair gained the case the rework exists for: a shop with an empty Rial shelf still
+offering both slot rows.
+
+**Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓, tsc ✓,
+tests **1859 passed, 4 skipped**, 7097 assertions.
