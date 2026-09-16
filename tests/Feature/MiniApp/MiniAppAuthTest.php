@@ -5,6 +5,7 @@ use App\Enums\SettingKey;
 use App\Models\User;
 use App\Services\CoinLedger;
 use App\Services\Settings;
+use App\Services\Telegram\InitDataSecretKey;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
 use Laravel\Sanctum\PersonalAccessToken;
@@ -17,11 +18,20 @@ uses(RefreshDatabase::class);
  * authenticated surface re-resolves the actor from that token alone.
  *
  * This file owns two of main.md §6's verification targets: a tampered
- * initData hash must be rejected, and so must a stale `auth_date`. The hashes
- * here are computed exactly the way `InitDataVerifier` expects them — the
- * same HMAC chain Telegram performs client-side — so a forged payload is
- * forged the only way a real one could be: by changing the contents after
- * signing, or by signing them with the wrong key.
+ * initData hash must be rejected, and so must a stale `auth_date`.
+ *
+ * **What these fixtures may not do is define what "correct" means.** They once
+ * computed the signing key with `hash_hmac('sha256', $token, 'WebAppData')` and
+ * said so out loud — "computed exactly the way `InitDataVerifier` expects them"
+ * — while the verifier made the same mistake. App and fixture agreed, the whole
+ * suite stayed green, and every real user was refused. A fixture that mirrors
+ * the implementation can only ever confirm that the implementation is
+ * self-consistent.
+ *
+ * The formula itself is therefore pinned elsewhere, against a vector generated
+ * outside PHP entirely: see `InitDataGoldenVectorTest.php`, which sits beside
+ * this file and signs the very fixture below byte for byte. These helpers are
+ * for building payloads, not for deciding whether the payloads are right.
  */
 
 const BOT_TOKEN = '123456:TEST-TOKEN';
@@ -75,7 +85,7 @@ function initData(
         array_map(fn (string $key): string => $key.'='.$signed[$key], array_keys($signed)),
     );
 
-    $secretKey = hash_hmac('sha256', BOT_TOKEN, 'WebAppData');
+    $secretKey = InitDataSecretKey::derive(BOT_TOKEN);
 
     $fields['hash'] = hash_hmac('sha256', $checkString, $secretKey);
 
@@ -99,7 +109,7 @@ function initDataSignedWith(string $botToken, array $fields): string
     $fields['hash'] = hash_hmac(
         'sha256',
         $checkString,
-        hash_hmac('sha256', $botToken, 'WebAppData'),
+        InitDataSecretKey::derive($botToken),
     );
 
     return http_build_query($fields);
