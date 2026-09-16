@@ -1,9 +1,14 @@
 <?php
 
+use App\Actions\Challenges\MaterialiseChallengePeriods;
 use App\Actions\Invites\IssueInviteCode;
+use App\Enums\CoinTransactionReason;
 use App\Enums\EntitlementType;
+use App\Enums\ParticipantStatus;
 use App\Enums\SettingKey;
 use App\Jobs\Telegram\ProcessTelegramUpdate;
+use App\Models\Challenge;
+use App\Models\ChallengeParticipant;
 use App\Models\Entitlement;
 use App\Models\TelegramUpdate;
 use App\Models\User;
@@ -107,6 +112,68 @@ function arrivesAtBot(string $text = '/start', array $from = [], string $chatTyp
  * `botKeyboard()` read the bot's replies back off the wire. They are shared by every
  * bot test and live in `tests/Pest.php`.
  */
+
+/**
+ * Somebody who has already chosen a language and cleared the gate.
+ *
+ * Pre-created rather than walked through the first-arrival path, because a
+ * dashboard test has to have the challenges and the coins in place *before* the
+ * greeting renders — and the platform-wide headcount is cached for five minutes,
+ * so a greeting sent first would pin the figures at zero.
+ */
+function greetedUser(int $telegramId = 777_000_3): User
+{
+    return User::factory()->telegram($telegramId)->preferring('en')->create([
+        'channel_verified_at' => now(),
+    ]);
+}
+
+/**
+ * The five figures of the dashboard, at rest.
+ *
+ * @return array{joined: int, created: int, coins: int, people: int, platform: int}
+ */
+function greetingFigures(
+    int $joined = 0,
+    int $created = 0,
+    int $coins = 0,
+    int $people = 0,
+    int $platform = 0,
+): array {
+    return compact('joined', 'created', 'coins', 'people', 'platform');
+}
+
+/**
+ * That block as the bot renders it — one paragraph, five lines inside it.
+ *
+ * Read out of `bot.start.stats.*` in the order the greeting declares them, so a
+ * block that gained, lost or reordered a line fails rather than being quietly
+ * accommodated. The single `\n`s are the point: `paragraphs()` puts a blank line
+ * between its elements, and five paragraphs of dashboard is the wall this
+ * arrangement exists to avoid.
+ *
+ * @param  array{joined: int, created: int, coins: int, people: int, platform: int}  $figures
+ */
+function statsBlockFor(array $figures, string $locale = 'en'): string
+{
+    $lines = [];
+
+    foreach ($figures as $key => $count) {
+        $lines[] = botCopy("bot.start.stats.{$key}", ['count' => $count], $locale);
+    }
+
+    return implode("\n", $lines);
+}
+
+/**
+ * Somebody standing in a challenge, active unless the test says otherwise.
+ */
+function greetingStandsIn(User $user, Challenge $challenge): ChallengeParticipant
+{
+    return ChallengeParticipant::factory()->for($challenge)->for($user)->create([
+        'status' => ParticipantStatus::Active,
+    ]);
+}
 
 describe('a first arrival', function () {
     it('registers, admits and greets them in one message', function () {
@@ -521,5 +588,164 @@ describe('the recipient’s language', function () {
             'app' => botCopy('common.app_name'),
             'name' => 'Reza',
         ]));
+    });
+});
+
+describe('the dashboard the greeting grew into', function () {
+    it('shows a brand-new user the zeros, and the two rows of moves', function () {
+        telegramAnswers('member');
+
+        arrivesAtBot('/start');
+        answerLanguageQuestion();
+
+        $message = latestBotMessage(2);
+
+        // The greeting is delivered by `LanguageCallback` for somebody who has
+        // just answered the language question, so this also covers the second
+        // caller: the dashboard appears there too, not only on a later `/start`.
+        expect($message['text'])->toContain(statsBlockFor(greetingFigures()))
+            ->and(keyboardOn($message))->toBe([
+                [commandButton('en', 'checkin'), commandButton('en', 'create')],
+                [commandButton('en', 'shop'), commandButton('en', 'challenges')],
+            ]);
+    });
+
+    it('counts what somebody is in, what they made and what they hold', function () {
+        telegramAnswers('member');
+
+        $user = greetedUser();
+        $friend = User::factory()->telegram(777_010_1)->preferring('en')->create();
+        $stranger = User::factory()->telegram(777_010_2)->preferring('en')->create();
+
+        // One they are standing in, with a friend...
+        $joined = Challenge::factory()->active()->create(['creator_id' => $friend->getKey()]);
+        greetingStandsIn($user, $joined);
+        greetingStandsIn($friend, $joined);
+
+        // ...and one they made, with somebody they have never met in it. The
+        // creator is not a participant of their own challenge.
+        $made = Challenge::factory()->active()->create(['creator_id' => $user->getKey()]);
+        greetingStandsIn($stranger, $made);
+
+        $this->ledger->credit($user, 45, CoinTransactionReason::AdminCredit, 'dashboard:credit');
+
+        arrivesAtBot('/start');
+
+        expect(soleBotMessage()['text'])->toContain(statsBlockFor(greetingFigures(
+            joined: 1,
+            created: 1,
+            coins: 45,
+            people: 3,
+            platform: 3,
+        )));
+    });
+
+    it('counts the platform separately from the challenges the user is in', function () {
+        telegramAnswers('member');
+
+        $user = greetedUser();
+        $friend = User::factory()->telegram(777_010_3)->preferring('en')->create();
+
+        $ours = Challenge::factory()->active()->create(['creator_id' => $friend->getKey()]);
+        greetingStandsIn($user, $ours);
+        greetingStandsIn($friend, $ours);
+
+        // Somebody else's challenge entirely, with people this user will never
+        // meet. Without it both "people" lines would read 2, and one query
+        // pasted into both figures would pass every assertion here.
+        $elsewhere = Challenge::factory()->active()->create([
+            'creator_id' => User::factory()->telegram(777_010_4)->preferring('en')->create()->getKey(),
+        ]);
+
+        foreach ([777_010_5, 777_010_6] as $id) {
+            greetingStandsIn(User::factory()->telegram($id)->preferring('en')->create(), $elsewhere);
+        }
+
+        arrivesAtBot('/start');
+
+        expect(soleBotMessage()['text'])->toContain(statsBlockFor(greetingFigures(
+            joined: 1,
+            people: 2,
+            platform: 4,
+        )));
+    });
+
+    it('says all of it in the reader’s language', function () {
+        telegramAnswers('member');
+
+        $user = User::factory()->telegram(777_010_7)->preferring('fa')->create([
+            'channel_verified_at' => now(),
+        ]);
+
+        $this->ledger->credit($user, 7, CoinTransactionReason::AdminCredit, 'dashboard:farsi');
+
+        arrivesAtBot('/start', ['id' => 777_010_7, 'first_name' => 'سارا']);
+
+        expect(soleBotMessage()['text'])->toContain(statsBlockFor(greetingFigures(coins: 7), 'fa'));
+    });
+
+    it('keeps the way out of an open flow, and only then', function () {
+        telegramAnswers('member');
+
+        $user = greetedUser();
+        Entitlement::factory()->createSlot()->create(['user_id' => $user->getKey()]);
+
+        arrivesAtBot('/create');
+        arrivesAtBot('/start');
+
+        // Three rows while the create wizard is asking its questions: the way
+        // out is the one button here whose absence would strand somebody, and
+        // `/start` is reachable at any time — including mid-wizard, which is
+        // exactly when a confused user sends it.
+        expect(keyboardOn(latestBotMessage(2)))->toBe([
+            [commandButton('en', 'checkin'), commandButton('en', 'create')],
+            [commandButton('en', 'shop'), commandButton('en', 'challenges')],
+            [commandButton('en', 'cancel')],
+        ]);
+    });
+
+    it('shows it to nobody who is still behind the gate', function () {
+        telegramAnswers('left');
+
+        $user = greetedUser();
+        Challenge::factory()->active()->create(['creator_id' => $user->getKey()]);
+
+        arrivesAtBot('/start');
+
+        // The gate answers first and answers alone. A headcount in front of the
+        // one thing this user has to do is noise, and "1 challenge you created"
+        // to somebody who cannot act on it is worse than noise.
+        $reply = soleBotMessage();
+
+        expect($reply['text'])->not->toContain(botCopy('bot.start.stats.created', ['count' => 1]))
+            ->and($reply['text'])->not->toContain(botCopy('bot.start.next_steps'))
+            ->and(keyboardOn($reply))->toBe([[commandButton('en', 'start'), [
+                'text' => botCopy('bot.gate.join_button'),
+                'url' => 'https://t.me/challenges',
+            ]]]);
+    });
+
+    it('stays out of the way of a join link', function () {
+        telegramAnswers('member');
+
+        $challenge = Challenge::factory()->active()->create([
+            'join_token' => 'dashbrdtoken',
+            'title' => 'Read every day',
+            'total_periods' => 30,
+        ]);
+
+        app(MaterialiseChallengePeriods::class)->handle($challenge);
+
+        arrivesAtBot('/start j_'.$challenge->join_token);
+        answerLanguageQuestion();
+
+        $text = latestBotMessage(2)['text'];
+
+        // Joining is the conversation they meant to have. A dashboard in front
+        // of it is a screen to scroll past before reaching the button they came
+        // for — and the preview already names where they would stand.
+        expect($text)->toContain(botCopy('bot.join.preview_headline', ['title' => 'Read every day']))
+            ->and($text)->not->toContain(botCopy('bot.start.stats.joined', ['count' => 0]))
+            ->and($text)->not->toContain(botCopy('bot.start.next_steps'));
     });
 });

@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "prompts/progress.md": {
-    "mtime": 1789551179.8422363,
-    "ast_hash": "44782ad7bceddefdc15c0efdfbc57023",
+    "mtime": 1789553247.1551504,
+    "ast_hash": "5971c1b1471be336428dbcab31d09961",
     "semantic_hash": ""
   },
   "prompts/task-01-setup.md": {
@@ -1785,8 +1785,8 @@
     "semantic_hash": ""
   },
   "app/Services/Telegram/Commands/StartCommand.php": {
-    "mtime": 1789520689.8183355,
-    "ast_hash": "ce5e022b0111214e0ea6d2fb731a0be3",
+    "mtime": 1789553489.5582805,
+    "ast_hash": "b309d5654cb2da16b5396dcef3efc8c0",
     "semantic_hash": ""
   },
   "app/Services/Telegram/Handlers/MessageHandler.php": {
@@ -1800,13 +1800,13 @@
     "semantic_hash": ""
   },
   "lang/en/bot.php": {
-    "mtime": 1789551434.0861716,
-    "ast_hash": "79a11ed282bee4b1c95350624d4a9da2",
+    "mtime": 1789553392.5174756,
+    "ast_hash": "f57a5074db4952008728961b8be7c9c2",
     "semantic_hash": ""
   },
   "lang/fa/bot.php": {
-    "mtime": 1789551481.084878,
-    "ast_hash": "ff81a55ee8cc76029bb95bb4e6878269",
+    "mtime": 1789553396.999486,
+    "ast_hash": "378e3bee9e677f7362dab1e07accf3e2",
     "semantic_hash": ""
   },
   "tests/Feature/Bot/ChannelGateTest.php": {
@@ -1820,8 +1820,8 @@
     "semantic_hash": ""
   },
   "tests/Feature/Bot/StartCommandTest.php": {
-    "mtime": 1789523549.1578512,
-    "ast_hash": "d31aa1532b5a89c634e1681bb43d23d6",
+    "mtime": 1789553481.6747468,
+    "ast_hash": "bac741c5804fb17e8779855ea10e4946",
     "semantic_hash": ""
   },
   "app/Actions/Challenges/CreateChallenge.php": {
@@ -3800,13 +3800,13 @@
     "semantic_hash": ""
   },
   "app/Services/Telegram/StartGreeting.php": {
-    "mtime": 1789523761.9350345,
-    "ast_hash": "6381fa7d8d5c4d3e90cd027298926dda",
+    "mtime": 1789553389.199481,
+    "ast_hash": "79add3dbc96f1646ef3ccdb4eca53971",
     "semantic_hash": ""
   },
   "tests/Feature/Bot/StartLanguageQuestionTest.php": {
-    "mtime": 1789523157.661403,
-    "ast_hash": "47ab08dbe1ae1f4388f179943b788472",
+    "mtime": 1789553404.122543,
+    "ast_hash": "84224e6311e9a1c4d7ca95e165dc3680",
     "semantic_hash": ""
   },
   "app/Services/Telegram/BotCommandMenu.php": {
@@ -3917,6 +3917,11 @@
   "tests/Feature/Bot/MyChallengesCommandTest.php": {
     "mtime": 1789551652.3954117,
     "ast_hash": "be1238e51a9108b86f1686f822825958",
+    "semantic_hash": ""
+  },
+  "app/Services/UserStats.php": {
+    "mtime": 1789553377.6685922,
+    "ast_hash": "5f52ab3bb13faf2677332c2f8cc8f311",
     "semantic_hash": ""
   }
 }

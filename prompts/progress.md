@@ -3913,3 +3913,69 @@ files, `BotCommandMenuTest`'s `toHaveCount(7)` → `8` and its rendered order st
 
 **Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓, tsc ✓,
 tests **1850 passed, 4 skipped**, 7063 assertions. New: `MyChallengesCommandTest` (11).
+
+### Task 3 — the welcome becomes a dashboard ✅
+
+`/start` is the one screen every user reaches, and until now it said nothing about them: "Welcome back,
+:name." and a single Create button. No coins, no challenges, no other people — and no way to check in,
+which was reachable only by typing `/checkin`, tapping a `ci:` button on a reminder, or going through the
+listing. Telegram's own command menu, the thing that was supposed to cover for it, lives behind the
+client-side menu button.
+
+**Every figure is shown to everybody, brand-new users included.** Zeros are honest, they introduce the
+economy before it matters, and a greeting that sometimes has a second half is a greeting nobody learns to
+read.
+
+**The block is one paragraph with internal newlines, not five paragraphs.** `paragraphs()` separates its
+elements with a blank line, so five short facts spread over five paragraphs is a wall to scroll past.
+`bot.wizard.summary` is the precedent. Five keys — `.joined`, `.created`, `.coins`, `.people`, `.platform` —
+so a translator can reorder them.
+
+*Deviation from the plan, stated deliberately:* the plan listed four keys but also required "active people"
+to be **two lines**, a personal count and a platform-wide total. Both cannot hold, so there are five keys and
+the personal line is `.people`, the platform one `.platform`.
+
+**`app/Services/UserStats.php` sits in the root `Services/` namespace, not under `Services/Telegram/`.**
+None of this is a bot fact; the Mini App dashboard wants the same figures without reaching into the bot's
+namespace.
+
+**One deviation in what "your challenges" means, also deliberate.** The plan had the personal-people count
+read `participations()->active()->pluck('challenge_id')` alone. That would print "Active people in your
+challenges: 0" to a creator with five people in a challenge they made — `CreateChallenge` writes no
+participation row for them. The set is therefore joined-active **∪** created, which costs no extra query
+(the created ids come back in place of the `count()` that was already being run).
+
+**Only the platform-wide figure is cached, for five minutes.** Both indexes on `challenge_participants` put
+`status` second — `(user_id, status)` and `(challenge_id, status)` — so a bare `status` filter has no leading
+column and reads the table, on the busiest path in the product. The lifetime is a documented `private const`
+and **not** a `SettingKey`: that table holds rates an admin tunes and can see the effect of, and a case there
+would drag an admin label into both locales to satisfy `SettingsPanelTest` for a number nobody would change.
+The per-user numbers are never cached — a user who just created a challenge has to see the count move. If the
+scan shows up in a slow-query log the fix is a `status`-leading index, not a longer TTL.
+
+Net cost to `/start`: four queries (three for a brand-new user) plus one cached.
+
+**Two rows of two, and not one label written by hand.** `[Check in · Create]` / `[Coins · My challenges]` —
+four long labels in one row wrap on a phone, and the two things a user came to *do* sit above the two things
+they came to *see*. Every label comes from `BotCommandMenu::descriptionKey()`, which is what makes a button
+and its line in Telegram's command menu the same string by construction — and it is why the Coins button is
+`cm:shop` rather than a bespoke method. Check-in needed no new code at all: `BotButtons::row($user,'checkin')`
+yields `cm:checkin`, routing byte-for-byte as a typed `/checkin`.
+
+**`cancel` keeps its rule and gains its first test.** It joins as a third row only while a flow is actually
+open. That condition had no coverage at all; it now does, driven through the real `/create` wizard.
+
+**Two paths deliberately get none of it:** the gate-blocked branch sends the gate prompt and nothing else —
+a headcount in front of the one thing that user has to do is noise — and the join-payload early return leaves
+the preview alone, since joining is the conversation they meant to have.
+
+**The only exact keyboard pin in the suite was updated in this commit** — `StartLanguageQuestionTest`'s
+`toBe([[commandButton('en', 'create')]])`. Every other welcome assertion used `toContain` and was unaffected.
+
+**Tests.** Six added to `StartCommandTest`: the zeros on a brand-new user (delivered via `LanguageCallback`,
+so it covers the second caller too), the four figures counted from real rows, **the personal and platform
+"people" figures asserted to differ** so one query pasted into both lines cannot pass, a Farsi case, the
+join-preview path, and the gate path.
+
+**Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓, tsc ✓,
+tests **1857 passed, 4 skipped**, 7086 assertions.

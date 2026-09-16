@@ -31,6 +31,13 @@ return [
         'welcome' => 'Welcome to :app, :name! Set yourself a challenge, bring your friends along, and keep the streak alive.',
         'welcome_back' => 'Welcome back, :name.',
         'next_steps' => 'Whenever you are ready, tap below to set up a challenge.',
+        'stats' => [
+            'joined' => 'Challenges you are in: :count',
+            'created' => 'Challenges you created: :count',
+            'coins' => 'Your coins: :count',
+            'people' => 'Active people in your challenges: :count',
+            'platform' => 'Active people across the platform: :count',
+        ],
     ],
 
     'gate' => [

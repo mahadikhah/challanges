@@ -323,12 +323,15 @@ describe('a user who has already chosen', function () {
 
         $message = soleBotMessage();
 
-        // The buttons are the greeting's own, not the language question's: one to
-        // create, and none for the language, which this user has already settled.
-        // No `cancel` either — nothing is open to cancel.
+        // The buttons are the greeting's own, not the language question's: none
+        // for the language, which this user has already settled. No `cancel`
+        // either — nothing is open to cancel.
         expect($message['text'])->toContain(botCopy('bot.start.welcome_back', ['name' => 'Sara']))
             ->and($message['text'])->not->toContain(botCopy('bot.language.prompt'))
-            ->and(keyboardOn($message))->toBe([[commandButton('en', 'create')]]);
+            ->and(keyboardOn($message))->toBe([
+                [commandButton('en', 'checkin'), commandButton('en', 'create')],
+                [commandButton('en', 'shop'), commandButton('en', 'challenges')],
+            ]);
     });
 
     it('still gets the invite note on the same message', function () {

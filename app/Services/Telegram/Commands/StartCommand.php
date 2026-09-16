@@ -53,8 +53,8 @@ use Illuminate\Support\Facades\Log;
  * is exactly why the trigger is the column and not `wasRecentlyCreated`.
  *
  * Everything the user is told goes out as **one** message. Telegram allows roughly
- * a message a second per chat, and a greeting plus an invite note plus a nudge
- * sent separately is how the third one gets dropped with a 429.
+ * a message a second per chat, and a greeting plus an invite note plus a dashboard
+ * plus a nudge sent separately is how the last one gets dropped with a 429.
  */
 class StartCommand implements HandlesBotCommand
 {
