@@ -97,7 +97,10 @@ class CheckInFlow
         $participations = $user->participations()->active()->with('challenge')->get();
 
         if ($participations->isEmpty()) {
-            $this->messenger->send($user, $this->messenger->line($user, 'bot.checkin.none'));
+            // A door rather than a diagnosis: "you are not in anything" is the
+            // state a new user arrives in, and it was the one message in this flow
+            // that offered nothing to tap.
+            $this->buttons->send($user, 'bot.checkin.none', 'create');
 
             return;
         }
@@ -187,8 +190,13 @@ class CheckInFlow
 
         $challenge = $challenges->count() === 1 ? $challenges->first() : null;
 
+        // Nothing is owed, so there is no check-in button to offer — but there is
+        // still somewhere to go, and "check back later" with nothing under it is a
+        // dead end at the exact moment a user came looking for something to do.
+        $keyboard = $this->buttons->keyboard($user, 'challenges', 'create');
+
         if ($challenge === null) {
-            $this->messenger->send($user, $line);
+            $this->messenger->send($user, $line, $keyboard);
 
             return;
         }
@@ -196,7 +204,7 @@ class CheckInFlow
         $this->messenger->paragraphs($user, [
             $line,
             $this->instructions->lineFor($user, $challenge),
-        ]);
+        ], $keyboard);
     }
 
     /**

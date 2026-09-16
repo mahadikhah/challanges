@@ -48,6 +48,7 @@ class BotCommandMenu
     private const array MENU = [
         'start' => 'bot.commands.start',
         'create' => 'bot.commands.create',
+        'challenges' => 'bot.commands.challenges',
         'checkin' => 'bot.commands.checkin',
         'chatlink' => 'bot.commands.chatlink',
         'shop' => 'bot.commands.shop',

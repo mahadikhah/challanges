@@ -3867,3 +3867,49 @@ tests **1839 passed, 4 skipped**, 7016 assertions.
 
 **Acceptance for the phase, end to end:** a user with a spent free slot and 100 coins — who could previously
 never create a second challenge — taps Buy, pays, and creates one.
+
+### Task 2 — `/challenges`, the listing the product did not have ✅
+
+A user with three challenges had nowhere that named them all. Check-in reached them one at a time, from a
+reminder; a challenge they had created and finished simply vanished; and the command menu that was supposed
+to cover for this lives behind Telegram's client-side menu button — exactly where a confused user does not
+look.
+
+**Ownership and participation are different sets, and they overlap.** `CreateChallenge` never writes a
+participant row for the creator, so a creator who never joined is in no participation query at all — and a
+creator *can* join their own challenge, in which case they are in both. `MyChallengesFlow` merges on the
+challenge id and names each one once, as one of three shapes: joined, yours, or both. A concatenation would
+have listed the overlap twice.
+
+**Nothing here decides what is owed.** That rule belongs to `CheckInFlow`, and the listing reaches it through
+the same `cm:checkin` a typed command produces. Reimplementing "is this period open" here would be a second
+copy of a rule the Mini App and the admin panel do not have — the listing is precisely the surface most
+tempted to do it, and the reason the flow has a docblock saying so.
+
+**Newest first, stated as a judgement call.** An order has to be picked; ranking by what is owed would
+duplicate the rule above, and ranking by "active" would bury a challenge that starts tomorrow under one that
+ended last week. Creation order is a total order that needs no tiebreaker and answers the question the user
+arrived with.
+
+**The cap is 10 rows with the overflow counted**, not dropped: Telegram refuses a message past 4096
+characters, and a user who reads ten of their fifteen challenges with no note would reasonably conclude the
+other five are gone.
+
+**The creator's own count is excluded from "in it".** `withCount('participants')` counts the creator whenever
+they joined their own challenge, and the line is *theirs* — "3 in it" must not mean "you and two others".
+
+**Two drive-bys in `CheckInFlow`.** Both `bot.checkin.none` and `sayNothingDue()` were bare `send()` calls
+with no keyboard: the first is the state every new user arrives in, and the second is a dead end at the exact
+moment a user came looking for something to do. Both now carry buttons.
+
+**One real bug caught by the tests, worth recording.** `$rows === []` on a `Collection` is **always false** —
+a Collection is never identical to an array. The empty branch was therefore unreachable and a user with
+nothing got an empty message. `isEmpty()` is the check; phpstan did not flag the comparison.
+
+**One thing that moves together or the build is red:** `BOT_COMMANDS`, `BotCommandMenu::MENU`, both lang
+files, `BotCommandMenuTest`'s `toHaveCount(7)` → `8` and its rendered order string
+(`start, challenges, chatlink, checkin, create, language, shop, cancel` — `chall` sorts before `chat`).
+`CommandButtonTest` covers the new button label for free.
+
+**Result — `sail composer ci:check` GREEN:** pint ✓, phpstan lvl 7 (0 errors) ✓, eslint ✓, prettier ✓, tsc ✓,
+tests **1850 passed, 4 skipped**, 7063 assertions. New: `MyChallengesCommandTest` (11).

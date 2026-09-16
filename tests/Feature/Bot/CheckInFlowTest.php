@@ -263,7 +263,13 @@ describe('/checkin', function () {
         // is being said.
         expect(soleBotMessage()['text'])->toBe(
             botCopy('bot.checkin.nothing_due')."\n\n".botCopy('bot.checkin.how.button'),
-        );
+        )
+            // Nothing is owed, so there is no check-in button — but the message is
+            // not a dead end either.
+            ->and(botKeyboard())->toBe([[
+                commandButton('en', 'challenges'),
+                commandButton('en', 'create'),
+            ]]);
     });
 
     it('reports a settled period with the streak it earned', function () {
@@ -301,7 +307,11 @@ describe('/checkin', function () {
 
         typesIn(888_100_1, '/checkin');
 
-        expect(soleBotMessage()['text'])->toBe(botCopy('bot.checkin.none'));
+        expect(soleBotMessage()['text'])
+            ->toBe(botCopy('bot.checkin.none'))
+            // The state every new user arrives in, so it has to be a door rather
+            // than a diagnosis.
+            ->and(botKeyboard())->toBe([[commandButton('en', 'create')]]);
     });
 
     it('blocks at the gate like anything else', function () {
@@ -396,7 +406,12 @@ describe('the check-in instruction', function () {
         // Two challenges, two mechanics. Naming one of them would be a coin flip
         // dressed up as an answer, and the listing states it properly per
         // challenge the moment something is actually owed.
-        expect(soleBotMessage()['text'])->toBe(botCopy('bot.checkin.nothing_due'));
+        expect(soleBotMessage()['text'])
+            ->toBe(botCopy('bot.checkin.nothing_due'))
+            ->and(botKeyboard())->toBe([[
+                commandButton('en', 'challenges'),
+                commandButton('en', 'create'),
+            ]]);
     });
 });
 

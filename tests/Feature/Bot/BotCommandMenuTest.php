@@ -112,7 +112,7 @@ it('leads with start, trails with cancel, and sorts what is left', function () {
         // are the affordance (`start` is the way back, `cancel` the way out) and
         // the middle is alphabetical, so adding a command never reopens the
         // question of where it goes. Telegram renders the list in this order.
-        expect($words)->toHaveCount(7)
+        expect($words)->toHaveCount(8)
             ->and($words[0])->toBe('start')
             ->and(end($words))->toBe('cancel')
             ->and($middle)->toBe($sorted);
@@ -229,7 +229,7 @@ it('says what it registered, and never the token it registered with', function (
         ->expectsOutputToContain('Command menu registered.')
         // The order on screen is the order in the app, so an operator comparing
         // the two is comparing the right things.
-        ->expectsOutputToContain('start, chatlink, checkin, create, language, shop, cancel')
+        ->expectsOutputToContain('start, challenges, chatlink, checkin, create, language, shop, cancel')
         ->doesntExpectOutputToContain('TEST-TOKEN')
         ->assertSuccessful();
 });

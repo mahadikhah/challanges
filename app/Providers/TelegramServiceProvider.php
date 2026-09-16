@@ -16,6 +16,7 @@ use App\Services\Telegram\Callbacks\SlotPurchaseCallback;
 use App\Services\Telegram\Callbacks\WizardCallback;
 use App\Services\Telegram\CommandRouter;
 use App\Services\Telegram\Commands\CancelCommand;
+use App\Services\Telegram\Commands\ChallengesCommand;
 use App\Services\Telegram\Commands\ChatLinkCommand;
 use App\Services\Telegram\Commands\CheckInCommand;
 use App\Services\Telegram\Commands\CreateCommand;
@@ -92,6 +93,7 @@ class TelegramServiceProvider extends ServiceProvider
     public const array BOT_COMMANDS = [
         'start' => StartCommand::class,
         'create' => CreateCommand::class,
+        'challenges' => ChallengesCommand::class,
         'checkin' => CheckInCommand::class,
         'chatlink' => ChatLinkCommand::class,
         'shop' => ShopCommand::class,

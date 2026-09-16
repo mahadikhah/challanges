@@ -19,6 +19,7 @@ return [
     'commands' => [
         'start' => 'Begin, or start over',
         'create' => 'Create a challenge',
+        'challenges' => 'See your challenges',
         'checkin' => 'Check in for this period',
         'chatlink' => 'Link a chat to a challenge',
         'shop' => 'Buy coins and slots',
@@ -170,6 +171,22 @@ return [
             'not_awaiting_review' => 'There is no proof waiting on you for that one.',
             'value_missing' => 'That check-in carries no reported number, so it cannot be scored. Reject it and the participant can send it again with one.',
         ],
+    ],
+
+    /*
+    | `/challenges` — everything the user is in or owns, newest first. Three row
+    | shapes because a challenge they joined and one they made are different
+    | news: "joined · streak 4" is not "yours · 12 in it", and a single template
+    | with the missing half left blank reads like a mistake in both languages.
+    | `more` is the overflow, counted rather than dropped so nobody concludes the
+    | challenges past the tenth are gone.
+    */
+    'challenges' => [
+        'none' => 'You are not in any challenge yet. Create one and bring your friends along.',
+        'row_participant' => '“:title” — joined · :status · streak :streak',
+        'row_creator' => '“:title” — yours · :status · :people in it',
+        'row_both' => '“:title” — yours and joined · :status · :people in it · streak :streak',
+        'more' => '…and :count more.',
     ],
 
     /*
