@@ -7,6 +7,7 @@ use App\Enums\ApprovalMode;
 use App\Enums\CheckInSessionStatus;
 use App\Enums\CheckInStatus;
 use App\Enums\StepInputType;
+use App\Events\CheckInAwaitsReview;
 use App\Exceptions\SessionRejectedException;
 use App\Models\ChallengeStep;
 use App\Models\CheckIn;
@@ -45,6 +46,10 @@ use Illuminate\Support\Facades\DB;
  * deliberately left open. The settlement engines themselves are untouched:
  * every decision still lands through `ApplyAiVerdict` and
  * `SettleCheckIn`, the same paths a photo takes.
+ *
+ * A fallback ends with the check-in waiting on a person, so it raises
+ * `CheckInAwaitsReview` — the creator is the one who has to look at it, and the
+ * session surface only ever says "in for review" to the participant.
  */
 class AdvanceCheckInStep
 {
@@ -141,6 +146,19 @@ class AdvanceCheckInStep
             'completed_at' => now(),
             'current_step_order' => null,
         ]);
+
+        // A fallback leaves the check-in waiting on a person, and until now
+        // nobody told that person. The session surface already says "in for
+        // review" to the *participant*; this is the other half of the same
+        // sentence. Announced from out here rather than from inside the
+        // transaction that opened the row: the event must not exist if the
+        // rollback takes the check-in with it.
+        //
+        // A rejection is deliberately silent — the participant may resubmit,
+        // so the row is not the creator's to act on yet.
+        if ($pendingReview->status === CheckInStatus::Submitted) {
+            CheckInAwaitsReview::dispatch($pendingReview);
+        }
 
         return $result;
     }
