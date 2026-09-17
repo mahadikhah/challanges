@@ -337,7 +337,14 @@ export function MiniApp() {
                 ) : null}
 
                 {phase.screen === 'detail' ? (
-                    <ChallengeDetail initial={phase.challenge} />
+                    <ChallengeDetail
+                        initial={phase.challenge}
+                        // Where the bot can be opened from, for the media-proof
+                        // challenges whose proof only exists there. The boot
+                        // user holds it (the server derives it from the actor's
+                        // own platform) and it beats a hardcoded t.me username.
+                        botUrl={user?.bot_url ?? null}
+                    />
                 ) : null}
             </main>
         </div>

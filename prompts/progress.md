@@ -4194,3 +4194,94 @@ with a comment naming what it used to say.
 `MiniAppAuthTest` → *"excludes the optional signature from the check string"* recorded at the end of Task 2 above;
 none of this task's files are in the Mini App or auth path, and it is unchanged.
 
+### Task 5 — Checking in from the Mini App, for every proof that is not media ✅
+
+The task's own framing was the report: the Mini App is a window on a product whose other surfaces can all act. A
+`button` participant could tap and a `text_autogen` participant could not — they read one sentence, *"Check in
+via the bot"*, and the API answered `wrong_proof_type` if they somehow tried anyway. The endpoint called
+`SubmitCheckIn::tap()` and nothing else, and its docblock conceded as much. Two proofs become first-class here;
+the three media proofs stay the bot's, and now say so with a button that opens it.
+
+**`SubmitCheckIn` was not touched, and that is the whole design.** `tap()` and `typePhrase()` are the same two
+entry points the bot's callbacks call, so the rule cannot be right on one surface and wrong on the other — which
+is CLAUDE.md's "every surface calls the same Actions" read literally rather than re-implemented. The controller
+dispatches on `$participant->challenge->proof_type` with a `match` whose **default branch is `tap()`**, and that
+default is deliberate: `openSubmittable()` already owns the `wrong_proof_type` refusal for a media proof, so a
+`ProofType::ImageApproval => refuse()` arm here would have been a second copy of a rule the task said stays put.
+
+**The phrase had to be issued on a read, and that is the one judgement call worth stating.** The SPA cannot show
+a phrase it was never given, and there is no other path to one: a `text_autogen` submission with no text is
+refused `proof_missing` *before* the row is opened, and a wrong phrase is refused `phrase_mismatch`. So `GET
+/challenges/{id}` mints it — exactly what `CheckInFlow::askPhrase()` does at display time in the bot, for the
+same reason: the string the participant reads must be the string their answer is compared against. The write
+lives in `ChallengeResource` behind a `detail()` static factory rather than in the controllers, because the
+resource is the only place that already has the open period and the participant in hand; pushing it into
+`ChallengeController::show()` would have meant a second copy of "which period is current" and a third in
+`JoinController`. `index` builds plain resources and never reaches it.
+
+**Two traps, both hit and both fixed by reading before writing.** First, `$participant->checkIns` is
+eager-loaded by every controller *before* the render, so a row `firstOrCreate`d during it is not in that
+collection — a re-lookup would have reported `check_in: null` on the very first paint. The shape is built from
+the row `forParticipant()` returns instead. Second, the test that swaps tokens mid-test was reading B's detail
+as A: the container is shared across a test's requests and `RequestGuard` caches the user it resolved, so the
+second request never re-read the new `Authorization` header. `app('auth')->forgetGuards()` between the two is
+the fix, and a comment says why — without it the test passed on the harness rather than on the phrase.
+
+**`bot_url` went to `/me` rather than the challenge payload, confirmed with the user.** Task 6 has not landed,
+and the URL is a property of the actor's platform, not of the challenge. `MessagingPlatform::botUrl()` returns
+`null` when no username is configured — never a `t.me/` with a hole in it — and the SPA falls back to the plain
+sentence in that state, which is exactly today's behaviour. The three base links (`channelUrl()`, `startLink()`,
+`botUrl()`) now share one `linkBase()`. **Task 6's options payload must read this same helper**, not re-derive
+it.
+
+**`expected_phrase` reaches its owner and nobody else.** It is attached on the current-period path only, on the
+detail surface only, while the row is still owed: a settled row carries none (it was already answered), a
+history entry never reaches it, another participant's row is a different row, and `index` cannot reach the
+factory at all. `ChallengeResource::checkInShape()` takes `withPhrase` as a parameter for that reason — the
+shared shape is the safe default and the exception is the explicit one. `types.ts` states the same contract on
+`CheckInView.expected_phrase`.
+
+**The SPA change is small because the surface already had the pieces.** The MainButton effect keeps its shape
+and now serves both non-media proofs (confirmed with the user) — the phrase field sits above the same button
+the numeric field already used. `canTap` → `canSubmit`; a blank phrase is caught locally against the new
+`miniapp.check_in.phrase_missing` before the request, mirroring the `value_missing` / server-`value_required`
+split the numeric field already keeps. The phrase renders in the document direction — an LTR opt-out would be
+wrong, it is the participant's own language — and a quantity `text_autogen` challenge collects the phrase *and*
+the number in one request, because the numeric field's guard became `canSubmit && scoring !== null`.
+`api.ts`'s `submitCheckIn()` gained an optional `{reportedValue, text}` and sends **no body at all** when neither
+is present, which the existing `value_required` cue depends on. The media card's `via_bot` sentence became a
+button calling `openTelegramLink(botUrl)`, the same handler the gate banner uses, with the sentence kept as the
+fallback. `miniapp.challenges.via_bot` is reused as the button's label; only two keys are genuinely new, in both
+locales.
+
+*Timed sessions remain out of scope and unchanged*: `ChallengeResource` does not expose `flow_type`, so the SPA
+cannot tell a session from a plain challenge and a session using `button` proof still gets the MainButton. That
+is pre-existing, recorded here rather than silently half-fixed.
+
+**Tests** — eleven added to `tests/Feature/MiniApp/MiniAppCheckInTest.php`. The old *"refuses with the reason
+when the proof is not a tap"* case used `ProofType::TextAutogen`, which is no longer a refusal; it now runs as a
+two-row `->with([...])` dataset over `image_approval` **and** `voice_approval`, both asserting no row was
+written. Under a new `describe('a text_autogen challenge')`: the phrase issued on the detail and scoped to the
+current period, with the row pinned `Pending` and unsent; the round trip through the API to `Approved`, with
+`assertJsonMissingPath` on `expected_phrase` proving it leaves the wire once settled and `submitted_text`
+compared against `CheckIn::normalisePhrase()`; a wrong phrase refused `phrase_mismatch` with the row still
+`Pending`, no `submitted_text` and no `submitted_at` — the mechanic is not weakened by a second surface; an
+empty `text` refused `proof_missing` with **no row at all**, which is the distinction the task asked for; a
+`strrev()` of the real phrase refused through the route; A and B on one challenge each reading their own phrase
+with two rows in the database; the listing carrying no phrase and minting none; and a quantity `text_autogen`
+taking the phrase and `45` in one request for a score of `150`. Plus a tap challenge sent a stray `text` —
+still tapped, `submitted_text` and `expected_phrase` both null — which is the default-branch assertion.
+
+`MiniAppAuthTest` gained `bot_url` in the exact `$response->json('user')` shape, the same field in the exact
+`/me` shape, and a `null` case that sets `services.telegram.bot_username` to `''` — the state `env()` produces
+for an unset variable, since `Config::string()` throws on a literal `null` and the honest answer is "no
+username", not a broken link. `ChallengesSurfaceTest` and `MiniAppJoinTest` were checked and needed nothing:
+their exact-shape assertions are over button challenges, which carry no phrase.
+
+**Result — `sail composer ci:check`:** eslint ✓, prettier ✓, tsc ✓, config:clear ✓, pint ✓, phpstan lvl 7
+(0 errors) ✓, `artisan test` **1897 passed, 4 skipped, 1 failed**. The one failure is the same pre-existing
+`MiniAppAuthTest` → *"excludes the optional signature from the check string"* recorded at the end of Task 2
+above and still unresolved; it is unrelated to this task and its cause is written up there.
+
+Manually unverified (needs a real device or Telegram Web): the Farsi phrase's direction on a real screen and
+the media button actually opening the bot.

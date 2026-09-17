@@ -71,12 +71,38 @@ enum MessagingPlatform: string implements HasTranslatedLabelContract
             return null;
         }
 
-        $base = match ($this) {
+        return $this->linkBase().substr($channel, 1);
+    }
+
+    /**
+     * The deep link that opens the bot with no `?start=` payload: the open
+     * conversation, not a destination.
+     *
+     * Null when this platform's bot username is not configured — an honest
+     * absence rather than a `t.me/` with a hole in it. The username is read
+     * from this platform's own config block, because the two bots are not each
+     * other.
+     */
+    public function botUrl(): ?string
+    {
+        $username = ltrim(Config::string($this->configKey().'.bot_username'), '@');
+
+        if ($username === '') {
+            return null;
+        }
+
+        return "{$this->linkBase()}{$username}";
+    }
+
+    /**
+     * The scheme-and-host root every public link on this platform shares.
+     */
+    private function linkBase(): string
+    {
+        return match ($this) {
             self::Telegram => 'https://t.me/',
             self::Bale => 'https://ble.ir/',
         };
-
-        return $base.substr($channel, 1);
     }
 
     /**
@@ -91,12 +117,7 @@ enum MessagingPlatform: string implements HasTranslatedLabelContract
     {
         $username = ltrim(Config::string($this->configKey().'.bot_username'), '@');
 
-        $base = match ($this) {
-            self::Telegram => 'https://t.me/',
-            self::Bale => 'https://ble.ir/',
-        };
-
-        return "{$base}{$username}?start={$startParam}";
+        return "{$this->linkBase()}{$username}?start={$startParam}";
     }
 
     /**

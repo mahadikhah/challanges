@@ -81,6 +81,9 @@ class ChallengeController extends Controller
 
         $view = $this->viewable->handle($user, $challenge);
 
-        return new ChallengeResource($view->challenge, $view->participant, $user);
+        // The detail is the surface that may *issue* a phrase, so the
+        // participant who opens a text challenge sees the phrase they owe — not
+        // a hint to go to the bot and back.
+        return ChallengeResource::detail($view->challenge, $view->participant, $user);
     }
 }

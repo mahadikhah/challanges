@@ -17,13 +17,19 @@ import type { ChallengeView } from '../types';
  * now and the timeline behind it. Where a stats grid would be sits the join
  * button, and the refusal that answered it if it was refused.
  *
- * The one-tap check-in is the Telegram MainButton while — and only while —
- * the current period is owed and the challenge's proof is a tap. Every other
- * proof type keeps its path in the bot, and the card says so instead of
- * offering a button that could not work. The join button is deliberately *not*
- * the MainButton: there is one MainButton and the check-in effect already owns
- * it, so a second claimant would make correctness depend on the order React
- * runs two cleanups in across the join→joined transition.
+ * A non-media check-in is the Telegram MainButton while — and only while —
+ * the current period is owed and the challenge's proof is a tap or a typed
+ * phrase. Both ride the same button, each with the field that supplies its
+ * proof under it: a number for a quantity challenge, the phrase the server
+ * issued for this period on a typed-proof one (shown above its input so the
+ * participant types it back — the challenge's own phrasing, in their own
+ * language), and both when a challenge is quantity *and* typed — one request
+ * carries them. A media proof's path is the bot, and the card says so with a
+ * button that opens it rather than a sentence that names it. The join button
+ * is deliberately *not* the MainButton: there is one MainButton and the
+ * check-in effect already owns it, so a second claimant would make correctness
+ * depend on the order React runs two cleanups in across the join→joined
+ * transition.
  */
 
 type Notice =
@@ -35,31 +41,61 @@ type Notice =
     // arithmetic, and it is the only thing that renders this.
     | { kind: 'price'; price: number; balance: number };
 
-export function ChallengeDetail({ initial }: { initial: ChallengeView }) {
+export function ChallengeDetail({
+    initial,
+    botUrl,
+}: {
+    initial: ChallengeView;
+    botUrl: string | null;
+}) {
     const [challenge, setChallenge] = useState(initial);
     const [pending, setPending] = useState(false);
     const [notice, setNotice] = useState<Notice | null>(null);
     const [value, setValue] = useState('');
+    const [phrase, setPhrase] = useState('');
 
     const period = challenge.current_period;
     const me = challenge.me;
     // A quantity challenge is scored on a number; a binary one is not asked.
     const scoring = challenge.scoring;
-    const canTap =
+    // The two non-media proofs the MainButton can collect. A media proof has
+    // no button here — the card offers the bot instead.
+    const proofValue = challenge.proof_type.value;
+    const proofIsTyped = proofValue === 'text_autogen';
+    const canSubmit =
         me !== null &&
         period !== null &&
         period.owes_check_in &&
-        challenge.proof_type.value === 'button';
+        (proofValue === 'button' || proofIsTyped);
 
-    const tap = useCallback(async () => {
-        if (!canTap || pending) {
+    const submit = useCallback(async () => {
+        if (!canSubmit || pending) {
             return;
         }
 
-        // The number is part of the submission on a scoring challenge — the
-        // server refuses one without it (`value_required`), and saying so here
-        // is kinder than letting it.
+        // The phrase a typed-proof challenge asks back, and the number a
+        // scoring challenge asks for alongside it. Either is part of the
+        // submission when the challenge asks for it — a quantity challenge
+        // without a number is refused `value_required` and a typed one without
+        // a phrase `proof_missing`, and saying so here is kinder than letting
+        // the server.
+        let submittedText: string | undefined;
         let reported: number | undefined;
+
+        if (proofIsTyped) {
+            const trimmed = phrase.trim();
+
+            if (trimmed === '') {
+                setNotice({
+                    kind: 'error',
+                    text: t('miniapp.check_in.phrase_missing'),
+                });
+
+                return;
+            }
+
+            submittedText = trimmed;
+        }
 
         if (scoring !== null) {
             const trimmed = value.trim();
@@ -91,7 +127,10 @@ export function ChallengeDetail({ initial }: { initial: ChallengeView }) {
         setNotice(null);
 
         try {
-            const updated = await submitCheckIn(challenge.id, reported);
+            const updated = await submitCheckIn(challenge.id, {
+                reportedValue: reported,
+                text: submittedText,
+            });
 
             setChallenge(updated);
             setNotice({ kind: 'success', text: scoredLine(updated) });
@@ -134,7 +173,15 @@ export function ChallengeDetail({ initial }: { initial: ChallengeView }) {
         } finally {
             setPending(false);
         }
-    }, [canTap, challenge.id, pending, scoring, value]);
+    }, [
+        canSubmit,
+        challenge.id,
+        pending,
+        proofIsTyped,
+        phrase,
+        scoring,
+        value,
+    ]);
 
     /**
      * Join this challenge. Same shape as `tap`: one request, the answer
@@ -219,7 +266,7 @@ export function ChallengeDetail({ initial }: { initial: ChallengeView }) {
     useEffect(() => {
         const app = webApp();
 
-        if (app === null || !canTap) {
+        if (app === null || !canSubmit) {
             return;
         }
 
@@ -229,13 +276,13 @@ export function ChallengeDetail({ initial }: { initial: ChallengeView }) {
                 : t('miniapp.check_in.button'),
         );
         app.MainButton.show();
-        app.MainButton.onClick(tap);
+        app.MainButton.onClick(submit);
 
         return () => {
-            app.MainButton.offClick(tap);
+            app.MainButton.offClick(submit);
             app.MainButton.hide();
         };
-    }, [canTap, pending, tap]);
+    }, [canSubmit, pending, submit]);
 
     return (
         <div className="flex flex-col gap-4">
@@ -264,7 +311,31 @@ export function ChallengeDetail({ initial }: { initial: ChallengeView }) {
 
             {notice !== null ? <NoticeBanner notice={notice} /> : null}
 
-            {canTap && scoring !== null ? (
+            {canSubmit && proofIsTyped ? (
+                <label className="block rounded-2xl bg-[var(--tg-section-bg)] p-4">
+                    <span className="text-sm font-semibold">
+                        {t('miniapp.check_in.phrase_prompt')}
+                    </span>
+
+                    {/* The phrase is the challenge's own copy, in the
+                        participant's own language — so it stays in the
+                        document direction, which is exactly how the bot shows
+                        it. An LTR opt-out would be the wrong choice here. */}
+                    <p className="mt-1 text-sm">
+                        {period?.check_in?.expected_phrase}
+                    </p>
+
+                    <input
+                        type="text"
+                        value={phrase}
+                        onChange={(event) => setPhrase(event.target.value)}
+                        disabled={pending}
+                        className="mt-2 w-full rounded-xl border border-[var(--tg-separator)] bg-transparent px-3 py-2 text-base outline-none focus:border-[var(--tg-button)]"
+                    />
+                </label>
+            ) : null}
+
+            {canSubmit && scoring !== null ? (
                 <label className="block rounded-2xl bg-[var(--tg-section-bg)] p-4">
                     <span className="text-sm font-semibold">
                         {t('miniapp.check_in.value_prompt', {
@@ -321,6 +392,7 @@ export function ChallengeDetail({ initial }: { initial: ChallengeView }) {
                     challenge={challenge}
                     period={period}
                     joined={me !== null}
+                    botUrl={botUrl}
                 />
             ) : (
                 <p className="rounded-2xl bg-[var(--tg-section-bg)] p-4 text-sm text-[var(--tg-hint)]">
@@ -480,12 +552,19 @@ function CurrentPeriodCard({
     challenge,
     period,
     joined,
+    botUrl,
 }: {
     challenge: ChallengeView;
     period: NonNullable<ChallengeView['current_period']>;
     joined: boolean;
+    botUrl: string | null;
 }) {
     const owed = period.owes_check_in;
+    const proofValue = challenge.proof_type.value;
+    const proofIsMedia =
+        proofValue === 'image_approval' ||
+        proofValue === 'voice_approval' ||
+        proofValue === 'video_approval';
 
     return (
         <section className="rounded-2xl bg-[var(--tg-section-bg)] p-4">
@@ -524,10 +603,38 @@ function CurrentPeriodCard({
                 })}
             </p>
 
-            {owed && challenge.proof_type.value !== 'button' ? (
-                <p className="mt-2 text-sm text-[var(--tg-hint)]">
-                    {t('miniapp.challenges.via_bot')}
-                </p>
+            {owed && proofIsMedia ? (
+                // A media proof only exists in the bot, so the road to it is
+                // a button that opens the bot — from the URL the API served,
+                // never a hardcoded username. No bot URL to open (the platform
+                // is unconfigured) falls back to the plain sentence, which
+                // still names the way without pretending to open it. `webApp()`
+                // is the same call the gate banner makes.
+                botUrl !== null && webApp() !== null ? (
+                    <button
+                        type="button"
+                        onClick={() => {
+                            // Narrowed once, like the gate banner does: TS
+                            // will not keep either `webApp()` or `botUrl`
+                            // non-null through the call expression below, but
+                            // the consts it will — and this branch is only
+                            // reachable with both non-null.
+                            const app = webApp();
+                            const target = botUrl;
+
+                            if (app !== null && target !== null) {
+                                app.openTelegramLink(target);
+                            }
+                        }}
+                        className="mt-2 rounded-full bg-[var(--tg-button)] px-4 py-1.5 text-sm font-medium text-[var(--tg-button-text)]"
+                    >
+                        {t('miniapp.challenges.via_bot')}
+                    </button>
+                ) : (
+                    <p className="mt-2 text-sm text-[var(--tg-hint)]">
+                        {t('miniapp.challenges.via_bot')}
+                    </p>
+                )
             ) : null}
         </section>
     );

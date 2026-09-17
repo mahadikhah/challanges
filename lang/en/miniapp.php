@@ -68,6 +68,15 @@ return [
         'value_placeholder' => 'e.g. 30',
         'value_missing' => 'Enter the number you reached, then check in.',
         'value_invalid' => 'That is not a number. Enter what you reached, e.g. 30 or 12.5.',
+        // Above the phrase a typed-proof challenge issued, the same line the
+        // bot sends before it — this surface shows the phrase itself, so the
+        // prompt asks for it back by name. The copy is written again here
+        // because `bot` is a server-side group and never ships to the SPA.
+        'phrase_prompt' => 'Type this phrase back to check in:',
+        // The client-side blank check for a typed proof, mirroring the split
+        // `value_missing` keeps with the server's `value_required`: say which
+        // field is empty before the server has to.
+        'phrase_missing' => 'Type the phrase above, then check in.',
         'scored' => ':value :unit — :score points!',
         'refused' => [
             'challenge_closed' => 'This challenge is no longer running.',

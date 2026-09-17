@@ -25,7 +25,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class MiniAppUserResource extends JsonResource
 {
     /**
-     * @return array{id: int, first_name: string|null, username: string|null, locale: string|null, coins: int}
+     * @return array{id: int, first_name: string|null, username: string|null, locale: string|null, coins: int, bot_url: string|null}
      */
     public function toArray(Request $request): array
     {
@@ -38,6 +38,14 @@ class MiniAppUserResource extends JsonResource
             'username' => $user->telegram_username,
             'locale' => $user->locale,
             'coins' => $this->ledger()->balanceFor($user),
+
+            // Where the Mini App sends somebody whose proof only exists in the
+            // bot (a photo, a recording), named by the platform they actually
+            // stand on — never a hardcoded t.me username. Null for a row with
+            // no platform, which a bot user cannot have, and for a platform
+            // whose username is not configured. Task 6's options payload must
+            // read this same helper rather than re-derive it.
+            'bot_url' => $user->platform?->botUrl(),
         ];
     }
 

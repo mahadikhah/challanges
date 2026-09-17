@@ -121,23 +121,36 @@ export function fetchChallenge(id: number): Promise<ChallengeView> {
 }
 
 /**
- * Submit the one-tap check-in. Resolves with the participant's whole new
+ * Submit a non-media check-in. Resolves with the participant's whole new
  * state — the server's response is the replacement, not a patch to merge.
  *
- * `reportedValue` is the quantity a scoring challenge asks for alongside the
- * tap; omitted on a binary one, and a scoring challenge without one is
- * refused with `value_required`, which is the SPA's cue to show its input.
+ * Which fields the proof needs depends on the challenge: a `text_autogen`
+ * proof sends `text` (the phrase the server issued for this period), a
+ * quantity challenge sends `reportedValue`, and a quantity text challenge
+ * sends both in one request. Neither sends anything when neither applies —
+ * and a scoring challenge without a number is refused with `value_required`,
+ * which is the SPA's cue to show its input.
  */
 export function submitCheckIn(
     id: number,
-    reportedValue?: number,
+    input?: { reportedValue?: number; text?: string },
 ): Promise<ChallengeView> {
+    const body: { reported_value?: number; text?: string } = {};
+    let hasBody = false;
+
+    if (input?.reportedValue !== undefined) {
+        body.reported_value = input.reportedValue;
+        hasBody = true;
+    }
+
+    if (input?.text !== undefined) {
+        body.text = input.text;
+        hasBody = true;
+    }
+
     return request<{ data: ChallengeView }>(`/challenges/${id}/check-in`, {
         method: 'POST',
-        body:
-            reportedValue === undefined
-                ? undefined
-                : JSON.stringify({ reported_value: reportedValue }),
+        body: hasBody ? JSON.stringify(body) : undefined,
     }).then((payload) => payload.data);
 }
 

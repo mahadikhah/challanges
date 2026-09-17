@@ -38,7 +38,13 @@ uses(RefreshDatabase::class);
 const BOT_TOKEN = '123456:TEST-TOKEN';
 
 beforeEach(function () {
-    config(['services.telegram.bot_token' => BOT_TOKEN]);
+    config([
+        'services.telegram.bot_token' => BOT_TOKEN,
+        // The bot a media proof lives in, named so the Mini App can send the
+        // user there. Set here so the exchange's user shape is deterministic;
+        // the null case is its own test.
+        'services.telegram.bot_username' => 'challenges_4u_bot',
+    ]);
 
     $this->settings = app(Settings::class);
 });
@@ -235,6 +241,10 @@ describe('the token exchange', function () {
                 // "undefined" in its header on every open. It is stated here
                 // now because the resource always states it.
                 'coins' => 0,
+                // Where the bot a media proof lives in can be opened from,
+                // derived from the actor's own platform and username — the
+                // SPA's escape hatch to the surface a proof only exists on.
+                'bot_url' => 'https://t.me/challenges_4u_bot',
             ]);
     });
 
@@ -415,6 +425,22 @@ describe('the boot user', function () {
             // is not passing because both reads happen to be the same number.
             ->and($me->json('data'))->not->toBe($boot);
     });
+
+    it('reports a null bot_url when no bot username is configured', function () {
+        // The empty-string state `env()` produces for an unset variable —
+        // `Config::string()` refuses a literal null, and the honest answer is
+        // "no username", not a `t.me/` with a hole in it.
+        config(['services.telegram.bot_username' => '']);
+
+        $boot = exchangesInitData(initData());
+
+        $boot->assertOk();
+
+        // Null, not a fabricated `t.me/`: the SPA must not be handed a link
+        // that could not open anything, and it has a fallback sentence for
+        // exactly this state.
+        expect($boot->json('user.bot_url'))->toBeNull();
+    });
 });
 
 describe('a rejected exchange', function () {
@@ -566,6 +592,10 @@ describe('the authenticated surface', function () {
                 'username' => 'sarahmad',
                 'locale' => null,
                 'coins' => 25,
+                // The same field `/auth` carries, because `/me` is the same
+                // resource: the two are pinned equal just above, and this is
+                // the second copy of that contract stated by hand.
+                'bot_url' => 'https://t.me/challenges_4u_bot',
             ],
         ]);
     });

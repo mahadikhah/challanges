@@ -31,6 +31,13 @@ export type MiniAppUser = {
      */
     locale: string | null;
     coins: number;
+    /**
+     * Where the bot a proof lives in can be opened from. Null when the user
+     * carries no platform or the platform's username is not configured; the
+     * screen then falls back to directing the reader through the bot rather
+     * than opening a link that could not exist.
+     */
+    bot_url: string | null;
 };
 
 export type AuthSession = {
@@ -56,9 +63,12 @@ export type ChallengeMe = {
 /**
  * A check-in's state as the API states it. On a quantity challenge the
  * reported number and the score it earned ride along — null until the row is
- * scored.
+ * scored. A typed-proof challenge carries its phrase while (and only while)
+ * the participant still owes the period: the current period on the detail
+ * surface, never a list row, never another participant's, never a settled one.
  */
 export type CheckInView = LabeledEnum & {
+    expected_phrase?: string | null;
     reported_value?: number | null;
     score?: number | null;
 };

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\MiniApp;
 
+use App\Actions\CheckIns\IssueCheckInPhrase;
 use App\Enums\Contracts\HasTranslatedLabel;
 use App\Models\Challenge;
 use App\Models\ChallengeParticipant;
@@ -34,6 +35,11 @@ use Illuminate\Support\Collection;
  * `ResourceCollection::toArray()` branches on whether the first item is already
  * a `JsonResource` — so the only thing lost is `::make()`, which no caller wants.
  *
+ * **A fourth argument, `withPhrase`.** List rows are built with the plain
+ * constructor and never mint or expose a phrase; the detail — and the state a
+ * check-in or a join answers with — is built through `detail()`, the one
+ * surface that may *issue* a text challenge's phrase on a read.
+ *
  * Labels resolve in the ambient locale `SetLocale` picked: the token's
  * user's stored locale first, then the `Accept-Language` the SPA sent,
  * then the configured fallback.
@@ -44,8 +50,32 @@ class ChallengeResource extends JsonResource
         Challenge $challenge,
         private readonly ?ChallengeParticipant $participant,
         private readonly User $viewer,
+        private readonly bool $withPhrase = false,
     ) {
         parent::__construct($challenge);
+    }
+
+    /**
+     * The detail—and the state a check-in or a join answers with.
+     *
+     * The one surface that may *mint* a phrase. A text challenge's phrase is
+     * issued the moment the participant needs to see it — the bot does the
+     * same at display time, and the string shown is the string compared
+     * against — and the SPA replaces its whole state with this response, so a
+     * participant who joins from the Mini App must see the phrase without
+     * reopening the screen. A listing never calls this: `index` builds plain
+     * resources, so `expected_phrase` cannot leak into a collection.
+     *
+     * A static factory cannot receive a dependency, so the phrase issuer is
+     * located from the container by `phrases()`—the same documented workaround
+     * `MiniAppUserResource::ledger()` uses.
+     */
+    public static function detail(
+        Challenge $challenge,
+        ?ChallengeParticipant $participant,
+        User $viewer,
+    ): self {
+        return new self($challenge, $participant, $viewer, withPhrase: true);
     }
 
     /**
@@ -157,6 +187,22 @@ class ChallengeResource extends JsonResource
      * recorded. It also keeps the SPA's check-in affordance off for a creator
      * who has not joined yet, on the read path as well as the write path.
      *
+     * A text challenge's phrase is issued here, on the detail surface only, so
+     * the string the participant reads is the string their answer is compared
+     * against — the same rule `CheckInFlow::askPhrase()` follows. It is a write
+     * on a read by design: there is no other path to the phrase, and a
+     * submission with no text is refused `proof_missing` before the row is
+     * opened. The participant must *owe* the period, and the challenge must ask
+     * for typed proof — a settled row is never touched, and `IssueCheckInPhrase`
+     * re-checks both under its own lock anyway.
+     *
+     * The row `forParticipant()` returns is shaped directly rather than looked
+     * up again: `$participant->checkIns` was eager-loaded by the controller
+     * before this render and will not contain a row minted here, so a re-lookup
+     * would report `check_in: null` on the very first paint. The new row cannot
+     * collide with `historyShape()` either, which reads only ended periods and
+     * this one has not ended.
+     *
      * @return array<string, mixed>
      */
     private function currentPeriodShape(
@@ -164,16 +210,25 @@ class ChallengeResource extends JsonResource
         ?ChallengeParticipant $participant,
         ChallengePeriod $current,
     ): array {
+        $checkIn = $participant === null ? null : $this->checkInFor($participant, $current);
+
+        if (
+            $this->withPhrase
+            && $participant !== null
+            && $participant->owesPeriod($current)
+            && $challenge->proof_type->expectsText()
+        ) {
+            $checkIn = $this->phrases()->forParticipant($participant, $current);
+        }
+
         return [
             'index' => $current->index,
             'starts_at' => $current->starts_at->toIso8601String(),
             'ends_at' => $current->ends_at->toIso8601String(),
             'owes_check_in' => $participant !== null
                 && $participant->owesPeriod($current)
-                && ($this->checkInFor($participant, $current)?->status->allowsSubmission() ?? true),
-            'check_in' => $participant === null
-                ? null
-                : $this->checkInShape($challenge, $participant, $current),
+                && ($checkIn?->status->allowsSubmission() ?? true),
+            'check_in' => $checkIn === null ? null : $this->checkInShape($challenge, $checkIn, withPhrase: true),
         ];
     }
 
@@ -193,7 +248,7 @@ class ChallengeResource extends JsonResource
             ->values()
             ->map(fn (ChallengePeriod $period): array => [
                 'index' => $period->index,
-                'status' => $this->checkInShape($challenge, $participant, $period) ?? [
+                'status' => $this->checkInShape($challenge, $this->checkInFor($participant, $period)) ?? [
                     // The period closed but rollover has not swept it yet,
                     // so no terminal row exists. Rare and momentary — the
                     // sweep runs every minute — but the SPA's grid still
@@ -221,20 +276,30 @@ class ChallengeResource extends JsonResource
      * along — the settled row's own record, so the SPA's history grid can show
      * "45 · 150 pts" without recomputing anything.
      *
-     * @return array{value: int|string, label: string, reported_value?: float|null, score?: int|null}|null
+     * The participant's own phrase is attached only on the one path that can
+     * own it: the current period on the detail surface, while the row is still
+     * owed. A settled row carries none (it was already answered, and the answer
+     * is what the row records), and a history entry never reaches `withPhrase`.
+     *
+     * @return array{value: int|string, label: string, reported_value?: float|null, score?: int|null, expected_phrase?: string|null}|null
      */
-    private function checkInShape(
-        Challenge $challenge,
-        ChallengeParticipant $participant,
-        ChallengePeriod $period,
-    ): ?array {
-        $checkIn = $this->checkInFor($participant, $period);
-
+    private function checkInShape(Challenge $challenge, ?CheckIn $checkIn, bool $withPhrase = false): ?array
+    {
         if ($checkIn === null) {
             return null;
         }
 
         $shape = $this->enum($checkIn->status);
+
+        if (
+            $withPhrase
+            && $challenge->proof_type->expectsText()
+            && ! $checkIn->status->isSettled()
+        ) {
+            // The row `currentPeriodShape()` minted carries its phrase; the
+            // SPA shows it and compares the participant's typing against it.
+            $shape['expected_phrase'] = $checkIn->expected_phrase;
+        }
 
         if ($challenge->scoring_type->isQuantity()) {
             // The model's decimal cast hands back strings; the wire carries
@@ -260,5 +325,19 @@ class ChallengeResource extends JsonResource
             'value' => $case->value,
             'label' => $case->label(),
         ];
+    }
+
+    /**
+     * The phrase issuer, located from the container.
+     *
+     * Located rather than injected, and that is forced rather than preferred:
+     * `JsonResource::__construct($resource)` takes exactly one argument, so a
+     * resource constructor can never receive a dependency — the same reason
+     * `MiniAppUserResource::ledger()` does this. Only `detail()` ever reaches
+     * it, so a listing never pays for the container lookup.
+     */
+    private function phrases(): IssueCheckInPhrase
+    {
+        return app(IssueCheckInPhrase::class);
     }
 }

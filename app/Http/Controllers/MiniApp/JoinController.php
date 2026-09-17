@@ -105,8 +105,11 @@ class JoinController extends Controller
         $view->challenge->loadMissing('periods');
         $participant->setRelation('challenge', $view->challenge)->loadMissing('checkIns');
 
-        // The response is the SPA's new state, not a patch to merge.
-        return (new ChallengeResource($view->challenge, $participant, $user))
+        // The response is the SPA's new state, not a patch to merge. `detail()`
+        // so a participant who just joined a text challenge (this is often their
+        // first moment actually in it) sees the phrase they owe without a third
+        // request.
+        return ChallengeResource::detail($view->challenge, $participant, $user)
             ->response()
             ->setStatusCode($created ? 201 : 200);
     }
