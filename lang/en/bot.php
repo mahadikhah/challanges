@@ -71,6 +71,13 @@ return [
         'preview_freezes' => 'Freezes each: :freezes',
         'join_button' => 'Join',
 
+        /*
+        | Not a second label for the button above: that one joins the reader, this
+        | one is the deep link they hand to somebody else. A `url` rather than a
+        | callback, because whoever it is forwarded to has never messaged the bot.
+        */
+        'invite_button' => 'Invite others',
+
         'joined' => 'You’re in “:title”. Check in every :span to keep the streak alive. :how',
         'already_in' => 'You are already in “:title”.',
 
@@ -283,6 +290,14 @@ return [
         'created_checkin' => 'Every :span, this is what your participants do: :how',
         'created_public' => 'It is public, so it is being posted to the announcement channel for others to join.',
         'created_private' => 'It is invite-only, so nobody can join without a link from you.',
+
+        /*
+        | The last paragraph of the created notice, and the only one that asks the
+        | creator to do something. Creating and competing are two decisions: the
+        | bot does not enter them in their own challenge, and this line is where it
+        | says so rather than leaving them to guess.
+        */
+        'created_not_joined' => 'Creating it does not enter you in it — join now, or any time before it closes.',
 
         'awaiting_challenge_title' => [
             'prompt' => 'What is the challenge called? Between 3 and :title_max characters.',

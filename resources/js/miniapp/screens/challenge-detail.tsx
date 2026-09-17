@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { ApiError, submitCheckIn } from '../api';
+import { ApiError, joinChallenge, submitCheckIn } from '../api';
 import { localization, t } from '../localization';
 import { webApp } from '../telegram';
 import type { ChallengeView } from '../types';
@@ -14,18 +14,26 @@ import type { ChallengeView } from '../types';
  * minus everything that would have to be invented for them: no stats grid, no
  * history grid, and a pill that says they are not in it rather than "Checked
  * in". What stays is the challenge's own — title, description, the period open
- * now and the timeline behind it. The join affordance is not here yet.
+ * now and the timeline behind it. Where a stats grid would be sits the join
+ * button, and the refusal that answered it if it was refused.
  *
  * The one-tap check-in is the Telegram MainButton while — and only while —
  * the current period is owed and the challenge's proof is a tap. Every other
  * proof type keeps its path in the bot, and the card says so instead of
- * offering a button that could not work.
+ * offering a button that could not work. The join button is deliberately *not*
+ * the MainButton: there is one MainButton and the check-in effect already owns
+ * it, so a second claimant would make correctness depend on the order React
+ * runs two cleanups in across the join→joined transition.
  */
 
 type Notice =
     | { kind: 'success'; text?: string }
     | { kind: 'error'; text: string }
-    | { kind: 'gate'; text: string; joinUrl: string | null };
+    | { kind: 'gate'; text: string; joinUrl: string | null }
+    // The join refusal that is a quote rather than a wall. It carries the
+    // numbers, not a sentence: the banner owns the wording and the shortfall
+    // arithmetic, and it is the only thing that renders this.
+    | { kind: 'price'; price: number; balance: number };
 
 export function ChallengeDetail({ initial }: { initial: ChallengeView }) {
     const [challenge, setChallenge] = useState(initial);
@@ -128,6 +136,86 @@ export function ChallengeDetail({ initial }: { initial: ChallengeView }) {
         }
     }, [canTap, challenge.id, pending, scoring, value]);
 
+    /**
+     * Join this challenge. Same shape as `tap`: one request, the answer
+     * replaces the whole view, and a refusal is a reason the catalogue turns
+     * into a sentence.
+     *
+     * No `me !== null` guard is needed — the button that calls this only
+     * exists in the not-joined state — but the server would answer anyway, and
+     * idempotently: joining twice costs one slot.
+     */
+    const join = useCallback(async () => {
+        if (pending) {
+            return;
+        }
+
+        setPending(true);
+        setNotice(null);
+
+        try {
+            const updated = await joinChallenge(challenge.id);
+
+            setChallenge(updated);
+            setNotice({ kind: 'success', text: t('miniapp.join.done') });
+            webApp()?.HapticFeedback?.notificationOccurred('success');
+        } catch (error) {
+            webApp()?.HapticFeedback?.notificationOccurred('error');
+
+            if (error instanceof ApiError && error.reason !== null) {
+                if (error.reason === 'channel_gate') {
+                    setNotice({
+                        kind: 'gate',
+                        text: t('miniapp.join.gate'),
+                        joinUrl: error.joinUrl,
+                    });
+
+                    return;
+                }
+
+                // Out of slots, but the server said what another costs and
+                // what they hold — so the banner can quote a shortfall instead
+                // of stopping at "no".
+                if (
+                    error.reason === 'no_join_slot' &&
+                    error.price !== null &&
+                    error.balance !== null
+                ) {
+                    setNotice({
+                        kind: 'price',
+                        price: error.price,
+                        balance: error.balance,
+                    });
+
+                    return;
+                }
+
+                // Same degradation as the check-in path: a reason this build
+                // has no sentence for shows the generic refusal rather than a
+                // raw key.
+                const key = `miniapp.join.refused.${error.reason}`;
+                const sentence = t(key);
+
+                setNotice({
+                    kind: 'error',
+                    text:
+                        sentence === key
+                            ? t('miniapp.join.unexpected')
+                            : sentence,
+                });
+
+                return;
+            }
+
+            setNotice({
+                kind: 'error',
+                text: t('miniapp.join.unexpected'),
+            });
+        } finally {
+            setPending(false);
+        }
+    }, [challenge.id, pending]);
+
     useEffect(() => {
         const app = webApp();
 
@@ -198,7 +286,7 @@ export function ChallengeDetail({ initial }: { initial: ChallengeView }) {
             ) : null}
 
             {me === null ? (
-                <NotJoinedCard />
+                <NotJoinedCard pending={pending} onJoin={join} />
             ) : (
                 <section
                     className={`grid gap-3 ${scoring === null ? 'grid-cols-3' : 'grid-cols-4'}`}
@@ -259,9 +347,20 @@ export function ChallengeDetail({ initial }: { initial: ChallengeView }) {
  * What a creator who has not joined their own challenge sees instead of the
  * stats grid. It says the numbers are absent, not zero — there is no streak to
  * keep, and a zeroed tile would be a claim about somebody who is not in the
- * challenge.
+ * challenge — and it is where the way in lives.
+ *
+ * The button is offered whatever the challenge's status. Hiding it for a
+ * closed or finished one would mean this screen carried its own copy of
+ * `ChallengeStatus::acceptsJoins()`, and the refusal the server already sends
+ * ("this challenge is no longer running") would become unreachable copy.
  */
-function NotJoinedCard() {
+function NotJoinedCard({
+    pending,
+    onJoin,
+}: {
+    pending: boolean;
+    onJoin: () => void;
+}) {
     return (
         <section className="rounded-2xl bg-[var(--tg-section-bg)] p-4">
             <p className="text-sm font-semibold">
@@ -271,6 +370,15 @@ function NotJoinedCard() {
             <p className="mt-1 text-sm text-[var(--tg-hint)]">
                 {t('miniapp.challenges.not_joined_body')}
             </p>
+
+            <button
+                type="button"
+                onClick={onJoin}
+                disabled={pending}
+                className="mt-3 rounded-full bg-[var(--tg-button)] px-4 py-1.5 text-sm font-medium text-[var(--tg-button-text)] disabled:opacity-50"
+            >
+                {t(pending ? 'miniapp.join.working' : 'miniapp.join.button')}
+            </button>
         </section>
     );
 }
@@ -308,6 +416,33 @@ function NoticeBanner({ notice }: { notice: Notice }) {
                         {t('miniapp.check_in.no_link')}
                     </p>
                 )}
+            </div>
+        );
+    }
+
+    // The shortfall line appears only when the balance genuinely cannot cover
+    // the price. Out of *slots* is not out of *money*: a reader holding a
+    // thousand coins and no joining slot is not short, and the sentence would
+    // otherwise tell them they are 0 coins short.
+    if (notice.kind === 'price') {
+        const short = notice.price - notice.balance;
+
+        return (
+            <div className="rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-600">
+                <p>{t('miniapp.join.no_slot')}</p>
+
+                <p className="mt-1">
+                    {t('miniapp.join.price', {
+                        price: notice.price,
+                        balance: notice.balance,
+                    })}
+                </p>
+
+                {short > 0 ? (
+                    <p className="mt-1 font-medium">
+                        {t('miniapp.join.short', { coins: short })}
+                    </p>
+                ) : null}
             </div>
         );
     }

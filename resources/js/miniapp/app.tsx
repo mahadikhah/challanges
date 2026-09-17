@@ -33,9 +33,9 @@ import type { ChallengeView, MiniAppUser } from './types';
  *
  * The list hands the whole `ChallengeView` to the detail screen rather than
  * an id. The detail then never re-fetches on first paint — the list's data
- * is fresh by definition — while the check-in response replaces the whole
- * state, so there is exactly one place data can go stale and exactly one
- * place it is refreshed.
+ * is fresh by definition — while an action response (the check-in, the join)
+ * replaces the whole state, so there is exactly one place data can go stale
+ * and exactly one place it is refreshed.
  *
  * The boot user follows the same rule from the other direction: it arrives
  * once with the exchange and is re-read on the way back to the list, which is

@@ -1,7 +1,7 @@
 import type {
+    ApiRefusal,
     AuthSession,
     ChallengeView,
-    CheckInRefusal,
     MiniAppUser,
 } from './types';
 
@@ -22,15 +22,22 @@ let token: string | null = null;
 
 /**
  * A failed request: the HTTP status plus whatever reason the API named —
- * `CheckInRejection` values and `channel_gate` arrive as `{ reason }` bodies;
- * anything else (validation, a 500) has no reason and the caller shows the
- * generic sentence.
+ * `CheckInRejection` and `JoinRejection` values, `channel_gate`, and the join
+ * endpoint's `no_join_slot` — arrive as `{ reason }` bodies; anything else
+ * (validation, a 500) has no reason and the caller shows the generic sentence.
+ *
+ * `price` and `balance` are set only by `no_join_slot`: the quote that turns
+ * "you have no slot" into an amount the reader can act on. Both are null
+ * everywhere else, and a caller that reads them must have matched the reason
+ * first.
  */
 export class ApiError extends Error {
     constructor(
         public readonly status: number,
         public readonly reason: string | null,
         public readonly joinUrl: string | null,
+        public readonly price: number | null = null,
+        public readonly balance: number | null = null,
     ) {
         super(`Mini App API request failed with status ${status}.`);
 
@@ -54,12 +61,18 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     }
 
     const body = await response.json().catch(() => null);
-    const refusal = body as Partial<CheckInRefusal> | null;
+    const refusal = body as Partial<ApiRefusal> | null;
     const reason = typeof refusal?.reason === 'string' ? refusal.reason : null;
     const joinUrl =
         typeof refusal?.join_url === 'string' ? refusal.join_url : null;
+    // The refusal body is untrusted like any other: `typeof` rather than a
+    // cast, so a server that one day sends `"25"` reads as absent instead of
+    // reaching `Intl`-shaped arithmetic as a string.
+    const price = typeof refusal?.price === 'number' ? refusal.price : null;
+    const balance =
+        typeof refusal?.balance === 'number' ? refusal.balance : null;
 
-    throw new ApiError(response.status, reason, joinUrl);
+    throw new ApiError(response.status, reason, joinUrl, price, balance);
 }
 
 /**
@@ -125,5 +138,21 @@ export function submitCheckIn(
             reportedValue === undefined
                 ? undefined
                 : JSON.stringify({ reported_value: reportedValue }),
+    }).then((payload) => payload.data);
+}
+
+/**
+ * Join the challenge. Resolves with the viewer's whole new state — the same
+ * replacement-not-a-patch contract `submitCheckIn()` has, and the same action
+ * the bot's join button calls.
+ *
+ * No body: the actor is the bearer token's user, and there is nothing else the
+ * caller could legitimately supply. Posting it twice is safe and charges one
+ * slot — the server answers 201 the first time and 200 after that, which this
+ * client does not need to tell apart.
+ */
+export function joinChallenge(id: number): Promise<ChallengeView> {
+    return request<{ data: ChallengeView }>(`/challenges/${id}/join`, {
+        method: 'POST',
     }).then((payload) => payload.data);
 }

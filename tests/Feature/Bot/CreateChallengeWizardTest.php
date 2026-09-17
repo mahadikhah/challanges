@@ -9,6 +9,7 @@ use App\Enums\ChallengeVisibility;
 use App\Enums\ConversationState;
 use App\Enums\EntitlementType;
 use App\Enums\FlowType;
+use App\Enums\MessagingPlatform;
 use App\Enums\PeriodType;
 use App\Enums\ProofType;
 use App\Enums\ScoringStrategy;
@@ -21,6 +22,7 @@ use App\Models\AiProviderAccount;
 use App\Models\ApprovalCriteriaScreening;
 use App\Models\BotConversation;
 use App\Models\Challenge;
+use App\Models\ChallengeParticipant;
 use App\Models\Entitlement;
 use App\Models\TelegramUpdate;
 use App\Models\User;
@@ -822,6 +824,132 @@ describe('the confirmation step', function () {
         expect(Challenge::query()->count())->toBe(0)
             ->and(liveFlow()?->state)->toBe(ConversationState::AwaitingCreateConfirmation)
             ->and(soleBotMessage()['text'])->toContain(botCopy('bot.fallback.stale_button'));
+    });
+});
+
+/*
+ * What the creator is offered the moment the challenge exists.
+ *
+ * The notice used to be four paragraphs and no keyboard at all, which is a dead end
+ * in the one moment a creator is most likely to act. Making a challenge and taking
+ * part in it are two decisions (`JoinChallenge` documents the split), so the message
+ * carries the Join that makes the second one and the link that lets somebody else
+ * make it — and carries them to the code that already decides, rather than deciding
+ * anything here.
+ */
+describe('the offer to join', function () {
+    it('says the creator is not in it, and does not put them in it', function () {
+        flowSittingAt(ConversationState::AwaitingCreateConfirmation, completeDraft());
+
+        wizardChooses(CreateChallengeWizard::CONFIRM);
+
+        // The four paragraphs are untouched and still come first: the new line is
+        // appended after them rather than woven through them.
+        expect(soleBotMessage()['text'])
+            ->toContain(botCopy('bot.wizard.created', ['title' => 'Read every day']))
+            ->toContain(botCopy('bot.wizard.created_checkin', [
+                'span' => 'day',
+                'how' => botCopy('bot.checkin.how.button'),
+            ]))
+            ->toContain(botCopy('bot.wizard.created_private'))
+            ->toEndWith(botCopy('bot.wizard.created_not_joined'))
+            // Creating is not joining. Nothing enrolled them, and the button below
+            // the sentence is how they would enrol.
+            ->and(ChallengeParticipant::query()->count())->toBe(0);
+    });
+
+    it('offers the join with the challenge’s own token, and the link to invite with', function () {
+        flowSittingAt(ConversationState::AwaitingCreateConfirmation, completeDraft());
+
+        wizardChooses(CreateChallengeWizard::CONFIRM);
+
+        $challenge = Challenge::query()->sole();
+        $keyboard = botKeyboard();
+
+        // The payload, not merely the presence of a keyboard: `jn:` is the shape
+        // `JoinCallback` parses and the token is the one it resolves the challenge
+        // from, so this is the whole contract between the offer and the join.
+        expect($keyboard)->toBe([
+            [[
+                'text' => botCopy('bot.join.join_button'),
+                'callback_data' => 'jn:'.$challenge->join_token,
+            ]],
+            [[
+                'text' => botCopy('bot.join.invite_button'),
+                'url' => $challenge->joinLink(MessagingPlatform::Telegram),
+            ]],
+        ]);
+
+        // A deep link rather than a callback, because whoever this is forwarded to
+        // has never messaged the bot, and the challenge's own `?start=` payload is
+        // what `/start` reads back to find it.
+        expect($keyboard[1][0]['url'])
+            ->toBe($challenge->joinLink(MessagingPlatform::Telegram))
+            ->toContain($challenge->joinPayload());
+    });
+
+    it('joins the creator from the button it just sent, spending a join-slot', function () {
+        // The free baseline is one create plus one join. They spent the create
+        // making this challenge; the join-slot is still theirs to spend.
+        Entitlement::factory()->joinSlot()->create(['user_id' => $this->creator->getKey()]);
+
+        flowSittingAt(ConversationState::AwaitingCreateConfirmation, completeDraft());
+
+        wizardChooses(CreateChallengeWizard::CONFIRM);
+        $challenge = Challenge::query()->sole();
+
+        // The payload the bot actually put on the wire, tapped back through the
+        // real inbound path. Nothing is rebuilt here and nothing is called
+        // directly: the offer is worth having only if it lands where it says.
+        wizardTapsData(botKeyboard()[0][0]['callback_data']);
+
+        expect(ChallengeParticipant::query()->sole()->user_id)->toBe($this->creator->getKey())
+            ->and($this->creator->entitlements()
+                ->where('type', EntitlementType::JoinSlot)
+                ->whereNotNull('consumed_at')
+                ->count())->toBe(1)
+            ->and(lastBotReply()['text'])->toContain(botCopy('bot.join.joined', [
+                'title' => 'Read every day',
+                'span' => 'day',
+                'how' => botCopy('bot.checkin.how.button'),
+            ]));
+    });
+
+    it('tells the creator the price rather than promising what the join refuses', function () {
+        // No join-slot, deliberately. The button is on the message either way, so
+        // what it promises has to be what the tap does — and the tap has to say the
+        // same thing the preview's button would have said.
+        $this->settings->set(SettingKey::JoinSlotCoinPrice, 25);
+
+        flowSittingAt(ConversationState::AwaitingCreateConfirmation, completeDraft());
+
+        wizardChooses(CreateChallengeWizard::CONFIRM);
+        $challenge = Challenge::query()->sole();
+
+        wizardTapsData(botKeyboard()[0][0]['callback_data']);
+
+        expect(lastBotReply()['text'])
+            ->toContain(botCopy('bot.join.no_slot'))
+            ->toContain(botCopy('bot.join.slot_price', ['coins' => 25]))
+            // The way out carries the token, so buying the slot hands them back to
+            // the join they were attempting.
+            ->and(lastBotKeyboard())->toBe([[slotButton('en', EntitlementType::JoinSlot, $challenge->join_token)]])
+            ->and(ChallengeParticipant::query()->count())->toBe(0);
+    });
+
+    it('says it in the creator’s own language', function () {
+        $this->creator->forceFill(['locale' => 'fa'])->save();
+
+        flowSittingAt(ConversationState::AwaitingCreateConfirmation, completeDraft());
+
+        wizardChooses(CreateChallengeWizard::CONFIRM);
+
+        // `UiCopyTest` is what proves the key exists in both files. This proves the
+        // line resolves per recipient, which a key sweep cannot see — a handler runs
+        // in a queue worker that serves everybody, so `app()->getLocale()` is
+        // whoever was processed last.
+        expect(soleBotMessage()['text'])->toContain(botCopy('bot.wizard.created_not_joined', [], 'fa'))
+            ->and(botKeyboard()[1][0]['text'])->toBe(botCopy('bot.join.invite_button', [], 'fa'));
     });
 });
 

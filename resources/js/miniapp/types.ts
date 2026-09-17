@@ -122,11 +122,22 @@ export type ChallengeView = {
 };
 
 /**
- * A refusal from the check-in endpoint: the machine-readable reason (a
- * `CheckInRejection` value, or `channel_gate` for the access gate) plus the
- * join link when the gate is what blocked.
+ * A refusal from a Mini App action: the machine-readable reason, plus whatever
+ * numbers that particular refusal needs its reader to see.
+ *
+ * One type for the whole surface rather than one per endpoint, because
+ * `api.ts`'s `request()` parses the body before it knows which endpoint
+ * answered — the union of every refusal shape it might be handed.
+ *
+ * `reason` is a `CheckInRejection` or `JoinRejection` value, or `channel_gate`
+ * for the access gate; `join_url` rides along only when the gate is what
+ * blocked. `price` and `balance` ride along only on the join endpoint's
+ * `no_join_slot`, and they are what let the screen say how short the reader is
+ * rather than just "no".
  */
-export type CheckInRefusal = {
+export type ApiRefusal = {
     reason: string;
     join_url?: string | null;
+    price?: number | null;
+    balance?: number | null;
 };

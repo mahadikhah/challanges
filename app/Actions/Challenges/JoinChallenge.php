@@ -92,7 +92,7 @@ class JoinChallenge
 
             $this->entitlements->handle($user, EntitlementType::JoinSlot, $challenge);
 
-            return ChallengeParticipant::query()->create([
+            $participant = ChallengeParticipant::query()->create([
                 'challenge_id' => $challenge->getKey(),
                 'user_id' => $user->getKey(),
                 'joined_at' => CarbonImmutable::now(),
@@ -106,6 +106,13 @@ class JoinChallenge
                 // to put it.
                 'freezes_total' => $challenge->default_freezes,
             ]);
+
+            // `create()` returns the model it was handed, not the row it wrote,
+            // so every column left to its schema default — the streaks, the
+            // score, the freezes already used — is absent from it and reads as
+            // null rather than 0. Callers read the returned participant, and the
+            // first of them is a JSON response the Mini App types as numbers.
+            return $participant->refresh();
         });
     }
 

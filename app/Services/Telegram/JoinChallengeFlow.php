@@ -9,7 +9,6 @@ use App\Exceptions\ChallengeNotJoinableException;
 use App\Exceptions\NoEntitlementAvailableException;
 use App\Models\Challenge;
 use App\Models\User;
-use App\Services\Telegram\Callbacks\JoinCallback;
 
 /**
  * The join conversation: a preview, then a tap.
@@ -44,6 +43,7 @@ class JoinChallengeFlow
         private readonly SlotRefusal $refusal,
         private readonly CheckInInstruction $instructions,
         private readonly PeriodUnit $units,
+        private readonly BotButtons $buttons,
     ) {}
 
     /**
@@ -86,12 +86,7 @@ class JoinChallengeFlow
                 'freezes' => $challenge->default_freezes,
             ]),
         ], [
-            [
-                [
-                    'text' => $this->messenger->line($user, 'bot.join.join_button'),
-                    'callback_data' => BotCallback::encode(JoinCallback::ACTION, $challenge->join_token),
-                ],
-            ],
+            [$this->buttons->join($user, $challenge)],
         ]);
     }
 

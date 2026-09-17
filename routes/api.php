@@ -3,6 +3,7 @@
 use App\Http\Controllers\MiniApp\AuthController;
 use App\Http\Controllers\MiniApp\ChallengeController;
 use App\Http\Controllers\MiniApp\CheckInController;
+use App\Http\Controllers\MiniApp\JoinController;
 use App\Http\Controllers\MiniApp\MeController;
 use Illuminate\Support\Facades\Route;
 
@@ -33,6 +34,7 @@ Route::prefix('v1')->name('miniapp.')->group(function (): void {
             Route::get('/challenges', [ChallengeController::class, 'index'])->name('challenges.index');
             Route::get('/challenges/{challenge}', [ChallengeController::class, 'show'])->name('challenges.show');
             Route::post('/challenges/{challenge}/check-in', [CheckInController::class, 'store'])->name('challenges.check-in');
+            Route::post('/challenges/{challenge}/join', [JoinController::class, 'store'])->name('challenges.join');
         });
     });
 });

@@ -8,6 +8,7 @@ use App\Models\Challenge;
 use App\Models\User;
 use App\Services\Telegram\Callbacks\CheckInCallback;
 use App\Services\Telegram\Callbacks\CommandCallback;
+use App\Services\Telegram\Callbacks\JoinCallback;
 use App\Services\Telegram\Callbacks\SlotPurchaseCallback;
 
 /**
@@ -24,10 +25,13 @@ use App\Services\Telegram\Callbacks\SlotPurchaseCallback;
  * apart — and a user who taps a button learns a command's name for free, which is
  * how the menu becomes discoverable rather than redundant.
  *
- * The two kinds here are the two a *command* can be delivered by: a command word
- * (dispatched through `CommandRouter` by {@see CommandCallback}, so a tap and a
- * typed command end in the same handler) and a challenge's check-in token (the
- * `ci:` button the check-in listing, the proof review and the reminders all use).
+ * Three kinds of promise are built here: a command word (dispatched through
+ * `CommandRouter` by {@see CommandCallback}, so a tap and a typed command end in
+ * the same handler), a challenge's own token (the `ci:` check-in button the
+ * listing, the proof review and the reminders all use, and the `jn:` join button
+ * the preview and the creation notice share), and a plain `url` — a link out,
+ * for the one thing a `callback_query` cannot do: reach somebody who has never
+ * messaged the bot.
  */
 class BotButtons
 {
@@ -154,6 +158,51 @@ class BotButtons
                 $type->value,
                 ...($joinToken === null ? [] : [$joinToken]),
             ),
+        ];
+    }
+
+    /**
+     * The button that joins one challenge.
+     *
+     * The `jn:` sibling of `checkIn()`'s `ci:`, and a method rather than four
+     * lines typed twice because the same button stands under two messages — the
+     * join preview and the notice that a challenge has just been created — and
+     * two builders would be two chances to encode the token differently.
+     *
+     * Nothing is decided here. The tap lands in `JoinChallengeFlow::confirm()`,
+     * which re-checks the channel gate, spends a join-slot or refuses with the
+     * price, and is idempotent — so a creator tapping this pays like anybody
+     * else, and a second tap joins nothing twice.
+     *
+     * @return array{text: string, callback_data: string}
+     */
+    public function join(User $user, Challenge $challenge): array
+    {
+        return [
+            'text' => $this->messenger->line($user, 'bot.join.join_button'),
+            'callback_data' => BotCallback::encode(JoinCallback::ACTION, $challenge->join_token),
+        ];
+    }
+
+    /**
+     * The button that opens this challenge's deep link, to hand to somebody else.
+     *
+     * A `url` button and not a `callback_data` one, for the reason
+     * `ChannelBroadcaster` documents for the channel post: whoever this is
+     * forwarded to has never messaged the bot, and a `callback_query` reply
+     * raises 403 for exactly that audience.
+     *
+     * The platform is read from the same resolution that decides where this
+     * message itself goes, rather than from the user row directly, so a Bale
+     * creator cannot be handed a `t.me` link under a message the Bale bot sent.
+     *
+     * @return array{text: string, url: string}
+     */
+    public function invite(User $user, Challenge $challenge): array
+    {
+        return [
+            'text' => $this->messenger->line($user, 'bot.join.invite_button'),
+            'url' => $challenge->joinLink($this->messenger->platformFor($user)->platform()),
         ];
     }
 }

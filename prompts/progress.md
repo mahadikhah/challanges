@@ -4132,3 +4132,65 @@ would be 100% of real users while this suite merely notices one case. Worth reso
 test is currently the only thing standing between that commit and a silent authentication regression, and the
 next person to "fix" the red build by deleting the test would take it away.
 
+### Task 4 — The bot offers the join the moment the challenge exists ✅
+
+The defect was not a wrong button but an absent one. `CreateChallengeWizard::announceOutcome()` called
+`BotMessenger::paragraphs($user, [...])` with no third argument — the only message the wizard sends without a
+keyboard — so a creator finished twelve questions and read four paragraphs about a challenge they were not in,
+with nothing to tap. The fourth of those paragraphs made it worse in the invite-only case: *"nobody can join
+without a link from you"*, in a message carrying no link.
+
+**The button already existed; it was extracted rather than re-typed.** `JoinChallengeFlow::preview()` built the
+`jn:` button inline, and `BotButtons` — the class whose docblock is *"the buttons that go under a bot message,
+built in one place"* — already owned its `ci:` sibling, `checkIn(User, Challenge)`. So `join(User, Challenge)`
+joins that pair, and both call sites use it. This is the one place the task's "no change to the preview" was
+read as *no change in behaviour* rather than no diff: `JoinChallengeFlow::preview()` keeps its output exactly,
+and `JoinChallengeFlowTest`'s exact keyboard assertion is what proves it. Two builders for one intent is how the
+offer and the join would have drifted apart.
+
+**A share row, and it is not a substitute for the join row.** `BotButtons::invite()` is a `url` button built by
+`Challenge::joinLink()`, for the reason `ChannelBroadcaster` already documents for the channel post: whoever a
+`url` button is forwarded to has never messaged the bot, and a `callback_query` reply raises 403 for exactly that
+audience. The platform comes from `BotMessenger::platformFor($user)->platform()` — the same resolution that
+decides where the message itself goes — so a Bale creator cannot be handed a `t.me` link. Two rows rather than
+one because they are different acts by different people: the first is the creator's own way in, costing a
+join-slot like anybody else's, and the second is the only way anyone else gets into an invite-only challenge.
+
+**The fifth paragraph is the only one that asks for anything, so it is last and it is one sentence.** *"Creating
+it does not enter you in it — join now, or any time before it closes."* (`ساختن چالش تو را در آن عضو نمیکند —
+همین حالا یا هر وقت پیش از پایانش میتوانی بپیوندی.`) It states `JoinChallenge`'s rule rather than implying it —
+creating and competing are two decisions — and it deliberately does not name the button, because the button is
+already under it. The new button label is `bot.join.invite_button` ("Invite others" / "دعوت دیگران"); the join
+button reuses `bot.join.join_button`, so there is exactly one word for joining in the whole bot.
+
+**Nothing new was wired up to make the tap work.** `JoinCallback` (`jn`) already routes to
+`JoinChallengeFlow::confirm()`, which re-checks the channel gate, spends a join-slot or refuses with the price,
+and is idempotent. The offer re-derives none of it: the same `BotCallback::encode(JoinCallback::ACTION,
+$challenge->join_token)` the preview sends is what the confirmation now sends, so the creator's tap lands in the
+code that already decides, and a second tap joins nothing twice.
+
+**Tests** — five added to `tests/Feature/Bot/CreateChallengeWizardTest.php` under a new `describe('the offer to
+join')`, all driven through the real inbound path (`flowSittingAt` → `wizardChooses(CONFIRM)` → `wizardTapsData`,
+with the payload read back off the wire rather than rebuilt): the four paragraphs still present and the new line
+**last** with `ChallengeParticipant::count()` at zero, which nothing asserted before; the keyboard pinned exactly
+as `[[jn:<token>], [url]]` with the deep link asserted against `joinLink(Telegram)` *and* `joinPayload()`, so the
+button is pinned to the right platform and the right challenge without needing a bot username in the test env
+(`TELEGRAM_BOT_USERNAME` is not in `phpunit.xml`); the tap on that payload creating one `ChallengeParticipant`
+for the creator and consuming exactly one `JoinSlot`; the same tap with no join-slot refused by `SlotRefusal`
+with the price and the token-carrying buy button; and the whole line resolving in Farsi for a Farsi creator.
+`UiCopyTest`'s existing "every en/fa translation group is complete" sweep is the parity guard for both new keys —
+it fails on a key present in one file only, or a line equal to its own key — so the Farsi test is about the
+per-recipient resolution a key sweep cannot see, not about existence.
+
+**No existing assertion had to be updated.** Nothing pinned the created message as keyboard-free and nothing
+asserted its text exactly: the created-message assertions (lines 727–770) are `toContain` per paragraph, and
+`expect(botMessages())->toHaveCount(13)` counts updates, one send each, which a keyboard does not change.
+`TimedSessionBotTest` drives the same confirmation and asserts nothing about the outcome message. The commit
+message says so rather than leaving it to be re-discovered; had an assertion existed, it would have been updated
+with a comment naming what it used to say.
+
+**Result — `sail composer ci:check`:** eslint ✓, prettier ✓, tsc ✓, config:clear ✓, pint ✓, phpstan lvl 7
+(0 errors) ✓, `artisan test` **1886 passed, 4 skipped, 1 failed**. The one failure is the same pre-existing
+`MiniAppAuthTest` → *"excludes the optional signature from the check string"* recorded at the end of Task 2 above;
+none of this task's files are in the Mini App or auth path, and it is unchanged.
+

@@ -83,4 +83,33 @@ return [
         'unexpected' => 'Something went wrong. Please try again.',
     ],
 
+    'join' => [
+        'button' => 'Join this challenge',
+        'working' => 'Joining…',
+        'done' => 'You are in.',
+
+        // The same gate as `check_in.gate`, said about a different act — the
+        // reader arrived at a join button, not a check-in one. The button and
+        // the no-link line under it stay the shared `check_in.*` pair: those
+        // two are about the *channel*, and say the same thing either way.
+        'gate' => 'Join our channel to take part in this challenge.',
+
+        // Out of slots is not out of money, and the two sentences below are
+        // what keeps that distinction: this one is always true, and `short` is
+        // only added when the balance genuinely cannot cover the price.
+        'no_slot' => 'You have used up your challenge-joining slots.',
+        'price' => 'Another costs :price coins, and you have :balance.',
+        'short' => 'You are :coins coins short — top up in the bot shop, then come back.',
+
+        'unexpected' => 'Something went wrong. Please try again.',
+
+        // Keys are `JoinRejection` values verbatim, so the screen can build
+        // `miniapp.join.refused.<reason>` without a lookup table of its own.
+        'refused' => [
+            'challenge_closed' => 'This challenge is no longer running.',
+            'timeline_exhausted' => 'This challenge has run out of periods, so there is nothing left to join.',
+            'participation_ended' => 'You already took part in this one, and rejoining is up to its creator.',
+        ],
+    ],
+
 ];

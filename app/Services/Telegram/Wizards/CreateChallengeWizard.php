@@ -952,6 +952,16 @@ class CreateChallengeWizard
      * questions before this message and never sees what it means from the
      * participant's side. It is the same sentence the participants will read, so
      * a creator who chose wrongly can tell before anyone has to check in.
+     *
+     * **Nothing here enrols the creator, and the message says so.** Making a
+     * challenge and taking part in it are two decisions — one who is only
+     * organising is not made to look like a participant who never checks in — so
+     * the fifth paragraph is the one line that asks them to do something, and the
+     * rows under it are what do it. The first is their own way in, spending a
+     * join-slot like anybody else's; the second hands somebody else the deep link,
+     * which for an invite-only challenge is the only way anyone gets in at all.
+     * Two rows rather than one because they are different acts by different
+     * people — neither is a substitute for the other.
      */
     private function announceOutcome(User $user, Challenge $challenge): void
     {
@@ -969,6 +979,13 @@ class CreateChallengeWizard
             $challenge->visibility->shouldAnnounce()
                 ? $this->messenger->line($user, 'bot.wizard.created_public')
                 : $this->messenger->line($user, 'bot.wizard.created_private'),
+
+            // Last, and separate from the four above: those describe the
+            // challenge, this one is the only thing being asked of them.
+            $this->messenger->line($user, 'bot.wizard.created_not_joined'),
+        ], [
+            [$this->buttons->join($user, $challenge)],
+            [$this->buttons->invite($user, $challenge)],
         ]);
     }
 

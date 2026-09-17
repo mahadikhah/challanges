@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\MiniApp;
 
+use App\Actions\Challenges\ResolveViewableChallenge;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MiniApp\ChallengeResource;
 use App\Models\ChallengeParticipant;
@@ -20,15 +21,22 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
  * listing uses; this controller only decides what each row carries.
  *
  * `show` resolves the token's user and the route's challenge *together* — as a
- * participation or as an owner — and 404s on neither. A challenge that exists
- * but is somebody else's reads the same as one that does not exist at all: the
- * Mini App has no way to learn which ids are live. That uniformity is the whole
- * point of the second lookup, so the ownership query stays scoped by
- * `$user->createdChallenges()` and the route id stays a lookup key, never an
- * authorization.
+ * participation or as an owner. A challenge that exists but is somebody else's
+ * reads the same as one that does not exist at all: the Mini App has no way to
+ * learn which ids are live. That uniformity is the whole point of the second
+ * lookup, so the ownership query stays scoped by `$user->createdChallenges()`
+ * and the route id stays a lookup key, never an authorization.
+ *
+ * The lookup itself is `ResolveViewableChallenge`, shared with the join
+ * endpoint: the rule is the same question asked twice, and a second copy of an
+ * authorization check is a second thing to keep in step.
  */
 class ChallengeController extends Controller
 {
+    public function __construct(
+        private readonly ResolveViewableChallenge $viewable,
+    ) {}
+
     public function index(Request $request): AnonymousResourceCollection
     {
         /** @var User $user */
@@ -71,27 +79,8 @@ class ChallengeController extends Controller
         /** @var User $user */
         $user = $request->user();
 
-        $participant = $user->participations()
-            ->where('challenge_id', $challenge)
-            ->with(['challenge.periods', 'checkIns'])
-            ->first();
+        $view = $this->viewable->handle($user, $challenge);
 
-        if ($participant !== null) {
-            return new ChallengeResource($participant->challenge, $participant, $user);
-        }
-
-        // Owning it is the other, and only other, way to be entitled to look.
-        // Read through the relation so the ownership test is the model's own
-        // `creator_id` comparison and not a column name written by hand here.
-        $owned = $user->createdChallenges()
-            ->where('id', $challenge)
-            ->with('periods')
-            ->first();
-
-        if ($owned === null) {
-            abort(404);
-        }
-
-        return new ChallengeResource($owned, null, $user);
+        return new ChallengeResource($view->challenge, $view->participant, $user);
     }
 }
