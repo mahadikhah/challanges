@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "prompts/progress.md": {
-    "mtime": 1789597571.8310096,
-    "ast_hash": "bab25a58aebc5024f449370aa12c90dc",
+    "mtime": 1789622526.4915175,
+    "ast_hash": "c39714fc40963ee3d061c4d3bd4c146e",
     "semantic_hash": ""
   },
   "prompts/task-01-setup.md": {
@@ -2170,8 +2170,8 @@
     "semantic_hash": ""
   },
   "tests/Feature/MiniApp/MiniAppAuthTest.php": {
-    "mtime": 1789595529.8982294,
-    "ast_hash": "b1e62300bd36ef222386426549f16346",
+    "mtime": 1789627624.3553138,
+    "ast_hash": "1c0f6b18fa934abc212655822cb27941",
     "semantic_hash": ""
   },
   "app/Enums/Contracts/HasTranslatedLabel.php": {
@@ -2180,13 +2180,13 @@
     "semantic_hash": ""
   },
   "app/Http/Controllers/MiniApp/ChallengeController.php": {
-    "mtime": 1789598647.7200296,
-    "ast_hash": "9967d807a130412b79a3d9f31d81f154",
+    "mtime": 1789625819.801951,
+    "ast_hash": "f2a854880b5bec78bb005b9ec433fc61",
     "semantic_hash": ""
   },
   "app/Http/Resources/MiniApp/ChallengeResource.php": {
-    "mtime": 1789597450.3171735,
-    "ast_hash": "f67d657ee4a10984842532c01fddbc5c",
+    "mtime": 1789625738.0118787,
+    "ast_hash": "6a30a8d4ccfdec935b0ea0fa028a8397",
     "semantic_hash": ""
   },
   "tests/Feature/MiniApp/ChallengesSurfaceTest.php": {
@@ -2195,33 +2195,33 @@
     "semantic_hash": ""
   },
   "app/Http/Controllers/MiniApp/CheckInController.php": {
-    "mtime": 1789597450.3161736,
-    "ast_hash": "50030e0cdf0810a64627970fd3ceb91f",
+    "mtime": 1789627122.1683908,
+    "ast_hash": "5890c062b6f837df5fff5354e09050a6",
     "semantic_hash": ""
   },
   "lang/en/miniapp.php": {
-    "mtime": 1789598700.8313098,
-    "ast_hash": "6f32922ae01f8dc92e8ac14930280422",
+    "mtime": 1789626005.0692143,
+    "ast_hash": "fa019ee955d5bbb3640e19ce5d884455",
     "semantic_hash": ""
   },
   "lang/fa/miniapp.php": {
-    "mtime": 1789598705.65951,
-    "ast_hash": "52f13960135b764e72e043797190599d",
+    "mtime": 1789626032.643263,
+    "ast_hash": "5c5c0a9de92003f6758b30b2853abb8e",
     "semantic_hash": ""
   },
   "resources/js/miniapp/api.ts": {
-    "mtime": 1789598736.7767699,
-    "ast_hash": "70710c6f9402f843c6597ca17afeddaf",
+    "mtime": 1789626058.8553116,
+    "ast_hash": "c18f052445c3ba3b0851b0771e8a4c88",
     "semantic_hash": ""
   },
   "resources/js/miniapp/app.tsx": {
-    "mtime": 1789598773.0111785,
-    "ast_hash": "546f359b9ef843ce8005755cd5f57588",
+    "mtime": 1789626063.3813202,
+    "ast_hash": "6fd6c7727b5255fb51954ed5879f5c75",
     "semantic_hash": ""
   },
   "resources/js/miniapp/screens/challenge-detail.tsx": {
-    "mtime": 1789598765.038874,
-    "ast_hash": "e0bb746c6035be0495f348bd0afe097f",
+    "mtime": 1789626319.586136,
+    "ast_hash": "e2334e64678ded3f85cc92b7c441b0a1",
     "semantic_hash": ""
   },
   "resources/js/miniapp/screens/challenge-list.tsx": {
@@ -2240,13 +2240,13 @@
     "semantic_hash": ""
   },
   "resources/js/miniapp/types.ts": {
-    "mtime": 1789598718.9840553,
-    "ast_hash": "31fe05162acd309c3bd6c732bba1fcad",
+    "mtime": 1789626051.9482987,
+    "ast_hash": "74478a19102f2df020b3c7ddea6883cc",
     "semantic_hash": ""
   },
   "tests/Feature/MiniApp/MiniAppCheckInTest.php": {
-    "mtime": 1788017770.733619,
-    "ast_hash": "8173b64ee4c1b4960290c256c3b9627a",
+    "mtime": 1789627540.3786187,
+    "ast_hash": "4553aecb117b1859bc5feca8ce8ee30c",
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/SettingsController.php": {
@@ -3090,8 +3090,8 @@
     "semantic_hash": ""
   },
   "app/Enums/MessagingPlatform.php": {
-    "mtime": 1788017770.5826187,
-    "ast_hash": "3758d4d772595da610c42eb2777d957b",
+    "mtime": 1789625154.5367763,
+    "ast_hash": "8cc037d9dae3887b4883740a5230ce9d",
     "semantic_hash": ""
   },
   "app/Messaging/Contracts/MessengerException.php": {
@@ -3925,8 +3925,8 @@
     "semantic_hash": ""
   },
   "app/Http/Resources/MiniApp/MiniAppUserResource.php": {
-    "mtime": 1789595529.9042294,
-    "ast_hash": "cbdffc965b0315a45cf8bd05b80b6458",
+    "mtime": 1789625176.1146767,
+    "ast_hash": "97c6e07da3a402a3c4fccdda3156c9fc",
     "semantic_hash": ""
   },
   "prompts/goal-phase-19.md": {
@@ -3935,7 +3935,7 @@
     "semantic_hash": ""
   },
   "prompts/phase-19.md": {
-    "mtime": 1789595529.9042294,
+    "mtime": 1789623905.5280373,
     "ast_hash": "bf5678bda0bae023c98973ba80547781",
     "semantic_hash": ""
   },
@@ -3950,8 +3950,8 @@
     "semantic_hash": ""
   },
   "app/Http/Controllers/MiniApp/JoinController.php": {
-    "mtime": 1789598666.6198587,
-    "ast_hash": "c074c4f8797653d73bddb9d9a22eb89f",
+    "mtime": 1789625841.0169747,
+    "ast_hash": "a6aac548e0e0652d06eec5c34122462e",
     "semantic_hash": ""
   },
   "tests/Feature/MiniApp/MiniAppJoinTest.php": {
