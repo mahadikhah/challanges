@@ -4285,3 +4285,93 @@ above and still unresolved; it is unrelated to this task and its cause is writte
 
 Manually unverified (needs a real device or Telegram Web): the Farsi phrase's direction on a real screen and
 the media button actually opening the bot.
+
+### Task 6 — Creating a challenge from the Mini App ✅
+
+The Mini App could list, open, join and check in, but a user who wanted to *start* a challenge still had to
+leave it and run the bot's twelve-question `/create` wizard. This lands the create screen, the read-only
+options endpoint that feeds it, and `POST /challenges` behind it — the third surface calling the same
+`CreateChallenge` action the bot and the admin panel call, with the same slot spend inside the same transaction.
+
+**Two endpoints with deliberately different characters.** `GET /challenges/options` is a *read*: it serves the
+`{value,label}` lists, `CreateChallenge::limits()`, `DateTimeZone::listIdentifiers()`, the two media ceilings
+read off `Settings`, the create-slot count and price, and the bot URL. It does **not** gate and it does **not**
+spend — a user who left the channel, or who holds no slot, still gets the whole payload, because refusing to
+answer a question is not refusing the thing the user asked for. Both refusals belong at the create, where
+something is actually spent, and a test serves the options ten times to prove the slot count holds. The price
+comes from `PurchaseEntitlement::priceOf()` and the count from `ConsumeEntitlement::available()`, so nothing
+here can hardcode a rate.
+
+**The route-ordering trap, handled and verified.** `/challenges/options` must be declared *before*
+`/challenges/{challenge}` or the literal is captured as a challenge id and 404s. `route:list` confirms the
+order; the comment in `routes/api.php` says why the pair sits together.
+
+**`flow_types` is a one-element list**, not a bare string and not an absent field: it states what this build can
+create rather than offering a choice the API would refuse, and Task 7 extends the same list without reshaping
+the screen. The SPA renders it on the summary.
+
+**All five proof types are offered, confirmed with the user.** The bot wizard caps at three curatorial ones and
+its stated rationale is stale — `CheckInFlow` dispatches `VoiceApproval => askVoice()` and
+`SubmitCheckIn::uploadVoice()` records it — so the two recording types come with their cap fields and a 422
+above the ceiling, which is the "voice_approval with no caps is refused" bullet's API half. Its action half was
+already pinned at `ProofMediaCapsTest.php:202`.
+
+**The one judgement call worth stating: the request is not stricter than the action.** `CreateChallenge`
+**refuses** a stray scoring field on a binary challenge (`assertScoring()`), but **degrades** a stray
+`custom_period_days` or media cap to `null`. The first version of `StoreChallengeRequest` refused all three, and
+a dataset case caught it — 201 where 422 was expected. The request now refuses only what the action refuses and
+bounds the rest, because a real form produces the leftovers: the user picked a voice challenge, set the caps,
+then changed their mind, and refusing would block a submission over a field the screen no longer shows. The
+asymmetry is written down in the request's docblock so the next person does not "fix" it again. The SPA mirrors
+it from the other side — it sends `target_value` only on a quantity challenge, since sending it alongside
+`binary` is a 422 by design.
+
+**The `InvalidArgumentException` catch is a bug report, not a refusal.** The request validated every field, so
+the action refusing means the two layers disagree: logged with the reason, answered with a generic 500, the
+same treatment `CreateChallengeWizard::finish()` gives the identical exception.
+
+**The start date is interpreted where both halves are known.** `date_format:Y-m-d` on the request and nothing
+more, because "not before today" is measured in the challenge's *own* timezone, which is a sibling field. The
+controller runs the shape check, `checkdate`, the past check against `now($timezone)->startOfDay()`, then
+stores UTC — `ChallengeDraft::startsAt()`'s conversion and `CreateChallengeWizard::readDate()`'s checks in the
+same order. `INVALID_START_DATE` is a backstop the request normally pre-empts, and the docblock says so:
+Laravel's `date_format` already refuses 31 April, which is why that case asserts a validation error rather than
+a reason.
+
+**The SPA is a wizard, in the bot wizard's own question order** — title → description → cadence (→ days) →
+timezone → start day → periods → scoring (→ target, unit, points, partial) → proof (→ caps) → visibility →
+summary. Timezone precedes the start date for the same reason the bot asks it there. The step list is rebuilt
+from the draft on every render, so going back and changing an answer *removes* the step it added. Every bound
+is read from the options payload; the only server rule copied client-side is `RECORDING_PROOFS`, which restates
+`ProofType::expectsDuration()` because a JSON payload cannot carry an enum — stated in the docblock.
+
+**The arrow leaves, the wizard's Back steps** — the two mean different things on purpose, and the BackButton
+effect now covers `create` alongside `detail`. On the list the header gained the create button and kept the
+balance; the create screen draws its own header (its heading is the question it is on), so the arrow is the way
+out of the flow. After a successful create the app returns to the **list**, not the detail: the list is
+refetched and so is `/me`, so the challenge is standing there, marked "Not joined", and the create-slot it spent
+is one lower in the header. `refreshUser()` was extracted so `backToList()` and the new `returnFromCreate()`
+share it rather than duplicating it.
+
+**`has_joined: false` is the answer, not a bug** — creating does not enrol the creator, `ChallengeResource`
+already had that shape, and the summary says on the way in what the list will say on the way out.
+
+*Out of scope and untouched*: `CreateChallenge`, `ConsumeEntitlement`, `MaterialiseChallengePeriods`, timed
+sessions, AI approval, media upload, edit-after-create, delete. No new enum, no new `SettingKey`, no new column.
+
+**Tests** — thirty-five added to `tests/Feature/MiniApp/MiniAppCreateChallengeTest.php` (181 assertions), with
+uniquely-named helpers because the existing ones are global functions and a duplicate declaration is a fatal.
+They cover the write (one challenge, one slot spent, periods materialised, UTC `starts_at`, 201), the created
+challenge appearing in `index` with `has_joined: false` and no participant row, the 402 refusal quoting price
+and balance with nothing written, a 422 dataset over each malformed field, the media ceiling reported and
+enforced, the gate re-verified at the create with a stale `channel_verified_at`, and the options endpoint
+serving repeatedly without spending. The locale bullet is covered by `UiCopyTest`'s `miniapp` parity loop: the
+new `create` group is key-for-key in both languages, five of its keys added mid-task when the summary grew.
+
+**Result — `sail composer ci:check`:** eslint ✓, prettier ✓, tsc ✓, config:clear ✓, pint ✓, phpstan lvl 7
+(0 errors, one `array_values` redundancy it was right about) ✓, `artisan test` **1932 passed, 4 skipped, 1
+failed**. The one failure is the same pre-existing `MiniAppAuthTest` → *"excludes the optional signature from
+the check string"* recorded at the end of Task 2 and still unresolved; unrelated to this task.
+
+Manually unverified (needs a real device or Telegram Web): the native date picker's behaviour in the Telegram
+webview, and the 400-entry timezone `<select>` on a small screen.

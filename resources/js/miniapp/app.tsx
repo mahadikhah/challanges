@@ -4,6 +4,7 @@ import { ApiError, authenticate, fetchChallenges, fetchMe } from './api';
 import { t } from './localization';
 import { ChallengeDetail } from './screens/challenge-detail';
 import { ChallengeList } from './screens/challenge-list';
+import { CreateChallenge } from './screens/create-challenge';
 import { supports, webApp } from './telegram';
 import { applyTheme } from './theme';
 import type { ChallengeView, MiniAppUser } from './types';
@@ -53,7 +54,8 @@ type Phase =
     | { screen: 'refused' }
     | { screen: 'unreachable'; httpStatus: number | null }
     | { screen: 'list'; state: ListState }
-    | { screen: 'detail'; challenge: ChallengeView };
+    | { screen: 'detail'; challenge: ChallengeView }
+    | { screen: 'create' };
 
 /**
  * Which screen the very first render is on.
@@ -206,6 +208,21 @@ export function MiniApp() {
         setPhase({ screen: 'detail', challenge });
     }, []);
 
+    /**
+     * Re-read the token's own user.
+     *
+     * `user.coins` is otherwise the snapshot the exchange handed over at boot
+     * and never revised — the header that once read "undefined" was that
+     * snapshot being wrong, and a stale number would be the same bug at a lower
+     * volume. Silent on failure for the same reason `backToList` is: this is a
+     * nicety, and a failed nicety must not undo a working screen.
+     */
+    const refreshUser = useCallback(() => {
+        fetchMe().then(setUser, () => {
+            // Deliberately nothing.
+        });
+    }, []);
+
     const backToList = useCallback(() => {
         // The check-in already replaced the detail's state wholesale, so the
         // list behind it is stale only in the one challenge the participant
@@ -226,16 +243,29 @@ export function MiniApp() {
 
         // And the boot user on the same beat, because the header is hidden
         // while the detail is open: this is the first moment a balance that
-        // moved on that screen is visible anyway. `user.coins` is otherwise the
-        // snapshot the exchange handed over at boot and never revised — the
-        // header that read "undefined" was that snapshot being wrong once, and
-        // a stale number would be the same bug at a lower volume.
-        //
-        // Silent on failure, for the same reason the listing above is: they
-        // asked to go back, and a failed nicety must not undo a working screen.
-        fetchMe().then(setUser, () => {
-            // Deliberately nothing.
-        });
+        // moved on that screen is visible anyway.
+        refreshUser();
+    }, [refreshUser]);
+
+    /**
+     * Leaving the create form, which is the one place a *successful* action
+     * ends. Same trip `backToList` makes — refetch the list, re-read the user —
+     * with one difference: the form has just been submitted, so there is
+     * nothing on it worth leaving visible while the list resolves, and the
+     * loading line is the truer thing to show than a filled-in form going grey.
+     *
+     * The user re-read matters more here than it does from a detail: creating
+     * spends a slot, and the header is the only place that spend is visible.
+     * The challenge itself needs no special handling — the list is refetched,
+     * and it is in it.
+     */
+    const returnFromCreate = useCallback(() => {
+        loadList();
+        refreshUser();
+    }, [loadList, refreshUser]);
+
+    const openCreate = useCallback(() => {
+        setPhase({ screen: 'create' });
     }, []);
 
     useEffect(() => {
@@ -245,7 +275,13 @@ export function MiniApp() {
             return;
         }
 
-        if (phase.screen === 'detail') {
+        // The arrow is the platform's "leave this screen", so it does the same
+        // thing on both screens that have one to leave: back to the list. On
+        // the create form that is a bigger step than the form's own Back
+        // button, which steps backwards through the questions — the arrow ends
+        // the flow, and the draft goes with it, exactly as closing a native
+        // form does.
+        if (phase.screen === 'detail' || phase.screen === 'create') {
             app.BackButton.show();
             app.BackButton.onClick(backToList);
         } else {
@@ -263,14 +299,28 @@ export function MiniApp() {
 
     return (
         <div className="mx-auto flex min-h-dvh w-full max-w-lg flex-col px-4 pt-3 pb-8">
-            {user !== null && phase.screen !== 'detail' ? (
-                <header className="mb-4 flex items-center justify-between">
+            {/* The list's own header. The create form draws its own — its
+                heading is the question it is on, and "Your challenges" over it
+                would be a title for a screen that is not showing. */}
+            {user !== null && phase.screen === 'list' ? (
+                <header className="mb-4 flex items-center justify-between gap-2">
                     <h1 className="text-lg font-bold">
                         {t('miniapp.challenges.title')}
                     </h1>
-                    <span className="text-sm text-[var(--tg-hint)]">
-                        {t('miniapp.coins', { count: user.coins })}
-                    </span>
+
+                    <div className="flex items-center gap-3">
+                        <span className="text-sm text-[var(--tg-hint)]">
+                            {t('miniapp.coins', { count: user.coins })}
+                        </span>
+
+                        <button
+                            type="button"
+                            onClick={openCreate}
+                            className="rounded-full bg-[var(--tg-button)] px-3 py-1.5 text-sm font-medium text-[var(--tg-button-text)] active:opacity-70"
+                        >
+                            {t('miniapp.create.button')}
+                        </button>
+                    </div>
                 </header>
             ) : null}
 
@@ -345,6 +395,14 @@ export function MiniApp() {
                         // own platform) and it beats a hardcoded t.me username.
                         botUrl={user?.bot_url ?? null}
                     />
+                ) : null}
+
+                {phase.screen === 'create' ? (
+                    // No balance prop: the create form's own currency is the
+                    // create-slot, and the options payload says how many are
+                    // left. Coins are quoted where they actually decide
+                    // something — the `no_create_slot` refusal.
+                    <CreateChallenge onCreated={returnFromCreate} />
                 ) : null}
             </main>
         </div>

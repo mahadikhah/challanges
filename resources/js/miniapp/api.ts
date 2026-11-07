@@ -2,6 +2,8 @@ import type {
     ApiRefusal,
     AuthSession,
     ChallengeView,
+    CreateChallengePayload,
+    CreateOptions,
     MiniAppUser,
 } from './types';
 
@@ -168,4 +170,44 @@ export function joinChallenge(id: number): Promise<ChallengeView> {
     return request<{ data: ChallengeView }>(`/challenges/${id}/join`, {
         method: 'POST',
     }).then((payload) => payload.data);
+}
+
+/**
+ * Everything the create form renders: the pickers, the bounds they are held
+ * to, the media ceilings the input clamps to, and the slot the submit will
+ * spend.
+ *
+ * A read, and a deliberately ungated one — a user who has left the channel or
+ * holds no slot still gets the whole payload, because refusing to answer a
+ * question is not refusing the thing the user asked for. Both refusals belong
+ * at `createChallenge()`, where something is actually spent.
+ *
+ * Fetched when the create screen opens rather than at boot: it is a large
+ * payload (every IANA timezone), and most opens never ask for it.
+ */
+export function fetchCreateOptions(): Promise<CreateOptions> {
+    return request<CreateOptions>('/challenges/options');
+}
+
+/**
+ * Create a challenge, spending one of the caller's create-slots.
+ *
+ * The same `CreateChallenge` action the bot's wizard and the admin panel call,
+ * so the rules cannot be right on one surface and wrong on another. The
+ * response is the created challenge in the same shape the list and detail use —
+ * already the new state, not a patch — with `has_joined: false`, because
+ * creating does not enrol the creator.
+ *
+ * A refusal arrives as an `ApiError` with a reason: `channel_gate` (+ the
+ * `join_url` to clear it), `no_create_slot` (+ `price` and `balance`), or a
+ * date reason. Validation failures are a plain 422 with no reason at all, which
+ * is the server saying the form got ahead of the fields.
+ */
+export function createChallenge(
+    payload: CreateChallengePayload,
+): Promise<ChallengeView> {
+    return request<{ data: ChallengeView }>('/challenges', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+    }).then((answer) => answer.data);
 }

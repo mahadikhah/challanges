@@ -3,6 +3,7 @@
 use App\Http\Controllers\MiniApp\AuthController;
 use App\Http\Controllers\MiniApp\ChallengeController;
 use App\Http\Controllers\MiniApp\CheckInController;
+use App\Http\Controllers\MiniApp\CreateChallengeController;
 use App\Http\Controllers\MiniApp\JoinController;
 use App\Http\Controllers\MiniApp\MeController;
 use Illuminate\Support\Facades\Route;
@@ -32,6 +33,14 @@ Route::prefix('v1')->name('miniapp.')->group(function (): void {
         Route::middleware(['auth:sanctum', 'ability:miniapp'])->group(function (): void {
             Route::get('/me', MeController::class)->name('me');
             Route::get('/challenges', [ChallengeController::class, 'index'])->name('challenges.index');
+
+            // The literal `options` must be declared before the `{challenge}`
+            // wildcard below, or it is captured as a challenge id and 404s.
+            // The POST needs no such care — the wildcard route is GET-only —
+            // but the pair stays together because the ordering is the trap.
+            Route::get('/challenges/options', [CreateChallengeController::class, 'options'])->name('challenges.options');
+            Route::post('/challenges', [CreateChallengeController::class, 'store'])->name('challenges.store');
+
             Route::get('/challenges/{challenge}', [ChallengeController::class, 'show'])->name('challenges.show');
             Route::post('/challenges/{challenge}/check-in', [CheckInController::class, 'store'])->name('challenges.check-in');
             Route::post('/challenges/{challenge}/join', [JoinController::class, 'store'])->name('challenges.join');

@@ -1,16 +1,16 @@
 # Graph Report - challenges  (2026-09-17)
 
 ## Corpus Check
-- 778 files · ~500,883 words
+- 782 files · ~513,929 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 5108 nodes · 11479 edges · 372 communities (309 shown, 63 thin omitted)
-- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 330 edges (avg confidence: 0.8)
+- 5160 nodes · 11654 edges · 373 communities (317 shown, 56 thin omitted)
+- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 337 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `11f3a6e4`
+- Built from commit: `6f37684a`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -19,12 +19,12 @@
 - composer.json
 - TelegramUpdate
 - scripts
-- Illuminate\Database\Eloquent\Model
-- Controller
+- Illuminate\Database\Eloquent\Relations\BelongsTo
+- Illuminate\Http\JsonResponse
 - devDependencies
 - settings-layout.tsx
 - optionalDependencies
-- SettingKey.php
+- SessionAiReviewTest.php
 - ChallengePeriod
 - CheckInSessionFactory
 - ProofType.php
@@ -32,7 +32,7 @@
 - compilerOptions
 - User
 - components.json
-- RecordingMessengerPlatform
+- Closure
 - UpdateSettingRequest
 - AGENTS.md
 - SubmitCheckIn Action
@@ -43,33 +43,33 @@
 - ChallengeFactory
 - Invite
 - Laravel Fortify Development
-- SendCriticalAlert
+- SendExceptionAlert
 - Laravel Fortify Development
-- Illuminate\Http\Request
+- SetLocale.php
 - AiProviderRotationTest.php
 - Tailwind CSS Development
 - Tailwind CSS Development
 - Phase 13 Task 1: Telescope — production-safe install
 - useTranslation
 - use-clipboard.ts
-- EntitlementType.php
+- Challenge.php
 - require-dev
 - eslint.config.js
 - icon.tsx
-- CheckIn
+- CheckInRejectedException
 - Detection Checklist
 - Settings
 - SchedulerHeartbeat.php
-- LinkChatFlow
+- CheckInStatus.php
 - Localization
 - Telegram\Bot\Api
 - TelegramMessengerPlatform
-- Illuminate\Http\RedirectResponse
+- create-challenge.tsx
 - Project Goal — Phase 17 (Creator Media Review, Bot Discoverability, Period Naming, Mini App Auth)
 - @radix-ui/react-collapsible
 - ChallengeDraft
 - AiDriverCatalog
-- AiUsageRecordFactory
+- miniapp/localization.ts
 - Phase 3 — Bot core
 - SystemHealthSnapshot
 - Challenge
@@ -78,11 +78,11 @@
 - BotCommand
 - Phase 15 Task 1: Scoring schema
 - tailwind-merge
-- FortifyServiceProvider
-- AppServiceProvider.php
-- TelegramServiceProvider.php
+- AppServiceProvider
+- SendCriticalAlert
+- TimedSessionBotTest.php
 - AiUsageLimitExceededException.php
-- ChatMemberStatus.php
+- VerifyChannelMembership.php
 - Phase 12 Task 2: Setup guides (shared cPanel & Ubuntu VPS)
 - vite
 - @vitejs/plugin-react
@@ -131,7 +131,7 @@
 - Task Scheduling Best Practices
 - Testing Best Practices
 - Setup Task 1: Project Bootstrap
-- ExternalCallProvider.php
+- MessagingPlatform.php
 - Collection Best Practices
 - HTTP Client Best Practices
 - app-header.tsx
@@ -149,20 +149,20 @@
 - .claude/skills/laravel-best-practices/SKILL.md
 - psr-4
 - laravel
-- CoinTransactionReason.php
+- Illuminate\Database\Eloquent\Model
 - laravel-boost
 - AiProviderAccount
 - BotMessenger
-- ProcessTelegramUpdate.php
+- api.ts
 - CheckInSession
-- .receiveChoice
-- MiniAppAuthTest.php
-- AiUsageRecorder
-- LaravelAiTextClient
+- CreateChallengeWizard
+- InitDataVerifier
+- AiOperationIdentity
+- SubmitCheckIn
 - Phase 9 Task 1: Timed/stepped challenge schema & design-time validation
 - miniapp/app.tsx
-- RollOverDuePeriodsCommand
-- AiCapabilityFactory
+- Illuminate\Support\Collection
+- Illuminate\Database\Eloquent\Factories\Factory
 - cn
 - CoinLedger
 - 2.10 Observability
@@ -181,8 +181,8 @@
 - EntitlementFactory
 - index.md
 - setup
-- ChallengeParticipantFactory
-- SentMessage
+- challenge-detail.tsx
+- BaleMessengerPlatform
 - TelegramUpdateFactory
 - account-form.tsx
 - alert-error.tsx
@@ -194,12 +194,12 @@
 - Phase 17 Task 4: Ask for the language after `/start` when none is set
 - Phase 17 Task 5: Register the bot's command menu
 - Phase 17 Task 6: Buttons instead of "send /command"
-- ChallengeStepFactory
+- ScheduleChallengeReminders.php
 - LaravelHttpClient
 - ChallengePeriodFactory
 - AiUsageAdapter.php
 - DatabaseSeeder.php
-- PlatformRegistry
+- StarsPurchaseTest.php
 - Main Prompt Addendum 5 — Video/Voice Proof, Admin-Gated AI Settings, Scoring
 - Phase 17 Task 7: Tell users to check in — and how
 - Project Goal — Phase 19 (Mini App: Coins, Creating, Checking In, Joining, Reviewing)
@@ -209,11 +209,11 @@
 - Phase 17 Task 8: Say "day", not "period"
 - tailwindcss
 - ChallengeResource
-- PasswordValidationRules.php
+- Illuminate\Foundation\Http\FormRequest
 - Project Goal — Phases 14–15 (Video/Voice Proof + Admin-Gated AI, Scoring)
 - ReviewProofWithAi
-- Inertia\Response
-- SchedulerHeartbeatFactory
+- Illuminate\Http\Request
+- Illuminate\Console\Command
 - 1. Participants
 - Phase 17 Task 9: The Mini App's failure message tells the truth
 - AiUsageReservation
@@ -226,11 +226,11 @@
 - BuildsMessengerParams.php
 - ۱. مشارکت‌کنندگان
 - Progress — Phase 9 onward
-- AiOperationIdentity
+- BotUpdate
 - استقرار روی VM فقط-داکر
-- PruneProofMedia
+- Carbon\CarbonImmutable
 - Phase 19 Task 1: `/auth` stops shipping half a user
-- MaterialiseChallengePeriods.php
+- ValidateChallengeStepDesign
 - Phase 17 Task 2: The creator receives the actual proof (simple flow)
 - Phase 19 Task 3: Join from the Mini App
 - Phase 15 — Scoring (addendum-5 §2.12)
@@ -239,28 +239,28 @@
 - @inertiajs/vite
 - UiCopyTest.php
 - globals
-- MessagingPlatform.php
+- MessengerPlatform.php
 - BotCallback
 - Phase 12 — Documentation
-- PeriodUnit
-- ChallengeChat
+- BotCommandMenu
+- LinkedChatHandler
 - Deploying to shared hosting (cPanel)
 - استقرار روی هاست اشتراکی (cPanel)
 - Phase 14 — Video/Voice Proof (progress ledger)
 - Challenges — Telegram & Bale Accountability Platform
 - چالش‌ها — پلتفرم پاسخگویی تلگرام و بله
-- ChallengesController.php
+- ChallengesController
 - Deploying to an Ubuntu VPS
 - استقرار روی VPS اوبونتو
 - Features
 - امکانات
 - Phase 17 — Defect fixes reported from the deployed bot and Mini App
-- AppServiceProvider
-- StartLanguageQuestionTest.php
-- CoinTransaction
+- MiniAppAuthTest.php
+- UserStats
+- AdjustUserCoins
 - dev.sh
 - 2026_08_29_130458_create_telescope_entries_table.php
-- StarPayment
+- PlatformRegistry
 - @radix-ui/react-dialog
 - @radix-ui/react-tooltip
 - Log
@@ -281,10 +281,10 @@
 - Phase 19 Task 5: Check in from the Mini App, for every proof that is not media
 - Phase 19 Task 6: Create a challenge from the Mini App — the simple flow
 - Phase 19 Task 7: Create — timed sessions and AI approval criteria
-- CheckInAwaitsReview
-- TelegramChatType.php
+- CheckIn
+- RuntimeException
 - Phase 19 Task 8: The creator reviews proofs from the Mini App
-- ChatLinkRefusedException
+- SlotPurchaseCallback
 - Phase 17.1 — The live outage, and the button that could not be registered
 - typescript
 - Mini App access on the cPanel host
@@ -295,27 +295,28 @@
 - Tests
 - Phase 19 Task 9: The verdict retires the buttons it was given
 - Phase 19 Task 2: The creator sees their own challenge, joined or not
-- Illuminate\Foundation\Http\FormRequest
-- @inertiajs/react
+- ChallengeResource.php
+- SettingFactory
 - AiUsageReservationFactory
-- .handle
+- ChannelGateException
 - Phase 19 — The Mini App becomes a surface of its own
-- NotifyCheckInVerdict
+- SettleCheckIn
 - AiLimitPeriod.php
 - BotConversationFactory
-- PostCheckInAnnouncement
-- TelegramFileDownloader
-- ChallengeChatLinkTest.php
+- ChallengeChat
+- ChallengeNotCancellable
+- post-create-project-cmd
 - InviteFactory
 - Phase 19 — The Mini App becomes a surface of its own
+- clsx
 - AiProviderAccountFactory
 
 ## God Nodes (most connected - your core abstractions)
-1. `User` - 443 edges
+1. `User` - 446 edges
 2. `Challenge` - 251 edges
 3. `CheckIn` - 129 edges
 4. `cn()` - 129 edges
-5. `Settings` - 99 edges
+5. `Settings` - 102 edges
 6. `ChallengeParticipant` - 97 edges
 7. `useTranslation()` - 96 edges
 8. `TelegramUpdate` - 90 edges
@@ -327,12 +328,12 @@
   prompts/main.md → app/Providers/FortifyServiceProvider.php
 - `Admin Panel` --conceptually_related_to--> `AppSidebar()`  [INFERRED]
   prompts/main.md → resources/js/components/app-sidebar.tsx
-- `forwardsFromChat()` --calls--> `TelegramUpdate`  [INFERRED]
-  tests/Feature/Bot/ChallengeChatLinkTest.php → app/Models/TelegramUpdate.php
-- `typesAtTheBot()` --calls--> `TelegramUpdate`  [INFERRED]
-  tests/Feature/Bot/ChallengeChatLinkTest.php → app/Models/TelegramUpdate.php
-- `arrivesViaJoinLink()` --calls--> `TelegramUpdate`  [INFERRED]
-  tests/Feature/Bot/JoinChallengeFlowTest.php → app/Models/TelegramUpdate.php
+- `sendsPhoto()` --calls--> `TelegramUpdate`  [INFERRED]
+  tests/Feature/Bot/CheckInFlowTest.php → app/Models/TelegramUpdate.php
+- `sendsVideo()` --calls--> `TelegramUpdate`  [INFERRED]
+  tests/Feature/Bot/CheckInFlowTest.php → app/Models/TelegramUpdate.php
+- `sendsVoice()` --calls--> `TelegramUpdate`  [INFERRED]
+  tests/Feature/Bot/CheckInFlowTest.php → app/Models/TelegramUpdate.php
 
 ## Import Cycles
 - None detected.
@@ -342,7 +343,7 @@
 - **Idempotency keys across the system** — claude_md_telegram_update_model, claude_md_star_payment_model, claude_md_checkin_model, claude_md_reminder_dispatch_model [EXTRACTED 1.00]
 - **Three proof types** — prompts_main_proof_button, prompts_main_proof_text_autogen, prompts_main_proof_image_approval [EXTRACTED 1.00]
 
-## Communities (372 total, 63 thin omitted)
+## Communities (373 total, 56 thin omitted)
 
 ### Community 0 - "use-translation.ts"
 Cohesion: 0.14
@@ -353,20 +354,20 @@ Cohesion: 0.14
 Nodes (13): autoload-dev, psr-4, description, keywords, license, minimum-stability, name, prefer-stable (+5 more)
 
 ### Community 2 - "TelegramUpdate"
-Cohesion: 0.05
-Nodes (32): TelegramUpdate, handle(), arrivesAtBale(), typesInTheChat(), sendsPhoto(), sendsVideo(), sendsVoice(), taps() (+24 more)
+Cohesion: 0.06
+Nodes (26): ResolveTelegramUser, ProcessTelegramUpdate, TelegramUpdate, ConversationRouter, CallbackQueryHandler, MessageHandler, PreCheckoutQueryHandler, handle() (+18 more)
 
 ### Community 3 - "scripts"
-Cohesion: 0.11
-Nodes (18): scripts, lint, lint:check, post-autoload-dump, post-create-project-cmd, post-update-cmd, pre-package-uninstall, types:check (+10 more)
+Cohesion: 0.14
+Nodes (14): scripts, lint, lint:check, post-autoload-dump, post-update-cmd, pre-package-uninstall, types:check, Illuminate\\Foundation\\ComposerScripts::postAutoloadDump (+6 more)
 
-### Community 4 - "Illuminate\Database\Eloquent\Model"
-Cohesion: 0.03
-Nodes (21): ApprovalCriteriaScreening, ChallengeChatPost, CheckInStepSubmission, ExternalCallStat, ReminderDispatch, Setting, ApprovalCriteriaScreeningFactory, static (+13 more)
+### Community 4 - "Illuminate\Database\Eloquent\Relations\BelongsTo"
+Cohesion: 0.04
+Nodes (5): ApprovalCriteriaScreening, ChallengeChatPost, ReminderDispatch, Illuminate\Database\Eloquent\Builder, Illuminate\Database\Eloquent\Relations\BelongsTo
 
-### Community 5 - "Controller"
-Cohesion: 0.12
-Nodes (9): BaleWebhookController, Controller, AuthController, CheckInController, MeController, WebhookController, MiniAppUserResource, Illuminate\Http\JsonResponse (+1 more)
+### Community 5 - "Illuminate\Http\JsonResponse"
+Cohesion: 0.13
+Nodes (6): IngestTelegramUpdate, BaleWebhookController, WebhookController, BaleWebhookRequest, WebhookRequest, Illuminate\Http\JsonResponse
 
 ### Community 6 - "devDependencies"
 Cohesion: 0.07
@@ -380,21 +381,21 @@ Nodes (10): AppHeader(), IsCurrentOrParentUrlFn, IsCurrentUrlFn, useCurrentUrl()
 Cohesion: 0.13
 Nodes (15): @laravel/multiplex, lightningcss-linux-x64-gnu, lightningcss-win32-x64-msvc, optionalDependencies, @laravel/multiplex, lightningcss-linux-x64-gnu, lightningcss-win32-x64-msvc, @rollup/rollup-linux-x64-gnu (+7 more)
 
-### Community 9 - "SettingKey.php"
-Cohesion: 0.04
-Nodes (15): SettingType, type(), AiApprovalDecision, static, Illuminate\Database\QueryException, aiReviewedChallenge(), Closure, refusalReason() (+7 more)
+### Community 9 - "SessionAiReviewTest.php"
+Cohesion: 0.08
+Nodes (10): AiApprovalDecision, submittingVideo(), videoReviewedChallenge(), submittingVoice(), voiceReviewedChallenge(), aiSessionForKind(), aiVoiceSessionChallenge(), sessionProofExtension() (+2 more)
 
 ### Community 10 - "ChallengePeriod"
-Cohesion: 0.05
-Nodes (18): AiLimitPeriod, RollOverPeriod, CarbonImmutable, ReminderKind, ScheduleChallengeReminders, PeriodNotEndedException, ChallengePeriod, AiLimitWindow (+10 more)
+Cohesion: 0.06
+Nodes (13): RollOverPeriod, RollOverDuePeriodsCommand, PeriodNotEndedException, ChallengePeriod, Carbon\CarbonInterface, Illuminate\Database\Eloquent\Relations\HasMany, anAgedPayment(), firstPeriodOf() (+5 more)
 
 ### Community 11 - "CheckInSessionFactory"
-Cohesion: 0.43
+Cohesion: 0.36
 Nodes (3): CheckInSessionFactory, static, DateTimeInterface
 
 ### Community 12 - "ProofType.php"
-Cohesion: 0.04
-Nodes (36): CreateChallenge, ApprovalMode, FlowType, DispatchDueReminders, SendRemindersCommand, label(), options(), translationKey() (+28 more)
+Cohesion: 0.05
+Nodes (37): ApprovalMode, FlowType, label(), options(), translationKey(), freeAllowanceSetting(), CoinTransactionReason, SettingKey (+29 more)
 
 ### Community 13 - "Phase 14 Task 1: Video/voice proof schema & retention"
 Cohesion: 0.06
@@ -406,11 +407,15 @@ Nodes (19): resources/js/**/*.d.ts, resources/js/**/*.ts, resources/js/**/*.tsx,
 
 ### Community 15 - "User"
 Cohesion: 0.03
-Nodes (21): MiniAppSession, User, Illuminate\Database\Eloquent\Relations\HasOne, Illuminate\Foundation\Auth\User, Illuminate\Notifications\Notifiable, Laravel\Sanctum\HasApiTokens, anAdminModerator(), anAdminPanelReviewer() (+13 more)
+Nodes (28): User, EntitlementType, Illuminate\Database\Eloquent\Relations\HasOne, Illuminate\Foundation\Auth\User, Illuminate\Notifications\Notifiable, Laravel\Sanctum\HasApiTokens, anAdminModerator(), anAdminPanelReviewer() (+20 more)
 
 ### Community 16 - "components.json"
 Cohesion: 0.11
 Nodes (17): aliases, components, hooks, lib, ui, utils, iconLibrary, rsc (+9 more)
+
+### Community 17 - "Closure"
+Cohesion: 0.13
+Nodes (5): RecordExternalCall, RecordingMessengerPlatform, Closure, ExternalCallStatFactory, ExternalCallOutcome
 
 ### Community 19 - "AGENTS.md"
 Cohesion: 0.06
@@ -426,7 +431,7 @@ Nodes (27): Basic Link Component, Basic Usage, Client-Side Navigation, Common Pi
 
 ### Community 22 - "dependencies"
 Cohesion: 0.06
-Nodes (35): class-variance-authority, clsx, concurrently, laravel-vite-plugin, lucide-react, dependencies, class-variance-authority, clsx (+27 more)
+Nodes (35): class-variance-authority, concurrently, @inertiajs/react, laravel-vite-plugin, lucide-react, dependencies, class-variance-authority, concurrently (+27 more)
 
 ### Community 23 - "Inertia React Development"
 Cohesion: 0.07
@@ -441,28 +446,24 @@ Cohesion: 0.20
 Nodes (4): ChallengeFactory, PeriodType, ProofType, static
 
 ### Community 26 - "Invite"
-Cohesion: 0.07
-Nodes (10): ClaimInvite, IssueInviteCode, InviteNotClaimableException, InviteRejection, self, Invite, InviteRejection, self (+2 more)
+Cohesion: 0.08
+Nodes (9): ClaimInvite, IssueInviteCode, InviteNotClaimableException, InviteRejection, self, Invite, InviteRejection, self (+1 more)
 
 ### Community 27 - "Laravel Fortify Development"
 Cohesion: 0.12
 Nodes (16): Available Features, Best Practices, Custom Authentication Logic, Documentation, Email Verification Setup, Key Endpoints, Laravel Fortify Development, Passkeys Setup (+8 more)
 
-### Community 28 - "SendCriticalAlert"
-Cohesion: 0.27
-Nodes (3): CarbonInterval, SendCriticalAlert, SendExceptionAlert
-
 ### Community 29 - "Laravel Fortify Development"
 Cohesion: 0.12
 Nodes (16): Available Features, Best Practices, Custom Authentication Logic, Documentation, Email Verification Setup, Key Endpoints, Laravel Fortify Development, Passkeys Setup (+8 more)
 
-### Community 30 - "Illuminate\Http\Request"
-Cohesion: 0.12
-Nodes (12): Exceptions, Never name an exception property $code or $message, EnsureUserIsAdmin, HandleAppearance, HandleInertiaRequests, SetLocale, Closure, Illuminate\Contracts\Translation\HasLocalePreference (+4 more)
+### Community 30 - "SetLocale.php"
+Cohesion: 0.10
+Nodes (10): Exceptions, Never name an exception property $code or $message, EnsureUserIsAdmin, HandleAppearance, HandleInertiaRequests, SetLocale, Illuminate\Contracts\Translation\HasLocalePreference, Illuminate\Foundation\Configuration\Middleware (+2 more)
 
 ### Community 31 - "AiProviderRotationTest.php"
-Cohesion: 0.10
-Nodes (10): RunAiProviderChainAction, ScreenApprovalCriteria, SuggestApprovalCriteria, AiProviderNotConfiguredException, self, AiClientFactory, prompt(), AiTextResult (+2 more)
+Cohesion: 0.09
+Nodes (13): ExecuteAiProviderCallAction, RunAiProviderChainAction, ScreenApprovalCriteria, SuggestApprovalCriteria, AiProviderNotConfiguredException, self, AiClientFactory, prompt() (+5 more)
 
 ### Community 32 - "Tailwind CSS Development"
 Cohesion: 0.14
@@ -484,65 +485,77 @@ Nodes (41): AppSidebar(), AppearanceToggleTab(), LanguageSwitcher(), Placeholder
 Cohesion: 0.40
 Nodes (3): CopiedValue, CopyFn, UseClipboardReturn
 
-### Community 37 - "EntitlementType.php"
+### Community 37 - "Challenge.php"
 Cohesion: 0.06
-Nodes (21): EntitlementType, freeAllowanceSetting(), CoinTransactionReason, SettingKey, priceSetting(), purchaseReason(), InsufficientCoinsException, NoEntitlementAvailableException (+13 more)
+Nodes (19): CheckInSessionStatus, Illuminate\Database\Eloquent\Collection, anAiApprovedProof(), aQueuedProof(), ProofType, givenJoinSlots(), joinableChallenge(), countedChallenge() (+11 more)
 
 ### Community 38 - "require-dev"
 Cohesion: 0.15
 Nodes (13): require-dev, fakerphp/faker, larastan/larastan, laravel/boost, laravel/pail, laravel/pao, laravel/pint, laravel/sail (+5 more)
 
-### Community 45 - "CheckIn"
-Cohesion: 0.05
-Nodes (20): ApplyAiVerdict, IssueCheckInPhrase, OverrideCheckInVerdict, CheckInStatus, ReverseCheckIn, ReviewCheckIn, CheckInStatus, SettleCheckIn (+12 more)
+### Community 45 - "CheckInRejectedException"
+Cohesion: 0.13
+Nodes (7): OverrideCheckInVerdict, CheckInStatus, ReverseCheckIn, ReviewCheckIn, CheckInRejectedException, CheckInRejection, self
 
 ### Community 46 - "Detection Checklist"
 Cohesion: 0.17
 Nodes (11): A. Validation & HTTP input, B. Controllers & routing, C. Authorization, D. Eloquent & models, Detection Checklist, E. Architecture & organization, F. Frontend & views, G. Database & migrations (+3 more)
 
 ### Community 47 - "Settings"
-Cohesion: 0.12
-Nodes (8): AuthenticateMiniAppUser, CreateStarsInvoice, AiApprovalGate, SettingKey, SettingType, Settings, InitDataVerifier, theSettingsService()
+Cohesion: 0.09
+Nodes (9): SettingType, type(), Setting, SettingKey, SettingType, Settings, Illuminate\Database\QueryException, anAdminPanelUser() (+1 more)
 
 ### Community 48 - "SchedulerHeartbeat.php"
-Cohesion: 0.13
-Nodes (5): CarbonInterval, RecordSchedulerHeartbeat, RecordHeartbeat, SchedulerHeartbeat, Carbon\CarbonInterval
+Cohesion: 0.14
+Nodes (3): RecordSchedulerHeartbeat, RecordHeartbeat, SchedulerHeartbeat
 
-### Community 49 - "LinkChatFlow"
-Cohesion: 0.53
-Nodes (3): RegisterChallengeChat, ConversationRouter, LinkChatFlow
+### Community 49 - "CheckInStatus.php"
+Cohesion: 0.07
+Nodes (12): CheckInStepSubmission, aiReviewedChallenge(), Closure, refusalReason(), checkInRefusalFor(), Closure, awaitingVerdict(), Closure (+4 more)
+
+### Community 50 - "Localization"
+Cohesion: 0.11
+Nodes (3): Localization, ChannelBroadcaster, PeriodUnit
 
 ### Community 51 - "Telegram\Bot\Api"
-Cohesion: 0.11
-Nodes (12): PostDailyLeaderboardsCommand, PruneTelescope, SetMenuButtonCommand, SetWebhookCommand, WebhookInfoCommand, BotIdentity, Illuminate\Console\Command, Telegram\Bot\Api (+4 more)
+Cohesion: 0.10
+Nodes (10): SetMenuButtonCommand, WebhookInfoCommand, BotIdentity, Telegram\Bot\Api, Telegram\Bot\Exceptions\TelegramSDKException, botApi(), Api, DependentUpdateHandler (+2 more)
 
 ### Community 52 - "TelegramMessengerPlatform"
-Cohesion: 0.15
-Nodes (4): MessengerException, self, MessagingPlatform, TelegramMessengerPlatform
+Cohesion: 0.20
+Nodes (3): MessengerException, self, TelegramMessengerPlatform
 
-### Community 53 - "Illuminate\Http\RedirectResponse"
-Cohesion: 0.18
-Nodes (5): ReviewQueueController, LocaleController, Illuminate\Http\RedirectResponse, Illuminate\Http\Response, Symfony\Component\HttpFoundation\BinaryFileResponse
+### Community 53 - "create-challenge.tsx"
+Cohesion: 0.11
+Nodes (25): Notice(), t(), NotJoinedCard(), Progress(), check(), CreateChallenge(), defaultTimezone(), Draft (+17 more)
 
 ### Community 54 - "Project Goal — Phase 17 (Creator Media Review, Bot Discoverability, Period Naming, Mini App Auth)"
 Cohesion: 0.22
 Nodes (8): Baked-in decisions — do NOT stop to ask about these, Before the first run, Build order (strict), Guardrails, North Star (definition of done), Operating loop, Project Goal — Phase 17 (Creator Media Review, Bot Discoverability, Period Naming, Mini App Auth), When you MAY stop and ask (only these)
 
 ### Community 56 - "ChallengeDraft"
-Cohesion: 0.10
-Nodes (8): ChallengeDraft, ApprovalMode, CarbonImmutable, FlowType, PeriodType, ProofType, self, CarbonImmutable
+Cohesion: 0.13
+Nodes (7): ChallengeDraft, ApprovalMode, CarbonImmutable, FlowType, PeriodType, ProofType, self
+
+### Community 57 - "AiDriverCatalog"
+Cohesion: 0.11
+Nodes (3): SaveAiProviderAccountRequest, AiDriverCatalog, self
+
+### Community 58 - "miniapp/localization.ts"
+Cohesion: 0.18
+Nodes (13): translate(), TranslationReplacements, fallback, localization, Auth, InertiaConfig, @inertiajs/core, InputHTMLAttributes (+5 more)
 
 ### Community 59 - "Phase 3 — Bot core"
 Cohesion: 0.11
 Nodes (19): Admin Task 1 — panel foundation + settings/economy tuning, Admin Task 2 — challenge moderation + image-proof review queue, Admin Task 3 — users, coin adjustments, audit views, Stars refunds, Bot Core Task 1 — webhook intake (done) — commit `807989c`, Bot Core Task 2 — outbound transport, webhook commands, update router (done) — commit `14fbdfb`, Bot Core Task 3 — channel gate + `/start` with invite attribution (done), Bot Core Task 4 — create-challenge wizard (done), Bot Core Task 5 — the join flow (done) (+11 more)
 
 ### Community 60 - "SystemHealthSnapshot"
-Cohesion: 0.19
+Cohesion: 0.21
 Nodes (4): CarbonImmutable, QueueHealth, SystemHealthSnapshot, AlertOnStaleHeartbeat
 
 ### Community 61 - "Challenge"
-Cohesion: 0.03
-Nodes (54): MintJoinToken, ViewableChallenge, CarbonImmutable, ProofType, SubmitCheckIn, ChallengeNotCancellable, self, ChallengeNotJoinableException (+46 more)
+Cohesion: 0.04
+Nodes (48): ViewableChallenge, ChallengeNotJoinableException, self, self, Challenge, self, ChallengeParticipant, JoinRejection (+40 more)
 
 ### Community 62 - "index.ts"
 Cohesion: 0.13
@@ -550,27 +563,35 @@ Nodes (18): AppContent(), Props, AppShell(), Props, AppSidebarHeader(), Breadcru
 
 ### Community 64 - "BotCommand"
 Cohesion: 0.08
-Nodes (11): GrantFreeBaseline, BotCommand, self, ChallengesCommand, ChatLinkCommand, CreateCommand, LanguageCommand, StartCommand (+3 more)
+Nodes (13): BotCommand, self, CancelCommand, ChallengesCommand, CreateCommand, LanguageCommand, handle(), LanguagePrompt (+5 more)
 
 ### Community 65 - "Phase 15 Task 1: Scoring schema"
 Cohesion: 0.06
 Nodes (35): Before starting, Before starting, Before starting, Before starting, Before starting, Code Rules, Code Rules, Code Rules (+27 more)
 
-### Community 67 - "FortifyServiceProvider"
-Cohesion: 0.23
-Nodes (3): FortifyServiceProvider, TelegramServiceProvider, Illuminate\Support\ServiceProvider
+### Community 67 - "AppServiceProvider"
+Cohesion: 0.15
+Nodes (4): AppServiceProvider, FortifyServiceProvider, TelegramServiceProvider, Illuminate\Support\ServiceProvider
 
-### Community 69 - "TelegramServiceProvider.php"
-Cohesion: 0.09
-Nodes (9): ResolveTelegramUser, CallbackRouter, CommandCallback, CommandRouter, CallbackQueryHandler, PreCheckoutQueryHandler, Illuminate\Contracts\Container\Container, buttonCommandsRoutedTo() (+1 more)
+### Community 68 - "SendCriticalAlert"
+Cohesion: 0.12
+Nodes (8): AiTextClient, CarbonInterval, CarbonInterval, SendCriticalAlert, AlertOnFailedJob, LaravelAiTextClient, Carbon\CarbonInterval, Illuminate\Queue\Events\JobFailed
+
+### Community 69 - "TimedSessionBotTest.php"
+Cohesion: 0.31
+Nodes (5): designerTypesTheSteps(), sessionChooses(), sessionTaps(), sessionTypes(), theParticipantIn()
+
+### Community 71 - "VerifyChannelMembership.php"
+Cohesion: 0.22
+Nodes (3): fromTelegram(), self, membershipQuestion()
 
 ### Community 72 - "Phase 12 Task 2: Setup guides (shared cPanel & Ubuntu VPS)"
 Cohesion: 0.09
 Nodes (22): Before starting, Before starting, Before starting, Both guides, Code Rules, Code Rules, Code Rules, Explicitly Out of Scope (+14 more)
 
 ### Community 76 - "Pest.php"
-Cohesion: 0.09
-Nodes (28): Illuminate\Http\Client\Request, membershipQuestion(), lastOfferedValues(), listingParagraphs(), sentToTheWebhook(), telegramReplies(), webhookAccepted(), statsBlockFor() (+20 more)
+Cohesion: 0.12
+Nodes (23): Illuminate\Http\Client\Request, lastOfferedValues(), sentToTheWebhook(), telegramReplies(), webhookAccepted(), statsBlockFor(), keyboardInMultipart(), sentTo() (+15 more)
 
 ### Community 83 - "Phase 11 Task 1: Messenger platform abstraction (refactor, no new platform yet)"
 Cohesion: 0.09
@@ -693,8 +714,8 @@ Cohesion: 0.20
 Nodes (9): Baked‑in Decisions — DO NOT ASK, Build Order (strict), Definition of Done, Guardrails, Operating Loop (repeat until done), Phase order override (user instruction, 2026-08-29), Project Goal — Autonomous Build Driver, Running across resets (+1 more)
 
 ### Community 120 - "Illuminate\Foundation\Testing\RefreshDatabase"
-Cohesion: 0.08
-Nodes (13): Illuminate\Foundation\Testing\RefreshDatabase, Illuminate\Foundation\Testing\TestCase, PasswordConfirmationTest, RegistrationTest, approve(), firstPeriodOf(), pendingCheckIn(), DashboardTest (+5 more)
+Cohesion: 0.09
+Nodes (10): Illuminate\Foundation\Testing\RefreshDatabase, Illuminate\Foundation\Testing\TestCase, PasswordConfirmationTest, RegistrationTest, lastSentMessage(), sentMessages(), DashboardTest, ExampleTest (+2 more)
 
 ### Community 121 - "Mail Best Practices"
 Cohesion: 0.29
@@ -736,9 +757,9 @@ Nodes (7): Call `Event::fake()` After Factory Setup, Testing Best Practices, Use
 Cohesion: 0.25
 Nodes (7): Before starting, Code Rules, Explicitly Out of Scope, Goal, Setup Task 1: Project Bootstrap, Tests (Pest, required), What to Build (in order)
 
-### Community 132 - "ExternalCallProvider.php"
-Cohesion: 0.21
-Nodes (7): RecordExternalCall, forMessaging(), forPayment(), MessagingPlatform, self, ExternalCallStatFactory, ExternalCallOutcome
+### Community 132 - "MessagingPlatform.php"
+Cohesion: 0.09
+Nodes (15): forMessaging(), forPayment(), MessagingPlatform, self, botUrl(), channelUrl(), configKey(), linkBase() (+7 more)
 
 ### Community 133 - "Collection Best Practices"
 Cohesion: 0.29
@@ -808,49 +829,53 @@ Nodes (5): autoload, psr-4, App\\, Database\\Factories\\, Database\\Seeders\\
 Cohesion: 0.33
 Nodes (6): extra, laravel, post-create-project, dont-discover, installer, irazasyed/telegram-bot-sdk
 
-### Community 150 - "CoinTransactionReason.php"
-Cohesion: 0.08
-Nodes (15): isCredit(), isDebit(), sign(), anAdminOperator(), aTelegramMember(), arrivesAtBot(), greetedUser(), inParallel() (+7 more)
+### Community 150 - "Illuminate\Database\Eloquent\Model"
+Cohesion: 0.05
+Nodes (17): isCredit(), isDebit(), sign(), CoinTransaction, ExternalCallStat, Illuminate\Database\Eloquent\Factories\HasFactory, Illuminate\Database\Eloquent\Model, slotPurchases() (+9 more)
 
 ### Community 155 - "AiProviderAccount"
-Cohesion: 0.08
-Nodes (17): SaveAiProviderAccount, AiAccountsController, SaveAiProviderAccountRequest, AiCapability, AiProviderAccount, up(), anAiPanelAdmin(), theModerationCapability() (+9 more)
+Cohesion: 0.10
+Nodes (15): SaveAiProviderAccount, AiAccountsController, AiCapability, AiProviderAccount, up(), anAiPanelAdmin(), theModerationCapability(), runSoleOperation() (+7 more)
 
 ### Community 156 - "BotMessenger"
-Cohesion: 0.12
-Nodes (23): ConsumeEntitlement, PurchaseEntitlement, VerifyChannelMembership, BotButtons, BotMessenger, CheckInCallback, JoinCallback, LanguageCallback (+15 more)
+Cohesion: 0.09
+Nodes (19): RegisterChallengeChat, VerifyChallengeChat, VerifyChannelMembership, ReminderKind, BotButtons, BotMessenger, JoinCallback, LanguageCallback (+11 more)
 
-### Community 157 - "ProcessTelegramUpdate.php"
-Cohesion: 0.10
-Nodes (9): IngestTelegramUpdate, ProcessTelegramUpdate, UpdateRouter, Illuminate\Foundation\Queue\Queueable, tapArrives(), handle(), ExplodingUpdateHandler, routerWith() (+1 more)
+### Community 157 - "api.ts"
+Cohesion: 0.16
+Nodes (17): createChallenge(), fetchChallenge(), fetchChallenges(), fetchCreateOptions(), fetchMe(), request(), ApiRefusal, AuthSession (+9 more)
 
 ### Community 158 - "CheckInSession"
-Cohesion: 0.07
-Nodes (20): AdvanceCheckInStep, CarbonImmutable, CompleteCheckInSession, ExpireStaleCheckInSessions, OpenCheckIn, StartCheckInSession, self, SessionRejectedException (+12 more)
+Cohesion: 0.09
+Nodes (15): AdvanceCheckInStep, CarbonImmutable, CompleteCheckInSession, ExpireStaleCheckInSessions, OpenCheckIn, StartCheckInSession, self, SessionRejectedException (+7 more)
 
-### Community 159 - ".receiveChoice"
-Cohesion: 0.18
-Nodes (3): CompactDuration, ApprovalMode, ConversationState
+### Community 159 - "CreateChallengeWizard"
+Cohesion: 0.11
+Nodes (11): CreateChallenge, CreateChallengeController, CarbonImmutable, CompactDuration, ChallengeVisibility, ScoringType, CreateChallengeWizard, ApprovalMode (+3 more)
 
-### Community 165 - "MiniAppAuthTest.php"
-Cohesion: 0.10
-Nodes (12): InvalidInitDataException, self, InitDataSecretKey, VerifiedInitData, Illuminate\Testing\TestResponse, aMiniAppSession(), exchangesInitData(), initData() (+4 more)
-
-### Community 166 - "AiUsageRecorder"
+### Community 165 - "InitDataVerifier"
 Cohesion: 0.12
-Nodes (7): AiUsageQuality, AiUsage, self, AiUsageAdapterRegistry, AiUsageCostCalculator, AiUsageNormalizer, AiUsageRecorder
+Nodes (6): AuthenticateMiniAppUser, InvalidInitDataException, self, InitDataVerifier, VerifiedInitData, verify()
+
+### Community 166 - "AiOperationIdentity"
+Cohesion: 0.07
+Nodes (14): AiUsageQuality, AiOperationIdentity, self, AiUsage, self, AiUsageAdapterRegistry, AiUsageCostCalculator, AiUsageNormalizer (+6 more)
+
+### Community 170 - "SubmitCheckIn"
+Cohesion: 0.25
+Nodes (4): CarbonImmutable, ProofType, SubmitCheckIn, CheckInController
 
 ### Community 174 - "Phase 9 Task 1: Timed/stepped challenge schema & design-time validation"
 Cohesion: 0.09
 Nodes (21): Before starting, Before starting, Before starting, Code Rules, Code Rules, Code Rules, Explicitly Out of Scope, Explicitly Out of Scope (+13 more)
 
 ### Community 175 - "miniapp/app.tsx"
-Cohesion: 0.05
-Nodes (61): translate(), TranslationReplacements, ApiError, authenticate(), fetchChallenge(), fetchChallenges(), fetchMe(), joinChallenge() (+53 more)
+Cohesion: 0.13
+Nodes (18): authenticate(), bootScreen(), identityFailure(), ListState, MiniApp(), Phase, rootElement, ChallengeCard() (+10 more)
 
-### Community 177 - "AiCapabilityFactory"
-Cohesion: 0.40
-Nodes (3): AiCapabilityFactory, AiCapabilityPurpose, static
+### Community 177 - "Illuminate\Database\Eloquent\Factories\Factory"
+Cohesion: 0.06
+Nodes (14): AiCapabilityFactory, AiCapabilityPurpose, static, ApprovalCriteriaScreeningFactory, static, ChallengeChatFactory, static, ChallengeChatPostFactory (+6 more)
 
 ### Community 178 - "cn"
 Cohesion: 0.07
@@ -858,7 +883,7 @@ Nodes (54): NavFooter(), NavMain(), NavUser(), DropdownMenuContent(), Navigation
 
 ### Community 179 - "CoinLedger"
 Cohesion: 0.14
-Nodes (7): JoinChallenge, CompleteStarsPayment, RefundStarsPayment, JoinController, CoinLedger, MessageHandler, UserStats
+Nodes (10): JoinChallenge, ConsumeEntitlement, GrantFreeBaseline, EntitlementType, PurchaseEntitlement, JoinController, CoinLedger, ShopCommand (+2 more)
 
 ### Community 180 - "2.10 Observability"
 Cohesion: 0.20
@@ -912,9 +937,9 @@ Nodes (4): EntitlementFactory, EntitlementType, static, EntitlementSource
 Cohesion: 0.25
 Nodes (8): post-root-package-install, setup, composer install, npm install, npm run build, @php artisan key:generate, @php artisan migrate --force, @php -r \"file_exists('.env') || copy('.env.example', '.env');\
 
-### Community 215 - "SentMessage"
-Cohesion: 0.12
-Nodes (8): BaleMessengerPlatform, MessagingPlatform, sendInvoice(), sendMessage(), sendPhoto(), sendVideo(), sendVoice(), SentMessage
+### Community 214 - "challenge-detail.tsx"
+Cohesion: 0.16
+Nodes (14): ApiError, joinChallenge(), submitCheckIn(), ChallengeDetail(), CurrentPeriodCard(), DOT_CLASSES, formatWhen(), historyDotState() (+6 more)
 
 ### Community 217 - "account-form.tsx"
 Cohesion: 0.05
@@ -930,15 +955,15 @@ Nodes (5): 2.9 Bale — second messenger platform, 3.8 Architecture — the mess
 
 ### Community 220 - "ConversationState.php"
 Cohesion: 0.15
-Nodes (13): expectsCallback(), expectsPhoto(), expectsText(), expectsVideo(), expectsVoice(), isChatLinkStep(), isCheckInStep(), isCreateChallengeStep() (+5 more)
+Nodes (16): expectsCallback(), expectsPhoto(), expectsText(), expectsVideo(), expectsVoice(), isChatLinkStep(), isCheckInStep(), isCreateChallengeStep() (+8 more)
 
 ### Community 221 - "Phase 17 Task 3: Timed-session submissions reach the creator at all"
 Cohesion: 0.29
 Nodes (7): Before starting, Code Rules, Explicitly Out of Scope, Goal, Phase 17 Task 3: Timed-session submissions reach the creator at all, Tests (Pest, required), What to Build
 
 ### Community 222 - "BotConversation"
-Cohesion: 0.13
-Nodes (7): BotConversation, ConversationState, CheckInFlow, ConversationState, ProofType, CheckInCommand, liveFlowState()
+Cohesion: 0.12
+Nodes (9): BotConversation, ConversationState, CheckInFlow, ConversationState, ProofType, CheckInCommand, flowAnswers(), liveFlow() (+1 more)
 
 ### Community 224 - "Phase 17 Task 4: Ask for the language after `/start` when none is set"
 Cohesion: 0.29
@@ -952,9 +977,9 @@ Nodes (7): Before starting, Code Rules, Explicitly Out of Scope, Goal, Phase 17 
 Cohesion: 0.29
 Nodes (7): Before starting, Code Rules, Explicitly Out of Scope, Goal, Phase 17 Task 6: Buttons instead of "send /command", Tests (Pest, required), What to Build
 
-### Community 227 - "ChallengeStepFactory"
-Cohesion: 0.29
-Nodes (3): ChallengeStepFactory, static, videoDesign()
+### Community 227 - "ScheduleChallengeReminders.php"
+Cohesion: 0.17
+Nodes (5): DispatchDueReminders, CarbonImmutable, ReminderKind, ScheduleChallengeReminders, SendRemindersCommand
 
 ### Community 228 - "LaravelHttpClient"
 Cohesion: 0.21
@@ -964,9 +989,9 @@ Nodes (6): LaravelHttpClient, static, GuzzleHttp\Promise\PromiseInterface, Illum
 Cohesion: 0.60
 Nodes (3): DatabaseSeeder, Illuminate\Database\Console\Seeds\WithoutModelEvents, Illuminate\Database\Seeder
 
-### Community 233 - "PlatformRegistry"
-Cohesion: 0.07
-Nodes (8): VerifyChallengeChat, CreateBaleInvoice, forPlatform(), MessagingPlatform, self, PlatformRegistry, ChannelBroadcaster, ChatLinkVerification
+### Community 233 - "StarsPurchaseTest.php"
+Cohesion: 0.06
+Nodes (13): forPlatform(), MessagingPlatform, self, asksBale(), asksBalePreCheckout(), paysTheBaleInvoice(), tapsBalePackage(), theBalePayer() (+5 more)
 
 ### Community 234 - "Main Prompt Addendum 5 — Video/Voice Proof, Admin-Gated AI Settings, Scoring"
 Cohesion: 0.18
@@ -993,24 +1018,28 @@ Cohesion: 0.29
 Nodes (7): Before starting, Code Rules, Explicitly Out of Scope, Goal, Phase 17 Task 8: Say "day", not "period", Tests (Pest, required), What to Build
 
 ### Community 247 - "ChallengeResource"
-Cohesion: 0.20
+Cohesion: 0.18
 Nodes (5): ResolveViewableChallenge, ChallengeController, ChallengeResource, BackedEnum, Illuminate\Http\Resources\Json\AnonymousResourceCollection
 
-### Community 248 - "PasswordValidationRules.php"
-Cohesion: 0.11
-Nodes (10): CreateNewUser, ResetUserPassword, emailRules(), nameRules(), profileRules(), ProfileController, ProfileDeleteRequest, ProfileUpdateRequest (+2 more)
+### Community 248 - "Illuminate\Foundation\Http\FormRequest"
+Cohesion: 0.06
+Nodes (17): CreateNewUser, ResetUserPassword, emailRules(), nameRules(), profileRules(), LocaleController, AdjustCoinsRequest, LocaleUpdateRequest (+9 more)
 
 ### Community 249 - "Project Goal — Phases 14–15 (Video/Voice Proof + Admin-Gated AI, Scoring)"
 Cohesion: 0.22
 Nodes (8): Baked-in decisions — do NOT stop to ask about these, Before the first run, Build order (strict), Guardrails, North Star (definition of done), Operating loop, Project Goal — Phases 14–15 (Video/Voice Proof + Admin-Gated AI, Scoring), When you MAY stop and ask (only these)
 
 ### Community 253 - "ReviewProofWithAi"
-Cohesion: 0.14
-Nodes (6): BuildProofModerationPrompt, ProofType, ProofType, ReviewProofWithAi, VideoFrameSampler, Illuminate\Contracts\JsonSchema\JsonSchema
+Cohesion: 0.07
+Nodes (11): BuildProofModerationPrompt, ProofType, ProofType, ReviewProofWithAi, VideoFrameSampler, ChallengeParticipantFactory, static, ChallengeStepFactory (+3 more)
 
-### Community 254 - "Inertia\Response"
-Cohesion: 0.10
-Nodes (7): AiUsageController, InvitesController, PaymentsController, UsersController, AdjustCoinsRequest, Illuminate\Pagination\Paginator, Inertia\Response
+### Community 254 - "Illuminate\Http\Request"
+Cohesion: 0.09
+Nodes (13): AiUsageController, InvitesController, PaymentsController, UsersController, Controller, MeController, ProfileController, SecurityController (+5 more)
+
+### Community 256 - "Illuminate\Console\Command"
+Cohesion: 0.18
+Nodes (6): SweepAbandonedStarPayments, PostDailyLeaderboardsCommand, PruneProofMediaCommand, PruneTelescope, SweepAbandonedPaymentsCommand, Illuminate\Console\Command
 
 ### Community 260 - "1. Participants"
 Cohesion: 0.12
@@ -1021,7 +1050,7 @@ Cohesion: 0.29
 Nodes (7): Before starting, Code Rules, Explicitly Out of Scope, Goal, Phase 17 Task 9: The Mini App's failure message tells the truth, Tests (Pest, required), What to Build
 
 ### Community 263 - "AiUsageReservation"
-Cohesion: 0.10
+Cohesion: 0.11
 Nodes (9): AiReservationStatus, AiGlobalUsageLimit, AiUsageRecord, AiUsageReservation, AiQuotaService, CarbonImmutable, Illuminate\Database\Eloquent\Relations\MorphTo, anAiUsageAdmin() (+1 more)
 
 ### Community 264 - "app.js"
@@ -1037,7 +1066,7 @@ Cohesion: 0.16
 Nodes (4): SettingKey, SettingsController, FfmpegDetector, VideoReviewCapability
 
 ### Community 268 - "Throwable"
-Cohesion: 0.29
+Cohesion: 0.31
 Nodes (10): PostDailyLeaderboard, SendBotMessage, SendProofForReview, SendReminder, Illuminate\Bus\Queueable, Illuminate\Contracts\Queue\ShouldQueue, Illuminate\Foundation\Bus\Dispatchable, Illuminate\Queue\InteractsWithQueue (+2 more)
 
 ### Community 269 - "Deploying to a Docker-only VM"
@@ -1056,25 +1085,25 @@ Nodes (3): captionFrom(), mediaParams(), replyMarkupJson()
 Cohesion: 0.12
 Nodes (16): اتصال گروه یا کانال, بررسی اثبات‌ها, تأیید اثبات با کمک هوش مصنوعی, تمام‌شدن اسلات‌های رایگان — خرید سکه, تنظیم نرخ‌ها و قیمت‌ها, حسابرسی هوش مصنوعی و بازنویسی‌ها, صفحه وضعیت مینی‌اپ, طراحی چالش (+8 more)
 
-### Community 278 - "AiOperationIdentity"
-Cohesion: 0.16
-Nodes (6): AiOperationIdentity, self, AiUsageOutcome, runSoleOperation(), quotaAccount(), quotaIdentity()
+### Community 278 - "BotUpdate"
+Cohesion: 0.21
+Nodes (3): normalizeUpdate(), BotUpdate, MessagingPlatform
 
 ### Community 279 - "استقرار روی VM فقط-داکر"
 Cohesion: 0.20
 Nodes (10): استقرار روی VM فقط-داکر, ۱. پیش‌نیازها, ۲. آماده‌سازی اولیه VM, ۳. لبه TLS, ۴. اولین استقرار, ۵. استقرار روزمره و بازگشت, ۶. ثبت وبهوک‌ها, ۷. پشتیبان‌گیری (+2 more)
 
-### Community 281 - "PruneProofMedia"
-Cohesion: 0.29
-Nodes (3): CarbonImmutable, PruneProofMedia, PruneProofMediaCommand
+### Community 281 - "Carbon\CarbonImmutable"
+Cohesion: 0.16
+Nodes (7): AiLimitPeriod, CarbonImmutable, PruneProofMedia, MiniAppSession, AiLimitWindow, Carbon\CarbonImmutable, anAiReviewSession()
 
 ### Community 282 - "Phase 19 Task 1: `/auth` stops shipping half a user"
 Cohesion: 0.29
 Nodes (7): Before starting, Code Rules, Explicitly Out of Scope, Goal, Phase 19 Task 1: `/auth` stops shipping half a user, Tests (Pest, required), What to Build
 
-### Community 284 - "MaterialiseChallengePeriods.php"
-Cohesion: 0.10
-Nodes (11): MaterialiseChallengePeriods, CarbonImmutable, PeriodType, ValidateChallengeStepDesign, Illuminate\Database\Eloquent\Collection, arrivesViaJoinLink(), givenJoinSlots(), joinableChallenge() (+3 more)
+### Community 284 - "ValidateChallengeStepDesign"
+Cohesion: 0.18
+Nodes (5): MaterialiseChallengePeriods, CarbonImmutable, PeriodType, MintJoinToken, ValidateChallengeStepDesign
 
 ### Community 286 - "Phase 17 Task 2: The creator receives the actual proof (simple flow)"
 Cohesion: 0.29
@@ -1092,13 +1121,13 @@ Nodes (5): Phase 15 — Scoring (addendum-5 §2.12), Task 1 — Scoring schema (
 Cohesion: 0.48
 Nodes (6): APP_ENV_FILE, compose(), fail(), log(), deploy.sh script, warn()
 
-### Community 295 - "MessagingPlatform.php"
-Cohesion: 0.07
-Nodes (15): botUrl(), channelUrl(), configKey(), linkBase(), SettingKey, requiredChannelSetting(), startLink(), getChatMember() (+7 more)
+### Community 295 - "MessengerPlatform.php"
+Cohesion: 0.10
+Nodes (10): getChatMember(), platform(), sendInvoice(), sendMessage(), sendPhoto(), sendVideo(), sendVoice(), ChatMemberSnapshot (+2 more)
 
 ### Community 297 - "BotCallback"
 Cohesion: 0.06
-Nodes (8): BotCallback, self, EntitlementType, handle(), ProofReviewNotifier, PaymentProvider, FailingCallbackHandler, RecordingCallbackHandler
+Nodes (15): BotCallback, self, CallbackRouter, CheckInCallback, CommandCallback, SessionStepCallback, WizardCallback, CommandRouter (+7 more)
 
 ### Community 298 - "Phase 12 — Documentation"
 Cohesion: 0.14
@@ -1140,13 +1169,9 @@ Nodes (10): Admin panel, AI-assisted proof approval, Challenges & periods, Creat
 Cohesion: 0.20
 Nodes (10): امتیازدهی, امکانات, انواع اثبات, تأیید اثبات با کمک هوش مصنوعی, دعوت‌ها و اقتصاد سکه, پرداخت — تلگرام استارز و پرداخت بله, پنل مدیر, چالش‌ها و دوره‌ها (+2 more)
 
-### Community 315 - "StartLanguageQuestionTest.php"
-Cohesion: 0.25
-Nodes (5): asksLanguageJoinable(), asksLanguageLedgerEntries(), asksLanguageSays(), asksLanguageTaps(), asksLanguageUser()
-
-### Community 316 - "CoinTransaction"
-Cohesion: 0.12
-Nodes (3): AdjustUserCoins, CoinTransactionReason, CoinTransaction
+### Community 313 - "MiniAppAuthTest.php"
+Cohesion: 0.29
+Nodes (8): InitDataSecretKey, Illuminate\Testing\TestResponse, aMiniAppSession(), exchangesInitData(), initData(), initDataSignedWith(), refusedExchanges(), fromEdge()
 
 ### Community 317 - "dev.sh"
 Cohesion: 0.73
@@ -1156,9 +1181,9 @@ Nodes (5): compose(), ensure_env(), ensure_up(), in_container(), dev.sh script
 Cohesion: 0.83
 Nodes (3): down(), getConnection(), up()
 
-### Community 320 - "StarPayment"
-Cohesion: 0.09
-Nodes (6): CoinTransactionReason, StarsInvoice, SweepAbandonedStarPayments, SweepAbandonedPaymentsCommand, StarPayment, anAgedPayment()
+### Community 320 - "PlatformRegistry"
+Cohesion: 0.07
+Nodes (10): CompleteStarsPayment, CoinTransactionReason, CreateBaleInvoice, CreateStarsInvoice, RefundStarsPayment, StarsInvoice, PlatformRegistry, StarPayment (+2 more)
 
 ### Community 325 - "Log"
 Cohesion: 0.33
@@ -1194,7 +1219,7 @@ Nodes (3): Phase 9 — Timed & stepped challenges, Task 1 — schema & design-ti
 
 ### Community 340 - "AiProviderConfig"
 Cohesion: 0.09
-Nodes (8): ExecuteAiProviderCallAction, AiUsageOutcome, RecordAiProviderFailover, AiProviderCallResult, AiProviderChain, self, AiProviderConfig, Laravel\Ai\Events\ProviderFailedOver
+Nodes (7): AiUsageOutcome, RecordAiProviderFailover, AiProviderCallResult, AiProviderChain, self, AiProviderConfig, Laravel\Ai\Events\ProviderFailedOver
 
 ### Community 341 - "Phase 19 Task 5: Check in from the Mini App, for every proof that is not media"
 Cohesion: 0.29
@@ -1208,21 +1233,17 @@ Nodes (7): Before starting, Code Rules, Explicitly Out of Scope, Goal, Phase 19 
 Cohesion: 0.29
 Nodes (7): Before starting, Code Rules, Explicitly Out of Scope, Goal, Phase 19 Task 7: Create — timed sessions and AI approval criteria, Tests (Pest, required), What to Build
 
-### Community 344 - "CheckInAwaitsReview"
-Cohesion: 0.21
-Nodes (5): CheckInAwaitsReview, CheckInSettled, AnnounceApprovedCheckIn, NotifyProofReviewer, Illuminate\Foundation\Events\Dispatchable
+### Community 344 - "CheckIn"
+Cohesion: 0.07
+Nodes (13): IssueCheckInPhrase, CheckInAwaitsReview, CheckInSettled, self, PhraseUnavailableException, ReviewQueueController, NotifyProofReviewer, CheckIn (+5 more)
 
-### Community 345 - "TelegramChatType.php"
-Cohesion: 0.20
-Nodes (4): fromForwardedChat(), self, self, WrongChatTypeException
+### Community 345 - "RuntimeException"
+Cohesion: 0.10
+Nodes (10): UpdateChallengeChatSettings, fromForwardedChat(), self, ChatLinkRefusedException, self, InsufficientCoinsException, self, WrongChatTypeException (+2 more)
 
 ### Community 346 - "Phase 19 Task 8: The creator reviews proofs from the Mini App"
 Cohesion: 0.29
 Nodes (7): Before starting, Code Rules, Explicitly Out of Scope, Goal, Phase 19 Task 8: The creator reviews proofs from the Mini App, Tests (Pest, required), What to Build
-
-### Community 347 - "ChatLinkRefusedException"
-Cohesion: 0.27
-Nodes (4): UpdateChallengeChatSettings, ChatLinkRefusedException, self, ChatLinkRefusal
 
 ### Community 348 - "Phase 17.1 — The live outage, and the button that could not be registered"
 Cohesion: 0.50
@@ -1241,7 +1262,7 @@ Cohesion: 0.36
 Nodes (3): CoinTransactionFactory, CoinTransactionReason, static
 
 ### Community 353 - "PaymentTransaction"
-Cohesion: 0.22
+Cohesion: 0.24
 Nodes (4): fromRail(), self, inquireTransaction(), PaymentTransaction
 
 ### Community 356 - "Phase 19 Task 9: The verdict retires the buttons it was given"
@@ -1252,36 +1273,48 @@ Nodes (7): Before starting, Code Rules, Explicitly Out of Scope, Goal, Phase 19 
 Cohesion: 0.29
 Nodes (7): Before starting, Code Rules, Explicitly Out of Scope, Goal, Phase 19 Task 2: The creator sees their own challenge, joined or not, Tests (Pest, required), What to Build
 
-### Community 358 - "Illuminate\Foundation\Http\FormRequest"
-Cohesion: 0.09
-Nodes (9): SecurityController, BaleWebhookRequest, LocaleUpdateRequest, AuthenticateRequest, PasswordUpdateRequest, TwoFactorAuthenticationRequest, WebhookRequest, Illuminate\Foundation\Http\FormRequest (+1 more)
+### Community 358 - "ChallengeResource.php"
+Cohesion: 0.19
+Nodes (4): AuthController, AuthenticateRequest, MiniAppUserResource, Illuminate\Http\Resources\Json\JsonResource
+
+### Community 359 - "SettingFactory"
+Cohesion: 0.40
+Nodes (3): SettingKey, static, SettingFactory
+
+### Community 363 - "SettleCheckIn"
+Cohesion: 0.20
+Nodes (4): ApplyAiVerdict, CheckInStatus, SettleCheckIn, AiApprovalGate
 
 ### Community 365 - "BotConversationFactory"
 Cohesion: 0.36
 Nodes (3): BotConversationFactory, ConversationState, static
 
-### Community 368 - "ChallengeChatLinkTest.php"
-Cohesion: 0.33
-Nodes (4): forwardsFromChat(), lastSentMessage(), sentMessages(), typesAtTheBot()
+### Community 366 - "ChallengeChat"
+Cohesion: 0.19
+Nodes (4): PostCheckInAnnouncement, AnnounceApprovedCheckIn, ChallengeChat, ChatLinkVerification
+
+### Community 368 - "post-create-project-cmd"
+Cohesion: 0.50
+Nodes (4): post-create-project-cmd, @php artisan key:generate --ansi, @php artisan migrate --graceful --ansi, @php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\
 
 ### Community 370 - "Phase 19 — The Mini App becomes a surface of its own"
-Cohesion: 0.67
-Nodes (3): Phase 19 — The Mini App becomes a surface of its own, Task 2 — The creator sees their own challenge, joined or not ✅, Task 4 — The bot offers the join the moment the challenge exists ✅
+Cohesion: 0.50
+Nodes (4): Phase 19 — The Mini App becomes a surface of its own, Task 2 — The creator sees their own challenge, joined or not ✅, Task 4 — The bot offers the join the moment the challenge exists ✅, Task 5 — Checking in from the Mini App, for every proof that is not media ✅
 
 ## Knowledge Gaps
-- **1345 isolated node(s):** `vendor/bin/sail`, `$schema`, `style`, `rsc`, `tsx` (+1340 more)
+- **1351 isolated node(s):** `vendor/bin/sail`, `$schema`, `style`, `rsc`, `tsx` (+1346 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **63 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **56 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `User` connect `User` to `TelegramUpdate`, `Illuminate\Database\Eloquent\Model`, `AiUsageReservation`, `SettingKey.php`, `ChallengePeriod`, `ProofType.php`, `Throwable`, `SubmitCheckIn Action`, `CoinTransactionReason.php`, `ChallengeFactory`, `Invite`, `AiProviderAccount`, `BotMessenger`, `ProcessTelegramUpdate.php`, `Illuminate\Http\Request`, `AiProviderRotationTest.php`, `CheckInSession`, `.receiveChoice`, `StarPaymentFactory`, `MaterialiseChallengePeriods.php`, `EntitlementType.php`, `MessagingPlatform.php`, `BotCallback`, `PeriodUnit`, `CheckIn`, `LinkChatFlow`, `ChallengesController.php`, `CoinLedger`, `Localization`, `Illuminate\Http\RedirectResponse`, `StartLanguageQuestionTest.php`, `CoinTransaction`, `Challenge`, `BotCommand`, `StarPayment`, `TelegramServiceProvider.php`, `Pest.php`, `EntitlementFactory`, `ChallengeParticipantFactory`, `TelegramChatType.php`, `ChatLinkRefusedException`, `Illuminate\Foundation\Testing\RefreshDatabase`, `ConversationState.php`, `BotConversation`, `UserFactory`, `CoinTransactionFactory`, `DatabaseSeeder.php`, `PlatformRegistry`, `.handle`, `BotConversationFactory`, `CheckInFactory`, `InviteFactory`, `ChallengeResource`, `PasswordValidationRules.php`, `Inertia\Response`?**
-  _High betweenness centrality (0.144) - this node is a cross-community bridge._
-- **Why does `Admin Panel` connect `SubmitCheckIn Action` to `useTranslation`, `FortifyServiceProvider`?**
-  _High betweenness centrality (0.111) - this node is a cross-community bridge._
-- **Why does `FortifyServiceProvider` connect `FortifyServiceProvider` to `SubmitCheckIn Action`?**
-  _High betweenness centrality (0.110) - this node is a cross-community bridge._
+- **Why does `User` connect `User` to `TelegramUpdate`, `Illuminate\Database\Eloquent\Relations\BelongsTo`, `AiUsageReservation`, `SessionAiReviewTest.php`, `ChallengePeriod`, `ProofType.php`, `Throwable`, `SubmitCheckIn Action`, `Illuminate\Database\Eloquent\Model`, `Carbon\CarbonImmutable`, `Invite`, `ChallengeFactory`, `BotMessenger`, `AiProviderAccount`, `SetLocale.php`, `AiProviderRotationTest.php`, `CheckInSession`, `CreateChallengeWizard`, `StarPaymentFactory`, `Challenge.php`, `MessengerPlatform.php`, `BotCallback`, `SubmitCheckIn`, `CheckInRejectedException`, `Settings`, `Illuminate\Support\Collection`, `Illuminate\Database\Eloquent\Factories\Factory`, `ChallengesController`, `CoinLedger`, `Telegram\Bot\Api`, `Localization`, `CheckInStatus.php`, `UserStats`, `AdjustUserCoins`, `Challenge`, `PlatformRegistry`, `BotCommand`, `TimedSessionBotTest.php`, `VerifyChannelMembership.php`, `Pest.php`, `EntitlementFactory`, `CheckIn`, `RuntimeException`, `SlotPurchaseCallback`, `Illuminate\Foundation\Testing\RefreshDatabase`, `ConversationState.php`, `BotConversation`, `UserFactory`, `CoinTransactionFactory`, `ChallengeResource.php`, `DatabaseSeeder.php`, `StarsPurchaseTest.php`, `ChannelGateException`, `BotConversationFactory`, `CheckInFactory`, `InviteFactory`, `ChallengeResource`, `Illuminate\Foundation\Http\FormRequest`, `ReviewProofWithAi`, `Illuminate\Http\Request`?**
+  _High betweenness centrality (0.143) - this node is a cross-community bridge._
+- **Why does `Admin Panel` connect `SubmitCheckIn Action` to `useTranslation`, `AppServiceProvider`?**
+  _High betweenness centrality (0.129) - this node is a cross-community bridge._
+- **Why does `AppSidebar()` connect `useTranslation` to `cn`, `SubmitCheckIn Action`, `index.ts`?**
+  _High betweenness centrality (0.128) - this node is a cross-community bridge._
 - **Are the 46 inferred relationships involving `User` (e.g. with `.handle()` and `.definition()`) actually correct?**
   _`User` has 46 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 29 inferred relationships involving `Challenge` (e.g. with `.handle()` and `.activateStartedChallenges()`) actually correct?**
@@ -1289,4 +1322,4 @@ _Questions this graph is uniquely positioned to answer:_
 - **Are the 7 inferred relationships involving `CheckIn` (e.g. with `.dueCheckIns()` and `.handle()`) actually correct?**
   _`CheckIn` has 7 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `vendor/bin/sail`, `$schema`, `style` to the rest of the system?**
-  _1345 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _1351 weakly-connected nodes found - possible documentation gaps or missing edges._
